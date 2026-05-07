@@ -32,10 +32,15 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private int fireSkillApCost = 2;
     [SerializeField] private ElementType fireSkillElement = ElementType.Fire;
 
+    [Header("Status Effect")]
+    [SerializeField] private int burnDamagePerTurn = 3;
+    [SerializeField] private int burnTurnDuration = 2;
+
     [Header("UI")]
     [SerializeField] private TMP_Text playerHpText;
     [SerializeField] private TMP_Text playerApText;
     [SerializeField] private TMP_Text enemyHpText;
+    [SerializeField] private TMP_Text enemyStatusText;
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button fireSkillButton;
@@ -131,6 +136,12 @@ public class BattleManager : MonoBehaviour
         SetActionButtonsInteractable(false);
         int damage = CalculateSkillDamage(enemy, skill);
         enemy.TakeDamage(damage);
+
+        if (skill.statusEffectType == StatusEffectType.Burn)
+        {
+            enemy.ApplyStatusEffect(StatusEffectType.Burn, burnTurnDuration);
+        }
+
         UpdateUI(BuildSkillMessage(skill, damage));
 
         if (enemy.IsDead())
@@ -145,6 +156,23 @@ public class BattleManager : MonoBehaviour
     private IEnumerator EnemyTurnRoutine()
     {
         currentState = BattleState.EnemyTurn;
+
+        if (enemy.HasStatusEffect(StatusEffectType.Burn))
+        {
+            enemy.TakeDamage(burnDamagePerTurn);
+            enemy.ReduceStatusTurn();
+            UpdateUI($"{enemy.characterName}가 화상으로 {burnDamagePerTurn} 피해를 받았습니다.");
+
+            if (enemy.IsDead())
+            {
+                yield return new WaitForSeconds(1.0f);
+                EndBattle(BattleState.Victory);
+                yield break;
+            }
+
+            yield return new WaitForSeconds(1.0f);
+        }
+
         yield return new WaitForSeconds(1.0f);
 
         player.TakeDamage(enemy.attackPower);
@@ -178,7 +206,7 @@ public class BattleManager : MonoBehaviour
 
         if (skill.HasStatusEffect())
         {
-            message += $" 추가 효과 후보: {skill.statusEffectType}";
+            message += $" 추가 효과: {skill.statusEffectType} {burnTurnDuration}턴";
         }
 
         return message;
@@ -214,6 +242,11 @@ public class BattleManager : MonoBehaviour
         if (enemyHpText != null)
         {
             enemyHpText.text = $"{enemy.characterName} HP: {enemy.currentHp}/{enemy.maxHp}";
+        }
+
+        if (enemyStatusText != null)
+        {
+            enemyStatusText.text = BuildEnemyStatusText();
         }
 
         if (messageText != null)
@@ -258,5 +291,15 @@ public class BattleManager : MonoBehaviour
         SetAttackButtonInteractable(player.HasEnoughAp(basicAttackSkill.apCost));
         SetFireSkillButtonInteractable(player.HasEnoughAp(fireSkill.apCost));
         SetEndTurnButtonInteractable(currentState == BattleState.PlayerTurn);
+    }
+
+    private string BuildEnemyStatusText()
+    {
+        if (enemy.currentStatusEffect == StatusEffectType.None)
+        {
+            return "Status: None";
+        }
+
+        return $"Status: {enemy.currentStatusEffect} ({enemy.statusTurnsRemaining}턴)";
     }
 }

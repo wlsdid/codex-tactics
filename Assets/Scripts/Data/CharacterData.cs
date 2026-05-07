@@ -13,6 +13,10 @@ public class CharacterData
     public int maxAp;
     public int currentAp;
 
+    [Header("Status Effect")]
+    public StatusEffectType currentStatusEffect;
+    public int statusTurnsRemaining;
+
     public CharacterData(string name, int hp, int attack)
     {
         characterName = name;
@@ -22,6 +26,8 @@ public class CharacterData
         weaknessElement = ElementType.None;
         maxAp = 0;
         currentAp = 0;
+        currentStatusEffect = StatusEffectType.None;
+        statusTurnsRemaining = 0;
     }
 
     public CharacterData(string name, int hp, int attack, ElementType weakness)
@@ -33,6 +39,8 @@ public class CharacterData
         weaknessElement = weakness;
         maxAp = 0;
         currentAp = 0;
+        currentStatusEffect = StatusEffectType.None;
+        statusTurnsRemaining = 0;
     }
 
     public CharacterData(string name, int hp, int attack, ElementType weakness, int ap)
@@ -44,6 +52,8 @@ public class CharacterData
         weaknessElement = weakness;
         maxAp = ap;
         currentAp = ap;
+        currentStatusEffect = StatusEffectType.None;
+        statusTurnsRemaining = 0;
     }
 
     public bool IsDead()
@@ -84,6 +94,35 @@ public class CharacterData
         if (currentAp > maxAp)
         {
             currentAp = maxAp;
+        }
+    }
+
+    public bool HasStatusEffect(StatusEffectType statusEffect)
+    {
+        return currentStatusEffect == statusEffect && statusTurnsRemaining > 0;
+    }
+
+    public void ApplyStatusEffect(StatusEffectType statusEffect, int turns)
+    {
+        currentStatusEffect = statusEffect;
+        statusTurnsRemaining = turns;
+    }
+
+    public void ReduceStatusTurn()
+    {
+        if (statusTurnsRemaining <= 0)
+        {
+            currentStatusEffect = StatusEffectType.None;
+            statusTurnsRemaining = 0;
+            return;
+        }
+
+        statusTurnsRemaining -= 1;
+
+        if (statusTurnsRemaining <= 0)
+        {
+            currentStatusEffect = StatusEffectType.None;
+            statusTurnsRemaining = 0;
         }
     }
 }
