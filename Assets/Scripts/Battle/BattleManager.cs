@@ -12,6 +12,8 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private string playerName = "Hero";
     [SerializeField] private int playerMaxHp = 100;
     [SerializeField] private int playerAttack = 20;
+    [SerializeField] private int playerMaxAp = 3;
+    [SerializeField] private int playerApRecoveryPerTurn = 1;
 
     [SerializeField] private string enemyName = "Slime";
     [SerializeField] private int enemyMaxHp = 80;
@@ -21,10 +23,12 @@ public class BattleManager : MonoBehaviour
     [Header("Player Skill")]
     [SerializeField] private string basicSkillName = "Slash";
     [SerializeField] private int basicSkillPower = 20;
+    [SerializeField] private int basicSkillApCost = 0;
     [SerializeField] private ElementType basicSkillElement = ElementType.Physical;
 
     [Header("UI")]
     [SerializeField] private TMP_Text playerHpText;
+    [SerializeField] private TMP_Text playerApText;
     [SerializeField] private TMP_Text enemyHpText;
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private Button attackButton;
@@ -42,9 +46,9 @@ public class BattleManager : MonoBehaviour
     {
         currentState = BattleState.Start;
 
-        player = new CharacterData(playerName, playerMaxHp, playerAttack);
+        player = new CharacterData(playerName, playerMaxHp, playerAttack, ElementType.None, playerMaxAp);
         enemy = new CharacterData(enemyName, enemyMaxHp, enemyAttack, enemyWeakness);
-        basicAttackSkill = new SkillData(basicSkillName, basicSkillPower, 0, basicSkillElement, StatusEffectType.None);
+        basicAttackSkill = new SkillData(basicSkillName, basicSkillPower, basicSkillApCost, basicSkillElement, StatusEffectType.None);
 
         if (attackButton != null)
         {
@@ -58,14 +62,21 @@ public class BattleManager : MonoBehaviour
     private void StartPlayerTurn()
     {
         currentState = BattleState.PlayerTurn;
-        SetAttackButtonInteractable(true);
-        UpdateUI("플레이어 턴: 공격을 선택하세요.");
+        player.RecoverAp(playerApRecoveryPerTurn);
+        SetAttackButtonInteractable(player.HasEnoughAp(basicAttackSkill.apCost));
+        UpdateUI($"플레이어 턴: AP {playerApRecoveryPerTurn} 회복. 행동을 선택하세요.");
     }
 
     public void OnClickAttackButton()
     {
         if (currentState != BattleState.PlayerTurn)
         {
+            return;
+        }
+
+        if (!player.SpendAp(basicAttackSkill.apCost))
+        {
+            UpdateUI($"AP가 부족합니다. 필요 AP: {basicAttackSkill.apCost}");
             return;
         }
 
@@ -133,6 +144,11 @@ public class BattleManager : MonoBehaviour
         if (playerHpText != null)
         {
             playerHpText.text = $"{player.characterName} HP: {player.currentHp}/{player.maxHp}";
+        }
+
+        if (playerApText != null)
+        {
+            playerApText.text = $"AP: {player.currentAp}/{player.maxAp}";
         }
 
         if (enemyHpText != null)
