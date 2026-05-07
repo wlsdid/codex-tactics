@@ -7,6 +7,7 @@ public class CharacterData
     public int maxHp;
     public int currentHp;
     public int attackPower;
+    public ElementType weaknessElement;
 
     public CharacterData(string name, int hp, int attack)
     {
@@ -14,6 +15,16 @@ public class CharacterData
         maxHp = hp;
         currentHp = hp;
         attackPower = attack;
+        weaknessElement = ElementType.None;
+    }
+
+    public CharacterData(string name, int hp, int attack, ElementType weakness)
+    {
+        characterName = name;
+        maxHp = hp;
+        currentHp = hp;
+        attackPower = attack;
+        weaknessElement = weakness;
     }
 
     public bool IsDead()

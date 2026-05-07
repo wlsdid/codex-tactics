@@ -16,6 +16,12 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private string enemyName = "Slime";
     [SerializeField] private int enemyMaxHp = 80;
     [SerializeField] private int enemyAttack = 15;
+    [SerializeField] private ElementType enemyWeakness = ElementType.Fire;
+
+    [Header("Player Skill")]
+    [SerializeField] private string basicSkillName = "Slash";
+    [SerializeField] private int basicSkillPower = 20;
+    [SerializeField] private ElementType basicSkillElement = ElementType.Physical;
 
     [Header("UI")]
     [SerializeField] private TMP_Text playerHpText;
@@ -25,6 +31,7 @@ public class BattleManager : MonoBehaviour
 
     private CharacterData player;
     private CharacterData enemy;
+    private SkillData basicAttackSkill;
 
     private void Start()
     {
@@ -36,7 +43,8 @@ public class BattleManager : MonoBehaviour
         currentState = BattleState.Start;
 
         player = new CharacterData(playerName, playerMaxHp, playerAttack);
-        enemy = new CharacterData(enemyName, enemyMaxHp, enemyAttack);
+        enemy = new CharacterData(enemyName, enemyMaxHp, enemyAttack, enemyWeakness);
+        basicAttackSkill = new SkillData(basicSkillName, basicSkillPower, 0, basicSkillElement, StatusEffectType.None);
 
         if (attackButton != null)
         {
@@ -62,8 +70,9 @@ public class BattleManager : MonoBehaviour
         }
 
         SetAttackButtonInteractable(false);
-        enemy.TakeDamage(player.attackPower);
-        UpdateUI($"{player.characterName}의 공격! {enemy.characterName}에게 {player.attackPower} 피해.");
+        int damage = CalculateSkillDamage(enemy, basicAttackSkill);
+        enemy.TakeDamage(damage);
+        UpdateUI($"{player.characterName}의 {basicAttackSkill.skillName}! {enemy.characterName}에게 {damage} 피해. ({basicAttackSkill.elementType})");
 
         if (enemy.IsDead())
         {
@@ -90,6 +99,18 @@ public class BattleManager : MonoBehaviour
 
         yield return new WaitForSeconds(1.0f);
         StartPlayerTurn();
+    }
+
+    private int CalculateSkillDamage(CharacterData target, SkillData skill)
+    {
+        int damage = skill.power;
+
+        if (skill.elementType != ElementType.None && skill.elementType == target.weaknessElement)
+        {
+            damage += 10;
+        }
+
+        return damage;
     }
 
     private void EndBattle(BattleState resultState)
