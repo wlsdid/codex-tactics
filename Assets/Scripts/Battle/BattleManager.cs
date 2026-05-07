@@ -39,6 +39,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button fireSkillButton;
+    [SerializeField] private Button endTurnButton;
 
     private CharacterData player;
     private CharacterData enemy;
@@ -69,6 +70,11 @@ public class BattleManager : MonoBehaviour
             fireSkillButton.onClick.AddListener(OnClickFireSkillButton);
         }
 
+        if (endTurnButton != null)
+        {
+            endTurnButton.onClick.AddListener(OnClickEndTurnButton);
+        }
+
         UpdateUI("전투 시작!");
         StartPlayerTurn();
     }
@@ -89,6 +95,23 @@ public class BattleManager : MonoBehaviour
     public void OnClickFireSkillButton()
     {
         UsePlayerSkill(fireSkill);
+    }
+
+    public void OnClickEndTurnButton()
+    {
+        EndPlayerTurn();
+    }
+
+    private void EndPlayerTurn()
+    {
+        if (currentState != BattleState.PlayerTurn)
+        {
+            return;
+        }
+
+        SetActionButtonsInteractable(false);
+        UpdateUI($"{player.characterName}가 행동하지 않고 턴을 넘겼습니다. 다음 턴에 AP를 더 모을 수 있습니다.");
+        StartCoroutine(EnemyTurnRoutine());
     }
 
     private void UsePlayerSkill(SkillData skill)
@@ -215,15 +238,25 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    private void SetEndTurnButtonInteractable(bool isInteractable)
+    {
+        if (endTurnButton != null)
+        {
+            endTurnButton.interactable = isInteractable;
+        }
+    }
+
     private void SetActionButtonsInteractable(bool isInteractable)
     {
         SetAttackButtonInteractable(isInteractable);
         SetFireSkillButtonInteractable(isInteractable);
+        SetEndTurnButtonInteractable(isInteractable);
     }
 
     private void UpdateActionButtons()
     {
         SetAttackButtonInteractable(player.HasEnoughAp(basicAttackSkill.apCost));
         SetFireSkillButtonInteractable(player.HasEnoughAp(fireSkill.apCost));
+        SetEndTurnButtonInteractable(currentState == BattleState.PlayerTurn);
     }
 }
