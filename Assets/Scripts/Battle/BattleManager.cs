@@ -26,16 +26,24 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private int basicSkillApCost = 0;
     [SerializeField] private ElementType basicSkillElement = ElementType.Physical;
 
+    [Header("Fire Skill")]
+    [SerializeField] private string fireSkillName = "Fire Bolt";
+    [SerializeField] private int fireSkillPower = 30;
+    [SerializeField] private int fireSkillApCost = 2;
+    [SerializeField] private ElementType fireSkillElement = ElementType.Fire;
+
     [Header("UI")]
     [SerializeField] private TMP_Text playerHpText;
     [SerializeField] private TMP_Text playerApText;
     [SerializeField] private TMP_Text enemyHpText;
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private Button attackButton;
+    [SerializeField] private Button fireSkillButton;
 
     private CharacterData player;
     private CharacterData enemy;
     private SkillData basicAttackSkill;
+    private SkillData fireSkill;
 
     private void Start()
     {
@@ -49,10 +57,16 @@ public class BattleManager : MonoBehaviour
         player = new CharacterData(playerName, playerMaxHp, playerAttack, ElementType.None, playerMaxAp);
         enemy = new CharacterData(enemyName, enemyMaxHp, enemyAttack, enemyWeakness);
         basicAttackSkill = new SkillData(basicSkillName, basicSkillPower, basicSkillApCost, basicSkillElement, StatusEffectType.None);
+        fireSkill = new SkillData(fireSkillName, fireSkillPower, fireSkillApCost, fireSkillElement, StatusEffectType.Burn);
 
         if (attackButton != null)
         {
             attackButton.onClick.AddListener(OnClickAttackButton);
+        }
+
+        if (fireSkillButton != null)
+        {
+            fireSkillButton.onClick.AddListener(OnClickFireSkillButton);
         }
 
         UpdateUI("전투 시작!");
@@ -63,27 +77,38 @@ public class BattleManager : MonoBehaviour
     {
         currentState = BattleState.PlayerTurn;
         player.RecoverAp(playerApRecoveryPerTurn);
-        SetAttackButtonInteractable(player.HasEnoughAp(basicAttackSkill.apCost));
+        UpdateActionButtons();
         UpdateUI($"플레이어 턴: AP {playerApRecoveryPerTurn} 회복. 행동을 선택하세요.");
     }
 
     public void OnClickAttackButton()
+    {
+        UsePlayerSkill(basicAttackSkill);
+    }
+
+    public void OnClickFireSkillButton()
+    {
+        UsePlayerSkill(fireSkill);
+    }
+
+    private void UsePlayerSkill(SkillData skill)
     {
         if (currentState != BattleState.PlayerTurn)
         {
             return;
         }
 
-        if (!player.SpendAp(basicAttackSkill.apCost))
+        if (!player.SpendAp(skill.apCost))
         {
-            UpdateUI($"AP가 부족합니다. 필요 AP: {basicAttackSkill.apCost}");
+            UpdateUI($"AP가 부족합니다. {skill.skillName} 필요 AP: {skill.apCost}");
+            UpdateActionButtons();
             return;
         }
 
-        SetAttackButtonInteractable(false);
-        int damage = CalculateSkillDamage(enemy, basicAttackSkill);
+        SetActionButtonsInteractable(false);
+        int damage = CalculateSkillDamage(enemy, skill);
         enemy.TakeDamage(damage);
-        UpdateUI($"{player.characterName}의 {basicAttackSkill.skillName}! {enemy.characterName}에게 {damage} 피해. ({basicAttackSkill.elementType})");
+        UpdateUI(BuildSkillMessage(skill, damage));
 
         if (enemy.IsDead())
         {
@@ -124,10 +149,22 @@ public class BattleManager : MonoBehaviour
         return damage;
     }
 
+    private string BuildSkillMessage(SkillData skill, int damage)
+    {
+        string message = $"{player.characterName}의 {skill.skillName}! {enemy.characterName}에게 {damage} 피해. ({skill.elementType})";
+
+        if (skill.HasStatusEffect())
+        {
+            message += $" 추가 효과 후보: {skill.statusEffectType}";
+        }
+
+        return message;
+    }
+
     private void EndBattle(BattleState resultState)
     {
         currentState = resultState;
-        SetAttackButtonInteractable(false);
+        SetActionButtonsInteractable(false);
 
         if (resultState == BattleState.Victory)
         {
@@ -168,5 +205,25 @@ public class BattleManager : MonoBehaviour
         {
             attackButton.interactable = isInteractable;
         }
+    }
+
+    private void SetFireSkillButtonInteractable(bool isInteractable)
+    {
+        if (fireSkillButton != null)
+        {
+            fireSkillButton.interactable = isInteractable;
+        }
+    }
+
+    private void SetActionButtonsInteractable(bool isInteractable)
+    {
+        SetAttackButtonInteractable(isInteractable);
+        SetFireSkillButtonInteractable(isInteractable);
+    }
+
+    private void UpdateActionButtons()
+    {
+        SetAttackButtonInteractable(player.HasEnoughAp(basicAttackSkill.apCost));
+        SetFireSkillButtonInteractable(player.HasEnoughAp(fireSkill.apCost));
     }
 }
