@@ -1,6 +1,22 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-11 BattleResultEvaluator Split
+## Latest autonomous run — 2026-05-11 Portfolio Showcase Draft
+
+Completed:
+- Added `Docs/PortfolioShowcaseDraft.md` to start turning the working prototype into portfolio explanation material.
+- Summarized the playable loop, current systems, relevant files, automated validation evidence, screenshot/GIF targets, and a short portfolio explanation draft.
+- Linked the showcase draft from `README.md`.
+- Added a devlog and study note for the showcase documentation step.
+
+Verification done:
+- Ran documentation token checks, trailing whitespace/final newline checks, and link/reference checks for the new showcase draft.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/` when the user can open the editor visually.
+2. Add captured media links to README and the showcase draft.
+3. Consider a small title/menu scene later after the battle loop is visually captured.
+
+## Previous autonomous run — 2026-05-11 BattleResultEvaluator Split
 
 Completed:
 - Inspected the result summary flow after adding the `Pace` label.
