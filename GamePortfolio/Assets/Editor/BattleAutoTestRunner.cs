@@ -46,6 +46,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Enemy status starts as None", battleManager.DebugEnemyStatusText == "Status: None");
         AppendCheck(ref passed, ref report, "Enemy intent starts with normal attack preview", battleManager.DebugEnemyIntentText == "Next Enemy: Normal Attack (15)");
         AppendCheck(ref passed, ref report, "Skill help explains Attack, Fire Skill, Guard, and readable enemy pattern values", battleManager.DebugSkillHelpText.Contains("Slash: 20 power, 0 AP") && battleManager.DebugSkillHelpText.Contains("Fire Bolt: 30 power, 2 AP") && battleManager.DebugSkillHelpText.Contains("Guard: reduce next enemy attack") && battleManager.DebugSkillHelpText.Contains("Normal attack: 15 damage") && battleManager.DebugSkillHelpText.Contains("Heavy Slam: 30 damage every 3rd enemy turn"));
+        AppendCheck(ref passed, ref report, "Battle log has a readable Recent Actions heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions"));
         AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("1. Player Turn: recovered 1 AP. Choose an action."));
 
         battleManager.OnClickFireSkillButton();
@@ -57,6 +58,7 @@ public static class BattleAutoTestRunner
         battleManager.DebugStartBattleForTest();
         AppendCheck(ref passed, ref report, "Restart resets Player AP bar to full", battleManager.DebugPlayerApBarValue == 3f && battleManager.DebugPlayerApBarMaxValue == 3f);
         AppendCheck(ref passed, ref report, "Restart resets damage, guard, and skill counters", battleManager.DebugTotalDamageDealt == 0 && battleManager.DebugTotalDamageTaken == 0 && battleManager.DebugGuardUseCount == 0 && battleManager.DebugSkillsUsedCount == 0);
+        AppendCheck(ref passed, ref report, "Restart keeps the readable battle log heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions") && battleManager.DebugBattleLogText.Contains("1. Player Turn"));
 
         battleManager.OnClickGuardButton();
         AppendCheck(ref passed, ref report, "Player status shows Guarding before enemy attack", battleManager.DebugPlayerStatusText == "Status: Guarding");

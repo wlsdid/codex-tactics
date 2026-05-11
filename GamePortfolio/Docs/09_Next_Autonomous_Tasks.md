@@ -1,6 +1,27 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-11 Battle Guide Hint
+## Latest autonomous run — 2026-05-11 Battle Log Readability
+
+Completed:
+- Improved the existing battle log instead of adding another result metric.
+- Added a `Recent Actions` heading and empty-state text in `BattleManager` so the log reads like a dedicated recent-action area.
+- Updated the generated battle test scene builder to create a dark `Battle Log Panel`, title text, and a clearer log text area.
+- Updated scene validation and battle logic auto-test expectations for the readable battle log behavior.
+- Updated README, manual validation docs, devlog, and study note.
+
+Verification done:
+- Ran source/documentation whitespace checks, C# brace checks, and `git diff --check`.
+- Ran Unity 6000.4.6f1 batch compile with no C# compiler errors found in log.
+- Regenerated `Assets/Scenes/BattleScene.unity` through `Create Battle Test Scene` in Unity batch mode.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/`, focusing on the Battle Guide, Recent Actions log, and result summary.
+2. Add captured media links to README and the showcase draft.
+3. Keep the next code change small; avoid more result metrics until the current UI is visually reviewed.
+
+## Previous autonomous run — 2026-05-11 Battle Guide Hint
 
 Completed:
 - Added a visible `Battle Guide Text` label to the generated battle test scene.

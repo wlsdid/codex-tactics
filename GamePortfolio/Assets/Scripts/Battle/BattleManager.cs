@@ -501,7 +501,13 @@ public class BattleManager : MonoBehaviour
     {
         if (battleLogText != null)
         {
-            battleLogText.text = string.Join("\n", battleLogEntries);
+            if (battleLogEntries.Count == 0)
+            {
+                battleLogText.text = "Recent Actions\nNo actions yet.";
+                return;
+            }
+
+            battleLogText.text = "Recent Actions\n" + string.Join("\n", battleLogEntries);
         }
     }
 

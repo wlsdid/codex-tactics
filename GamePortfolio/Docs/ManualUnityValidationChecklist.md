@@ -40,6 +40,7 @@ Press the top-center Unity `▶ Play` button.
 - [ ] Enemy intent shows `Next Enemy: Normal Attack (15)`.
 - [ ] Retry button is hidden.
 - [ ] Result summary panel is hidden.
+- [ ] Battle log area shows a `Recent Actions` heading and readable dark panel.
 
 ## 4. Fire Skill / Burn check
 
@@ -47,7 +48,7 @@ Press the top-center Unity `▶ Play` button.
 - [ ] AP decreases from `3/3` to `1/3`.
 - [ ] Slime HP decreases by Fire weakness damage.
 - [ ] Enemy status shows `Status: Burn (2 turns)`.
-- [ ] Battle log records the Fire Skill action.
+- [ ] Battle log records the Fire Skill action under the `Recent Actions` heading.
 
 ## 5. Guard check
 
@@ -58,13 +59,13 @@ Restart the battle if needed, then test Guard.
 - [ ] Resolve the next enemy attack.
 - [ ] Guarded normal attack deals reduced damage, expected `Hero HP: 93/100` for the first normal hit.
 - [ ] Player status returns to `Status: Ready` after Guard is consumed.
-- [ ] Battle log records the Guard action and guarded hit.
+- [ ] Battle log records the Guard action and guarded hit in order.
 
 ## 6. Enemy intent / heavy attack check
 
 - [ ] Advance enemy turns until the preview shows `Next Enemy: Heavy Slam (30)`.
 - [ ] Confirm the 3rd enemy turn uses `Heavy Slam`.
-- [ ] Confirm the battle log records the strong attack.
+- [ ] Confirm the battle log records the strong attack without mixing into the result summary panel.
 
 ## 7. Result summary check
 
@@ -93,7 +94,9 @@ Finish the battle by Victory or Defeat.
 - [ ] Enemy intent resets to `Next Enemy: Normal Attack (15)`.
 - [ ] Result summary text is cleared.
 - [ ] Result summary panel is hidden.
+- [ ] Battle log area shows a `Recent Actions` heading and readable dark panel.
 - [ ] Retry button is hidden again.
+- [ ] Battle log returns to the new battle start/recent-action flow.
 
 ## 9. Capture readiness
 

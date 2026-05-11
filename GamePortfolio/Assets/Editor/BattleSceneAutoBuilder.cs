@@ -53,9 +53,14 @@ public static class BattleSceneAutoBuilder
         resultSummaryText.fontSize = 20;
         resultSummaryText.color = new Color(1.0f, 0.92f, 0.58f);
         resultSummaryText.gameObject.SetActive(false);
-        TMP_Text battleLogText = CreateText(canvas.transform, "Battle Log Text", "Battle Log", new Vector2(0, -220), new Vector2(900, 150), TextAlignmentOptions.TopLeft);
+        Image battleLogPanel = CreatePanel(canvas.transform, "Battle Log Panel", new Vector2(0, -245), new Vector2(940, 150), new Color(0.05f, 0.06f, 0.09f, 0.78f));
+        TMP_Text battleLogTitleText = CreateText(canvas.transform, "Battle Log Title Text", "Recent Actions", new Vector2(0, -185), new Vector2(900, 30), TextAlignmentOptions.Left);
+        battleLogTitleText.fontSize = 20;
+        battleLogTitleText.color = new Color(0.96f, 0.92f, 0.68f);
+        TMP_Text battleLogText = CreateText(canvas.transform, "Battle Log Text", "Recent Actions\nNo actions yet.", new Vector2(0, -255), new Vector2(900, 105), TextAlignmentOptions.TopLeft);
         battleLogText.fontSize = 20;
         battleLogText.color = new Color(0.82f, 0.86f, 0.95f);
+        battleLogPanel.raycastTarget = false;
 
         Button attackButton = CreateButton(canvas.transform, "Attack Button", "Attack", new Vector2(-330, 85), new Vector2(180, 65));
         Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire Skill", new Vector2(-110, 85), new Vector2(180, 65));
@@ -139,6 +144,9 @@ public static class BattleSceneAutoBuilder
         TMP_Text skillHelpText = FindText("Skill Help Text");
         TMP_Text enemyStatusText = FindText("Enemy Status Text");
         TMP_Text enemyIntentText = FindText("Enemy Intent Text");
+        TMP_Text battleLogTitleText = FindText("Battle Log Title Text");
+        TMP_Text battleLogText = FindText("Battle Log Text");
+        Image battleLogPanel = FindImage("Battle Log Panel");
         TMP_Text resultSummaryText = FindTextIncludingInactive("Result Summary Text");
         Image resultSummaryPanel = FindImageIncludingInactive("Result Summary Panel");
 
@@ -148,6 +156,11 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
         AppendCheck(ref passed, ref report, "Enemy Intent text exists", enemyIntentText != null);
+        AppendCheck(ref passed, ref report, "Battle Log title exists", battleLogTitleText != null);
+        AppendCheck(ref passed, ref report, "Battle Log text exists", battleLogText != null);
+        AppendCheck(ref passed, ref report, "Battle Log panel exists", battleLogPanel != null);
+        AppendCheck(ref passed, ref report, "Battle Log panel is readable", IsBattleLogPanelLikelyConfigured(battleLogPanel));
+        AppendCheck(ref passed, ref report, "Battle Log starts with recent-actions placeholder", IsBattleLogTextLikelyConfigured(battleLogText));
         AppendCheck(ref passed, ref report, "Result Summary text exists", resultSummaryText != null);
         AppendCheck(ref passed, ref report, "Result Summary panel exists", resultSummaryPanel != null);
         AppendCheck(ref passed, ref report, "Result Summary panel is configured but initially hidden", IsPanelLikelyConfigured(resultSummaryPanel) && resultSummaryPanel != null && !resultSummaryPanel.gameObject.activeSelf);
@@ -228,6 +241,12 @@ public static class BattleSceneAutoBuilder
         return sliderObject != null ? sliderObject.GetComponent<Slider>() : null;
     }
 
+    private static Image FindImage(string objectName)
+    {
+        GameObject imageObject = GameObject.Find(objectName);
+        return imageObject != null ? imageObject.GetComponent<Image>() : null;
+    }
+
     private static TMP_Text FindTextIncludingInactive(string objectName)
     {
         TMP_Text[] texts = Resources.FindObjectsOfTypeAll<TMP_Text>();
@@ -301,6 +320,17 @@ public static class BattleSceneAutoBuilder
         return rectTransform != null && rectTransform.sizeDelta.x >= 900f && rectTransform.sizeDelta.y >= 100f && panelImage.color.a > 0.5f;
     }
 
+    private static bool IsBattleLogPanelLikelyConfigured(Image panelImage)
+    {
+        if (panelImage == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = panelImage.GetComponent<RectTransform>();
+        return rectTransform != null && rectTransform.sizeDelta.x >= 900f && rectTransform.sizeDelta.y >= 140f && panelImage.color.a > 0.5f;
+    }
+
     private static bool IsBattleGuideTextLikelyConfigured(TMP_Text guideText)
     {
         if (guideText == null)
@@ -318,6 +348,21 @@ public static class BattleSceneAutoBuilder
             && text.Contains("Guard")
             && text.Contains("Enemy Intent")
             && text.Contains("Retry");
+    }
+
+    private static bool IsBattleLogTextLikelyConfigured(TMP_Text logText)
+    {
+        if (logText == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = logText.GetComponent<RectTransform>();
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= 850f
+            && rectTransform.sizeDelta.y >= 100f
+            && logText.text.Contains("Recent Actions")
+            && logText.text.Contains("No actions yet.");
     }
 
     private static bool HasObjectReference(SerializedObject serializedObject, string propertyName)
