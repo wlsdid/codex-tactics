@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-11 Stage Encounter Flow
+## Latest autonomous run — 2026-05-11 Stage Objective UI
+
+Completed:
+- Added a separate Stage Objective text line under the stage label.
+- `StageData` now builds an objective string such as `Objective: Defeat Slime Scout`.
+- `BattleManager` updates the objective during active encounters, first Victory, boss encounter start, Defeat, and final clear.
+- Updated the generated scene builder, scene validator, and battle logic auto-test expectations for objective UI linkage and stage-flow behavior.
+- Updated README, battle state docs, balance notes, manual validation guide/checklist, devlog, and study note.
+
+Verification done:
+- Ran source/documentation whitespace and final-newline checks: PASS.
+- Ran C# brace-count check: PASS.
+- Ran `git diff --check`: PASS.
+- Ran Unity 6000.4.6f1 batch compile with exit code 0 and no compiler-error grep output.
+- Regenerated `Assets/Scenes/BattleScene.unity` through `Create Battle Test Scene` in Unity batch mode.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/`, now including the new objective line at Stage 1-1, Stage 1-2, and Final Clear.
+2. Add captured media links to README and the showcase draft.
+3. After visual capture, consider a small title/start screen or a third encounter only if the current stage-flow UI is readable.
+
+## Previous autonomous run — 2026-05-11 Stage Encounter Flow
 
 Completed:
 - Started moving from a single battle prototype toward a stage-based vertical slice.

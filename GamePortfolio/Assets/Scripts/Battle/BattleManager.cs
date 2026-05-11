@@ -61,6 +61,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TMP_Text enemyStatusText;
     [SerializeField] private TMP_Text enemyIntentText;
     [SerializeField] private TMP_Text stageText;
+    [SerializeField] private TMP_Text stageObjectiveText;
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private TMP_Text skillHelpText;
     [SerializeField] private TMP_Text battleLogText;
@@ -104,6 +105,7 @@ public class BattleManager : MonoBehaviour
     public string DebugEnemyStatusText => enemyStatusText != null ? enemyStatusText.text : "";
     public string DebugEnemyIntentText => enemyIntentText != null ? enemyIntentText.text : "";
     public string DebugStageText => stageText != null ? stageText.text : "";
+    public string DebugStageObjectiveText => stageObjectiveText != null ? stageObjectiveText.text : "";
     public bool DebugRetryButtonVisible => retryButton != null && retryButton.gameObject.activeSelf;
     public bool DebugRetryButtonInteractable => retryButton != null && retryButton.interactable;
     public bool DebugContinueButtonVisible => continueButton != null && continueButton.gameObject.activeSelf;
@@ -502,6 +504,11 @@ public class BattleManager : MonoBehaviour
             stageText.text = BuildStageText();
         }
 
+        if (stageObjectiveText != null)
+        {
+            stageObjectiveText.text = BuildStageObjectiveText();
+        }
+
         if (messageText != null)
         {
             messageText.text = message;
@@ -764,6 +771,32 @@ public class BattleManager : MonoBehaviour
     {
         StageData currentStage = GetCurrentStageData();
         return currentStage != null ? currentStage.BuildDisplayName() : "Stage: Unknown";
+    }
+
+    private string BuildStageObjectiveText()
+    {
+        StageData currentStage = GetCurrentStageData();
+        if (currentStage == null)
+        {
+            return "Objective: Unknown";
+        }
+
+        if (currentState == BattleState.Victory)
+        {
+            if (HasNextStage())
+            {
+                return $"Objective Complete: {currentStage.BuildDisplayName()} | Continue to next encounter";
+            }
+
+            return "Objective Complete: Stage 1 cleared";
+        }
+
+        if (currentState == BattleState.Defeat)
+        {
+            return $"Objective Failed: Retry {currentStage.BuildDisplayName()}";
+        }
+
+        return currentStage.BuildObjectiveText();
     }
 
     private void EnsureEnemyPattern()

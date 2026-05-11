@@ -12,6 +12,11 @@ public class StageData
         return $"{stageName}: {encounterName}";
     }
 
+    public string BuildObjectiveText()
+    {
+        return $"Objective: Defeat {encounterName}";
+    }
+
     public static StageData CreateStage1Normal()
     {
         return new StageData

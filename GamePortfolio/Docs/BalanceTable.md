@@ -16,8 +16,8 @@ This document records the current prototype numbers and the design reason behind
 
 | Encounter | Enemy | HP | Weakness | Pattern | Design note |
 | --- | --- | ---: | --- | --- | --- |
-| Stage 1-1: Slime Scout | Slime | 80 | Fire | Normal Attack 15, Heavy Slam 30 every 3rd enemy turn | Short normal encounter that teaches Fire weakness, Guard, and Enemy Intent. |
-| Stage 1-2: Slime King | Slime King | 140 | Fire | Royal Slam 36 every enemy turn | Stronger boss-style encounter used to prove the prototype can advance beyond one battle. |
+| Stage 1-1: Slime Scout | Slime | 80 | Fire | Normal Attack 15, Heavy Slam 30 every 3rd enemy turn | Short normal encounter that teaches Fire weakness, Guard, Enemy Intent, and the first visible objective. |
+| Stage 1-2: Slime King | Slime King | 140 | Fire | Royal Slam 36 every enemy turn | Stronger boss-style encounter used to prove the prototype can advance beyond one battle and update the objective label. |
 
 ## Player Actions
 

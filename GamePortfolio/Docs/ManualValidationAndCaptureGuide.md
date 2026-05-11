@@ -29,15 +29,15 @@ Press the top-center `Play` button, then check this sequence:
 
 | Step | Action | What to capture |
 | --- | --- | --- |
-| 1 | Start battle | Stage label `Stage 1-1: Slime Scout`, Battle Guide with Attack/Fire Skill/Burn/Guard/Enemy Intent/Continue/Retry hints, full HP/AP bars, `100%` resource labels, `Status: Ready`, `Next Enemy: Normal Attack (15)`, and the `Recent Actions` log panel |
+| 1 | Start battle | Stage label `Stage 1-1: Slime Scout`, objective `Objective: Defeat Slime Scout`, Battle Guide with Attack/Fire Skill/Burn/Guard/Enemy Intent/Continue/Retry hints, full HP/AP bars, `100%` resource labels, `Status: Ready`, `Next Enemy: Normal Attack (15)`, and the `Recent Actions` log panel |
 | 2 | Click `Fire Skill` | AP decreases from `3/3 (100%)` to `1/3 (33%)`, enemy HP shows `40/80 (50%)`, enemy gets Burn, and the action appears in the `Recent Actions` log |
 | 3 | Restart or continue test | Prepare a Guard example |
 | 4 | Click `Guard` | Player status changes to `Status: Guarding` |
 | 5 | Resolve enemy attack | Guarded damage appears and status returns to `Status: Ready` |
-| 6 | Reach Victory or Defeat | Result panel appears with compact grouped lines: `Damage: dealt ..., taken ...`, `Choices: Guard ..., Skills ...`, `Pace: ... | Survival: ...`, `Rank: ... | Reward: ...G`, plus `Tip` and last enemy pattern |
-| 7 | Click `Continue` after first Victory | Stage changes to `Stage 1-2: Slime King`, boss HP starts at `140/140 (100%)`, and enemy intent previews `Royal Slam (36)` |
-| 8 | Clear the boss | Final Clear message appears and Continue is hidden |
-| 9 | Click `Retry` | Result panel disappears and the current encounter HP/AP/status reset |
+| 6 | Reach Victory or Defeat | Result panel appears with compact grouped lines: `Damage: dealt ..., taken ...`, `Choices: Guard ..., Skills ...`, `Pace: ... | Survival: ...`, `Rank: ... | Reward: ...G`, plus `Tip` and last enemy pattern; first Victory objective becomes `Objective Complete: Stage 1-1: Slime Scout | Continue to next encounter` |
+| 7 | Click `Continue` after first Victory | Stage changes to `Stage 1-2: Slime King`, objective becomes `Objective: Defeat Slime King`, boss HP starts at `140/140 (100%)`, and enemy intent previews `Royal Slam (36)` |
+| 8 | Clear the boss | Final Clear message appears, objective becomes `Objective Complete: Stage 1 cleared`, and Continue is hidden |
+| 9 | Click `Retry` | Result panel disappears and the current encounter HP/AP/status/objective reset |
 
 ## 4. Screenshot list for README
 

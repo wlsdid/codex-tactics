@@ -36,6 +36,7 @@ Press the top-center Unity `▶ Play` button.
 - [ ] Battle Guide text is visible near the top of the battle UI.
 - [ ] Battle Guide mentions `Attack`, `Fire Skill`, `Burn`, `Guard`, `Enemy Intent`, `Continue`, and `Retry`.
 - [ ] Stage text shows `Stage 1-1: Slime Scout`.
+- [ ] Stage objective text shows `Objective: Defeat Slime Scout`.
 - [ ] Player status shows `Status: Ready`.
 - [ ] Enemy status shows `Status: None`.
 - [ ] Enemy intent shows `Next Enemy: Normal Attack (15)`.
@@ -90,12 +91,15 @@ Finish the battle by Victory or Defeat.
 
 - [ ] Win the Stage 1-1 Slime Scout encounter.
 - [ ] Confirm `Continue` is visible and interactable after Victory.
+- [ ] Confirm stage objective changes to `Objective Complete: Stage 1-1: Slime Scout | Continue to next encounter`.
 - [ ] Click `Continue`.
 - [ ] Stage text changes to `Stage 1-2: Slime King`.
+- [ ] Stage objective changes to `Objective: Defeat Slime King`.
 - [ ] Boss HP starts at `Slime King HP: 140/140 (100%)`.
 - [ ] Boss intent starts at `Next Enemy: Royal Slam (36)`.
 - [ ] Win the boss encounter.
 - [ ] Final message shows `Final Clear! Stage 1 completed.`.
+- [ ] Stage objective changes to `Objective Complete: Stage 1 cleared`.
 - [ ] Continue button is hidden after the final clear.
 
 ## 9. Retry reset check

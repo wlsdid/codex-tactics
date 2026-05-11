@@ -22,6 +22,7 @@ Battle data is reset for the current stage encounter:
 
 - Current `StageData` / `EnemyData` values are loaded
 - Stage label
+- Stage objective label
 - Player HP/AP
 - Enemy HP
 - Player/Enemy HP bars
@@ -79,7 +80,7 @@ The Enemy Intent text previews the next enemy action from `enemyTurnCount + 1`:
 - `Defeat`: player HP reaches 0
 
 All action buttons are disabled when the battle ends.
-The retry button is shown for both Victory and Defeat. If the current Victory is not the final encounter, the continue button is also shown and advances to the next `StageData` entry. If the last encounter is cleared, Continue stays hidden and the message becomes `Final Clear! Stage 1 completed.` A compact result summary appears with:
+The retry button is shown for both Victory and Defeat. If the current Victory is not the final encounter, the continue button is also shown and advances to the next `StageData` entry. The stage objective label changes from `Objective: Defeat ...` to `Objective Complete: ... | Continue to next encounter`. If the last encounter is cleared, Continue stays hidden, the message becomes `Final Clear! Stage 1 completed.`, and the objective label becomes `Objective Complete: Stage 1 cleared`. A compact result summary appears with:
 
 `BattleResultData.cs` contains the values used by the summary. `BattleResultEvaluator.cs` owns result evaluation rules such as pace, rank, reward, tip, and last enemy pattern labels. `BattleResultPresenter.cs` owns the final summary text formatting. `BattleManager` builds the data object through the evaluator, then passes it to the presenter. This keeps result metrics grouped in one place while keeping evaluation rules and display text in separate classes as the combat report grows.
 
