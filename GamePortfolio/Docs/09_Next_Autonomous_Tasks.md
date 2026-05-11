@@ -1,6 +1,27 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-11 Result Pace Label
+## Latest autonomous run — 2026-05-11 BattleResultEvaluator Split
+
+Completed:
+- Inspected the result summary flow after adding the `Pace` label.
+- Added `Assets/Scripts/Battle/BattleResultEvaluator.cs` for result evaluation rules.
+- Moved rank, pace, reward, result tip, and last enemy pattern label logic out of `BattleManager`.
+- Updated `BattleManager.BuildBattleResultData()` to call the evaluator before filling `BattleResultData`.
+- Added a direct editor auto-test expectation for `BattleResultEvaluator` output.
+- Updated README, battle state docs, balance table, devlog, and study note.
+
+Verification done:
+- Ran source/documentation token checks, brace checks, trailing whitespace/final newline checks, and code/document token checks.
+- Ran Unity 6000.4.6f1 batch compile with no C# compiler errors found in log.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Keep future code changes small; the next useful step is manual Unity Play Mode screenshot/GIF capture.
+2. Add localization only after the result UI text is manually reviewed.
+3. Consider a small title/menu scene later after the battle loop is visually captured.
+
+## Previous autonomous run — 2026-05-11 Result Pace Label
 
 Completed:
 - Inspected the current result summary after the Unity project root was standardized under `GamePortfolio/`.

@@ -579,9 +579,9 @@ public class BattleManager : MonoBehaviour
     {
         EnsureEnemyPattern();
 
-        string rank = BuildBattleRank(resultState);
-        string lastEnemyPattern = BuildLastEnemyPatternLabel();
-        string paceLabel = BuildPaceLabel(resultState);
+        string rank = BattleResultEvaluator.BuildRank(resultState, enemyTurnCount, totalDamageTaken);
+        string lastEnemyPattern = BattleResultEvaluator.BuildLastEnemyPatternLabel(enemyTurnCount, enemyPattern);
+        string paceLabel = BattleResultEvaluator.BuildPaceLabel(resultState, enemyTurnCount);
 
         return new BattleResultData
         {
@@ -601,101 +601,12 @@ public class BattleManager : MonoBehaviour
             skillsUsed = skillsUsedCount,
             paceLabel = paceLabel,
             rank = rank,
-            rewardGold = BuildRewardGold(rank),
-            resultTip = BuildResultTip(rank, lastEnemyPattern),
+            rewardGold = BattleResultEvaluator.BuildRewardGold(rank, sRankRewardGold, aRankRewardGold, bRankRewardGold, defeatRewardGold),
+            resultTip = BattleResultEvaluator.BuildResultTip(rank, lastEnemyPattern, enemyPattern.strongAttackName),
             lastEnemyPattern = lastEnemyPattern
         };
     }
 
-    private string BuildBattleRank(BattleState resultState)
-    {
-        if (resultState != BattleState.Victory)
-        {
-            return "C";
-        }
-
-        if (enemyTurnCount <= 1 && totalDamageTaken == 0)
-        {
-            return "S";
-        }
-
-        if (enemyTurnCount <= 3 && totalDamageTaken <= 30)
-        {
-            return "A";
-        }
-
-        return "B";
-    }
-
-    private string BuildPaceLabel(BattleState resultState)
-    {
-        if (resultState != BattleState.Victory)
-        {
-            return "Defeated";
-        }
-
-        if (enemyTurnCount <= 1)
-        {
-            return "Fast";
-        }
-
-        if (enemyTurnCount <= 3)
-        {
-            return "Steady";
-        }
-
-        return "Long";
-    }
-
-    private int BuildRewardGold(string rank)
-    {
-        switch (rank)
-        {
-            case "S":
-                return sRankRewardGold;
-            case "A":
-                return aRankRewardGold;
-            case "B":
-                return bRankRewardGold;
-            default:
-                return defeatRewardGold;
-        }
-    }
-
-    private string BuildResultTip(string rank, string lastEnemyPattern)
-    {
-        if (rank == "S")
-        {
-            return "Perfect clear!";
-        }
-
-        if (lastEnemyPattern == enemyPattern.strongAttackName)
-        {
-            return "Guard before Heavy Slam.";
-        }
-
-        if (rank == "A" || rank == "B")
-        {
-            return "Take less damage for a higher rank.";
-        }
-
-        return "Use Fire Skill to finish the Slime faster.";
-    }
-
-    private string BuildLastEnemyPatternLabel()
-    {
-        if (enemyTurnCount <= 0)
-        {
-            return "None";
-        }
-
-        if (enemyPattern.IsStrongAttackTurn(enemyTurnCount))
-        {
-            return enemyPattern.strongAttackName;
-        }
-
-        return "Normal Attack";
-    }
 
     private void UpdateActionButtons()
     {

@@ -92,6 +92,7 @@ public static class BattleAutoTestRunner
 
         battleManager.DebugEndBattleForTest(BattleState.Victory);
         AppendCheck(ref passed, ref report, "Victory summary appears after victory", battleManager.DebugResultSummaryText.Contains("Result: Victory") && battleManager.DebugResultSummaryText.Contains("Enemy turns: 0") && battleManager.DebugResultSummaryText.Contains("Skills used: 0") && battleManager.DebugResultSummaryText.Contains("Pace: Fast") && battleManager.DebugResultSummaryText.Contains("Rank: S") && battleManager.DebugResultSummaryText.Contains("Reward: 150G") && battleManager.DebugResultSummaryText.Contains("Tip: Perfect clear!"));
+        AppendCheck(ref passed, ref report, "BattleResultEvaluator builds rank, pace, reward, tip, and last pattern", BattleResultEvaluator.BuildRank(BattleState.Victory, 2, 20) == "A" && BattleResultEvaluator.BuildPaceLabel(BattleState.Victory, 2) == "Steady" && BattleResultEvaluator.BuildRewardGold("A", 150, 120, 100, 0) == 120 && BattleResultEvaluator.BuildResultTip("A", "Normal Attack", "Heavy Slam") == "Take less damage for a higher rank." && BattleResultEvaluator.BuildLastEnemyPatternLabel(3, new EnemyPatternData()) == "Heavy Slam");
 
         BattleResultData presenterTestData = new BattleResultData
         {

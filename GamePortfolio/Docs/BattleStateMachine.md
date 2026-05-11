@@ -76,7 +76,7 @@ The Enemy Intent text previews the next enemy action from `enemyTurnCount + 1`:
 All action buttons are disabled when the battle ends.
 The retry button is shown, and a compact result summary appears with:
 
-`BattleResultData.cs` contains the values used by the summary. `BattleResultPresenter.cs` owns the final summary text formatting. `BattleManager` builds the data object, then passes it to the presenter. This keeps result metrics such as damage, Guard uses, Skills used, pace, rank, reward, result tip, and last enemy pattern grouped in one place while keeping display text in a separate class as the combat report grows.
+`BattleResultData.cs` contains the values used by the summary. `BattleResultEvaluator.cs` owns result evaluation rules such as pace, rank, reward, tip, and last enemy pattern labels. `BattleResultPresenter.cs` owns the final summary text formatting. `BattleManager` builds the data object through the evaluator, then passes it to the presenter. This keeps result metrics grouped in one place while keeping evaluation rules and display text in separate classes as the combat report grows.
 
 - Result: Victory or Defeat
 - Enemy turns resolved

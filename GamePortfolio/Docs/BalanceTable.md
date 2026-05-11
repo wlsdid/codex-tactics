@@ -46,6 +46,7 @@ This document records the current prototype numbers and the design reason behind
 | Pace | Fast / Steady / Long / Defeated from result and enemy turns | Gives a quick clear-speed label before the detailed rank. |
 | Tip | Shows a short performance or counterplay hint | Turns the result screen into a small learning loop. |
 | Last enemy pattern | Shows Normal Attack / Heavy Slam / None | Helps connect result to enemy AI pattern. |
+| Summary evaluator | Computes pace, rank, reward, tip, and last pattern label | Keeps result rules separate from battle flow and text formatting. |
 | Summary presenter | Formats `BattleResultData` into UI text | Keeps result display text separate from battle flow code. |
 | Rank | S/A/B/C | Gives the result screen a game-like performance label. |
 | Reward | S: 150G, A: 120G, B: 100G, C/Defeat: 0G | Turns the result screen into a portfolio-ready stage clear payout hook. |
