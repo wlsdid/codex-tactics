@@ -71,18 +71,13 @@ Finish the battle by Victory or Defeat.
 - [ ] Action buttons are disabled after the result.
 - [ ] Retry button is visible and interactable.
 - [ ] Result summary panel is visible behind the text.
-- [ ] Result summary includes `Result: Victory` or `Result: Defeat`.
-- [ ] Result summary includes `Enemy turns`.
+- [ ] Result summary includes `Result: Victory | Turns:` or `Result: Defeat | Turns:`.
 - [ ] Result summary includes final Hero HP/AP.
 - [ ] Result summary includes final Slime HP.
-- [ ] Result summary includes `Damage dealt`.
-- [ ] Result summary includes `Damage taken`.
-- [ ] Result summary includes `Guard uses`.
-- [ ] Result summary includes `Skills used`.
-- [ ] Result summary includes `Pace`.
-- [ ] Result summary includes `Survival`.
-- [ ] Result summary includes `Rank`.
-- [ ] Result summary includes `Reward`.
+- [ ] Result summary includes `Damage: dealt` and `taken`.
+- [ ] Result summary includes `Choices: Guard` and `Skills`.
+- [ ] Result summary includes `Pace` and `Survival` on the same line.
+- [ ] Result summary includes `Rank` and `Reward` on the same line.
 - [ ] Result summary includes `Tip`.
 - [ ] Result summary includes `Last enemy pattern`.
 

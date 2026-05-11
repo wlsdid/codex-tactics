@@ -78,15 +78,14 @@ The retry button is shown, and a compact result summary appears with:
 
 `BattleResultData.cs` contains the values used by the summary. `BattleResultEvaluator.cs` owns result evaluation rules such as pace, rank, reward, tip, and last enemy pattern labels. `BattleResultPresenter.cs` owns the final summary text formatting. `BattleManager` builds the data object through the evaluator, then passes it to the presenter. This keeps result metrics grouped in one place while keeping evaluation rules and display text in separate classes as the combat report grows.
 
-- Result: Victory or Defeat
-- Enemy turns resolved
+- Result: Victory or Defeat, grouped with the enemy turns resolved
 - Player final HP/AP
 - Enemy final HP
-- Damage dealt / damage taken
-- Guard uses
-- Skills used
-- Pace label (`Fast`, `Steady`, `Long`, or `Defeated`)
-- Battle rank (`S`, `A`, `B`, or `C`)
+- Damage dealt / damage taken, grouped into one line
+- Guard uses / Skills used, grouped into one choices line
+- Pace label (`Fast`, `Steady`, `Long`, or `Defeated`) grouped with Survival
+- Survival label, such as `40%` or `100%`
+- Battle rank (`S`, `A`, `B`, or `C`) grouped with Reward gold
 - Reward gold (`150G` for S, `120G` for A, `100G` for B, `0G` for C/Defeat)
 - Result tip, such as `Perfect clear!` or `Guard before Heavy Slam.`
 - Last enemy pattern used, such as `Normal Attack` or `Heavy Slam`

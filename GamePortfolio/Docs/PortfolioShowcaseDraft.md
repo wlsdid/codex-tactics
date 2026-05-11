@@ -62,18 +62,14 @@ This makes the battle more tactical because the player can choose Guard before a
 
 ### 5. Result summary and evaluation
 
-The result screen reports not only Victory/Defeat, but also how the player reached that result:
+The result screen reports not only Victory/Defeat, but also how the player reached that result. To keep the UI readable, related metrics are grouped into compact lines:
 
-- damage dealt
-- damage taken
-- Guard uses
-- Skills used
-- Pace
-- Survival
-- Rank
-- Reward
-- Tip
-- Last enemy pattern
+- `Damage: dealt ..., taken ...`
+- `Choices: Guard ..., Skills ...`
+- `Pace: ... | Survival: ...`
+- `Rank: ... | Reward: ...G`
+- `Tip: ...`
+- `Last enemy pattern: ...`
 
 Relevant files:
 
@@ -122,7 +118,7 @@ Recommended captures:
 2. Fire Skill: AP decrease, Burn status, damage feedback.
 3. Guard: player status changes to `Guarding`, reduced damage is shown.
 4. Heavy Slam preview: enemy intent shows the strong attack.
-5. Result summary: Pace, Survival, Rank, Reward, Tip, and Retry button visible.
+5. Result summary: compact Pace/Survival, Rank/Reward, Tip, and Retry button visible.
 
 ## Short portfolio explanation draft
 

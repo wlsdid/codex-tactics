@@ -1,5 +1,24 @@
 # Next Autonomous Tasks
 
+## Latest autonomous run — 2026-05-11 Result Summary Compact Text
+
+Completed:
+- Kept the existing result metrics, but grouped related labels into shorter result-summary lines.
+- Updated `BattleResultPresenter.BuildSummaryText(...)` to use compact lines such as `Result: Victory | Turns: 0`, `Damage: dealt ..., taken ...`, `Choices: Guard ..., Skills ...`, `Pace: ... | Survival: ...`, and `Rank: ... | Reward: ...G`.
+- Updated `BattleAutoTestRunner` expectations for Defeat, Victory, and direct presenter formatting.
+- Updated README, battle state docs, balance notes, portfolio showcase draft, manual validation docs, devlog, and study note.
+
+Verification done:
+- Ran source/documentation token checks, brace checks, trailing whitespace/final newline checks, and `git diff --check`.
+- Ran Unity 6000.4.6f1 batch compile with no C# compiler errors found in log.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/` when the user can open the editor visually.
+2. Add captured media links to README and the showcase draft.
+3. Keep future result-screen changes small until the compact summary is visually reviewed.
+
 ## Latest autonomous run — 2026-05-11 Result Survival Label
 
 Completed:

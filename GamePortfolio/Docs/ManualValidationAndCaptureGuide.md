@@ -34,7 +34,7 @@ Press the top-center `Play` button, then check this sequence:
 | 3 | Restart or continue test | Prepare a Guard example |
 | 4 | Click `Guard` | Player status changes to `Status: Guarding` |
 | 5 | Resolve enemy attack | Guarded damage appears and status returns to `Status: Ready` |
-| 6 | Reach Victory or Defeat | Result panel appears with `Damage dealt`, `Damage taken`, `Guard uses`, `Skills used`, `Pace`, `Survival`, `Rank`, `Reward`, `Tip`, and last enemy pattern |
+| 6 | Reach Victory or Defeat | Result panel appears with compact grouped lines: `Damage: dealt ..., taken ...`, `Choices: Guard ..., Skills ...`, `Pace: ... | Survival: ...`, `Rank: ... | Reward: ...G`, plus `Tip` and last enemy pattern |
 | 7 | Click `Retry` | Result panel disappears and HP/AP/status reset |
 
 ## 4. Screenshot list for README
@@ -44,7 +44,7 @@ Capture these still images if GIF recording is not ready yet:
 1. `01_battle_start.png` - initial battle UI
 2. `02_fire_skill_burn.png` - Fire Skill / Burn state
 3. `03_guard_status.png` - Guarding status before enemy attack
-4. `04_result_summary_rank.png` - result summary with panel, damage, Guard uses, Skills used, Pace, Survival, Rank, Reward, and Tip
+4. `04_result_summary_rank.png` - result summary with panel, compact Damage/Choices/Pace+Survival/Rank+Reward lines, and Tip
 5. `05_retry_reset.png` - restarted clean state
 
 Suggested folder:
