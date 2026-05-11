@@ -30,7 +30,7 @@ public static class BattleSceneAutoBuilder
         runStatusText.fontSize = 20;
         runStatusText.color = new Color(0.76f, 1.0f, 0.82f);
 
-        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Battle Guide: Attack to deal damage | Fire Skill applies Burn | Guard before Heavy Slam | Watch Enemy Intent | Continue after Victory | Retry current fight", new Vector2(0, 190), new Vector2(1120, 40), TextAlignmentOptions.Center);
+        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Battle Guide: Attack to deal damage | Fire Skill applies Burn | Guard before Heavy Slam | Watch Enemy Intent | Continue after Victory | Final Clear completes Stage 1 | Retry current fight", new Vector2(0, 190), new Vector2(1120, 40), TextAlignmentOptions.Center);
         battleGuideText.fontSize = 18;
         battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
 
@@ -407,6 +407,7 @@ public static class BattleSceneAutoBuilder
             && text.Contains("Guard")
             && text.Contains("Enemy Intent")
             && text.Contains("Continue")
+            && text.Contains("Final Clear")
             && text.Contains("Retry");
     }
 

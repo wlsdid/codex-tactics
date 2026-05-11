@@ -36,7 +36,7 @@ Press the top-center Unity `▶ Play` button.
 - [ ] Title shows `Codex Tactics`.
 - [ ] Run status shows `Run Status: Stage 1 In Progress`.
 - [ ] Battle Guide text is visible near the top of the battle UI.
-- [ ] Battle Guide mentions `Attack`, `Fire Skill`, `Burn`, `Guard`, `Enemy Intent`, `Continue`, and `Retry`.
+- [ ] Battle Guide mentions `Attack`, `Fire Skill`, `Burn`, `Guard`, `Enemy Intent`, `Continue`, `Final Clear`, and `Retry`.
 - [ ] Stage text shows `Stage 1-1: Slime Scout`.
 - [ ] Stage objective text shows `Objective: Defeat Slime Scout`.
 - [ ] Stage progress text shows `Progress: Encounter 1/2 | Active`.
@@ -95,8 +95,9 @@ Finish the battle by Victory or Defeat.
 - [ ] Win the Stage 1-1 Slime Scout encounter.
 - [ ] Confirm `Continue` is visible and interactable after Victory.
 - [ ] Confirm the first Victory result summary shows a non-zero `Total Gold` value when a gold reward is earned.
-- [ ] Confirm stage objective changes to `Objective Complete: Stage 1-1: Slime Scout | Continue to next encounter`.
-- [ ] Confirm run status changes to `Run Status: Encounter Clear - Continue`.
+- [ ] Confirm stage objective changes to `Objective Complete: Stage 1-1: Slime Scout | Continue to Stage 1-2: Slime King`.
+- [ ] Confirm the victory message names both the cleared encounter and the next encounter.
+- [ ] Confirm run status changes to `Run Status: Encounter Clear - Continue to Next`.
 - [ ] Confirm stage progress changes to `Progress: Encounter 1/2 | Encounter Clear`.
 - [ ] Click `Continue`.
 - [ ] Stage text changes to `Stage 1-2: Slime King`.
@@ -107,9 +108,9 @@ Finish the battle by Victory or Defeat.
 - [ ] Boss intent starts at `Next Enemy: Royal Slam (36)`.
 - [ ] Win the boss encounter.
 - [ ] Confirm the boss Victory result summary carries `Total Gold` forward from the first encounter.
-- [ ] Final message shows `Final Clear! Stage 1 completed.`.
-- [ ] Stage objective changes to `Objective Complete: Stage 1 cleared`.
-- [ ] Run status changes to `Run Status: Stage 1 Complete`.
+- [ ] Final message shows `Final Clear! Stage 1 completed. Review Total Gold...`.
+- [ ] Stage objective changes to `Objective Complete: Stage 1 cleared | Final Clear`.
+- [ ] Run status changes to `Run Status: Final Clear - Stage 1 Complete`.
 - [ ] Stage progress changes to `Progress: Encounter 2/2 | Stage Clear`.
 - [ ] Continue button is hidden after the final clear.
 

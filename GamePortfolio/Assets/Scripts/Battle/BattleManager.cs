@@ -455,14 +455,7 @@ public class BattleManager : MonoBehaviour
 
         if (resultState == BattleState.Victory)
         {
-            if (HasNextStage())
-            {
-                UpdateUI("Victory! Enemy defeated. Press Continue for the boss encounter.");
-            }
-            else
-            {
-                UpdateUI("Final Clear! Stage 1 completed.");
-            }
+            UpdateUI(BuildVictoryGuideMessage());
         }
         else
         {
@@ -806,6 +799,16 @@ public class BattleManager : MonoBehaviour
         return currentStageIndex < stageEncounters.Count - 1;
     }
 
+    private StageData GetNextStageData()
+    {
+        if (!HasNextStage())
+        {
+            return null;
+        }
+
+        return stageEncounters[currentStageIndex + 1];
+    }
+
     private string BuildStageText()
     {
         StageData currentStage = GetCurrentStageData();
@@ -816,7 +819,7 @@ public class BattleManager : MonoBehaviour
     {
         if (currentState == BattleState.Victory)
         {
-            return HasNextStage() ? "Run Status: Encounter Clear - Continue" : "Run Status: Stage 1 Complete";
+            return HasNextStage() ? "Run Status: Encounter Clear - Continue to Next" : "Run Status: Final Clear - Stage 1 Complete";
         }
 
         if (currentState == BattleState.Defeat)
@@ -839,10 +842,12 @@ public class BattleManager : MonoBehaviour
         {
             if (HasNextStage())
             {
-                return $"Objective Complete: {currentStage.BuildDisplayName()} | Continue to next encounter";
+                StageData nextStage = GetNextStageData();
+                string nextStageName = nextStage != null ? nextStage.BuildDisplayName() : "next encounter";
+                return $"Objective Complete: {currentStage.BuildDisplayName()} | Continue to {nextStageName}";
             }
 
-            return "Objective Complete: Stage 1 cleared";
+            return "Objective Complete: Stage 1 cleared | Final Clear";
         }
 
         if (currentState == BattleState.Defeat)
@@ -869,6 +874,21 @@ public class BattleManager : MonoBehaviour
         }
 
         return $"Progress: Encounter {currentEncounterNumber}/{stageEncounters.Count} | {statusLabel}";
+    }
+
+    private string BuildVictoryGuideMessage()
+    {
+        StageData currentStage = GetCurrentStageData();
+        string currentStageName = currentStage != null ? currentStage.BuildDisplayName() : "Encounter";
+
+        if (HasNextStage())
+        {
+            StageData nextStage = GetNextStageData();
+            string nextStageName = nextStage != null ? nextStage.BuildDisplayName() : "the next encounter";
+            return $"Victory! {currentStageName} cleared. Press Continue to enter {nextStageName}.";
+        }
+
+        return "Final Clear! Stage 1 completed. Review Total Gold, then Retry the boss if you want to practice.";
     }
 
     private void EnsureEnemyPattern()

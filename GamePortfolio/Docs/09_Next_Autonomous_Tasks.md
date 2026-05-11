@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-12 Run Status Header
+## Latest autonomous run — 2026-05-12 Clear Guide Text Polish
+
+Completed:
+- Polished first encounter Victory guidance so the message names the cleared encounter and the next encounter: Stage 1-2 Slime King.
+- Updated first-clear objective text to `Continue to Stage 1-2: Slime King` instead of a generic next-encounter phrase.
+- Polished final clear guidance so the message tells the player to review Total Gold and retry the boss for practice.
+- Updated run status final/continue labels to `Encounter Clear - Continue to Next` and `Final Clear - Stage 1 Complete`.
+- Updated Battle Guide, generated scene validator expectations, battle logic auto-test expectations, README, battle state docs, manual validation docs, showcase draft, devlog, and study note.
+
+Verification done:
+- Ran source/documentation whitespace and final-newline checks: PASS.
+- Ran C# brace-count check: PASS.
+- Ran `git diff --check`: PASS.
+- Ran Unity 6000.4.6f1 batch compile with exit code 0 and no compiler-error grep output.
+- Regenerated `Assets/Scenes/BattleScene.unity` through `Create Battle Test Scene` in Unity batch mode.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture Unity Play Mode screenshots/GIFs showing first-clear next encounter guidance and final-clear Total Gold guidance.
+2. Add captured media links to README and the showcase draft.
+3. After capture, consider a tiny title/start screen or one additional beginner-readable player skill.
+
+## Previous autonomous run — 2026-05-12 Run Status Header
 
 Completed:
 - Changed the generated scene title to `Codex Tactics`.
