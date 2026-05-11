@@ -58,6 +58,7 @@ This document records the current prototype numbers and the design reason behind
 | Summary presenter | Formats `BattleResultData` into compact grouped UI text | Keeps result display text readable while separating it from battle flow code. |
 | Rank | S/A/B/C | Gives the result screen a game-like performance label. |
 | Reward | S: 150G, A: 120G, B: 100G, C/Defeat: 0G | Turns the result screen into a portfolio-ready stage clear payout hook. |
+| Total Gold | Adds each encounter reward into a display-only carried total | Shows stage-to-stage progression without adding inventory or shop scope yet. |
 
 ## Rank Rules
 
@@ -86,6 +87,7 @@ This document records the current prototype numbers and the design reason behind
 - Fire Skill is intentionally efficient because the normal Slime is weak to Fire: 30 base + 10 weakness bonus = 40 damage.
 - Two Fire Skill hits can defeat the 80 HP Slime, but AP cost prevents immediate repeated casting without turns/recovery.
 - Slime King raises HP to 140 and uses Royal Slam every turn, creating a simple boss-like second encounter without adding new systems.
+- Total Gold is display-only for now; it proves rewards can carry across Stage 1-1 and Stage 1-2 while avoiding inventory/shop complexity.
 - Normal Attack damage of 15 means the hero survives several mistakes.
 - Heavy Slam at 30 damage every 3rd enemy turn makes the Enemy Intent UI and Guard action meaningful.
 - Guard reducing 15 to 7 demonstrates integer damage reduction and gives a clear visible benefit.

@@ -83,7 +83,7 @@ Finish the battle by Victory or Defeat.
 - [ ] Result summary includes `Damage: dealt` and `taken`.
 - [ ] Result summary includes `Choices: Guard` and `Skills`.
 - [ ] Result summary includes `Pace` and `Survival` on the same line.
-- [ ] Result summary includes `Rank` and `Reward` on the same line.
+- [ ] Result summary includes `Rank`, `Reward`, and `Total Gold` on the same line.
 - [ ] Result summary includes `Tip`.
 - [ ] Result summary includes `Last enemy pattern`.
 
@@ -91,6 +91,7 @@ Finish the battle by Victory or Defeat.
 
 - [ ] Win the Stage 1-1 Slime Scout encounter.
 - [ ] Confirm `Continue` is visible and interactable after Victory.
+- [ ] Confirm the first Victory result summary shows a non-zero `Total Gold` value when a gold reward is earned.
 - [ ] Confirm stage objective changes to `Objective Complete: Stage 1-1: Slime Scout | Continue to next encounter`.
 - [ ] Click `Continue`.
 - [ ] Stage text changes to `Stage 1-2: Slime King`.
@@ -98,6 +99,7 @@ Finish the battle by Victory or Defeat.
 - [ ] Boss HP starts at `Slime King HP: 140/140 (100%)`.
 - [ ] Boss intent starts at `Next Enemy: Royal Slam (36)`.
 - [ ] Win the boss encounter.
+- [ ] Confirm the boss Victory result summary carries `Total Gold` forward from the first encounter.
 - [ ] Final message shows `Final Clear! Stage 1 completed.`.
 - [ ] Stage objective changes to `Objective Complete: Stage 1 cleared`.
 - [ ] Continue button is hidden after the final clear.

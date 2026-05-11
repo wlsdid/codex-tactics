@@ -8,7 +8,7 @@ public static class BattleResultPresenter
                $"Damage: dealt {data.damageDealt}, taken {data.damageTaken}\n" +
                $"Choices: Guard {data.guardUses}, Skills {data.skillsUsed}\n" +
                $"Pace: {data.paceLabel} | Survival: {data.survivalLabel}\n" +
-               $"Rank: {data.rank} | Reward: {data.rewardGold}G\n" +
+               $"Rank: {data.rank} | Reward: {data.rewardGold}G | Total Gold: {data.totalGold}G\n" +
                $"Tip: {data.resultTip}\n" +
                $"Last enemy pattern: {data.lastEnemyPattern}";
     }

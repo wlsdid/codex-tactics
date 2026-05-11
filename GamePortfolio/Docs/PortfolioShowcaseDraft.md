@@ -4,7 +4,7 @@ This page is a draft for the later portfolio write-up. It summarizes what the pr
 
 ## Project overview
 
-`Codex Tactics` is a Unity 2D turn-based RPG battle prototype. The current scope is intentionally small: one hero, a normal Slime encounter, a stronger Slime King boss encounter, a complete battle loop, visible player choices, enemy pattern previews, Continue/Retry flow, and a result screen.
+`Codex Tactics` is a Unity 2D turn-based RPG battle prototype. The current scope is intentionally small: one hero, a normal Slime encounter, a stronger Slime King boss encounter, a complete battle loop, visible player choices, enemy pattern previews, Continue/Retry flow, and a result screen with carried display-only gold.
 
 ## Current playable loop
 
@@ -71,7 +71,7 @@ The result screen reports not only Victory/Defeat, but also how the player reach
 - `Damage: dealt ..., taken ...`
 - `Choices: Guard ..., Skills ...`
 - `Pace: ... | Survival: ...`
-- `Rank: ... | Reward: ...G`
+- `Rank: ... | Reward: ...G | Total Gold: ...G`
 - `Tip: ...`
 - `Last enemy pattern: ...`
 
@@ -122,7 +122,7 @@ Recommended captures:
 2. Fire Skill: AP decrease, Burn status, damage feedback.
 3. Guard: player status changes to `Guarding`, reduced damage is shown.
 4. Heavy Slam preview: enemy intent shows the strong attack.
-5. Result summary: compact Pace/Survival, Rank/Reward, Tip, and Retry button visible.
+5. Result summary: compact Pace/Survival, Rank/Reward/Total Gold, Tip, and Retry button visible.
 6. Continue flow: first Victory shows Continue, then Stage 1-2 Slime King starts.
 7. Final Clear: boss Victory hides Continue and shows the final clear message.
 

@@ -1,5 +1,27 @@
 # Next Autonomous Tasks
 
+## Latest autonomous run — 2026-05-12 Display-only Total Gold
+
+Completed:
+- Added a display-only carried `totalGoldEarned` value to the battle result flow.
+- Result summaries now show `Rank: ... | Reward: ...G | Total Gold: ...G` so Stage 1-1 rewards visibly carry into Stage 1-2.
+- Guarded against duplicate payout for the same battle result/stage index with `currentBattleRewardClaimed` and rewarded-stage tracking.
+- Updated editor battle logic auto-test expectations for defeat, first victory, boss victory, and direct presenter formatting.
+- Updated README, battle state docs, balance notes, manual validation guide/checklist, devlog, and study note.
+
+Verification done:
+- Ran source/documentation whitespace and final-newline checks: PASS.
+- Ran C# brace-count check: PASS.
+- Ran `git diff --check`: PASS.
+- Ran Unity 6000.4.6f1 batch compile with exit code 0 and no compiler-error grep output.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/`, now including the `Total Gold` line after first victory and final clear.
+2. Add captured media links to README and the showcase draft.
+3. If capture is complete, consider a tiny title/start screen before adding more combat systems.
+
 ## Latest autonomous run — 2026-05-11 Stage Objective UI
 
 Completed:

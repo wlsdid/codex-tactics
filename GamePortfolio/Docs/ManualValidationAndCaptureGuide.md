@@ -34,7 +34,7 @@ Press the top-center `Play` button, then check this sequence:
 | 3 | Restart or continue test | Prepare a Guard example |
 | 4 | Click `Guard` | Player status changes to `Status: Guarding` |
 | 5 | Resolve enemy attack | Guarded damage appears and status returns to `Status: Ready` |
-| 6 | Reach Victory or Defeat | Result panel appears with compact grouped lines: `Damage: dealt ..., taken ...`, `Choices: Guard ..., Skills ...`, `Pace: ... | Survival: ...`, `Rank: ... | Reward: ...G`, plus `Tip` and last enemy pattern; first Victory objective becomes `Objective Complete: Stage 1-1: Slime Scout | Continue to next encounter` |
+| 6 | Reach Victory or Defeat | Result panel appears with compact grouped lines: `Damage: dealt ..., taken ...`, `Choices: Guard ..., Skills ...`, `Pace: ... | Survival: ...`, `Rank: ... | Reward: ...G | Total Gold: ...G`, plus `Tip` and last enemy pattern; first Victory objective becomes `Objective Complete: Stage 1-1: Slime Scout | Continue to next encounter` |
 | 7 | Click `Continue` after first Victory | Stage changes to `Stage 1-2: Slime King`, objective becomes `Objective: Defeat Slime King`, boss HP starts at `140/140 (100%)`, and enemy intent previews `Royal Slam (36)` |
 | 8 | Clear the boss | Final Clear message appears, objective becomes `Objective Complete: Stage 1 cleared`, and Continue is hidden |
 | 9 | Click `Retry` | Result panel disappears and the current encounter HP/AP/status/objective reset |
@@ -46,7 +46,7 @@ Capture these still images if GIF recording is not ready yet:
 1. `01_battle_start.png` - initial battle UI with the stage label, Battle Guide hint label, and `Recent Actions` log panel
 2. `02_fire_skill_burn.png` - Fire Skill / Burn state
 3. `03_guard_status.png` - Guarding status before enemy attack
-4. `04_result_summary_rank.png` - result summary with panel, compact Damage/Choices/Pace+Survival/Rank+Reward lines, and Tip
+4. `04_result_summary_rank.png` - result summary with panel, compact Damage/Choices/Pace+Survival/Rank+Reward+Total Gold lines, and Tip
 5. `05_continue_boss_stage.png` - Stage 1-2 Slime King boss encounter after Continue
 6. `06_retry_reset.png` - restarted clean state
 

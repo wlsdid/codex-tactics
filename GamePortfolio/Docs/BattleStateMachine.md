@@ -91,12 +91,13 @@ The retry button is shown for both Victory and Defeat. If the current Victory is
 - Guard uses / Skills used, grouped into one choices line
 - Pace label (`Fast`, `Steady`, `Long`, or `Defeated`) grouped with Survival
 - Survival label, such as `40%` or `100%`
-- Battle rank (`S`, `A`, `B`, or `C`) grouped with Reward gold
+- Battle rank (`S`, `A`, `B`, or `C`) grouped with Reward gold and Total Gold
 - Reward gold (`150G` for S, `120G` for A, `100G` for B, `0G` for C/Defeat)
+- Total Gold display, which carries earned encounter rewards across the current stage run without inventory/shop logic
 - Result tip, such as `Perfect clear!` or `Guard before Heavy Slam.`
 - Last enemy pattern used, such as `Normal Attack` or `Heavy Slam`
 
-The player status text changes to `Status: Battle ended` when the result state is reached. The result summary panel is shown with the summary text, then hidden again on Retry so the next battle starts cleanly. Pace is intentionally simple: fast Victory is `Fast`, medium Victory is `Steady`, longer Victory is `Long`, and Defeat is `Defeated`. Rank is intentionally simple: Defeat is `C`, a clean fast Victory is `S`, solid Victory is `A`, and slower or rougher Victory is `B`. Reward gold is scaled from that rank so the result summary connects performance to payout. The result tip gives one short next-action hint based on the rank and the last enemy pattern.
+The player status text changes to `Status: Battle ended` when the result state is reached. The result summary panel is shown with the summary text, then hidden again on Retry so the next battle starts cleanly. Pace is intentionally simple: fast Victory is `Fast`, medium Victory is `Steady`, longer Victory is `Long`, and Defeat is `Defeated`. Rank is intentionally simple: Defeat is `C`, a clean fast Victory is `S`, solid Victory is `A`, and slower or rougher Victory is `B`. Reward gold is scaled from that rank so the result summary connects performance to payout. The current Victory reward is added to `totalGoldEarned` once per stage encounter and displayed as `Total Gold` so the stage run feels carried forward without adding inventory or a shop. The result tip gives one short next-action hint based on the rank and the last enemy pattern.
 
 ## Portfolio note
 

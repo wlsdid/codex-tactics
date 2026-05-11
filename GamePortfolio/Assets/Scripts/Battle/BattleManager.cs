@@ -84,6 +84,9 @@ public class BattleManager : MonoBehaviour
     private int totalDamageTaken;
     private int guardUseCount;
     private int skillsUsedCount;
+    private int totalGoldEarned;
+    private bool currentBattleRewardClaimed;
+    private readonly HashSet<int> rewardedStageIndexes = new HashSet<int>();
     private readonly List<string> battleLogEntries = new List<string>();
     private int battleLogSequence;
     private const int MaxBattleLogEntries = 6;
@@ -115,6 +118,7 @@ public class BattleManager : MonoBehaviour
     public int DebugTotalDamageTaken => totalDamageTaken;
     public int DebugGuardUseCount => guardUseCount;
     public int DebugSkillsUsedCount => skillsUsedCount;
+    public int DebugTotalGoldEarned => totalGoldEarned;
 
     private void Start()
     {
@@ -150,6 +154,7 @@ public class BattleManager : MonoBehaviour
         totalDamageTaken = 0;
         guardUseCount = 0;
         skillsUsedCount = 0;
+        currentBattleRewardClaimed = false;
         battleLogEntries.Clear();
         battleLogSequence = 0;
         RefreshBattleLogText();
@@ -647,7 +652,26 @@ public class BattleManager : MonoBehaviour
 
     private string BuildResultSummaryText(BattleState resultState)
     {
-        return BattleResultPresenter.BuildSummaryText(BuildBattleResultData(resultState));
+        BattleResultData resultData = BuildBattleResultData(resultState);
+        if (resultState == BattleState.Victory)
+        {
+            ClaimBattleReward(resultData.rewardGold);
+        }
+
+        resultData.totalGold = totalGoldEarned;
+        return BattleResultPresenter.BuildSummaryText(resultData);
+    }
+
+    private void ClaimBattleReward(int rewardGold)
+    {
+        if (currentBattleRewardClaimed || rewardedStageIndexes.Contains(currentStageIndex))
+        {
+            return;
+        }
+
+        totalGoldEarned += Mathf.Max(0, rewardGold);
+        rewardedStageIndexes.Add(currentStageIndex);
+        currentBattleRewardClaimed = true;
     }
 
     private BattleResultData BuildBattleResultData(BattleState resultState)
@@ -678,6 +702,7 @@ public class BattleManager : MonoBehaviour
             survivalLabel = BattleResultEvaluator.BuildSurvivalLabel(player.currentHp, player.maxHp),
             rank = rank,
             rewardGold = BattleResultEvaluator.BuildRewardGold(rank, sRankRewardGold, aRankRewardGold, bRankRewardGold, defeatRewardGold),
+            totalGold = totalGoldEarned,
             resultTip = BattleResultEvaluator.BuildResultTip(rank, lastEnemyPattern, enemyPattern.strongAttackName),
             lastEnemyPattern = lastEnemyPattern
         };

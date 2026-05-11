@@ -18,6 +18,7 @@ public struct BattleResultData
     public string survivalLabel;
     public string rank;
     public int rewardGold;
+    public int totalGold;
     public string resultTip;
     public string lastEnemyPattern;
 
