@@ -1,6 +1,27 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-11 BattleResultPresenter Split
+## Latest autonomous run — 2026-05-11 Result Pace Label
+
+Completed:
+- Inspected the current result summary after the Unity project root was standardized under `GamePortfolio/`.
+- Added `paceLabel` to `BattleResultData` so clear speed can be stored with the other result values.
+- Added `Pace: ...` to `BattleResultPresenter.BuildSummaryText(...)`.
+- Added `BuildPaceLabel()` in `BattleManager`: `Fast`, `Steady`, `Long`, or `Defeated` based on result and enemy turns.
+- Updated the editor battle logic auto-test expectations for Defeat, Victory, and direct presenter formatting.
+- Updated README, battle state docs, balance table, manual validation checklist, devlog, and study note.
+
+Verification done:
+- Ran source/documentation token checks, brace checks, trailing whitespace/final newline checks, and code/document token checks.
+- Ran Unity 6000.4.6f1 batch compile with no C# compiler errors found in log.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture a real result-summary screenshot/GIF in Unity Play Mode when convenient.
+2. Keep future result-screen additions small until the current UI is manually reviewed.
+3. Consider Korean/English result text switching later only if the UI needs localization.
+
+## Previous autonomous run — 2026-05-11 BattleResultPresenter Split
 
 Completed:
 - Inspected the current result summary flow after `BattleResultData` was split out of `BattleManager`.

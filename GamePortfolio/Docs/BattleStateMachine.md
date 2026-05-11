@@ -76,7 +76,7 @@ The Enemy Intent text previews the next enemy action from `enemyTurnCount + 1`:
 All action buttons are disabled when the battle ends.
 The retry button is shown, and a compact result summary appears with:
 
-`BattleResultData.cs` contains the values used by the summary. `BattleResultPresenter.cs` owns the final summary text formatting. `BattleManager` builds the data object, then passes it to the presenter. This keeps result metrics such as damage, Guard uses, Skills used, rank, reward, result tip, and last enemy pattern grouped in one place while keeping display text in a separate class as the combat report grows.
+`BattleResultData.cs` contains the values used by the summary. `BattleResultPresenter.cs` owns the final summary text formatting. `BattleManager` builds the data object, then passes it to the presenter. This keeps result metrics such as damage, Guard uses, Skills used, pace, rank, reward, result tip, and last enemy pattern grouped in one place while keeping display text in a separate class as the combat report grows.
 
 - Result: Victory or Defeat
 - Enemy turns resolved
@@ -85,12 +85,13 @@ The retry button is shown, and a compact result summary appears with:
 - Damage dealt / damage taken
 - Guard uses
 - Skills used
+- Pace label (`Fast`, `Steady`, `Long`, or `Defeated`)
 - Battle rank (`S`, `A`, `B`, or `C`)
 - Reward gold (`150G` for S, `120G` for A, `100G` for B, `0G` for C/Defeat)
 - Result tip, such as `Perfect clear!` or `Guard before Heavy Slam.`
 - Last enemy pattern used, such as `Normal Attack` or `Heavy Slam`
 
-The player status text changes to `Status: Battle ended` when the result state is reached. The result summary panel is shown with the summary text, then hidden again on Retry so the next battle starts cleanly. Rank is intentionally simple: Defeat is `C`, a clean fast Victory is `S`, solid Victory is `A`, and slower or rougher Victory is `B`. Reward gold is scaled from that rank so the result summary connects performance to payout. The result tip gives one short next-action hint based on the rank and the last enemy pattern.
+The player status text changes to `Status: Battle ended` when the result state is reached. The result summary panel is shown with the summary text, then hidden again on Retry so the next battle starts cleanly. Pace is intentionally simple: fast Victory is `Fast`, medium Victory is `Steady`, longer Victory is `Long`, and Defeat is `Defeated`. Rank is intentionally simple: Defeat is `C`, a clean fast Victory is `S`, solid Victory is `A`, and slower or rougher Victory is `B`. Reward gold is scaled from that rank so the result summary connects performance to payout. The result tip gives one short next-action hint based on the rank and the last enemy pattern.
 
 ## Portfolio note
 

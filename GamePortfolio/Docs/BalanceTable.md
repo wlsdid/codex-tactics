@@ -43,6 +43,7 @@ This document records the current prototype numbers and the design reason behind
 | Damage taken | Tracks actual hero HP removed | Helps explain defensive choices. |
 | Guard uses | Counts chosen Guard actions | Shows player defensive behavior. |
 | Skills used | Counts successful Attack / Fire Skill actions | Shows how actively the player spent offensive turns. |
+| Pace | Fast / Steady / Long / Defeated from result and enemy turns | Gives a quick clear-speed label before the detailed rank. |
 | Tip | Shows a short performance or counterplay hint | Turns the result screen into a small learning loop. |
 | Last enemy pattern | Shows Normal Attack / Heavy Slam / None | Helps connect result to enemy AI pattern. |
 | Summary presenter | Formats `BattleResultData` into UI text | Keeps result display text separate from battle flow code. |
@@ -57,6 +58,15 @@ This document records the current prototype numbers and the design reason behind
 | A | Victory, enemy turns <= 3, damage taken <= 30 | 120G |
 | B | Other Victory | 100G |
 | C | Defeat | 0G |
+
+## Pace Rules
+
+| Pace | Current condition | Design note |
+| --- | --- | --- |
+| Fast | Victory, enemy turns <= 1 | Quick clear label for strong play. |
+| Steady | Victory, enemy turns <= 3 | Normal clear pace for the prototype. |
+| Long | Victory, enemy turns >= 4 | Signals a slower win without removing the Victory. |
+| Defeated | Defeat | Separates failed runs from clear-speed labels. |
 
 ## Current Tuning Read
 

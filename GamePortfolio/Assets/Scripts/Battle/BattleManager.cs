@@ -581,6 +581,7 @@ public class BattleManager : MonoBehaviour
 
         string rank = BuildBattleRank(resultState);
         string lastEnemyPattern = BuildLastEnemyPatternLabel();
+        string paceLabel = BuildPaceLabel(resultState);
 
         return new BattleResultData
         {
@@ -598,6 +599,7 @@ public class BattleManager : MonoBehaviour
             damageTaken = totalDamageTaken,
             guardUses = guardUseCount,
             skillsUsed = skillsUsedCount,
+            paceLabel = paceLabel,
             rank = rank,
             rewardGold = BuildRewardGold(rank),
             resultTip = BuildResultTip(rank, lastEnemyPattern),
@@ -623,6 +625,26 @@ public class BattleManager : MonoBehaviour
         }
 
         return "B";
+    }
+
+    private string BuildPaceLabel(BattleState resultState)
+    {
+        if (resultState != BattleState.Victory)
+        {
+            return "Defeated";
+        }
+
+        if (enemyTurnCount <= 1)
+        {
+            return "Fast";
+        }
+
+        if (enemyTurnCount <= 3)
+        {
+            return "Steady";
+        }
+
+        return "Long";
     }
 
     private int BuildRewardGold(string rank)
