@@ -1,5 +1,26 @@
 # Next Autonomous Tasks
 
+## Latest autonomous run — 2026-05-12 Stage Progress UI
+
+Completed:
+- Added a visible `Stage Progress Text` line to show encounter count and state.
+- Progress now reads `Progress: Encounter 1/2 | Active`, `Encounter Clear`, `Retry Needed`, or `Stage Clear` depending on the battle result flow.
+- Updated the generated scene builder, scene validator, battle logic auto-test, README, battle state docs, showcase draft, checklist, devlog, and study note.
+
+Verification done:
+- Ran source/documentation whitespace and final-newline checks: PASS.
+- Ran C# brace-count check: PASS.
+- Ran targeted `git diff --check`: PASS.
+- Ran Unity 6000.4.6f1 batch compile with exit code 0 and no compiler-error grep output.
+- Regenerated `Assets/Scenes/BattleScene.unity` through `Create Battle Test Scene` in Unity batch mode.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Regenerate the battle test scene in Unity and capture screenshots/GIFs that include the new Progress line.
+2. Add captured media links to README and the showcase draft.
+3. After capture, consider a tiny title/start screen before adding more combat systems.
+
 ## Latest autonomous run — 2026-05-12 Display-only Total Gold
 
 Completed:

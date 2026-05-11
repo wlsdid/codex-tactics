@@ -36,8 +36,11 @@ public static class BattleSceneAutoBuilder
         TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Objective: Defeat Slime Scout", new Vector2(0, 135), new Vector2(900, 32), TextAlignmentOptions.Center);
         stageObjectiveText.fontSize = 18;
         stageObjectiveText.color = new Color(1.0f, 0.94f, 0.72f);
+        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Progress: Encounter 1/2 | Active", new Vector2(0, 112), new Vector2(900, 28), TextAlignmentOptions.Center);
+        stageProgressText.fontSize = 17;
+        stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
 
-        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 110), new Vector2(420, 50), TextAlignmentOptions.Left);
+        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 95), new Vector2(420, 50), TextAlignmentOptions.Left);
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 80), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
         TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-360, 55), new Vector2(420, 45), TextAlignmentOptions.Left);
         Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-360, 30), new Vector2(420, 18), new Color(0.26f, 0.56f, 1.0f));
@@ -93,6 +96,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleManager, "enemyIntentText", enemyIntentText);
         SetObjectReference(serializedBattleManager, "stageText", stageText);
         SetObjectReference(serializedBattleManager, "stageObjectiveText", stageObjectiveText);
+        SetObjectReference(serializedBattleManager, "stageProgressText", stageProgressText);
         SetObjectReference(serializedBattleManager, "messageText", messageText);
         SetObjectReference(serializedBattleManager, "skillHelpText", skillHelpText);
         SetObjectReference(serializedBattleManager, "battleLogText", battleLogText);
@@ -158,6 +162,7 @@ public static class BattleSceneAutoBuilder
         TMP_Text battleGuideText = FindText("Battle Guide Text");
         TMP_Text stageText = FindText("Stage Text");
         TMP_Text stageObjectiveText = FindText("Stage Objective Text");
+        TMP_Text stageProgressText = FindText("Stage Progress Text");
         TMP_Text playerStatusText = FindText("Player Status Text");
         TMP_Text skillHelpText = FindText("Skill Help Text");
         TMP_Text enemyStatusText = FindText("Enemy Status Text");
@@ -174,6 +179,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Stage text starts at the first encounter", IsStageTextLikelyConfigured(stageText));
         AppendCheck(ref passed, ref report, "Stage Objective text exists", stageObjectiveText != null);
         AppendCheck(ref passed, ref report, "Stage Objective text explains the first objective", IsStageObjectiveTextLikelyConfigured(stageObjectiveText));
+        AppendCheck(ref passed, ref report, "Stage Progress text exists", stageProgressText != null);
+        AppendCheck(ref passed, ref report, "Stage Progress text shows encounter count", IsStageProgressTextLikelyConfigured(stageProgressText));
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
@@ -222,6 +229,7 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Enemy Intent text linked", HasObjectReference(serializedBattleManager, "enemyIntentText"));
             AppendCheck(ref passed, ref report, "Stage text linked", HasObjectReference(serializedBattleManager, "stageText"));
             AppendCheck(ref passed, ref report, "Stage Objective text linked", HasObjectReference(serializedBattleManager, "stageObjectiveText"));
+            AppendCheck(ref passed, ref report, "Stage Progress text linked", HasObjectReference(serializedBattleManager, "stageProgressText"));
             AppendCheck(ref passed, ref report, "Message text linked", HasObjectReference(serializedBattleManager, "messageText"));
             AppendCheck(ref passed, ref report, "Skill Help text linked", HasObjectReference(serializedBattleManager, "skillHelpText"));
             AppendCheck(ref passed, ref report, "Battle Log text linked", HasObjectReference(serializedBattleManager, "battleLogText"));
@@ -421,6 +429,22 @@ public static class BattleSceneAutoBuilder
             && text.Contains("Objective")
             && text.Contains("Defeat")
             && text.Contains("Slime Scout");
+    }
+
+    private static bool IsStageProgressTextLikelyConfigured(TMP_Text progressText)
+    {
+        if (progressText == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = progressText.GetComponent<RectTransform>();
+        string text = progressText.text;
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= 850f
+            && text.Contains("Progress")
+            && text.Contains("Encounter 1/2")
+            && text.Contains("Active");
     }
 
     private static bool IsBattleLogTextLikelyConfigured(TMP_Text logText)

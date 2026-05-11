@@ -1,138 +1,105 @@
-# Codex Tactics Portfolio Showcase Draft
+# Battle State Machine
 
-This page is a draft for the later portfolio write-up. It summarizes what the prototype currently demonstrates and what evidence still needs to be captured in Unity Play Mode.
-
-## Project overview
-
-`Codex Tactics` is a Unity 2D turn-based RPG battle prototype. The current scope is intentionally small: one hero, a normal Slime encounter, a stronger Slime King boss encounter, a complete battle loop, visible player choices, enemy pattern previews, Continue/Retry flow, and a result screen with carried display-only gold.
-
-## Current playable loop
+This prototype uses a small, readable state machine for the battle loop.
 
 ```text
-Start Battle
--> Stage 1-1 Slime Scout
--> Player Turn
--> choose Attack / Fire Skill / Guard / End Turn
--> Enemy Turn
--> repeat until Victory or Defeat
--> Result Summary
--> Continue to Stage 1-2 Slime King after first Victory
--> Final Clear after boss Victory, or Retry current encounter
+Start
+  -> PlayerTurn
+      -> EnemyTurn
+          -> PlayerTurn
+      -> Victory
+          -> Continue -> Start (next encounter, if one exists)
+          -> Retry -> Start (current encounter)
+      -> Defeat
+          -> Retry -> Start (current encounter)
 ```
 
-## Portfolio systems demonstrated
+## State summary
 
-### 1. Battle state flow
+## Start
 
-The battle uses a clear state flow instead of mixing every action together. This makes the project easier to explain and extend.
+Battle data is reset for the current stage encounter:
 
-Relevant files:
+- Current `StageData` / `EnemyData` values are loaded
+- Stage label
+- Stage objective label
+- Stage progress label
+- Player HP/AP
+- Enemy HP
+- Player/Enemy HP bars
+- Player AP bar
+- Player status text
+- Enemy status text
+- Enemy intent text
+- Skills
+- Guard flag
+- Enemy turn counter
+- Damage dealt/taken counters
+- Guard use counter
+- Skills used counter
+- Battle log
+- Result summary UI is cleared/hidden
+- Result summary panel is cleared/hidden
 
-- `Assets/Scripts/Battle/BattleManager.cs`
-- `Assets/Scripts/Battle/BattleState.cs`
-- `Docs/BattleStateMachine.md`
+After setup, the battle immediately enters `PlayerTurn`.
 
-### 2. Data-driven battle values
+## PlayerTurn
 
-Character, skill, status, enemy pattern, and stage encounter values are separated into small data classes/enums.
+The player can choose one action:
 
-Relevant files:
+- `Attack`: free physical damage
+- `Fire Skill`: costs AP, deals Fire damage, applies Burn
+- `Guard`: ends the turn and reduces the next enemy attack
+- `End Turn`: skips action and lets the next turn recover AP
 
-- `Assets/Scripts/Data/CharacterData.cs`
-- `Assets/Scripts/Data/SkillData.cs`
-- `Assets/Scripts/Data/EnemyData.cs`
-- `Assets/Scripts/Data/StageData.cs`
-- `Assets/Scripts/Data/EnemyPatternData.cs`
-- `Assets/Scripts/Data/StatusEffectType.cs`
-- `Assets/Scripts/Data/ElementType.cs`
+At the start of a player turn, AP recovers by `playerApRecoveryPerTurn`. HP text, HP bars, AP text, and the AP bar are refreshed whenever battle UI updates.
 
-### 3. Tactical player choices
+Using `Fire Skill` spends 2 AP immediately, so the AP text and AP bar change from full `3/3` to `1/3` before the enemy turn begins. Attack and Fire Skill both increase the skills used counter after AP payment succeeds. The damage dealt counter records the actual HP removed from the enemy, including weakness bonus damage.
 
-The prototype has several different decisions:
+Choosing `Guard` sets the player status text to `Status: Guarding` until the next enemy attack is resolved. After the guard damage reduction is consumed, it returns to `Status: Ready`. Each chosen Guard action increases the guard use counter once.
 
-- `Attack`: no-cost reliable damage.
-- `Fire Skill`: AP cost, higher damage, weakness bonus, Burn effect.
-- `Guard`: sacrifices tempo to reduce incoming damage.
-- `End Turn`: skips action to continue the turn cycle.
+## EnemyTurn
 
-### 4. Enemy intent and pattern readability
+The enemy turn resolves in this order:
 
-The enemy previews its next action:
+1. Burn damage, if active
+2. Enemy attack
+3. Victory/Defeat check
+4. Return to `PlayerTurn` if both sides are alive
 
-- `Normal Attack (15)`
-- `Heavy Slam (30)` every 3rd enemy turn
+The enemy has a simple pattern counter. Every 3rd enemy turn, it uses `Heavy Slam` for stronger damage. Each resolved enemy hit increases the damage taken counter by the actual HP removed from the player.
 
-This makes the battle more tactical because the player can choose Guard before a predictable danger spike.
+The Enemy Intent text previews the next enemy action from `enemyTurnCount + 1`:
 
-### 5. Result summary and evaluation
+- `Next Enemy: Normal Attack (15)` for ordinary turns
+- `Next Enemy: Heavy Slam (30)` before every 3rd enemy turn
+- `Next Enemy: Battle ended` after Victory/Defeat
 
-The result screen reports not only Victory/Defeat, but also how the player reached that result. To keep the UI readable, related metrics are grouped into compact lines:
+## Victory / Defeat
 
-- `Damage: dealt ..., taken ...`
-- `Choices: Guard ..., Skills ...`
-- `Pace: ... | Survival: ...`
-- `Rank: ... | Reward: ...G | Total Gold: ...G`
-- `Tip: ...`
-- `Last enemy pattern: ...`
+- `Victory`: enemy HP reaches 0
+- `Defeat`: player HP reaches 0
 
-Relevant files:
+All action buttons are disabled when the battle ends.
+The retry button is shown for both Victory and Defeat. If the current Victory is not the final encounter, the continue button is also shown and advances to the next `StageData` entry. The stage objective label changes from `Objective: Defeat ...` to `Objective Complete: ... | Continue to next encounter`. The stage progress label changes from active progress, such as `Progress: Encounter 1/2 | Active`, to result states such as `Encounter Clear`, `Retry Needed`, or `Stage Clear`. If the last encounter is cleared, Continue stays hidden, the message becomes `Final Clear! Stage 1 completed.`, and the objective label becomes `Objective Complete: Stage 1 cleared`. A compact result summary appears with:
 
-- `Assets/Scripts/Battle/BattleResultData.cs`
-- `Assets/Scripts/Battle/BattleResultEvaluator.cs`
-- `Assets/Scripts/Battle/BattleResultPresenter.cs`
+`BattleResultData.cs` contains the values used by the summary. `BattleResultEvaluator.cs` owns result evaluation rules such as pace, rank, reward, tip, and last enemy pattern labels. `BattleResultPresenter.cs` owns the final summary text formatting. `BattleManager` builds the data object through the evaluator, then passes it to the presenter. This keeps result metrics grouped in one place while keeping evaluation rules and display text in separate classes as the combat report grows.
 
-### 6. Editor validation workflow
+- Result: Victory or Defeat, grouped with the enemy turns resolved
+- Player final HP/AP
+- Enemy final HP
+- Damage dealt / damage taken, grouped into one line
+- Guard uses / Skills used, grouped into one choices line
+- Pace label (`Fast`, `Steady`, `Long`, or `Defeated`) grouped with Survival
+- Survival label, such as `40%` or `100%`
+- Battle rank (`S`, `A`, `B`, or `C`) grouped with Reward gold and Total Gold
+- Reward gold (`150G` for S, `120G` for A, `100G` for B, `0G` for C/Defeat)
+- Total Gold display, which carries earned encounter rewards across the current stage run without inventory/shop logic
+- Result tip, such as `Perfect clear!` or `Guard before Heavy Slam.`
+- Last enemy pattern used, such as `Normal Attack` or `Heavy Slam`
 
-The project includes Unity Editor menu automation so the test scene and battle logic can be checked repeatedly.
+The player status text changes to `Status: Battle ended` when the result state is reached. The result summary panel is shown with the summary text, then hidden again on Retry so the next battle starts cleanly. Pace is intentionally simple: fast Victory is `Fast`, medium Victory is `Steady`, longer Victory is `Long`, and Defeat is `Defeated`. Rank is intentionally simple: Defeat is `C`, a clean fast Victory is `S`, solid Victory is `A`, and slower or rougher Victory is `B`. Reward gold is scaled from that rank so the result summary connects performance to payout. The current Victory reward is added to `totalGoldEarned` once per stage encounter and displayed as `Total Gold` so the stage run feels carried forward without adding inventory or a shop. The result tip gives one short next-action hint based on the rank and the last enemy pattern.
 
-Unity menu path:
+## Portfolio note
 
-```text
-Tools > Codex Tactics > Create Battle Test Scene
-Tools > Codex Tactics > Validate Battle Test Scene
-Tools > Codex Tactics > Run Battle Logic Auto Test
-```
-
-Relevant files:
-
-- `Assets/Editor/BattleSceneAutoBuilder.cs`
-- `Assets/Editor/BattleAutoTestRunner.cs`
-
-## Current verification evidence
-
-Latest automated verification has passed:
-
-- Unity batch compile: PASS
-- Battle scene validation: PASS
-- Battle logic auto test: PASS
-
-Manual Play Mode evidence still needs to be captured by opening Unity and recording screenshots/GIFs.
-
-## Screenshot/GIF targets
-
-Save future media under:
-
-```text
-Docs/Captures/
-```
-
-Recommended captures:
-
-1. Start state: HP/AP bars, enemy intent, action buttons.
-2. Fire Skill: AP decrease, Burn status, damage feedback.
-3. Guard: player status changes to `Guarding`, reduced damage is shown.
-4. Heavy Slam preview: enemy intent shows the strong attack.
-5. Result summary: compact Pace/Survival, Rank/Reward/Total Gold, Tip, and Retry button visible.
-6. Continue flow: first Victory shows Continue, then Stage 1-2 Slime King starts.
-7. Final Clear: boss Victory hides Continue and shows the final clear message.
-
-## Short portfolio explanation draft
-
-> I built a small Unity turn-based RPG battle prototype focused on a stage-based vertical slice. The player can attack, spend AP on a Fire skill, Guard against predictable enemy patterns, continue from a normal Slime encounter into a Slime King boss encounter, and retry the current fight after Victory or Defeat. I separated battle flow, stage/enemy data, result data, result evaluation, and result text formatting into different scripts so the code stays readable as the project grows. I also added Unity Editor validation tools to regenerate the test scene and automatically verify the battle logic.
-
-## Next polish before final portfolio use
-
-1. Capture screenshots/GIFs from Unity Play Mode.
-2. Add those captures to the README.
-3. Replace placeholder UI art with simple pixel-art-style panels/buttons.
-4. Add one additional enemy or boss pattern after the current battle loop is visually documented.
+This is intentionally small and beginner-readable. It is a good base for later features such as more stages, multiple enemies, boss phases, stage rewards, or a ScriptableObject-based skill database.

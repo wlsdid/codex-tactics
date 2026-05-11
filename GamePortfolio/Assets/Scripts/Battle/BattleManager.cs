@@ -62,6 +62,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TMP_Text enemyIntentText;
     [SerializeField] private TMP_Text stageText;
     [SerializeField] private TMP_Text stageObjectiveText;
+    [SerializeField] private TMP_Text stageProgressText;
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private TMP_Text skillHelpText;
     [SerializeField] private TMP_Text battleLogText;
@@ -109,6 +110,7 @@ public class BattleManager : MonoBehaviour
     public string DebugEnemyIntentText => enemyIntentText != null ? enemyIntentText.text : "";
     public string DebugStageText => stageText != null ? stageText.text : "";
     public string DebugStageObjectiveText => stageObjectiveText != null ? stageObjectiveText.text : "";
+    public string DebugStageProgressText => stageProgressText != null ? stageProgressText.text : "";
     public bool DebugRetryButtonVisible => retryButton != null && retryButton.gameObject.activeSelf;
     public bool DebugRetryButtonInteractable => retryButton != null && retryButton.interactable;
     public bool DebugContinueButtonVisible => continueButton != null && continueButton.gameObject.activeSelf;
@@ -514,6 +516,11 @@ public class BattleManager : MonoBehaviour
             stageObjectiveText.text = BuildStageObjectiveText();
         }
 
+        if (stageProgressText != null)
+        {
+            stageProgressText.text = BuildStageProgressText();
+        }
+
         if (messageText != null)
         {
             messageText.text = message;
@@ -822,6 +829,24 @@ public class BattleManager : MonoBehaviour
         }
 
         return currentStage.BuildObjectiveText();
+    }
+
+    private string BuildStageProgressText()
+    {
+        EnsureStageEncounters();
+        int currentEncounterNumber = Mathf.Clamp(currentStageIndex + 1, 1, stageEncounters.Count);
+        string statusLabel = "Active";
+
+        if (currentState == BattleState.Victory)
+        {
+            statusLabel = HasNextStage() ? "Encounter Clear" : "Stage Clear";
+        }
+        else if (currentState == BattleState.Defeat)
+        {
+            statusLabel = "Retry Needed";
+        }
+
+        return $"Progress: Encounter {currentEncounterNumber}/{stageEncounters.Count} | {statusLabel}";
     }
 
     private void EnsureEnemyPattern()
