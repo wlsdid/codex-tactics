@@ -1,5 +1,25 @@
 # Next Autonomous Tasks
 
+## Latest autonomous run — 2026-05-11 Battle Guide Hint
+
+Completed:
+- Added a visible `Battle Guide Text` label to the generated battle test scene.
+- The guide points first-time viewers toward Attack, Fire Skill/Burn, Guard before Heavy Slam, Enemy Intent, and Retry after the result.
+- Updated `Validate Battle Test Scene` to check the guide object and required hint words.
+- Updated README, manual validation docs, devlog, and study note.
+
+Verification done:
+- Ran static token/whitespace/brace checks and `git diff --check`.
+- Ran Unity 6000.4.6f1 batch compile with no C# compiler errors found in log.
+- Regenerated `Assets/Scenes/BattleScene.unity` through `Create Battle Test Scene` in Unity batch mode.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/` now that the start UI explains the intended controls.
+2. Add captured media links to README and the showcase draft.
+3. Keep the next code change small; avoid adding more result metrics until the current result UI is visually reviewed.
+
 ## Latest autonomous run — 2026-05-11 Result Summary Compact Text
 
 Completed:

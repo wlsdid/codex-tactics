@@ -26,6 +26,10 @@ public static class BattleSceneAutoBuilder
         TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Turn-Based Battle Test", new Vector2(0, 250), new Vector2(800, 60), TextAlignmentOptions.Center);
         titleText.fontSize = 36;
 
+        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Battle Guide: Attack to deal damage | Fire Skill applies Burn | Guard before Heavy Slam | Watch Enemy Intent | Retry after result", new Vector2(0, 205), new Vector2(1120, 45), TextAlignmentOptions.Center);
+        battleGuideText.fontSize = 18;
+        battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
+
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100", new Vector2(-360, 130), new Vector2(420, 50), TextAlignmentOptions.Left);
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 100), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
         TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3", new Vector2(-360, 75), new Vector2(420, 45), TextAlignmentOptions.Left);
@@ -130,6 +134,7 @@ public static class BattleSceneAutoBuilder
         Slider playerHpSlider = FindSlider("Player HP Slider");
         Slider playerApSlider = FindSlider("Player AP Slider");
         Slider enemyHpSlider = FindSlider("Enemy HP Slider");
+        TMP_Text battleGuideText = FindText("Battle Guide Text");
         TMP_Text playerStatusText = FindText("Player Status Text");
         TMP_Text skillHelpText = FindText("Skill Help Text");
         TMP_Text enemyStatusText = FindText("Enemy Status Text");
@@ -137,6 +142,8 @@ public static class BattleSceneAutoBuilder
         TMP_Text resultSummaryText = FindTextIncludingInactive("Result Summary Text");
         Image resultSummaryPanel = FindImageIncludingInactive("Result Summary Panel");
 
+        AppendCheck(ref passed, ref report, "Battle Guide text exists", battleGuideText != null);
+        AppendCheck(ref passed, ref report, "Battle Guide text explains main controls", IsBattleGuideTextLikelyConfigured(battleGuideText));
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
@@ -292,6 +299,25 @@ public static class BattleSceneAutoBuilder
 
         RectTransform rectTransform = panelImage.GetComponent<RectTransform>();
         return rectTransform != null && rectTransform.sizeDelta.x >= 900f && rectTransform.sizeDelta.y >= 100f && panelImage.color.a > 0.5f;
+    }
+
+    private static bool IsBattleGuideTextLikelyConfigured(TMP_Text guideText)
+    {
+        if (guideText == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = guideText.GetComponent<RectTransform>();
+        string text = guideText.text;
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= 1000f
+            && text.Contains("Attack")
+            && text.Contains("Fire Skill")
+            && text.Contains("Burn")
+            && text.Contains("Guard")
+            && text.Contains("Enemy Intent")
+            && text.Contains("Retry");
     }
 
     private static bool HasObjectReference(SerializedObject serializedObject, string propertyName)

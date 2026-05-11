@@ -29,7 +29,7 @@ Press the top-center `Play` button, then check this sequence:
 
 | Step | Action | What to capture |
 | --- | --- | --- |
-| 1 | Start battle | Full HP/AP bars, `Status: Ready`, `Next Enemy: Normal Attack (15)` |
+| 1 | Start battle | Battle Guide with Attack/Fire Skill/Burn/Guard/Enemy Intent/Retry hints, full HP/AP bars, `Status: Ready`, `Next Enemy: Normal Attack (15)` |
 | 2 | Click `Fire Skill` | AP decreases from 3 to 1, enemy gets Burn, damage is logged |
 | 3 | Restart or continue test | Prepare a Guard example |
 | 4 | Click `Guard` | Player status changes to `Status: Guarding` |
@@ -41,7 +41,7 @@ Press the top-center `Play` button, then check this sequence:
 
 Capture these still images if GIF recording is not ready yet:
 
-1. `01_battle_start.png` - initial battle UI
+1. `01_battle_start.png` - initial battle UI with the Battle Guide hint label
 2. `02_fire_skill_burn.png` - Fire Skill / Burn state
 3. `03_guard_status.png` - Guarding status before enemy attack
 4. `04_result_summary_rank.png` - result summary with panel, compact Damage/Choices/Pace+Survival/Rank+Reward lines, and Tip

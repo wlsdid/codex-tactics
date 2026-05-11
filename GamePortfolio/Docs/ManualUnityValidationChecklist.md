@@ -33,6 +33,8 @@ Press the top-center Unity `▶ Play` button.
 - [ ] AP bar starts full.
 - [ ] Slime HP text starts at `Slime HP: 80/80`.
 - [ ] Slime HP bar starts full.
+- [ ] Battle Guide text is visible near the top of the battle UI.
+- [ ] Battle Guide mentions `Attack`, `Fire Skill`, `Burn`, `Guard`, `Enemy Intent`, and `Retry`.
 - [ ] Player status shows `Status: Ready`.
 - [ ] Enemy status shows `Status: None`.
 - [ ] Enemy intent shows `Next Enemy: Normal Attack (15)`.
