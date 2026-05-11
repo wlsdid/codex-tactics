@@ -23,6 +23,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleManager, "playerStatusText", CreateText("Player Status Text"));
         SetPrivateField(battleManager, "enemyStatusText", CreateText("Enemy Status Text"));
         SetPrivateField(battleManager, "enemyIntentText", CreateText("Enemy Intent Text"));
+        SetPrivateField(battleManager, "runStatusText", CreateText("Run Status Text"));
         SetPrivateField(battleManager, "stageText", CreateText("Stage Text"));
         SetPrivateField(battleManager, "stageObjectiveText", CreateText("Stage Objective Text"));
         SetPrivateField(battleManager, "stageProgressText", CreateText("Stage Progress Text"));
@@ -40,6 +41,7 @@ public static class BattleAutoTestRunner
 
         battleManager.DebugStartBattleForTest();
         AppendCheck(ref passed, ref report, "Battle starts at the first slime encounter", battleManager.DebugStageText == "Stage 1-1: Slime Scout");
+        AppendCheck(ref passed, ref report, "Run status starts as Stage 1 in progress", battleManager.DebugRunStatusText == "Run Status: Stage 1 In Progress");
         AppendCheck(ref passed, ref report, "Battle starts with a clear first encounter objective", battleManager.DebugStageObjectiveText == "Objective: Defeat Slime Scout");
         AppendCheck(ref passed, ref report, "Battle starts with encounter progress", battleManager.DebugStageProgressText == "Progress: Encounter 1/2 | Active");
         AppendCheck(ref passed, ref report, "Continue button is hidden during active battle", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable);
@@ -97,6 +99,7 @@ public static class BattleAutoTestRunner
         battleManager.DebugEndBattleForTest(BattleState.Defeat);
         AppendCheck(ref passed, ref report, "Retry button is shown after defeat", battleManager.DebugRetryButtonVisible && battleManager.DebugRetryButtonInteractable);
         AppendCheck(ref passed, ref report, "Defeat summary shows compact result and remaining resources", battleManager.DebugResultSummaryText.Contains("Result: Defeat | Turns: 3") && battleManager.DebugResultSummaryText.Contains("Hero: HP 40/100") && battleManager.DebugResultSummaryText.Contains("Slime: HP 80/80") && battleManager.DebugResultSummaryText.Contains("Damage: dealt 0, taken 60") && battleManager.DebugResultSummaryText.Contains("Choices: Guard 0, Skills 0") && battleManager.DebugResultSummaryText.Contains("Pace: Defeated | Survival: 40%") && battleManager.DebugResultSummaryText.Contains("Rank: C | Reward: 0G | Total Gold: 0G") && battleManager.DebugResultSummaryText.Contains("Tip: Guard before Heavy Slam.") && battleManager.DebugResultSummaryText.Contains("Last enemy pattern: Heavy Slam"));
+        AppendCheck(ref passed, ref report, "Run status marks defeat as retry current encounter", battleManager.DebugRunStatusText == "Run Status: Retry Current Encounter");
         AppendCheck(ref passed, ref report, "Stage progress marks defeat as retry needed", battleManager.DebugStageProgressText == "Progress: Encounter 1/2 | Retry Needed");
         AppendCheck(ref passed, ref report, "Result summary panel is shown after defeat", battleManager.DebugResultSummaryPanelVisible);
         battleManager.OnClickRetryButton();
@@ -110,12 +113,14 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Victory summary appears after victory with carried total gold", battleManager.DebugResultSummaryText.Contains("Result: Victory | Turns: 0") && battleManager.DebugResultSummaryText.Contains("Choices: Guard 0, Skills 0") && battleManager.DebugResultSummaryText.Contains("Pace: Fast | Survival: 100%") && battleManager.DebugResultSummaryText.Contains("Rank: S | Reward: 150G | Total Gold: 150G") && battleManager.DebugResultSummaryText.Contains("Tip: Perfect clear!") && battleManager.DebugTotalGoldEarned == 150);
         AppendCheck(ref passed, ref report, "Continue button is shown after a non-final victory", battleManager.DebugContinueButtonVisible && battleManager.DebugContinueButtonInteractable);
         AppendCheck(ref passed, ref report, "Stage objective marks first encounter complete before Continue", battleManager.DebugStageObjectiveText.Contains("Objective Complete: Stage 1-1: Slime Scout") && battleManager.DebugStageObjectiveText.Contains("Continue to next encounter"));
+        AppendCheck(ref passed, ref report, "Run status marks encounter clear before Continue", battleManager.DebugRunStatusText == "Run Status: Encounter Clear - Continue");
         AppendCheck(ref passed, ref report, "Stage progress marks first encounter clear before Continue", battleManager.DebugStageProgressText == "Progress: Encounter 1/2 | Encounter Clear");
         battleManager.OnClickContinueButton();
         AppendCheck(ref passed, ref report, "Continue advances to the Stage 1 boss encounter", battleManager.DebugStageText == "Stage 1-2: Slime King" && battleManager.DebugStageObjectiveText == "Objective: Defeat Slime King" && battleManager.DebugStageProgressText == "Progress: Encounter 2/2 | Active" && battleManager.DebugEnemyHpText == "Slime King HP: 140/140 (100%)" && battleManager.DebugEnemyIntentText == "Next Enemy: Royal Slam (36)");
         AppendCheck(ref passed, ref report, "Continue hides again during the next active battle", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable);
         battleManager.DebugEndBattleForTest(BattleState.Victory);
         AppendCheck(ref passed, ref report, "Final boss victory hides Continue and marks final clear", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable && battleManager.DebugMessageText.Contains("Final Clear"));
+        AppendCheck(ref passed, ref report, "Run status marks Stage 1 complete after final clear", battleManager.DebugRunStatusText == "Run Status: Stage 1 Complete");
         AppendCheck(ref passed, ref report, "Final boss victory carries total gold across encounters", battleManager.DebugResultSummaryText.Contains("Rank: S | Reward: 150G | Total Gold: 300G") && battleManager.DebugTotalGoldEarned == 300);
         AppendCheck(ref passed, ref report, "Stage objective marks Stage 1 clear after final boss victory", battleManager.DebugStageObjectiveText == "Objective Complete: Stage 1 cleared");
         AppendCheck(ref passed, ref report, "Stage progress marks final stage clear", battleManager.DebugStageProgressText == "Progress: Encounter 2/2 | Stage Clear");

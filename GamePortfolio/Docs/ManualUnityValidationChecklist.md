@@ -33,6 +33,8 @@ Press the top-center Unity `▶ Play` button.
 - [ ] AP bar starts full.
 - [ ] Slime HP text starts at `Slime HP: 80/80 (100%)`.
 - [ ] Slime HP bar starts full.
+- [ ] Title shows `Codex Tactics`.
+- [ ] Run status shows `Run Status: Stage 1 In Progress`.
 - [ ] Battle Guide text is visible near the top of the battle UI.
 - [ ] Battle Guide mentions `Attack`, `Fire Skill`, `Burn`, `Guard`, `Enemy Intent`, `Continue`, and `Retry`.
 - [ ] Stage text shows `Stage 1-1: Slime Scout`.
@@ -94,10 +96,12 @@ Finish the battle by Victory or Defeat.
 - [ ] Confirm `Continue` is visible and interactable after Victory.
 - [ ] Confirm the first Victory result summary shows a non-zero `Total Gold` value when a gold reward is earned.
 - [ ] Confirm stage objective changes to `Objective Complete: Stage 1-1: Slime Scout | Continue to next encounter`.
+- [ ] Confirm run status changes to `Run Status: Encounter Clear - Continue`.
 - [ ] Confirm stage progress changes to `Progress: Encounter 1/2 | Encounter Clear`.
 - [ ] Click `Continue`.
 - [ ] Stage text changes to `Stage 1-2: Slime King`.
 - [ ] Stage objective changes to `Objective: Defeat Slime King`.
+- [ ] Run status returns to `Run Status: Stage 1 In Progress`.
 - [ ] Stage progress changes to `Progress: Encounter 2/2 | Active`.
 - [ ] Boss HP starts at `Slime King HP: 140/140 (100%)`.
 - [ ] Boss intent starts at `Next Enemy: Royal Slam (36)`.
@@ -105,6 +109,7 @@ Finish the battle by Victory or Defeat.
 - [ ] Confirm the boss Victory result summary carries `Total Gold` forward from the first encounter.
 - [ ] Final message shows `Final Clear! Stage 1 completed.`.
 - [ ] Stage objective changes to `Objective Complete: Stage 1 cleared`.
+- [ ] Run status changes to `Run Status: Stage 1 Complete`.
 - [ ] Stage progress changes to `Progress: Encounter 2/2 | Stage Clear`.
 - [ ] Continue button is hidden after the final clear.
 

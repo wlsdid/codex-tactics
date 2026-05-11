@@ -1,5 +1,27 @@
 # Next Autonomous Tasks
 
+## Latest autonomous run — 2026-05-12 Run Status Header
+
+Completed:
+- Changed the generated scene title to `Codex Tactics`.
+- Added `Run Status Text` to show the high-level stage run state.
+- Run status now shows `Stage 1 In Progress`, `Encounter Clear - Continue`, `Retry Current Encounter`, or `Stage 1 Complete`.
+- Updated generated scene builder, scene validator, battle logic auto-test, README, battle state docs, showcase draft, checklist, devlog, and study note.
+
+Verification done:
+- Ran source/documentation whitespace and final-newline checks: PASS.
+- Ran C# brace-count check: PASS.
+- Ran targeted `git diff --check`: PASS.
+- Ran Unity 6000.4.6f1 batch compile with exit code 0 and no compiler-error grep output.
+- Regenerated `Assets/Scenes/BattleScene.unity` through `Create Battle Test Scene` in Unity batch mode.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture Unity Play Mode screenshots/GIFs including the `Codex Tactics` title and Run Status line.
+2. Add captured media links to README and the showcase draft.
+3. After capture, consider pixel-art-style panel/button visual polish before adding more mechanics.
+
 ## Latest autonomous run — 2026-05-12 Stage Progress UI
 
 Completed:

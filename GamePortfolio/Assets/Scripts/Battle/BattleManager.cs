@@ -60,6 +60,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Slider enemyHpSlider;
     [SerializeField] private TMP_Text enemyStatusText;
     [SerializeField] private TMP_Text enemyIntentText;
+    [SerializeField] private TMP_Text runStatusText;
     [SerializeField] private TMP_Text stageText;
     [SerializeField] private TMP_Text stageObjectiveText;
     [SerializeField] private TMP_Text stageProgressText;
@@ -108,6 +109,7 @@ public class BattleManager : MonoBehaviour
     public string DebugPlayerStatusText => playerStatusText != null ? playerStatusText.text : "";
     public string DebugEnemyStatusText => enemyStatusText != null ? enemyStatusText.text : "";
     public string DebugEnemyIntentText => enemyIntentText != null ? enemyIntentText.text : "";
+    public string DebugRunStatusText => runStatusText != null ? runStatusText.text : "";
     public string DebugStageText => stageText != null ? stageText.text : "";
     public string DebugStageObjectiveText => stageObjectiveText != null ? stageObjectiveText.text : "";
     public string DebugStageProgressText => stageProgressText != null ? stageProgressText.text : "";
@@ -506,6 +508,11 @@ public class BattleManager : MonoBehaviour
             enemyIntentText.text = BuildEnemyIntentText();
         }
 
+        if (runStatusText != null)
+        {
+            runStatusText.text = BuildRunStatusText();
+        }
+
         if (stageText != null)
         {
             stageText.text = BuildStageText();
@@ -803,6 +810,21 @@ public class BattleManager : MonoBehaviour
     {
         StageData currentStage = GetCurrentStageData();
         return currentStage != null ? currentStage.BuildDisplayName() : "Stage: Unknown";
+    }
+
+    private string BuildRunStatusText()
+    {
+        if (currentState == BattleState.Victory)
+        {
+            return HasNextStage() ? "Run Status: Encounter Clear - Continue" : "Run Status: Stage 1 Complete";
+        }
+
+        if (currentState == BattleState.Defeat)
+        {
+            return "Run Status: Retry Current Encounter";
+        }
+
+        return "Run Status: Stage 1 In Progress";
     }
 
     private string BuildStageObjectiveText()
