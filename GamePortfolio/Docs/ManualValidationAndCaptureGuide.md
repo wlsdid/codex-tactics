@@ -29,23 +29,26 @@ Press the top-center `Play` button, then check this sequence:
 
 | Step | Action | What to capture |
 | --- | --- | --- |
-| 1 | Start battle | Battle Guide with Attack/Fire Skill/Burn/Guard/Enemy Intent/Retry hints, full HP/AP bars, `100%` resource labels, `Status: Ready`, `Next Enemy: Normal Attack (15)`, and the `Recent Actions` log panel |
+| 1 | Start battle | Stage label `Stage 1-1: Slime Scout`, Battle Guide with Attack/Fire Skill/Burn/Guard/Enemy Intent/Continue/Retry hints, full HP/AP bars, `100%` resource labels, `Status: Ready`, `Next Enemy: Normal Attack (15)`, and the `Recent Actions` log panel |
 | 2 | Click `Fire Skill` | AP decreases from `3/3 (100%)` to `1/3 (33%)`, enemy HP shows `40/80 (50%)`, enemy gets Burn, and the action appears in the `Recent Actions` log |
 | 3 | Restart or continue test | Prepare a Guard example |
 | 4 | Click `Guard` | Player status changes to `Status: Guarding` |
 | 5 | Resolve enemy attack | Guarded damage appears and status returns to `Status: Ready` |
 | 6 | Reach Victory or Defeat | Result panel appears with compact grouped lines: `Damage: dealt ..., taken ...`, `Choices: Guard ..., Skills ...`, `Pace: ... | Survival: ...`, `Rank: ... | Reward: ...G`, plus `Tip` and last enemy pattern |
-| 7 | Click `Retry` | Result panel disappears and HP/AP/status reset |
+| 7 | Click `Continue` after first Victory | Stage changes to `Stage 1-2: Slime King`, boss HP starts at `140/140 (100%)`, and enemy intent previews `Royal Slam (36)` |
+| 8 | Clear the boss | Final Clear message appears and Continue is hidden |
+| 9 | Click `Retry` | Result panel disappears and the current encounter HP/AP/status reset |
 
 ## 4. Screenshot list for README
 
 Capture these still images if GIF recording is not ready yet:
 
-1. `01_battle_start.png` - initial battle UI with the Battle Guide hint label and `Recent Actions` log panel
+1. `01_battle_start.png` - initial battle UI with the stage label, Battle Guide hint label, and `Recent Actions` log panel
 2. `02_fire_skill_burn.png` - Fire Skill / Burn state
 3. `03_guard_status.png` - Guarding status before enemy attack
 4. `04_result_summary_rank.png` - result summary with panel, compact Damage/Choices/Pace+Survival/Rank+Reward lines, and Tip
-5. `05_retry_reset.png` - restarted clean state
+5. `05_continue_boss_stage.png` - Stage 1-2 Slime King boss encounter after Continue
+6. `06_retry_reset.png` - restarted clean state
 
 Suggested folder:
 
@@ -67,7 +70,9 @@ Suggested GIF content:
 2. Use `Fire Skill` once.
 3. Show enemy intent/status update.
 4. Use `Guard` once.
-5. End on result summary if possible.
+5. Win the first encounter and press `Continue`.
+6. Show the Stage 1-2 Slime King boss start.
+7. End on final result summary if possible.
 
 Suggested filename:
 

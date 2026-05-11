@@ -12,6 +12,13 @@ This document records the current prototype numbers and the design reason behind
 | AP recovery per player turn | 1 | Encourages waiting or using basic actions between Fire Skill casts. |
 | Slime max HP | 80 | Lets a few correct attacks end the test battle quickly. |
 
+## Stage Encounters
+
+| Encounter | Enemy | HP | Weakness | Pattern | Design note |
+| --- | --- | ---: | --- | --- | --- |
+| Stage 1-1: Slime Scout | Slime | 80 | Fire | Normal Attack 15, Heavy Slam 30 every 3rd enemy turn | Short normal encounter that teaches Fire weakness, Guard, and Enemy Intent. |
+| Stage 1-2: Slime King | Slime King | 140 | Fire | Royal Slam 36 every enemy turn | Stronger boss-style encounter used to prove the prototype can advance beyond one battle. |
+
 ## Player Actions
 
 | Action | Cost | Current effect | Balance note |
@@ -76,8 +83,9 @@ This document records the current prototype numbers and the design reason behind
 
 ## Current Tuning Read
 
-- Fire Skill is intentionally efficient because the enemy is weak to Fire: 30 base + 10 weakness bonus = 40 damage.
+- Fire Skill is intentionally efficient because the normal Slime is weak to Fire: 30 base + 10 weakness bonus = 40 damage.
 - Two Fire Skill hits can defeat the 80 HP Slime, but AP cost prevents immediate repeated casting without turns/recovery.
+- Slime King raises HP to 140 and uses Royal Slam every turn, creating a simple boss-like second encounter without adding new systems.
 - Normal Attack damage of 15 means the hero survives several mistakes.
 - Heavy Slam at 30 damage every 3rd enemy turn makes the Enemy Intent UI and Guard action meaningful.
 - Guard reducing 15 to 7 demonstrates integer damage reduction and gives a clear visible benefit.

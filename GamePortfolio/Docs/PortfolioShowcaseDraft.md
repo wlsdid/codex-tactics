@@ -4,18 +4,20 @@ This page is a draft for the later portfolio write-up. It summarizes what the pr
 
 ## Project overview
 
-`Codex Tactics` is a Unity 2D turn-based RPG battle prototype. The current scope is intentionally small: one hero, one slime enemy, a complete battle loop, visible player choices, an enemy pattern preview, and a result screen.
+`Codex Tactics` is a Unity 2D turn-based RPG battle prototype. The current scope is intentionally small: one hero, a normal Slime encounter, a stronger Slime King boss encounter, a complete battle loop, visible player choices, enemy pattern previews, Continue/Retry flow, and a result screen.
 
 ## Current playable loop
 
 ```text
 Start Battle
+-> Stage 1-1 Slime Scout
 -> Player Turn
 -> choose Attack / Fire Skill / Guard / End Turn
 -> Enemy Turn
 -> repeat until Victory or Defeat
 -> Result Summary
--> Retry
+-> Continue to Stage 1-2 Slime King after first Victory
+-> Final Clear after boss Victory, or Retry current encounter
 ```
 
 ## Portfolio systems demonstrated
@@ -32,12 +34,14 @@ Relevant files:
 
 ### 2. Data-driven battle values
 
-Character, skill, status, and enemy pattern values are separated into small data classes/enums.
+Character, skill, status, enemy pattern, and stage encounter values are separated into small data classes/enums.
 
 Relevant files:
 
 - `Assets/Scripts/Data/CharacterData.cs`
 - `Assets/Scripts/Data/SkillData.cs`
+- `Assets/Scripts/Data/EnemyData.cs`
+- `Assets/Scripts/Data/StageData.cs`
 - `Assets/Scripts/Data/EnemyPatternData.cs`
 - `Assets/Scripts/Data/StatusEffectType.cs`
 - `Assets/Scripts/Data/ElementType.cs`
@@ -119,10 +123,12 @@ Recommended captures:
 3. Guard: player status changes to `Guarding`, reduced damage is shown.
 4. Heavy Slam preview: enemy intent shows the strong attack.
 5. Result summary: compact Pace/Survival, Rank/Reward, Tip, and Retry button visible.
+6. Continue flow: first Victory shows Continue, then Stage 1-2 Slime King starts.
+7. Final Clear: boss Victory hides Continue and shows the final clear message.
 
 ## Short portfolio explanation draft
 
-> I built a small Unity turn-based RPG battle prototype focused on a complete vertical slice. The player can attack, spend AP on a Fire skill, Guard against predictable enemy patterns, and retry after Victory or Defeat. I separated battle flow, result data, result evaluation, and result text formatting into different scripts so the code stays readable as the result screen grows. I also added Unity Editor validation tools to regenerate the test scene and automatically verify the battle logic.
+> I built a small Unity turn-based RPG battle prototype focused on a stage-based vertical slice. The player can attack, spend AP on a Fire skill, Guard against predictable enemy patterns, continue from a normal Slime encounter into a Slime King boss encounter, and retry the current fight after Victory or Defeat. I separated battle flow, stage/enemy data, result data, result evaluation, and result text formatting into different scripts so the code stays readable as the project grows. I also added Unity Editor validation tools to regenerate the test scene and automatically verify the battle logic.
 
 ## Next polish before final portfolio use
 

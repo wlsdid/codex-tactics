@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-11 Resource Percent Labels
+## Latest autonomous run — 2026-05-11 Stage Encounter Flow
+
+Completed:
+- Started moving from a single battle prototype toward a stage-based vertical slice.
+- Added beginner-readable `EnemyData` and `StageData` serializable data classes.
+- Added two encounter presets: `Stage 1-1: Slime Scout` and `Stage 1-2: Slime King`.
+- Updated `BattleManager` so battle start loads the current encounter data.
+- Added Stage text and a `Continue` button: first Victory advances to the boss encounter, final Victory shows `Final Clear`, and Retry restarts the current encounter.
+- Updated generated scene creation/validation, editor battle logic auto-test, README, manual validation docs, balance table, battle state docs, devlog, and study note.
+
+Verification done:
+- Confirmed the new auto-test expectations failed before implementation in Unity batch compile due to missing `StageData`, stage debug accessors, and Continue flow methods.
+- Ran Unity 6000.4.6f1 batch compile with no C# compiler errors found in log.
+- Regenerated `Assets/Scenes/BattleScene.unity` through `Create Battle Test Scene` in Unity batch mode.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+- Ran source/documentation whitespace checks, C# brace checks, and `git diff --check`.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/`, now including the Stage 1-1 start, Continue button, Stage 1-2 boss start, and Final Clear state.
+2. Add captured media links to README and the showcase draft.
+3. Expand stage/party structure next only after visual capture: e.g. add a third encounter, ally party slot, or simple stage-select/title flow.
+
+## Previous autonomous run — 2026-05-11 Resource Percent Labels
 
 Completed:
 - Kept the scope to one small resource-visualization polish because HP/AP sliders already existed.

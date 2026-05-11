@@ -34,11 +34,13 @@ Press the top-center Unity `▶ Play` button.
 - [ ] Slime HP text starts at `Slime HP: 80/80 (100%)`.
 - [ ] Slime HP bar starts full.
 - [ ] Battle Guide text is visible near the top of the battle UI.
-- [ ] Battle Guide mentions `Attack`, `Fire Skill`, `Burn`, `Guard`, `Enemy Intent`, and `Retry`.
+- [ ] Battle Guide mentions `Attack`, `Fire Skill`, `Burn`, `Guard`, `Enemy Intent`, `Continue`, and `Retry`.
+- [ ] Stage text shows `Stage 1-1: Slime Scout`.
 - [ ] Player status shows `Status: Ready`.
 - [ ] Enemy status shows `Status: None`.
 - [ ] Enemy intent shows `Next Enemy: Normal Attack (15)`.
 - [ ] Retry button is hidden.
+- [ ] Continue button is hidden.
 - [ ] Result summary panel is hidden.
 - [ ] Battle log area shows a `Recent Actions` heading and readable dark panel.
 
@@ -84,22 +86,34 @@ Finish the battle by Victory or Defeat.
 - [ ] Result summary includes `Tip`.
 - [ ] Result summary includes `Last enemy pattern`.
 
-## 8. Retry reset check
+## 8. Continue / boss encounter check
+
+- [ ] Win the Stage 1-1 Slime Scout encounter.
+- [ ] Confirm `Continue` is visible and interactable after Victory.
+- [ ] Click `Continue`.
+- [ ] Stage text changes to `Stage 1-2: Slime King`.
+- [ ] Boss HP starts at `Slime King HP: 140/140 (100%)`.
+- [ ] Boss intent starts at `Next Enemy: Royal Slam (36)`.
+- [ ] Win the boss encounter.
+- [ ] Final message shows `Final Clear! Stage 1 completed.`.
+- [ ] Continue button is hidden after the final clear.
+
+## 9. Retry reset check
 
 - [ ] Click `Retry`.
 - [ ] Hero HP resets to `Hero HP: 100/100 (100%)`.
 - [ ] AP resets to `AP: 3/3 (100%)`.
-- [ ] Slime HP resets to `Slime HP: 80/80 (100%)`.
+- [ ] Current encounter enemy HP resets to full.
 - [ ] Player status resets to `Status: Ready`.
 - [ ] Enemy status resets to `Status: None`.
-- [ ] Enemy intent resets to `Next Enemy: Normal Attack (15)`.
 - [ ] Result summary text is cleared.
 - [ ] Result summary panel is hidden.
 - [ ] Battle log area shows a `Recent Actions` heading and readable dark panel.
 - [ ] Retry button is hidden again.
+- [ ] Continue button is hidden again during active battle.
 - [ ] Battle log returns to the new battle start/recent-action flow.
 
-## 9. Capture readiness
+## 10. Capture readiness
 
 - [ ] Save screenshots or GIFs under `Docs/Captures/`.
 - [ ] Capture at least one result summary screenshot.

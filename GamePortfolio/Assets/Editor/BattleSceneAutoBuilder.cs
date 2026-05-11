@@ -26,9 +26,13 @@ public static class BattleSceneAutoBuilder
         TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Turn-Based Battle Test", new Vector2(0, 250), new Vector2(800, 60), TextAlignmentOptions.Center);
         titleText.fontSize = 36;
 
-        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Battle Guide: Attack to deal damage | Fire Skill applies Burn | Guard before Heavy Slam | Watch Enemy Intent | Retry after result", new Vector2(0, 205), new Vector2(1120, 45), TextAlignmentOptions.Center);
+        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Battle Guide: Attack to deal damage | Fire Skill applies Burn | Guard before Heavy Slam | Watch Enemy Intent | Continue after Victory | Retry current fight", new Vector2(0, 205), new Vector2(1120, 45), TextAlignmentOptions.Center);
         battleGuideText.fontSize = 18;
         battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
+
+        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "Stage 1-1: Slime Scout", new Vector2(0, 165), new Vector2(800, 40), TextAlignmentOptions.Center);
+        stageText.fontSize = 24;
+        stageText.color = new Color(0.92f, 0.86f, 0.55f);
 
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 130), new Vector2(420, 50), TextAlignmentOptions.Left);
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 100), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
@@ -66,8 +70,10 @@ public static class BattleSceneAutoBuilder
         Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire Skill", new Vector2(-110, 85), new Vector2(180, 65));
         Button guardButton = CreateButton(canvas.transform, "Guard Button", "Guard", new Vector2(110, 85), new Vector2(180, 65));
         Button endTurnButton = CreateButton(canvas.transform, "End Turn Button", "End Turn", new Vector2(330, 85), new Vector2(180, 65));
-        Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(0, -325), new Vector2(220, 70));
+        Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(-130, -325), new Vector2(220, 70));
         retryButton.gameObject.SetActive(false);
+        Button continueButton = CreateButton(canvas.transform, "Continue Button", "Continue", new Vector2(130, -325), new Vector2(220, 70));
+        continueButton.gameObject.SetActive(false);
 
         GameObject battleManagerObject = new GameObject("BattleManager");
         BattleManager battleManager = battleManagerObject.AddComponent<BattleManager>();
@@ -82,6 +88,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleManager, "enemyHpSlider", enemyHpSlider);
         SetObjectReference(serializedBattleManager, "enemyStatusText", enemyStatusText);
         SetObjectReference(serializedBattleManager, "enemyIntentText", enemyIntentText);
+        SetObjectReference(serializedBattleManager, "stageText", stageText);
         SetObjectReference(serializedBattleManager, "messageText", messageText);
         SetObjectReference(serializedBattleManager, "skillHelpText", skillHelpText);
         SetObjectReference(serializedBattleManager, "battleLogText", battleLogText);
@@ -92,6 +99,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleManager, "guardButton", guardButton);
         SetObjectReference(serializedBattleManager, "endTurnButton", endTurnButton);
         SetObjectReference(serializedBattleManager, "retryButton", retryButton);
+        SetObjectReference(serializedBattleManager, "continueButton", continueButton);
         serializedBattleManager.ApplyModifiedPropertiesWithoutUndo();
 
         EditorSceneManager.MarkSceneDirty(scene);
@@ -102,7 +110,7 @@ public static class BattleSceneAutoBuilder
         Selection.activeGameObject = battleManagerObject;
         EditorUtility.DisplayDialog(
             "BattleScene Created",
-            "Assets/Scenes/BattleScene.unity created!\n\nPress Play to test Attack / Fire Skill / Guard / End Turn / Retry.",
+            "Assets/Scenes/BattleScene.unity created!\n\nPress Play to test Attack / Fire Skill / Guard / End Turn / Continue / Retry.",
             "OK"
         );
     }
@@ -136,6 +144,7 @@ public static class BattleSceneAutoBuilder
         Button guardButton = FindButton("Guard Button");
         Button endTurnButton = FindButton("End Turn Button");
         Button retryButton = FindButtonIncludingInactive("Retry Button");
+        Button continueButton = FindButtonIncludingInactive("Continue Button");
         TMP_Text playerHpText = FindText("Player HP Text");
         TMP_Text playerApText = FindText("Player AP Text");
         TMP_Text enemyHpText = FindText("Enemy HP Text");
@@ -143,6 +152,7 @@ public static class BattleSceneAutoBuilder
         Slider playerApSlider = FindSlider("Player AP Slider");
         Slider enemyHpSlider = FindSlider("Enemy HP Slider");
         TMP_Text battleGuideText = FindText("Battle Guide Text");
+        TMP_Text stageText = FindText("Stage Text");
         TMP_Text playerStatusText = FindText("Player Status Text");
         TMP_Text skillHelpText = FindText("Skill Help Text");
         TMP_Text enemyStatusText = FindText("Enemy Status Text");
@@ -155,6 +165,8 @@ public static class BattleSceneAutoBuilder
 
         AppendCheck(ref passed, ref report, "Battle Guide text exists", battleGuideText != null);
         AppendCheck(ref passed, ref report, "Battle Guide text explains main controls", IsBattleGuideTextLikelyConfigured(battleGuideText));
+        AppendCheck(ref passed, ref report, "Stage text exists", stageText != null);
+        AppendCheck(ref passed, ref report, "Stage text starts at the first encounter", IsStageTextLikelyConfigured(stageText));
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
@@ -172,6 +184,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Guard button exists", guardButton != null);
         AppendCheck(ref passed, ref report, "End Turn button exists", endTurnButton != null);
         AppendCheck(ref passed, ref report, "Retry button exists", retryButton != null);
+        AppendCheck(ref passed, ref report, "Continue button exists", continueButton != null);
         AppendCheck(ref passed, ref report, "Player HP text includes percentage", IsResourceTextLikelyConfigured(playerHpText, "Hero HP", "100%"));
         AppendCheck(ref passed, ref report, "Player AP text includes percentage", IsResourceTextLikelyConfigured(playerApText, "AP", "100%"));
         AppendCheck(ref passed, ref report, "Enemy HP text includes percentage", IsResourceTextLikelyConfigured(enemyHpText, "Slime HP", "100%"));
@@ -183,6 +196,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Guard button is visible", IsButtonLikelyVisible(guardButton));
         AppendCheck(ref passed, ref report, "End Turn button is visible", IsButtonLikelyVisible(endTurnButton));
         AppendCheck(ref passed, ref report, "Retry button is configured but initially hidden", IsButtonLikelyConfigured(retryButton) && retryButton != null && !retryButton.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Continue button is configured but initially hidden", IsButtonLikelyConfigured(continueButton) && continueButton != null && !continueButton.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Player HP slider is configured", IsSliderLikelyConfigured(playerHpSlider));
         AppendCheck(ref passed, ref report, "Player AP slider is configured", IsSliderLikelyConfigured(playerApSlider));
         AppendCheck(ref passed, ref report, "Enemy HP slider is configured", IsSliderLikelyConfigured(enemyHpSlider));
@@ -199,6 +213,7 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Enemy HP slider linked", HasObjectReference(serializedBattleManager, "enemyHpSlider"));
             AppendCheck(ref passed, ref report, "Enemy Status text linked", HasObjectReference(serializedBattleManager, "enemyStatusText"));
             AppendCheck(ref passed, ref report, "Enemy Intent text linked", HasObjectReference(serializedBattleManager, "enemyIntentText"));
+            AppendCheck(ref passed, ref report, "Stage text linked", HasObjectReference(serializedBattleManager, "stageText"));
             AppendCheck(ref passed, ref report, "Message text linked", HasObjectReference(serializedBattleManager, "messageText"));
             AppendCheck(ref passed, ref report, "Skill Help text linked", HasObjectReference(serializedBattleManager, "skillHelpText"));
             AppendCheck(ref passed, ref report, "Battle Log text linked", HasObjectReference(serializedBattleManager, "battleLogText"));
@@ -209,6 +224,7 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Guard button linked", HasObjectReference(serializedBattleManager, "guardButton"));
             AppendCheck(ref passed, ref report, "End Turn button linked", HasObjectReference(serializedBattleManager, "endTurnButton"));
             AppendCheck(ref passed, ref report, "Retry button linked", HasObjectReference(serializedBattleManager, "retryButton"));
+            AppendCheck(ref passed, ref report, "Continue button linked", HasObjectReference(serializedBattleManager, "continueButton"));
         }
 
         report += passed ? "\nRESULT: PASS" : "\nRESULT: FAIL";
@@ -365,7 +381,22 @@ public static class BattleSceneAutoBuilder
             && text.Contains("Burn")
             && text.Contains("Guard")
             && text.Contains("Enemy Intent")
+            && text.Contains("Continue")
             && text.Contains("Retry");
+    }
+
+    private static bool IsStageTextLikelyConfigured(TMP_Text stageText)
+    {
+        if (stageText == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = stageText.GetComponent<RectTransform>();
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= 700f
+            && stageText.text.Contains("Stage 1-1")
+            && stageText.text.Contains("Slime Scout");
     }
 
     private static bool IsBattleLogTextLikelyConfigured(TMP_Text logText)

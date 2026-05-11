@@ -16,6 +16,10 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private int playerMaxAp = 3;
     [SerializeField] private int playerApRecoveryPerTurn = 1;
 
+    [Header("Stage Encounters")]
+    [SerializeField] private List<StageData> stageEncounters = new List<StageData>();
+    [SerializeField] private int currentStageIndex;
+
     [SerializeField] private string enemyName = "Slime";
     [SerializeField] private int enemyMaxHp = 80;
     [SerializeField] private ElementType enemyWeakness = ElementType.Fire;
@@ -56,6 +60,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Slider enemyHpSlider;
     [SerializeField] private TMP_Text enemyStatusText;
     [SerializeField] private TMP_Text enemyIntentText;
+    [SerializeField] private TMP_Text stageText;
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private TMP_Text skillHelpText;
     [SerializeField] private TMP_Text battleLogText;
@@ -66,6 +71,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Button endTurnButton;
     [SerializeField] private Button guardButton;
     [SerializeField] private Button retryButton;
+    [SerializeField] private Button continueButton;
 
     private CharacterData player;
     private CharacterData enemy;
@@ -97,8 +103,11 @@ public class BattleManager : MonoBehaviour
     public string DebugPlayerStatusText => playerStatusText != null ? playerStatusText.text : "";
     public string DebugEnemyStatusText => enemyStatusText != null ? enemyStatusText.text : "";
     public string DebugEnemyIntentText => enemyIntentText != null ? enemyIntentText.text : "";
+    public string DebugStageText => stageText != null ? stageText.text : "";
     public bool DebugRetryButtonVisible => retryButton != null && retryButton.gameObject.activeSelf;
     public bool DebugRetryButtonInteractable => retryButton != null && retryButton.interactable;
+    public bool DebugContinueButtonVisible => continueButton != null && continueButton.gameObject.activeSelf;
+    public bool DebugContinueButtonInteractable => continueButton != null && continueButton.interactable;
     public bool DebugResultSummaryPanelVisible => resultSummaryPanel != null && resultSummaryPanel.activeSelf;
     public int DebugTotalDamageDealt => totalDamageDealt;
     public int DebugTotalDamageTaken => totalDamageTaken;
@@ -123,6 +132,8 @@ public class BattleManager : MonoBehaviour
     private void StartBattle()
     {
         currentState = BattleState.Start;
+        EnsureStageEncounters();
+        ApplyCurrentStageData();
         EnsureEnemyPattern();
 
         player = new CharacterData(playerName, playerMaxHp, playerAttack, ElementType.None, playerMaxAp);
@@ -171,7 +182,14 @@ public class BattleManager : MonoBehaviour
             retryButton.onClick.AddListener(OnClickRetryButton);
         }
 
+        if (continueButton != null)
+        {
+            continueButton.onClick.RemoveListener(OnClickContinueButton);
+            continueButton.onClick.AddListener(OnClickContinueButton);
+        }
+
         SetRetryButtonVisible(false);
+        SetContinueButtonVisible(false);
         SetResultSummaryVisible(false, "");
 
         UpdateUI("Battle Start!");
@@ -214,6 +232,18 @@ public class BattleManager : MonoBehaviour
         }
 
         StopAllCoroutines();
+        StartBattle();
+    }
+
+    public void OnClickContinueButton()
+    {
+        if (currentState != BattleState.Victory || !HasNextStage())
+        {
+            return;
+        }
+
+        StopAllCoroutines();
+        currentStageIndex++;
         StartBattle();
     }
 
@@ -409,11 +439,19 @@ public class BattleManager : MonoBehaviour
         currentState = resultState;
         SetActionButtonsInteractable(false);
         SetRetryButtonVisible(true);
+        SetContinueButtonVisible(resultState == BattleState.Victory && HasNextStage());
         SetResultSummaryVisible(true, BuildResultSummaryText(resultState));
 
         if (resultState == BattleState.Victory)
         {
-            UpdateUI("Victory! Enemy defeated.");
+            if (HasNextStage())
+            {
+                UpdateUI("Victory! Enemy defeated. Press Continue for the boss encounter.");
+            }
+            else
+            {
+                UpdateUI("Final Clear! Stage 1 completed.");
+            }
         }
         else
         {
@@ -457,6 +495,11 @@ public class BattleManager : MonoBehaviour
         if (enemyIntentText != null)
         {
             enemyIntentText.text = BuildEnemyIntentText();
+        }
+
+        if (stageText != null)
+        {
+            stageText.text = BuildStageText();
         }
 
         if (messageText != null)
@@ -570,6 +613,17 @@ public class BattleManager : MonoBehaviour
         retryButton.gameObject.SetActive(isVisible);
     }
 
+    private void SetContinueButtonVisible(bool isVisible)
+    {
+        if (continueButton == null)
+        {
+            return;
+        }
+
+        continueButton.interactable = isVisible;
+        continueButton.gameObject.SetActive(isVisible);
+    }
+
     private void SetResultSummaryVisible(bool isVisible, string summary)
     {
         if (resultSummaryText != null)
@@ -662,6 +716,54 @@ public class BattleManager : MonoBehaviour
         }
 
         return line;
+    }
+
+    private void EnsureStageEncounters()
+    {
+        if (stageEncounters == null)
+        {
+            stageEncounters = new List<StageData>();
+        }
+
+        if (stageEncounters.Count == 0)
+        {
+            stageEncounters.Add(StageData.CreateStage1Normal());
+            stageEncounters.Add(StageData.CreateStage1Boss());
+        }
+
+        currentStageIndex = Mathf.Clamp(currentStageIndex, 0, stageEncounters.Count - 1);
+    }
+
+    private void ApplyCurrentStageData()
+    {
+        StageData currentStage = GetCurrentStageData();
+        if (currentStage == null || currentStage.enemy == null)
+        {
+            return;
+        }
+
+        enemyName = currentStage.enemy.enemyName;
+        enemyMaxHp = currentStage.enemy.maxHp;
+        enemyWeakness = currentStage.enemy.weakness;
+        enemyPattern = currentStage.enemy.pattern;
+    }
+
+    private StageData GetCurrentStageData()
+    {
+        EnsureStageEncounters();
+        return stageEncounters[currentStageIndex];
+    }
+
+    private bool HasNextStage()
+    {
+        EnsureStageEncounters();
+        return currentStageIndex < stageEncounters.Count - 1;
+    }
+
+    private string BuildStageText()
+    {
+        StageData currentStage = GetCurrentStageData();
+        return currentStage != null ? currentStage.BuildDisplayName() : "Stage: Unknown";
     }
 
     private void EnsureEnemyPattern()

@@ -23,6 +23,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleManager, "playerStatusText", CreateText("Player Status Text"));
         SetPrivateField(battleManager, "enemyStatusText", CreateText("Enemy Status Text"));
         SetPrivateField(battleManager, "enemyIntentText", CreateText("Enemy Intent Text"));
+        SetPrivateField(battleManager, "stageText", CreateText("Stage Text"));
         SetPrivateField(battleManager, "messageText", CreateText("Message Text"));
         SetPrivateField(battleManager, "skillHelpText", CreateText("Skill Help Text"));
         SetPrivateField(battleManager, "battleLogText", CreateText("Battle Log Text"));
@@ -33,8 +34,11 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleManager, "guardButton", CreateButton("Guard Button"));
         SetPrivateField(battleManager, "endTurnButton", CreateButton("End Turn Button"));
         SetPrivateField(battleManager, "retryButton", CreateButton("Retry Button"));
+        SetPrivateField(battleManager, "continueButton", CreateButton("Continue Button"));
 
         battleManager.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Battle starts at the first slime encounter", battleManager.DebugStageText == "Stage 1-1: Slime Scout");
+        AppendCheck(ref passed, ref report, "Continue button is hidden during active battle", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable);
         AppendCheck(ref passed, ref report, "Battle starts with full player HP percentage", battleManager.DebugPlayerHpText == "Hero HP: 100/100 (100%)");
         AppendCheck(ref passed, ref report, "Battle starts with full AP percentage", battleManager.DebugPlayerApText == "AP: 3/3 (100%)");
         AppendCheck(ref passed, ref report, "Battle starts with full enemy HP percentage", battleManager.DebugEnemyHpText == "Slime HP: 80/80 (100%)");
@@ -99,6 +103,16 @@ public static class BattleAutoTestRunner
 
         battleManager.DebugEndBattleForTest(BattleState.Victory);
         AppendCheck(ref passed, ref report, "Victory summary appears after victory", battleManager.DebugResultSummaryText.Contains("Result: Victory | Turns: 0") && battleManager.DebugResultSummaryText.Contains("Choices: Guard 0, Skills 0") && battleManager.DebugResultSummaryText.Contains("Pace: Fast | Survival: 100%") && battleManager.DebugResultSummaryText.Contains("Rank: S | Reward: 150G") && battleManager.DebugResultSummaryText.Contains("Tip: Perfect clear!"));
+        AppendCheck(ref passed, ref report, "Continue button is shown after a non-final victory", battleManager.DebugContinueButtonVisible && battleManager.DebugContinueButtonInteractable);
+        battleManager.OnClickContinueButton();
+        AppendCheck(ref passed, ref report, "Continue advances to the Stage 1 boss encounter", battleManager.DebugStageText == "Stage 1-2: Slime King" && battleManager.DebugEnemyHpText == "Slime King HP: 140/140 (100%)" && battleManager.DebugEnemyIntentText == "Next Enemy: Royal Slam (36)");
+        AppendCheck(ref passed, ref report, "Continue hides again during the next active battle", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable);
+        battleManager.DebugEndBattleForTest(BattleState.Victory);
+        AppendCheck(ref passed, ref report, "Final boss victory hides Continue and marks final clear", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable && battleManager.DebugMessageText.Contains("Final Clear"));
+        AppendCheck(ref passed, ref report, "Retry after final clear keeps the current boss encounter", battleManager.DebugRetryButtonVisible && battleManager.DebugRetryButtonInteractable);
+        battleManager.OnClickRetryButton();
+        AppendCheck(ref passed, ref report, "Retry restarts the current boss encounter instead of resetting the stage", battleManager.DebugStageText == "Stage 1-2: Slime King" && battleManager.DebugEnemyHpText == "Slime King HP: 140/140 (100%)");
+        AppendCheck(ref passed, ref report, "EnemyData and StageData presets can describe multiple encounters", StageData.CreateStage1Boss().enemy.enemyName == "Slime King" && StageData.CreateStage1Normal().enemy.maxHp == 80);
         AppendCheck(ref passed, ref report, "BattleResultEvaluator builds rank, pace, survival, reward, tip, and last pattern", BattleResultEvaluator.BuildRank(BattleState.Victory, 2, 20) == "A" && BattleResultEvaluator.BuildPaceLabel(BattleState.Victory, 2) == "Steady" && BattleResultEvaluator.BuildSurvivalLabel(70, 100) == "70%" && BattleResultEvaluator.BuildRewardGold("A", 150, 120, 100, 0) == 120 && BattleResultEvaluator.BuildResultTip("A", "Normal Attack", "Heavy Slam") == "Take less damage for a higher rank." && BattleResultEvaluator.BuildLastEnemyPatternLabel(3, new EnemyPatternData()) == "Heavy Slam");
 
         BattleResultData presenterTestData = new BattleResultData
