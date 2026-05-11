@@ -29,8 +29,8 @@ Press the top-center `Play` button, then check this sequence:
 
 | Step | Action | What to capture |
 | --- | --- | --- |
-| 1 | Start battle | Battle Guide with Attack/Fire Skill/Burn/Guard/Enemy Intent/Retry hints, full HP/AP bars, `Status: Ready`, `Next Enemy: Normal Attack (15)`, and the `Recent Actions` log panel |
-| 2 | Click `Fire Skill` | AP decreases from 3 to 1, enemy gets Burn, and the action appears in the `Recent Actions` log |
+| 1 | Start battle | Battle Guide with Attack/Fire Skill/Burn/Guard/Enemy Intent/Retry hints, full HP/AP bars, `100%` resource labels, `Status: Ready`, `Next Enemy: Normal Attack (15)`, and the `Recent Actions` log panel |
+| 2 | Click `Fire Skill` | AP decreases from `3/3 (100%)` to `1/3 (33%)`, enemy HP shows `40/80 (50%)`, enemy gets Burn, and the action appears in the `Recent Actions` log |
 | 3 | Restart or continue test | Prepare a Guard example |
 | 4 | Click `Guard` | Player status changes to `Status: Guarding` |
 | 5 | Resolve enemy attack | Guarded damage appears and status returns to `Status: Ready` |

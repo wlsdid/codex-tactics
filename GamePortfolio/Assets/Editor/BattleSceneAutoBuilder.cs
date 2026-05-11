@@ -30,14 +30,14 @@ public static class BattleSceneAutoBuilder
         battleGuideText.fontSize = 18;
         battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
 
-        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100", new Vector2(-360, 130), new Vector2(420, 50), TextAlignmentOptions.Left);
+        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 130), new Vector2(420, 50), TextAlignmentOptions.Left);
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 100), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
-        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3", new Vector2(-360, 75), new Vector2(420, 45), TextAlignmentOptions.Left);
+        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-360, 75), new Vector2(420, 45), TextAlignmentOptions.Left);
         Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-360, 50), new Vector2(420, 18), new Color(0.26f, 0.56f, 1.0f));
         TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-360, 25), new Vector2(420, 40), TextAlignmentOptions.Left);
         playerStatusText.fontSize = 22;
         playerStatusText.color = new Color(0.78f, 1.0f, 0.76f);
-        TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80", new Vector2(360, 130), new Vector2(420, 50), TextAlignmentOptions.Right);
+        TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(360, 130), new Vector2(420, 50), TextAlignmentOptions.Right);
         Slider enemyHpSlider = CreateHpSlider(canvas.transform, "Enemy HP Slider", new Vector2(360, 100), new Vector2(420, 22), new Color(0.82f, 0.22f, 0.24f));
         TMP_Text enemyStatusText = CreateText(canvas.transform, "Enemy Status Text", "Status: None", new Vector2(360, 75), new Vector2(420, 45), TextAlignmentOptions.Right);
         TMP_Text enemyIntentText = CreateText(canvas.transform, "Enemy Intent Text", "Next Enemy: Normal Attack (15)", new Vector2(360, 45), new Vector2(420, 45), TextAlignmentOptions.Right);
@@ -136,6 +136,9 @@ public static class BattleSceneAutoBuilder
         Button guardButton = FindButton("Guard Button");
         Button endTurnButton = FindButton("End Turn Button");
         Button retryButton = FindButtonIncludingInactive("Retry Button");
+        TMP_Text playerHpText = FindText("Player HP Text");
+        TMP_Text playerApText = FindText("Player AP Text");
+        TMP_Text enemyHpText = FindText("Enemy HP Text");
         Slider playerHpSlider = FindSlider("Player HP Slider");
         Slider playerApSlider = FindSlider("Player AP Slider");
         Slider enemyHpSlider = FindSlider("Enemy HP Slider");
@@ -169,6 +172,9 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Guard button exists", guardButton != null);
         AppendCheck(ref passed, ref report, "End Turn button exists", endTurnButton != null);
         AppendCheck(ref passed, ref report, "Retry button exists", retryButton != null);
+        AppendCheck(ref passed, ref report, "Player HP text includes percentage", IsResourceTextLikelyConfigured(playerHpText, "Hero HP", "100%"));
+        AppendCheck(ref passed, ref report, "Player AP text includes percentage", IsResourceTextLikelyConfigured(playerApText, "AP", "100%"));
+        AppendCheck(ref passed, ref report, "Enemy HP text includes percentage", IsResourceTextLikelyConfigured(enemyHpText, "Slime HP", "100%"));
         AppendCheck(ref passed, ref report, "Player HP slider exists", playerHpSlider != null);
         AppendCheck(ref passed, ref report, "Player AP slider exists", playerApSlider != null);
         AppendCheck(ref passed, ref report, "Enemy HP slider exists", enemyHpSlider != null);
@@ -307,6 +313,18 @@ public static class BattleSceneAutoBuilder
 
         RectTransform rectTransform = slider.GetComponent<RectTransform>();
         return slider.gameObject.activeSelf && rectTransform != null && rectTransform.sizeDelta.x > 0 && slider.fillRect != null && slider.targetGraphic != null;
+    }
+
+    private static bool IsResourceTextLikelyConfigured(TMP_Text resourceText, string label, string percentageToken)
+    {
+        if (resourceText == null)
+        {
+            return false;
+        }
+
+        return resourceText.text.Contains(label)
+            && resourceText.text.Contains("/")
+            && resourceText.text.Contains(percentageToken);
     }
 
     private static bool IsPanelLikelyConfigured(Image panelImage)

@@ -27,11 +27,11 @@ Assets/Scenes/BattleScene.unity
 
 Press the top-center Unity `▶ Play` button.
 
-- [ ] Hero HP text starts at `Hero HP: 100/100`.
+- [ ] Hero HP text starts at `Hero HP: 100/100 (100%)`.
 - [ ] Hero HP bar starts full.
-- [ ] AP text starts at `AP: 3/3`.
+- [ ] AP text starts at `AP: 3/3 (100%)`.
 - [ ] AP bar starts full.
-- [ ] Slime HP text starts at `Slime HP: 80/80`.
+- [ ] Slime HP text starts at `Slime HP: 80/80 (100%)`.
 - [ ] Slime HP bar starts full.
 - [ ] Battle Guide text is visible near the top of the battle UI.
 - [ ] Battle Guide mentions `Attack`, `Fire Skill`, `Burn`, `Guard`, `Enemy Intent`, and `Retry`.
@@ -45,8 +45,8 @@ Press the top-center Unity `▶ Play` button.
 ## 4. Fire Skill / Burn check
 
 - [ ] Click `Fire Skill`.
-- [ ] AP decreases from `3/3` to `1/3`.
-- [ ] Slime HP decreases by Fire weakness damage.
+- [ ] AP decreases from `3/3 (100%)` to `1/3 (33%)`.
+- [ ] Slime HP decreases by Fire weakness damage and shows `40/80 (50%)`.
 - [ ] Enemy status shows `Status: Burn (2 turns)`.
 - [ ] Battle log records the Fire Skill action under the `Recent Actions` heading.
 
@@ -57,7 +57,7 @@ Restart the battle if needed, then test Guard.
 - [ ] Click `Guard`.
 - [ ] Player status changes to `Status: Guarding`.
 - [ ] Resolve the next enemy attack.
-- [ ] Guarded normal attack deals reduced damage, expected `Hero HP: 93/100` for the first normal hit.
+- [ ] Guarded normal attack deals reduced damage, expected `Hero HP: 93/100 (93%)` for the first normal hit.
 - [ ] Player status returns to `Status: Ready` after Guard is consumed.
 - [ ] Battle log records the Guard action and guarded hit in order.
 
@@ -87,8 +87,9 @@ Finish the battle by Victory or Defeat.
 ## 8. Retry reset check
 
 - [ ] Click `Retry`.
-- [ ] Hero HP resets to `Hero HP: 100/100`.
-- [ ] AP resets to `AP: 3/3`.
+- [ ] Hero HP resets to `Hero HP: 100/100 (100%)`.
+- [ ] AP resets to `AP: 3/3 (100%)`.
+- [ ] Slime HP resets to `Slime HP: 80/80 (100%)`.
 - [ ] Player status resets to `Status: Ready`.
 - [ ] Enemy status resets to `Status: None`.
 - [ ] Enemy intent resets to `Next Enemy: Normal Attack (15)`.

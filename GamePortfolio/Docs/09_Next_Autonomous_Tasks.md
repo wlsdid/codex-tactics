@@ -1,6 +1,27 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-11 Battle Log Readability
+## Latest autonomous run — 2026-05-11 Resource Percent Labels
+
+Completed:
+- Kept the scope to one small resource-visualization polish because HP/AP sliders already existed.
+- Added percentage text to Player HP, Player AP, and Enemy HP labels through one shared `BuildResourceText(...)` helper.
+- Updated the generated battle scene defaults so the first visible labels show `100%`.
+- Updated scene validation and battle logic auto-test expectations for resource percentage labels after start, Fire Skill, Guard damage, restart, and retry.
+- Updated README, manual validation docs, devlog, and study note.
+
+Verification done:
+- Ran source/documentation whitespace checks, C# brace checks, and `git diff --check`.
+- Ran Unity 6000.4.6f1 batch compile with no C# compiler errors found in log.
+- Regenerated `Assets/Scenes/BattleScene.unity` through `Create Battle Test Scene` in Unity batch mode.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/`, focusing on the Battle Guide, percent resource labels, Recent Actions log, and result summary.
+2. Add captured media links to README and the showcase draft.
+3. Keep the next code change small; avoid adding more result metrics until the current UI is visually reviewed.
+
+## Previous autonomous run — 2026-05-11 Battle Log Readability
 
 Completed:
 - Improved the existing battle log instead of adding another result metric.

@@ -82,6 +82,8 @@ public class BattleManager : MonoBehaviour
     private const int MaxBattleLogEntries = 6;
 
     public string DebugPlayerHpText => playerHpText != null ? playerHpText.text : "";
+    public string DebugPlayerApText => playerApText != null ? playerApText.text : "";
+    public string DebugEnemyHpText => enemyHpText != null ? enemyHpText.text : "";
     public float DebugPlayerHpBarValue => playerHpSlider != null ? playerHpSlider.value : -1f;
     public float DebugPlayerHpBarMaxValue => playerHpSlider != null ? playerHpSlider.maxValue : -1f;
     public float DebugPlayerApBarValue => playerApSlider != null ? playerApSlider.value : -1f;
@@ -423,14 +425,14 @@ public class BattleManager : MonoBehaviour
     {
         if (playerHpText != null)
         {
-            playerHpText.text = $"{player.characterName} HP: {player.currentHp}/{player.maxHp}";
+            playerHpText.text = BuildResourceText($"{player.characterName} HP", player.currentHp, player.maxHp);
         }
 
         UpdateResourceSlider(playerHpSlider, player.currentHp, player.maxHp);
 
         if (playerApText != null)
         {
-            playerApText.text = $"AP: {player.currentAp}/{player.maxAp}";
+            playerApText.text = BuildResourceText("AP", player.currentAp, player.maxAp);
         }
 
         UpdateResourceSlider(playerApSlider, player.currentAp, player.maxAp);
@@ -442,7 +444,7 @@ public class BattleManager : MonoBehaviour
 
         if (enemyHpText != null)
         {
-            enemyHpText.text = $"{enemy.characterName} HP: {enemy.currentHp}/{enemy.maxHp}";
+            enemyHpText.text = BuildResourceText($"{enemy.characterName} HP", enemy.currentHp, enemy.maxHp);
         }
 
         UpdateResourceSlider(enemyHpSlider, enemy.currentHp, enemy.maxHp);
@@ -465,6 +467,12 @@ public class BattleManager : MonoBehaviour
         UpdateSkillHelpText();
 
         AddBattleLogEntry(message);
+    }
+
+    private string BuildResourceText(string label, int currentValue, int maxValue)
+    {
+        int percentage = maxValue > 0 ? Mathf.RoundToInt((float)currentValue / maxValue * 100f) : 0;
+        return $"{label}: {currentValue}/{maxValue} ({percentage}%)";
     }
 
     private void UpdateResourceSlider(Slider slider, int currentValue, int maxValue)

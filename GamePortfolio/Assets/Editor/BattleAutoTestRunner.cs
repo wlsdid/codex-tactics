@@ -35,7 +35,9 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleManager, "retryButton", CreateButton("Retry Button"));
 
         battleManager.DebugStartBattleForTest();
-        AppendCheck(ref passed, ref report, "Battle starts with full player HP", battleManager.DebugPlayerHpText == "Hero HP: 100/100");
+        AppendCheck(ref passed, ref report, "Battle starts with full player HP percentage", battleManager.DebugPlayerHpText == "Hero HP: 100/100 (100%)");
+        AppendCheck(ref passed, ref report, "Battle starts with full AP percentage", battleManager.DebugPlayerApText == "AP: 3/3 (100%)");
+        AppendCheck(ref passed, ref report, "Battle starts with full enemy HP percentage", battleManager.DebugEnemyHpText == "Slime HP: 80/80 (100%)");
         AppendCheck(ref passed, ref report, "Player HP bar starts full", battleManager.DebugPlayerHpBarValue == 100f && battleManager.DebugPlayerHpBarMaxValue == 100f);
         AppendCheck(ref passed, ref report, "Player AP bar starts full", battleManager.DebugPlayerApBarValue == 3f && battleManager.DebugPlayerApBarMaxValue == 3f);
         AppendCheck(ref passed, ref report, "Enemy HP bar starts full", battleManager.DebugEnemyHpBarValue == 80f && battleManager.DebugEnemyHpBarMaxValue == 80f);
@@ -51,12 +53,15 @@ public static class BattleAutoTestRunner
 
         battleManager.OnClickFireSkillButton();
         AppendCheck(ref passed, ref report, "Player AP bar spends 2 AP after Fire Skill", battleManager.DebugPlayerApBarValue == 1f && battleManager.DebugPlayerApBarMaxValue == 3f);
+        AppendCheck(ref passed, ref report, "Player AP text shows 33% after Fire Skill", battleManager.DebugPlayerApText == "AP: 1/3 (33%)");
+        AppendCheck(ref passed, ref report, "Enemy HP text shows 50% after Fire Skill weakness damage", battleManager.DebugEnemyHpText == "Slime HP: 40/80 (50%)");
         AppendCheck(ref passed, ref report, "Enemy status shows Burn after Fire Skill", battleManager.DebugEnemyStatusText == "Status: Burn (2 turns)");
         AppendCheck(ref passed, ref report, "Damage dealt tracks Fire Skill weakness damage", battleManager.DebugTotalDamageDealt == 40);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Fire Skill", battleManager.DebugSkillsUsedCount == 1);
 
         battleManager.DebugStartBattleForTest();
         AppendCheck(ref passed, ref report, "Restart resets Player AP bar to full", battleManager.DebugPlayerApBarValue == 3f && battleManager.DebugPlayerApBarMaxValue == 3f);
+        AppendCheck(ref passed, ref report, "Restart resets resource percentage labels", battleManager.DebugPlayerHpText == "Hero HP: 100/100 (100%)" && battleManager.DebugPlayerApText == "AP: 3/3 (100%)" && battleManager.DebugEnemyHpText == "Slime HP: 80/80 (100%)");
         AppendCheck(ref passed, ref report, "Restart resets damage, guard, and skill counters", battleManager.DebugTotalDamageDealt == 0 && battleManager.DebugTotalDamageTaken == 0 && battleManager.DebugGuardUseCount == 0 && battleManager.DebugSkillsUsedCount == 0);
         AppendCheck(ref passed, ref report, "Restart keeps the readable battle log heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions") && battleManager.DebugBattleLogText.Contains("1. Player Turn"));
 
@@ -64,7 +69,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Player status shows Guarding before enemy attack", battleManager.DebugPlayerStatusText == "Status: Guarding");
         battleManager.DebugResolveEnemyAttackForTest();
         AppendCheck(ref passed, ref report, "Player status returns to Ready after guard is consumed", battleManager.DebugPlayerStatusText == "Status: Ready");
-        AppendCheck(ref passed, ref report, "Guard reduces 15 enemy damage to 7", battleManager.DebugPlayerHpText == "Hero HP: 93/100");
+        AppendCheck(ref passed, ref report, "Guard reduces 15 enemy damage to 7", battleManager.DebugPlayerHpText == "Hero HP: 93/100 (93%)");
         AppendCheck(ref passed, ref report, "Damage taken tracks guarded hit", battleManager.DebugTotalDamageTaken == 7);
         AppendCheck(ref passed, ref report, "Guard use counter tracks chosen guard action", battleManager.DebugGuardUseCount == 1);
         AppendCheck(ref passed, ref report, "Player HP bar follows guard damage", battleManager.DebugPlayerHpBarValue == 93f && battleManager.DebugPlayerHpBarMaxValue == 100f);
@@ -76,7 +81,7 @@ public static class BattleAutoTestRunner
         battleManager.DebugResolveEnemyAttackForTest();
         AppendCheck(ref passed, ref report, "Enemy intent previews strong attack before every 3rd enemy turn", battleManager.DebugEnemyIntentText == "Next Enemy: Heavy Slam (30)");
         battleManager.DebugResolveEnemyAttackForTest();
-        AppendCheck(ref passed, ref report, "Slime uses a strong attack on every 3rd enemy turn", battleManager.DebugPlayerHpText == "Hero HP: 40/100");
+        AppendCheck(ref passed, ref report, "Slime uses a strong attack on every 3rd enemy turn", battleManager.DebugPlayerHpText == "Hero HP: 40/100 (40%)");
         AppendCheck(ref passed, ref report, "Player HP bar follows repeated enemy damage", battleManager.DebugPlayerHpBarValue == 40f);
         AppendCheck(ref passed, ref report, "Damage taken tracks normal and strong enemy hits", battleManager.DebugTotalDamageTaken == 60);
         AppendCheck(ref passed, ref report, "Strong attack message is shown", battleManager.DebugMessageText == "Slime uses Heavy Slam on turn 3! Hero takes 30 damage.");
@@ -86,7 +91,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Defeat summary shows compact result and remaining resources", battleManager.DebugResultSummaryText.Contains("Result: Defeat | Turns: 3") && battleManager.DebugResultSummaryText.Contains("Hero: HP 40/100") && battleManager.DebugResultSummaryText.Contains("Slime: HP 80/80") && battleManager.DebugResultSummaryText.Contains("Damage: dealt 0, taken 60") && battleManager.DebugResultSummaryText.Contains("Choices: Guard 0, Skills 0") && battleManager.DebugResultSummaryText.Contains("Pace: Defeated | Survival: 40%") && battleManager.DebugResultSummaryText.Contains("Rank: C | Reward: 0G") && battleManager.DebugResultSummaryText.Contains("Tip: Guard before Heavy Slam.") && battleManager.DebugResultSummaryText.Contains("Last enemy pattern: Heavy Slam"));
         AppendCheck(ref passed, ref report, "Result summary panel is shown after defeat", battleManager.DebugResultSummaryPanelVisible);
         battleManager.OnClickRetryButton();
-        AppendCheck(ref passed, ref report, "Retry restarts battle with full HP", battleManager.DebugPlayerHpText == "Hero HP: 100/100" && battleManager.DebugMessageText.Contains("Player Turn"));
+        AppendCheck(ref passed, ref report, "Retry restarts battle with full HP", battleManager.DebugPlayerHpText == "Hero HP: 100/100 (100%)" && battleManager.DebugMessageText.Contains("Player Turn"));
         AppendCheck(ref passed, ref report, "Retry clears result summary", string.IsNullOrEmpty(battleManager.DebugResultSummaryText));
         AppendCheck(ref passed, ref report, "Retry hides result summary panel", !battleManager.DebugResultSummaryPanelVisible);
         AppendCheck(ref passed, ref report, "Retry resets player/enemy status, intent, and combat report counters", battleManager.DebugPlayerStatusText == "Status: Ready" && battleManager.DebugEnemyStatusText == "Status: None" && battleManager.DebugEnemyIntentText == "Next Enemy: Normal Attack (15)" && battleManager.DebugGuardUseCount == 0 && battleManager.DebugSkillsUsedCount == 0);
