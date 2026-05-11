@@ -40,6 +40,18 @@ public static class BattleResultEvaluator
         return "Long";
     }
 
+    public static string BuildSurvivalLabel(int currentHp, int maxHp)
+    {
+        if (maxHp <= 0)
+        {
+            return "0%";
+        }
+
+        int clampedCurrentHp = UnityEngine.Mathf.Clamp(currentHp, 0, maxHp);
+        int survivalPercent = UnityEngine.Mathf.RoundToInt((float)clampedCurrentHp / maxHp * 100f);
+        return survivalPercent + "%";
+    }
+
     public static int BuildRewardGold(string rank, int sRankRewardGold, int aRankRewardGold, int bRankRewardGold, int defeatRewardGold)
     {
         switch (rank)

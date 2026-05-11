@@ -1,6 +1,25 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-11 Portfolio Showcase Draft
+## Latest autonomous run — 2026-05-11 Result Survival Label
+
+Completed:
+- Added `survivalLabel` to `BattleResultData` so the result summary can show remaining HP as a quick percentage.
+- Added `BattleResultEvaluator.BuildSurvivalLabel(...)` and displayed `Survival: ...%` through `BattleResultPresenter`.
+- Updated the editor battle logic auto-test expectations for Defeat, Victory, evaluator output, and direct presenter formatting.
+- Updated README, balance documentation, portfolio showcase draft, manual validation docs, devlog, and study note.
+
+Verification done:
+- Ran source/documentation token checks, brace checks, trailing whitespace/final newline checks, and `git diff --check`.
+- Ran Unity 6000.4.6f1 batch compile with no C# compiler errors found in log.
+- Ran scene validation in Unity batch mode: `RESULT: PASS`.
+- Ran battle logic auto test in Unity batch mode: `RESULT: PASS`.
+
+Recommended next tasks:
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/` when the user can open the editor visually.
+2. Add captured media links to README and the showcase draft.
+3. Keep future result-screen changes small until the current summary is visually reviewed.
+
+## Previous autonomous run — 2026-05-11 Portfolio Showcase Draft
 
 Completed:
 - Added `Docs/PortfolioShowcaseDraft.md` to start turning the working prototype into portfolio explanation material.

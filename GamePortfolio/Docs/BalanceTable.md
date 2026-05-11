@@ -44,9 +44,10 @@ This document records the current prototype numbers and the design reason behind
 | Guard uses | Counts chosen Guard actions | Shows player defensive behavior. |
 | Skills used | Counts successful Attack / Fire Skill actions | Shows how actively the player spent offensive turns. |
 | Pace | Fast / Steady / Long / Defeated from result and enemy turns | Gives a quick clear-speed label before the detailed rank. |
+| Survival | Remaining hero HP as a percentage | Makes defensive performance easy to compare between runs. |
 | Tip | Shows a short performance or counterplay hint | Turns the result screen into a small learning loop. |
 | Last enemy pattern | Shows Normal Attack / Heavy Slam / None | Helps connect result to enemy AI pattern. |
-| Summary evaluator | Computes pace, rank, reward, tip, and last pattern label | Keeps result rules separate from battle flow and text formatting. |
+| Summary evaluator | Computes pace, survival, rank, reward, tip, and last pattern label | Keeps result rules separate from battle flow and text formatting. |
 | Summary presenter | Formats `BattleResultData` into UI text | Keeps result display text separate from battle flow code. |
 | Rank | S/A/B/C | Gives the result screen a game-like performance label. |
 | Reward | S: 150G, A: 120G, B: 100G, C/Defeat: 0G | Turns the result screen into a portfolio-ready stage clear payout hook. |
@@ -68,6 +69,10 @@ This document records the current prototype numbers and the design reason behind
 | Steady | Victory, enemy turns <= 3 | Normal clear pace for the prototype. |
 | Long | Victory, enemy turns >= 4 | Signals a slower win without removing the Victory. |
 | Defeated | Defeat | Separates failed runs from clear-speed labels. |
+
+## Survival Rule
+
+`Survival` is calculated as clamped current hero HP divided by max hero HP, rounded to a whole percent. Example: 40/100 HP becomes `Survival: 40%`.
 
 ## Current Tuning Read
 

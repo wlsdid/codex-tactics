@@ -600,6 +600,7 @@ public class BattleManager : MonoBehaviour
             guardUses = guardUseCount,
             skillsUsed = skillsUsedCount,
             paceLabel = paceLabel,
+            survivalLabel = BattleResultEvaluator.BuildSurvivalLabel(player.currentHp, player.maxHp),
             rank = rank,
             rewardGold = BattleResultEvaluator.BuildRewardGold(rank, sRankRewardGold, aRankRewardGold, bRankRewardGold, defeatRewardGold),
             resultTip = BattleResultEvaluator.BuildResultTip(rank, lastEnemyPattern, enemyPattern.strongAttackName),

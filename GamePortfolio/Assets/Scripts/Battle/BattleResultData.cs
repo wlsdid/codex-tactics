@@ -15,6 +15,7 @@ public struct BattleResultData
     public int guardUses;
     public int skillsUsed;
     public string paceLabel;
+    public string survivalLabel;
     public string rank;
     public int rewardGold;
     public string resultTip;

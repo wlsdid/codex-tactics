@@ -80,6 +80,7 @@ Finish the battle by Victory or Defeat.
 - [ ] Result summary includes `Guard uses`.
 - [ ] Result summary includes `Skills used`.
 - [ ] Result summary includes `Pace`.
+- [ ] Result summary includes `Survival`.
 - [ ] Result summary includes `Rank`.
 - [ ] Result summary includes `Reward`.
 - [ ] Result summary includes `Tip`.

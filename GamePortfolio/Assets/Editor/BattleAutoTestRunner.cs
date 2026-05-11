@@ -81,7 +81,7 @@ public static class BattleAutoTestRunner
 
         battleManager.DebugEndBattleForTest(BattleState.Defeat);
         AppendCheck(ref passed, ref report, "Retry button is shown after defeat", battleManager.DebugRetryButtonVisible && battleManager.DebugRetryButtonInteractable);
-        AppendCheck(ref passed, ref report, "Defeat summary shows result and remaining resources", battleManager.DebugResultSummaryText.Contains("Result: Defeat") && battleManager.DebugResultSummaryText.Contains("Enemy turns: 3") && battleManager.DebugResultSummaryText.Contains("Hero HP: 40/100") && battleManager.DebugResultSummaryText.Contains("Slime HP: 80/80") && battleManager.DebugResultSummaryText.Contains("Damage dealt: 0") && battleManager.DebugResultSummaryText.Contains("Damage taken: 60") && battleManager.DebugResultSummaryText.Contains("Guard uses: 0") && battleManager.DebugResultSummaryText.Contains("Skills used: 0") && battleManager.DebugResultSummaryText.Contains("Pace: Defeated") && battleManager.DebugResultSummaryText.Contains("Rank: C") && battleManager.DebugResultSummaryText.Contains("Reward: 0G") && battleManager.DebugResultSummaryText.Contains("Tip: Guard before Heavy Slam.") && battleManager.DebugResultSummaryText.Contains("Last enemy pattern: Heavy Slam"));
+        AppendCheck(ref passed, ref report, "Defeat summary shows result and remaining resources", battleManager.DebugResultSummaryText.Contains("Result: Defeat") && battleManager.DebugResultSummaryText.Contains("Enemy turns: 3") && battleManager.DebugResultSummaryText.Contains("Hero HP: 40/100") && battleManager.DebugResultSummaryText.Contains("Slime HP: 80/80") && battleManager.DebugResultSummaryText.Contains("Damage dealt: 0") && battleManager.DebugResultSummaryText.Contains("Damage taken: 60") && battleManager.DebugResultSummaryText.Contains("Guard uses: 0") && battleManager.DebugResultSummaryText.Contains("Skills used: 0") && battleManager.DebugResultSummaryText.Contains("Pace: Defeated") && battleManager.DebugResultSummaryText.Contains("Survival: 40%") && battleManager.DebugResultSummaryText.Contains("Rank: C") && battleManager.DebugResultSummaryText.Contains("Reward: 0G") && battleManager.DebugResultSummaryText.Contains("Tip: Guard before Heavy Slam.") && battleManager.DebugResultSummaryText.Contains("Last enemy pattern: Heavy Slam"));
         AppendCheck(ref passed, ref report, "Result summary panel is shown after defeat", battleManager.DebugResultSummaryPanelVisible);
         battleManager.OnClickRetryButton();
         AppendCheck(ref passed, ref report, "Retry restarts battle with full HP", battleManager.DebugPlayerHpText == "Hero HP: 100/100" && battleManager.DebugMessageText.Contains("Player Turn"));
@@ -91,8 +91,8 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Retry button hides again after restart", !battleManager.DebugRetryButtonVisible && !battleManager.DebugRetryButtonInteractable);
 
         battleManager.DebugEndBattleForTest(BattleState.Victory);
-        AppendCheck(ref passed, ref report, "Victory summary appears after victory", battleManager.DebugResultSummaryText.Contains("Result: Victory") && battleManager.DebugResultSummaryText.Contains("Enemy turns: 0") && battleManager.DebugResultSummaryText.Contains("Skills used: 0") && battleManager.DebugResultSummaryText.Contains("Pace: Fast") && battleManager.DebugResultSummaryText.Contains("Rank: S") && battleManager.DebugResultSummaryText.Contains("Reward: 150G") && battleManager.DebugResultSummaryText.Contains("Tip: Perfect clear!"));
-        AppendCheck(ref passed, ref report, "BattleResultEvaluator builds rank, pace, reward, tip, and last pattern", BattleResultEvaluator.BuildRank(BattleState.Victory, 2, 20) == "A" && BattleResultEvaluator.BuildPaceLabel(BattleState.Victory, 2) == "Steady" && BattleResultEvaluator.BuildRewardGold("A", 150, 120, 100, 0) == 120 && BattleResultEvaluator.BuildResultTip("A", "Normal Attack", "Heavy Slam") == "Take less damage for a higher rank." && BattleResultEvaluator.BuildLastEnemyPatternLabel(3, new EnemyPatternData()) == "Heavy Slam");
+        AppendCheck(ref passed, ref report, "Victory summary appears after victory", battleManager.DebugResultSummaryText.Contains("Result: Victory") && battleManager.DebugResultSummaryText.Contains("Enemy turns: 0") && battleManager.DebugResultSummaryText.Contains("Skills used: 0") && battleManager.DebugResultSummaryText.Contains("Pace: Fast") && battleManager.DebugResultSummaryText.Contains("Survival: 100%") && battleManager.DebugResultSummaryText.Contains("Rank: S") && battleManager.DebugResultSummaryText.Contains("Reward: 150G") && battleManager.DebugResultSummaryText.Contains("Tip: Perfect clear!"));
+        AppendCheck(ref passed, ref report, "BattleResultEvaluator builds rank, pace, survival, reward, tip, and last pattern", BattleResultEvaluator.BuildRank(BattleState.Victory, 2, 20) == "A" && BattleResultEvaluator.BuildPaceLabel(BattleState.Victory, 2) == "Steady" && BattleResultEvaluator.BuildSurvivalLabel(70, 100) == "70%" && BattleResultEvaluator.BuildRewardGold("A", 150, 120, 100, 0) == 120 && BattleResultEvaluator.BuildResultTip("A", "Normal Attack", "Heavy Slam") == "Take less damage for a higher rank." && BattleResultEvaluator.BuildLastEnemyPatternLabel(3, new EnemyPatternData()) == "Heavy Slam");
 
         BattleResultData presenterTestData = new BattleResultData
         {
@@ -111,13 +111,14 @@ public static class BattleAutoTestRunner
             guardUses = 1,
             skillsUsed = 3,
             paceLabel = "Steady",
+            survivalLabel = "70%",
             rank = "A",
             rewardGold = 120,
             resultTip = "Take less damage for a higher rank.",
             lastEnemyPattern = "Normal Attack"
         };
         string presenterSummary = BattleResultPresenter.BuildSummaryText(presenterTestData);
-        AppendCheck(ref passed, ref report, "BattleResultPresenter formats result summaries from data", presenterSummary.Contains("Result: Victory") && presenterSummary.Contains("Hero HP: 70/100 | AP: 1/3") && presenterSummary.Contains("Guard uses: 1 | Skills used: 3") && presenterSummary.Contains("Pace: Steady") && presenterSummary.Contains("Reward: 120G") && presenterSummary.Contains("Last enemy pattern: Normal Attack"));
+        AppendCheck(ref passed, ref report, "BattleResultPresenter formats result summaries from data", presenterSummary.Contains("Result: Victory") && presenterSummary.Contains("Hero HP: 70/100 | AP: 1/3") && presenterSummary.Contains("Guard uses: 1 | Skills used: 3") && presenterSummary.Contains("Pace: Steady") && presenterSummary.Contains("Survival: 70%") && presenterSummary.Contains("Reward: 120G") && presenterSummary.Contains("Last enemy pattern: Normal Attack"));
 
         Object.DestroyImmediate(root);
 

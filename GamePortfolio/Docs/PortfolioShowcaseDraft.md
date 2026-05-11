@@ -69,6 +69,7 @@ The result screen reports not only Victory/Defeat, but also how the player reach
 - Guard uses
 - Skills used
 - Pace
+- Survival
 - Rank
 - Reward
 - Tip
@@ -121,7 +122,7 @@ Recommended captures:
 2. Fire Skill: AP decrease, Burn status, damage feedback.
 3. Guard: player status changes to `Guarding`, reduced damage is shown.
 4. Heavy Slam preview: enemy intent shows the strong attack.
-5. Result summary: Pace, Rank, Reward, Tip, and Retry button visible.
+5. Result summary: Pace, Survival, Rank, Reward, Tip, and Retry button visible.
 
 ## Short portfolio explanation draft
 
