@@ -1,6 +1,27 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-12 Clear Guide Text Polish
+## Latest autonomous run — 2026-05-15 Balance Config Refactor
+
+Completed:
+- Identified and fixed critical balance bug: Slime King `strongAttackEveryTurns = 1` (every turn = 36 damage, hero 100 HP dies in 3 turns) → changed to 3.
+- Extracted all hardcoded balance values (player stats, skill power, AP costs, guard %, burn, rank thresholds, rewards) into `BattleBalanceConfig` ScriptableObject configurable via Unity Inspector.
+- Added config-backed `Config*` helper properties to `BattleManager` with seamless fallback to defaults when no config is assigned.
+- Made `currentStageIndex` `[NonSerialized]` so it doesn't persist across editor Play sessions.
+- Removed misleading `[SerializeField]` from fields overwritten by `ApplyCurrentStageData()`.
+- Passed `balanceConfig` to `BattleResultEvaluator` for config-driven rank/pace thresholds.
+- Updated `Docs/BalanceTable.md` with corrected Slime King timing and BattleBalanceConfig note.
+- Added devlog and study note.
+- Verified: git diff --stat shows only script changes (no scene regressions needed).
+
+Verification done:
+- Ran static checks (brace balance, trailing whitespace, final-newline): PASS.
+- Ran `git diff --check`: PASS.
+- Committed as 866c226 with full message.
+
+### Recommended next tasks
+1. Capture real Unity Play Mode screenshots/GIFs under `Docs/Captures/` now that the Slime King boss encounter is actually survivable.
+2. Add captured media links to README and the portfolio showcase draft.
+3. Consider a tiny title/start screen or a third stage encounter after visual capture.
 
 Completed:
 - Polished first encounter Victory guidance so the message names the cleared encounter and the next encounter: Stage 1-2 Slime King.

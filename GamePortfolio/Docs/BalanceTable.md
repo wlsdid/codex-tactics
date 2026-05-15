@@ -17,7 +17,7 @@ This document records the current prototype numbers and the design reason behind
 | Encounter | Enemy | HP | Weakness | Pattern | Design note |
 | --- | --- | ---: | --- | --- | --- |
 | Stage 1-1: Slime Scout | Slime | 80 | Fire | Normal Attack 15, Heavy Slam 30 every 3rd enemy turn | Short normal encounter that teaches Fire weakness, Guard, Enemy Intent, and the first visible objective. |
-| Stage 1-2: Slime King | Slime King | 140 | Fire | Royal Slam 36 every enemy turn | Stronger boss-style encounter used to prove the prototype can advance beyond one battle and update the objective label. |
+|| Stage 1-2: Slime King | Slime King | 140 | Fire | Royal Slam 36 every 3rd enemy turn | Boss encounter that tests sustained play. Balanced via BattleBalanceConfig. |
 
 ## Player Actions
 
@@ -86,11 +86,12 @@ This document records the current prototype numbers and the design reason behind
 
 - Fire Skill is intentionally efficient because the normal Slime is weak to Fire: 30 base + 10 weakness bonus = 40 damage.
 - Two Fire Skill hits can defeat the 80 HP Slime, but AP cost prevents immediate repeated casting without turns/recovery.
-- Slime King raises HP to 140 and uses Royal Slam every turn, creating a simple boss-like second encounter without adding new systems.
+- Slime King has 140 HP and uses Royal Slam every 3rd enemy turn, creating a simple boss-like second encounter that rewards sustained play rather than instant defeat.
 - Total Gold is display-only for now; it proves rewards can carry across Stage 1-1 and Stage 1-2 while avoiding inventory/shop complexity.
 - Normal Attack damage of 15 means the hero survives several mistakes.
-- Heavy Slam at 30 damage every 3rd enemy turn makes the Enemy Intent UI and Guard action meaningful.
+- Heavy Slam at 30 damage every 3rd enemy turn makes the Enemy Intent UI and Guard action meaningful, even for the Slime King boss (was every turn — fixed because it was impossible for a 100-HP hero).
 - Guard reducing 15 to 7 demonstrates integer damage reduction and gives a clear visible benefit.
+- BattleBalanceConfig ScriptableObject now centralizes all balance constants for easier future tuning.
 
 ## Future Tuning Ideas
 
