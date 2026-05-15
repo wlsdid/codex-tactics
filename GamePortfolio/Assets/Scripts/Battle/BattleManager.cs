@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -923,9 +924,26 @@ public class BattleManager : MonoBehaviour
 
         if (enemyPattern.IsStrongAttackTurn(nextEnemyTurn))
         {
-            return $"Next Enemy: {enemyPattern.strongAttackName} ({enemyPattern.strongAttackDamage})";
+            return string.Format("Next Enemy: {0} ({1})", enemyPattern.strongAttackName, enemyPattern.strongAttackDamage);
         }
 
-        return $"Next Enemy: Normal Attack ({enemyPattern.normalAttackDamage})";
+        return string.Format("Next Enemy: Normal Attack ({0})", enemyPattern.normalAttackDamage);
     }
+
+    // --- Config-backed default values ---
+    private int ConfigPlayerMaxHp { get { return balanceConfig != null ? balanceConfig.playerMaxHp : 100; } }
+    private int ConfigPlayerMaxAp { get { return balanceConfig != null ? balanceConfig.playerMaxAp : 3; } }
+    private int ConfigPlayerApRecovery { get { return balanceConfig != null ? balanceConfig.playerApRecoveryPerTurn : 1; } }
+    private int ConfigBasicSkillPower { get { return balanceConfig != null ? balanceConfig.basicSkillPower : 20; } }
+    private int ConfigBasicSkillApCost { get { return balanceConfig != null ? balanceConfig.basicSkillApCost : 0; } }
+    private int ConfigFireSkillPower { get { return balanceConfig != null ? balanceConfig.fireSkillPower : 30; } }
+    private int ConfigFireSkillApCost { get { return balanceConfig != null ? balanceConfig.fireSkillApCost : 2; } }
+    private int ConfigBurnDamagePerTurn { get { return balanceConfig != null ? balanceConfig.burnDamagePerTurn : 3; } }
+    private int ConfigBurnTurnDuration { get { return balanceConfig != null ? balanceConfig.burnTurnDuration : 2; } }
+    private int ConfigGuardReductionPercent { get { return balanceConfig != null ? balanceConfig.guardDamageReductionPercent : 50; } }
+    private int ConfigSRankRewardGold { get { return balanceConfig != null ? balanceConfig.sRankRewardGold : 150; } }
+    private int ConfigARankRewardGold { get { return balanceConfig != null ? balanceConfig.aRankRewardGold : 120; } }
+    private int ConfigBRankRewardGold { get { return balanceConfig != null ? balanceConfig.bRankRewardGold : 100; } }
+    private int ConfigDefeatRewardGold { get { return balanceConfig != null ? balanceConfig.defeatRewardGold : 0; } }
+    private int ConfigMaxBattleLogEntries { get { return balanceConfig != null ? balanceConfig.maxBattleLogEntries : 6; } }
 }
