@@ -277,7 +277,8 @@ public class BattleManager : MonoBehaviour
         int damage = enemyPattern.GetDamageForTurn(enemyTurnCount);
         bool isStrong = enemyPattern.IsStrongAttackTurn(enemyTurnCount);
 
-        if (playerIsGuarding)
+        bool wasGuarding = playerIsGuarding;
+        if (wasGuarding)
         {
             damage = Mathf.Max(1, damage * (100 - CfgGuardReductionPercent) / 100);
             playerIsGuarding = false;
@@ -289,9 +290,9 @@ public class BattleManager : MonoBehaviour
 
         string msg;
         if (isStrong)
-            msg = $"{enemy?.characterName} uses {enemyPattern.strongAttackName} on turn {enemyTurnCount}! {player?.characterName}{(playerIsGuarding ? " guards and" : "")} takes {damage} damage.";
+            msg = $"{enemy?.characterName} uses {enemyPattern.strongAttackName} on turn {enemyTurnCount}! {player?.characterName}{(wasGuarding ? " guards and" : "")} takes {damage} damage.";
         else
-            msg = $"{enemy?.characterName} {enemyPattern.normalAttackMessageVerb}! {player?.characterName}{(playerIsGuarding ? " guards and" : "")} takes {damage} damage.";
+            msg = $"{enemy?.characterName} {enemyPattern.normalAttackMessageVerb}! {player?.characterName}{(wasGuarding ? " guards and" : "")} takes {damage} damage.";
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,

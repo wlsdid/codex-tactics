@@ -23,6 +23,17 @@ public static class BattleSceneAutoBuilder
         Canvas canvas = CreateCanvas(camera);
         CreateEventSystem();
 
+        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 205), new Vector2(1160, 150), new Color(0.055f, 0.050f, 0.075f, 0.92f));
+        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-410, 65), new Vector2(340, 285), new Color(0.060f, 0.055f, 0.085f, 0.90f));
+        Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(410, 65), new Vector2(340, 285), new Color(0.075f, 0.050f, 0.070f, 0.90f));
+        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, -65), new Vector2(520, 245), new Color(0.045f, 0.052f, 0.078f, 0.88f));
+        Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -275), new Vector2(1020, 112), new Color(0.050f, 0.045f, 0.065f, 0.94f));
+        topStatusPanel.raycastTarget = false;
+        playerCardPanel.raycastTarget = false;
+        enemyCardPanel.raycastTarget = false;
+        battleCenterPanel.raycastTarget = false;
+        commandBarPanel.raycastTarget = false;
+
         TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Codex Tactics", new Vector2(0, 255), new Vector2(800, 50), TextAlignmentOptions.Center);
         titleText.fontSize = 34;
 
@@ -186,9 +197,24 @@ public static class BattleSceneAutoBuilder
         TMP_Text battleLogTitleText = FindText("Battle Log Title Text");
         TMP_Text battleLogText = FindText("Battle Log Text");
         Image battleLogPanel = FindImage("Battle Log Panel");
+        Image topStatusPanel = FindImage("Top Status Panel");
+        Image playerCardPanel = FindImage("Player Card Panel");
+        Image enemyCardPanel = FindImage("Enemy Card Panel");
+        Image battleCenterPanel = FindImage("Battle Center Panel");
+        Image commandBarPanel = FindImage("Command Bar Panel");
         TMP_Text resultSummaryText = FindTextIncludingInactive("Result Summary Text");
         Image resultSummaryPanel = FindImageIncludingInactive("Result Summary Panel");
 
+        AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
+        AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1100f, 120f));
+        AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
+        AppendCheck(ref passed, ref report, "Player Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 300f, 250f));
+        AppendCheck(ref passed, ref report, "Enemy Card panel exists", enemyCardPanel != null);
+        AppendCheck(ref passed, ref report, "Enemy Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 300f, 250f));
+        AppendCheck(ref passed, ref report, "Battle Center panel exists", battleCenterPanel != null);
+        AppendCheck(ref passed, ref report, "Battle Center panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(battleCenterPanel, 480f, 230f));
+        AppendCheck(ref passed, ref report, "Command Bar panel exists", commandBarPanel != null);
+        AppendCheck(ref passed, ref report, "Command Bar panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(commandBarPanel, 980f, 110f));
         AppendCheck(ref passed, ref report, "Battle Guide text exists", battleGuideText != null);
         AppendCheck(ref passed, ref report, "Battle Guide text explains main controls", IsBattleGuideTextLikelyConfigured(battleGuideText));
         AppendCheck(ref passed, ref report, "Run Status text exists", runStatusText != null);
@@ -235,31 +261,33 @@ public static class BattleSceneAutoBuilder
 
         if (battleManager != null)
         {
-            SerializedObject serializedBattleManager = new SerializedObject(battleManager);
-            AppendCheck(ref passed, ref report, "Player HP text linked", HasObjectReference(serializedBattleManager, "playerHpText"));
-            AppendCheck(ref passed, ref report, "Player HP slider linked", HasObjectReference(serializedBattleManager, "playerHpSlider"));
-            AppendCheck(ref passed, ref report, "Player AP text linked", HasObjectReference(serializedBattleManager, "playerApText"));
-            AppendCheck(ref passed, ref report, "Player AP slider linked", HasObjectReference(serializedBattleManager, "playerApSlider"));
-            AppendCheck(ref passed, ref report, "Player Status text linked", HasObjectReference(serializedBattleManager, "playerStatusText"));
-            AppendCheck(ref passed, ref report, "Enemy HP text linked", HasObjectReference(serializedBattleManager, "enemyHpText"));
-            AppendCheck(ref passed, ref report, "Enemy HP slider linked", HasObjectReference(serializedBattleManager, "enemyHpSlider"));
-            AppendCheck(ref passed, ref report, "Enemy Status text linked", HasObjectReference(serializedBattleManager, "enemyStatusText"));
-            AppendCheck(ref passed, ref report, "Enemy Intent text linked", HasObjectReference(serializedBattleManager, "enemyIntentText"));
-            AppendCheck(ref passed, ref report, "Run Status text linked", HasObjectReference(serializedBattleManager, "runStatusText"));
-            AppendCheck(ref passed, ref report, "Stage text linked", HasObjectReference(serializedBattleManager, "stageText"));
-            AppendCheck(ref passed, ref report, "Stage Objective text linked", HasObjectReference(serializedBattleManager, "stageObjectiveText"));
-            AppendCheck(ref passed, ref report, "Stage Progress text linked", HasObjectReference(serializedBattleManager, "stageProgressText"));
-            AppendCheck(ref passed, ref report, "Message text linked", HasObjectReference(serializedBattleManager, "messageText"));
-            AppendCheck(ref passed, ref report, "Skill Help text linked", HasObjectReference(serializedBattleManager, "skillHelpText"));
-            AppendCheck(ref passed, ref report, "Battle Log text linked", HasObjectReference(serializedBattleManager, "battleLogText"));
-            AppendCheck(ref passed, ref report, "Result Summary text linked", HasObjectReference(serializedBattleManager, "resultSummaryText"));
-            AppendCheck(ref passed, ref report, "Result Summary panel linked", HasObjectReference(serializedBattleManager, "resultSummaryPanel"));
-            AppendCheck(ref passed, ref report, "Attack button linked", HasObjectReference(serializedBattleManager, "attackButton"));
-            AppendCheck(ref passed, ref report, "Fire Skill button linked", HasObjectReference(serializedBattleManager, "fireSkillButton"));
-            AppendCheck(ref passed, ref report, "Guard button linked", HasObjectReference(serializedBattleManager, "guardButton"));
-            AppendCheck(ref passed, ref report, "End Turn button linked", HasObjectReference(serializedBattleManager, "endTurnButton"));
-            AppendCheck(ref passed, ref report, "Retry button linked", HasObjectReference(serializedBattleManager, "retryButton"));
-            AppendCheck(ref passed, ref report, "Continue button linked", HasObjectReference(serializedBattleManager, "continueButton"));
+            BattleUI battleUI = battleManager.GetComponent<BattleUI>();
+            SerializedObject serializedBattleUI = battleUI != null ? new SerializedObject(battleUI) : null;
+            AppendCheck(ref passed, ref report, "BattleUI component exists on BattleManager object", battleUI != null);
+            AppendCheck(ref passed, ref report, "Player HP text linked", HasObjectReference(serializedBattleUI, "playerHpText"));
+            AppendCheck(ref passed, ref report, "Player HP slider linked", HasObjectReference(serializedBattleUI, "playerHpSlider"));
+            AppendCheck(ref passed, ref report, "Player AP text linked", HasObjectReference(serializedBattleUI, "playerApText"));
+            AppendCheck(ref passed, ref report, "Player AP slider linked", HasObjectReference(serializedBattleUI, "playerApSlider"));
+            AppendCheck(ref passed, ref report, "Player Status text linked", HasObjectReference(serializedBattleUI, "playerStatusText"));
+            AppendCheck(ref passed, ref report, "Enemy HP text linked", HasObjectReference(serializedBattleUI, "enemyHpText"));
+            AppendCheck(ref passed, ref report, "Enemy HP slider linked", HasObjectReference(serializedBattleUI, "enemyHpSlider"));
+            AppendCheck(ref passed, ref report, "Enemy Status text linked", HasObjectReference(serializedBattleUI, "enemyStatusText"));
+            AppendCheck(ref passed, ref report, "Enemy Intent text linked", HasObjectReference(serializedBattleUI, "enemyIntentText"));
+            AppendCheck(ref passed, ref report, "Run Status text linked", HasObjectReference(serializedBattleUI, "runStatusText"));
+            AppendCheck(ref passed, ref report, "Stage text linked", HasObjectReference(serializedBattleUI, "stageText"));
+            AppendCheck(ref passed, ref report, "Stage Objective text linked", HasObjectReference(serializedBattleUI, "stageObjectiveText"));
+            AppendCheck(ref passed, ref report, "Stage Progress text linked", HasObjectReference(serializedBattleUI, "stageProgressText"));
+            AppendCheck(ref passed, ref report, "Message text linked", HasObjectReference(serializedBattleUI, "messageText"));
+            AppendCheck(ref passed, ref report, "Skill Help text linked", HasObjectReference(serializedBattleUI, "skillHelpText"));
+            AppendCheck(ref passed, ref report, "Battle Log text linked", HasObjectReference(serializedBattleUI, "battleLogText"));
+            AppendCheck(ref passed, ref report, "Result Summary text linked", HasObjectReference(serializedBattleUI, "resultSummaryText"));
+            AppendCheck(ref passed, ref report, "Result Summary panel linked", HasObjectReference(serializedBattleUI, "resultSummaryPanel"));
+            AppendCheck(ref passed, ref report, "Attack button linked", HasObjectReference(serializedBattleUI, "attackButton"));
+            AppendCheck(ref passed, ref report, "Fire Skill button linked", HasObjectReference(serializedBattleUI, "fireSkillButton"));
+            AppendCheck(ref passed, ref report, "Guard button linked", HasObjectReference(serializedBattleUI, "guardButton"));
+            AppendCheck(ref passed, ref report, "End Turn button linked", HasObjectReference(serializedBattleUI, "endTurnButton"));
+            AppendCheck(ref passed, ref report, "Retry button linked", HasObjectReference(serializedBattleUI, "retryButton"));
+            AppendCheck(ref passed, ref report, "Continue button linked", HasObjectReference(serializedBattleUI, "continueButton"));
         }
 
         report += passed ? "\nRESULT: PASS" : "\nRESULT: FAIL";
@@ -400,6 +428,24 @@ public static class BattleSceneAutoBuilder
         return rectTransform != null && rectTransform.sizeDelta.x >= 900f && rectTransform.sizeDelta.y >= 140f && panelImage.color.a > 0.5f;
     }
 
+    private static bool IsProfessionalPanelLikelyConfigured(Image panelImage, float minimumWidth, float minimumHeight)
+    {
+        if (panelImage == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = panelImage.GetComponent<RectTransform>();
+        Color color = panelImage.color;
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= minimumWidth
+            && rectTransform.sizeDelta.y >= minimumHeight
+            && color.a >= 0.70f
+            && color.r <= 0.16f
+            && color.g <= 0.16f
+            && color.b <= 0.22f;
+    }
+
     private static bool IsBattleGuideTextLikelyConfigured(TMP_Text guideText)
     {
         if (guideText == null)
@@ -499,6 +545,11 @@ public static class BattleSceneAutoBuilder
 
     private static bool HasObjectReference(SerializedObject serializedObject, string propertyName)
     {
+        if (serializedObject == null)
+        {
+            return false;
+        }
+
         SerializedProperty property = serializedObject.FindProperty(propertyName);
         return property != null && property.objectReferenceValue != null;
     }
