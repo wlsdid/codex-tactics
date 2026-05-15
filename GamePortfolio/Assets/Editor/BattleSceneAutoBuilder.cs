@@ -71,6 +71,9 @@ public static class BattleSceneAutoBuilder
         enemyIntentText.fontSize = 22;
         enemyIntentText.color = new Color(1.0f, 0.78f, 0.42f);
         TMP_Text messageText = CreateText(canvas.transform, "Message Text", "Battle Start!", new Vector2(0, -75), new Vector2(900, 100), TextAlignmentOptions.Center);
+        TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "Impact: Ready", new Vector2(0, -25), new Vector2(900, 45), TextAlignmentOptions.Center);
+        impactText.fontSize = 22;
+        impactText.color = new Color(1.0f, 0.84f, 0.36f);
         TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(0, 15), new Vector2(900, 95), TextAlignmentOptions.TopLeft);
         skillHelpText.fontSize = 18;
         skillHelpText.color = new Color(0.72f, 0.90f, 1.0f);
@@ -119,6 +122,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "stageObjectiveText", stageObjectiveText);
         SetObjectReference(serializedBattleUI, "stageProgressText", stageProgressText);
         SetObjectReference(serializedBattleUI, "messageText", messageText);
+        SetObjectReference(serializedBattleUI, "impactText", impactText);
         SetObjectReference(serializedBattleUI, "skillHelpText", skillHelpText);
         SetObjectReference(serializedBattleUI, "battleLogText", battleLogText);
         SetObjectReference(serializedBattleUI, "resultSummaryText", resultSummaryText);
@@ -204,6 +208,7 @@ public static class BattleSceneAutoBuilder
         Image commandBarPanel = FindImage("Command Bar Panel");
         TMP_Text resultSummaryText = FindTextIncludingInactive("Result Summary Text");
         Image resultSummaryPanel = FindImageIncludingInactive("Result Summary Panel");
+        TMP_Text impactText = FindText("Impact Text");
 
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
         AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1100f, 120f));
@@ -226,6 +231,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Stage Progress text exists", stageProgressText != null);
         AppendCheck(ref passed, ref report, "Stage Progress text shows encounter count", IsStageProgressTextLikelyConfigured(stageProgressText));
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
+        AppendCheck(ref passed, ref report, "Impact text exists", impactText != null);
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
         AppendCheck(ref passed, ref report, "Enemy Intent text exists", enemyIntentText != null);
@@ -278,6 +284,7 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Stage Objective text linked", HasObjectReference(serializedBattleUI, "stageObjectiveText"));
             AppendCheck(ref passed, ref report, "Stage Progress text linked", HasObjectReference(serializedBattleUI, "stageProgressText"));
             AppendCheck(ref passed, ref report, "Message text linked", HasObjectReference(serializedBattleUI, "messageText"));
+            AppendCheck(ref passed, ref report, "Impact text linked", HasObjectReference(serializedBattleUI, "impactText"));
             AppendCheck(ref passed, ref report, "Skill Help text linked", HasObjectReference(serializedBattleUI, "skillHelpText"));
             AppendCheck(ref passed, ref report, "Battle Log text linked", HasObjectReference(serializedBattleUI, "battleLogText"));
             AppendCheck(ref passed, ref report, "Result Summary text linked", HasObjectReference(serializedBattleUI, "resultSummaryText"));

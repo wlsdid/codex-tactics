@@ -67,6 +67,7 @@ public class BattleManager : MonoBehaviour
     public string DebugPlayerStatusText => battleUI != null ? battleUI.DebugPlayerStatusText : "";
     public string DebugEnemyStatusText => battleUI != null ? battleUI.DebugEnemyStatusText : "";
     public string DebugEnemyIntentText => battleUI != null ? battleUI.DebugEnemyIntentText : "";
+    public string DebugImpactText => battleUI != null ? battleUI.DebugImpactText : "";
     public string DebugRunStatusText => battleUI != null ? battleUI.DebugRunStatusText : "";
     public string DebugStageText => battleUI != null ? battleUI.DebugStageText : "";
     public string DebugStageObjectiveText => battleUI != null ? battleUI.DebugStageObjectiveText : "";
@@ -142,6 +143,8 @@ public class BattleManager : MonoBehaviour
         currentBattleRewardClaimed = false;
 
         battleUI?.StartNewBattle();
+        battleUI?.SetImpactText("Impact: Ready");
+
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Battle Start!",
@@ -235,6 +238,11 @@ public class BattleManager : MonoBehaviour
             enemy.ApplyStatusEffect(StatusEffectType.Burn, CfgBurnTurnDuration);
 
         string msg = BuildSkillMessage(skill, damage);
+
+        // Set impact text based on skill
+        string impact = BuildImpactText(skill, damage);
+        battleUI?.SetImpactText(impact);
+
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
@@ -294,6 +302,11 @@ public class BattleManager : MonoBehaviour
         else
             msg = $"{enemy?.characterName} {enemyPattern.normalAttackMessageVerb}! {player?.characterName}{(wasGuarding ? " guards and" : "")} takes {damage} damage.";
 
+        string impactText = wasGuarding
+            ? $"Impact: Guard reduced incoming damage to {damage}"
+            : $"Impact: {enemy?.characterName} dealt {damage} damage";
+        battleUI?.SetImpactText(impactText);
+
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
@@ -347,6 +360,17 @@ public class BattleManager : MonoBehaviour
         string msg = $"{player.characterName} uses {skill.skillName}! {enemy.characterName} takes {damage} damage. ({skill.elementType})";
         if (skill.HasStatusEffect()) msg += $" Extra effect: {skill.statusEffectType} for {CfgBurnTurnDuration} turns.";
         return msg;
+    }
+
+    private string BuildImpactText(SkillData skill, int damage)
+    {
+        if (skill == null) return "Impact: Ready";
+        string impact = $"Impact: {skill.skillName} dealt {damage} damage";
+        if (skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
+            impact += " | Weakness hit";
+        if (skill.HasStatusEffect())
+            impact += $" | {skill.statusEffectType} applied";
+        return impact;
     }
 
     // --- Results ---

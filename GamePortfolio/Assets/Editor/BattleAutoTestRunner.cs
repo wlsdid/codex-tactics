@@ -30,6 +30,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "stageObjectiveText", CreateText("Stage Objective Text"));
         SetPrivateField(battleUI, "stageProgressText", CreateText("Stage Progress Text"));
         SetPrivateField(battleUI, "messageText", CreateText("Message Text"));
+        SetPrivateField(battleUI, "impactText", CreateText("Impact Text"));
         SetPrivateField(battleUI, "skillHelpText", CreateText("Skill Help Text"));
         SetPrivateField(battleUI, "battleLogText", CreateText("Battle Log Text"));
         SetPrivateField(battleUI, "resultSummaryText", CreateText("Result Summary Text"));
@@ -65,12 +66,14 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Skill help explains Attack, Fire Skill, Guard, and readable enemy pattern values", battleManager.DebugSkillHelpText.Contains("Slash: 20 power, 0 AP") && battleManager.DebugSkillHelpText.Contains("Fire Bolt: 30 power, 2 AP") && battleManager.DebugSkillHelpText.Contains("Guard: reduce next enemy attack") && battleManager.DebugSkillHelpText.Contains("Normal attack: 15 damage") && battleManager.DebugSkillHelpText.Contains("Heavy Slam: 30 damage every 3rd enemy turn"));
         AppendCheck(ref passed, ref report, "Battle log has a readable Recent Actions heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions"));
         AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("1. Player Turn: recovered 1 AP. Choose an action."));
+        AppendCheck(ref passed, ref report, "Impact text starts with ready feedback", battleManager.DebugImpactText == "Impact: Ready");
 
         battleManager.OnClickFireSkillButton();
         AppendCheck(ref passed, ref report, "Player AP bar spends 2 AP after Fire Skill", battleManager.DebugPlayerApBarValue == 1f && battleManager.DebugPlayerApBarMaxValue == 3f);
         AppendCheck(ref passed, ref report, "Player AP text shows 33% after Fire Skill", battleManager.DebugPlayerApText == "AP: 1/3 (33%)");
         AppendCheck(ref passed, ref report, "Enemy HP text shows 50% after Fire Skill weakness damage", battleManager.DebugEnemyHpText == "Slime HP: 40/80 (50%)");
         AppendCheck(ref passed, ref report, "Enemy status shows Burn after Fire Skill", battleManager.DebugEnemyStatusText == "Status: Burn (2 turns)");
+        AppendCheck(ref passed, ref report, "Impact text summarizes Fire Skill weakness and Burn", battleManager.DebugImpactText == "Impact: Fire Bolt dealt 40 damage | Weakness hit | Burn applied");
         AppendCheck(ref passed, ref report, "Damage dealt tracks Fire Skill weakness damage", battleManager.DebugTotalDamageDealt == 40);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Fire Skill", battleManager.DebugSkillsUsedCount == 1);
 
@@ -89,6 +92,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Guard use counter tracks chosen guard action", battleManager.DebugGuardUseCount == 1);
         AppendCheck(ref passed, ref report, "Player HP bar follows guard damage", battleManager.DebugPlayerHpBarValue == 93f && battleManager.DebugPlayerHpBarMaxValue == 100f);
         AppendCheck(ref passed, ref report, "Guard message is shown", battleManager.DebugMessageText == "Slime attacks! Hero guards and takes 7 damage.");
+        AppendCheck(ref passed, ref report, "Impact text summarizes guarded enemy damage", battleManager.DebugImpactText == "Impact: Guard reduced incoming damage to 7");
         AppendCheck(ref passed, ref report, "Battle log keeps recent actions in order", battleManager.DebugBattleLogText.Contains("2. Hero guards. Next enemy attack damage is reduced.") && battleManager.DebugBattleLogText.Contains("3. Slime attacks! Hero guards and takes 7 damage."));
 
         battleManager.DebugStartBattleForTest();

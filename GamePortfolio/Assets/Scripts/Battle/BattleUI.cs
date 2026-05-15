@@ -32,6 +32,7 @@ public class BattleUI : MonoBehaviour
 
     [Header("Message & Help")]
     [SerializeField] private TMP_Text messageText;
+    [SerializeField] private TMP_Text impactText;
     [SerializeField] private TMP_Text skillHelpText;
 
     [Header("Battle Log")]
@@ -68,6 +69,7 @@ public class BattleUI : MonoBehaviour
     public string DebugPlayerStatusText => playerStatusText != null ? playerStatusText.text : "";
     public string DebugEnemyStatusText => enemyStatusText != null ? enemyStatusText.text : "";
     public string DebugEnemyIntentText => enemyIntentText != null ? enemyIntentText.text : "";
+    public string DebugImpactText => impactText != null ? impactText.text : "";
     public string DebugRunStatusText => runStatusText != null ? runStatusText.text : "";
     public string DebugStageText => stageText != null ? stageText.text : "";
     public string DebugStageObjectiveText => stageObjectiveText != null ? stageObjectiveText.text : "";
@@ -317,6 +319,12 @@ public class BattleUI : MonoBehaviour
     {
         if (messageText != null)
             messageText.text = message;
+    }
+
+    public void SetImpactText(string text)
+    {
+        if (impactText != null)
+            impactText.text = text;
     }
 
     private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, int guardReduction, EnemyPatternData pattern)
