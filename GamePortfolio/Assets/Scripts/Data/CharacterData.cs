@@ -17,6 +17,11 @@ public class CharacterData
     public StatusEffectType currentStatusEffect;
     public int statusTurnsRemaining;
 
+    [Header("Break Gauge")]
+    public int maxBreakGauge = 2;
+    public int currentBreakGauge = 2;
+    public bool isBroken;
+
     public CharacterData(string name, int hp, int attack)
     {
         characterName = name;
@@ -28,6 +33,9 @@ public class CharacterData
         currentAp = 0;
         currentStatusEffect = StatusEffectType.None;
         statusTurnsRemaining = 0;
+        maxBreakGauge = 2;
+        currentBreakGauge = 2;
+        isBroken = false;
     }
 
     public CharacterData(string name, int hp, int attack, ElementType weakness)
@@ -41,6 +49,9 @@ public class CharacterData
         currentAp = 0;
         currentStatusEffect = StatusEffectType.None;
         statusTurnsRemaining = 0;
+        maxBreakGauge = 2;
+        currentBreakGauge = 2;
+        isBroken = false;
     }
 
     public CharacterData(string name, int hp, int attack, ElementType weakness, int ap)
@@ -54,6 +65,9 @@ public class CharacterData
         currentAp = ap;
         currentStatusEffect = StatusEffectType.None;
         statusTurnsRemaining = 0;
+        maxBreakGauge = 2;
+        currentBreakGauge = 2;
+        isBroken = false;
     }
 
     public bool IsDead()
@@ -124,5 +138,29 @@ public class CharacterData
             currentStatusEffect = StatusEffectType.None;
             statusTurnsRemaining = 0;
         }
+    }
+
+    public bool ReduceBreakGauge(int amount)
+    {
+        if (isBroken || currentBreakGauge <= 0) return false;
+        currentBreakGauge = Mathf.Max(0, currentBreakGauge - amount);
+        if (currentBreakGauge <= 0)
+        {
+            isBroken = true;
+            return true; // Break was triggered
+        }
+        return false;
+    }
+
+    public void ResetBreakGauge()
+    {
+        isBroken = false;
+        currentBreakGauge = maxBreakGauge;
+    }
+
+    public string DebugBuildBreakText()
+    {
+        if (isBroken) return "Break: BROKEN";
+        return $"Break: {currentBreakGauge}/{maxBreakGauge}";
     }
 }

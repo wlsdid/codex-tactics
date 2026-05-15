@@ -25,6 +25,8 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "playerStatusText", CreateText("Player Status Text"));
         SetPrivateField(battleUI, "enemyStatusText", CreateText("Enemy Status Text"));
         SetPrivateField(battleUI, "enemyIntentText", CreateText("Enemy Intent Text"));
+        SetPrivateField(battleUI, "enemyBreakText", CreateText("Enemy Break Text"));
+        SetPrivateField(battleUI, "enemyBreakSlider", CreateSlider("Enemy Break Slider"));
         SetPrivateField(battleUI, "runStatusText", CreateText("Run Status Text"));
         SetPrivateField(battleUI, "stageText", CreateText("Stage Text"));
         SetPrivateField(battleUI, "stageObjectiveText", CreateText("Stage Objective Text"));
@@ -67,13 +69,15 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Battle log has a readable Recent Actions heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions"));
         AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("1. Player Turn: recovered 1 AP. Choose an action."));
         AppendCheck(ref passed, ref report, "Impact text starts with ready feedback", battleManager.DebugImpactText == "Impact: Ready");
+        AppendCheck(ref passed, ref report, "Enemy Break starts full", battleManager.DebugEnemyBreakText == "Break: 2/2");
 
         battleManager.OnClickFireSkillButton();
         AppendCheck(ref passed, ref report, "Player AP bar spends 2 AP after Fire Skill", battleManager.DebugPlayerApBarValue == 1f && battleManager.DebugPlayerApBarMaxValue == 3f);
         AppendCheck(ref passed, ref report, "Player AP text shows 33% after Fire Skill", battleManager.DebugPlayerApText == "AP: 1/3 (33%)");
         AppendCheck(ref passed, ref report, "Enemy HP text shows 50% after Fire Skill weakness damage", battleManager.DebugEnemyHpText == "Slime HP: 40/80 (50%)");
         AppendCheck(ref passed, ref report, "Enemy status shows Burn after Fire Skill", battleManager.DebugEnemyStatusText == "Status: Burn (2 turns)");
-        AppendCheck(ref passed, ref report, "Impact text summarizes Fire Skill weakness and Burn", battleManager.DebugImpactText == "Impact: Fire Bolt dealt 40 damage | Weakness hit | Burn applied");
+        AppendCheck(ref passed, ref report, "Impact text summarizes Fire Skill weakness and Burn", battleManager.DebugImpactText == "Impact: Fire Bolt dealt 40 damage | Weakness hit | Break 1/2 | Burn applied");
+        AppendCheck(ref passed, ref report, "Weakness hit reduces Break gauge", battleManager.DebugEnemyBreakText == "Break: 1/2");
         AppendCheck(ref passed, ref report, "Damage dealt tracks Fire Skill weakness damage", battleManager.DebugTotalDamageDealt == 40);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Fire Skill", battleManager.DebugSkillsUsedCount == 1);
 
@@ -168,6 +172,16 @@ public static class BattleAutoTestRunner
         };
         string presenterSummary = BattleResultPresenter.BuildSummaryText(presenterTestData);
         AppendCheck(ref passed, ref report, "BattleResultPresenter formats compact result summaries from data", presenterSummary.Contains("Result: Victory | Turns: 2") && presenterSummary.Contains("Hero: HP 70/100, AP 1/3") && presenterSummary.Contains("Choices: Guard 1, Skills 3") && presenterSummary.Contains("Pace: Steady | Survival: 70%") && presenterSummary.Contains("Rank: A | Reward: 120G | Total Gold: 270G") && presenterSummary.Contains("Last enemy pattern: Normal Attack"));
+
+        // --- Break / Weakness Tactical Depth Tests ---
+
+        battleManager.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Restart resets enemy Break gauge to full", battleManager.DebugEnemyBreakText == "Break: 2/2");
+        battleManager.DebugForceEnemyBrokenForTest();
+        AppendCheck(ref passed, ref report, "Forced BROKEN shows Break: BROKEN", battleManager.DebugEnemyBreakText == "Break: BROKEN");
+        battleManager.OnClickAttackButton();
+        AppendCheck(ref passed, ref report, "Break bonus increases Slash damage", battleManager.DebugImpactText == "Impact: Slash dealt 30 damage | Break bonus consumed");
+        AppendCheck(ref passed, ref report, "Break resets after bonus attack", battleManager.DebugEnemyBreakText == "Break: 2/2");
 
         Object.DestroyImmediate(root);
 

@@ -70,6 +70,10 @@ public static class BattleSceneAutoBuilder
         TMP_Text enemyIntentText = CreateText(canvas.transform, "Enemy Intent Text", "Next Enemy: Normal Attack (15)", new Vector2(360, 25), new Vector2(420, 45), TextAlignmentOptions.Right);
         enemyIntentText.fontSize = 22;
         enemyIntentText.color = new Color(1.0f, 0.78f, 0.42f);
+        TMP_Text enemyBreakText = CreateText(canvas.transform, "Enemy Break Text", "Break: 2/2", new Vector2(360, 0), new Vector2(420, 40), TextAlignmentOptions.Right);
+        enemyBreakText.fontSize = 22;
+        enemyBreakText.color = new Color(1.0f, 0.58f, 0.82f);
+        Slider enemyBreakSlider = CreateHpSlider(canvas.transform, "Enemy Break Slider", new Vector2(360, -20), new Vector2(420, 18), new Color(0.92f, 0.36f, 0.72f));
         TMP_Text messageText = CreateText(canvas.transform, "Message Text", "Battle Start!", new Vector2(0, -75), new Vector2(900, 100), TextAlignmentOptions.Center);
         TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "Impact: Ready", new Vector2(0, -25), new Vector2(900, 45), TextAlignmentOptions.Center);
         impactText.fontSize = 22;
@@ -116,6 +120,8 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "enemyHpSlider", enemyHpSlider);
         SetObjectReference(serializedBattleUI, "enemyStatusText", enemyStatusText);
         SetObjectReference(serializedBattleUI, "enemyIntentText", enemyIntentText);
+        SetObjectReference(serializedBattleUI, "enemyBreakText", enemyBreakText);
+        SetObjectReference(serializedBattleUI, "enemyBreakSlider", enemyBreakSlider);
         SetObjectReference(serializedBattleUI, "enemySpriteImage", enemySpriteImage);
         SetObjectReference(serializedBattleUI, "runStatusText", runStatusText);
         SetObjectReference(serializedBattleUI, "stageText", stageText);
@@ -198,6 +204,8 @@ public static class BattleSceneAutoBuilder
         TMP_Text skillHelpText = FindText("Skill Help Text");
         TMP_Text enemyStatusText = FindText("Enemy Status Text");
         TMP_Text enemyIntentText = FindText("Enemy Intent Text");
+        TMP_Text enemyBreakText = FindText("Enemy Break Text");
+        Slider enemyBreakSlider = FindSlider("Enemy Break Slider");
         TMP_Text battleLogTitleText = FindText("Battle Log Title Text");
         TMP_Text battleLogText = FindText("Battle Log Text");
         Image battleLogPanel = FindImage("Battle Log Panel");
@@ -235,6 +243,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
         AppendCheck(ref passed, ref report, "Enemy Intent text exists", enemyIntentText != null);
+        AppendCheck(ref passed, ref report, "Enemy Break text exists", enemyBreakText != null);
+        AppendCheck(ref passed, ref report, "Enemy Break slider exists", enemyBreakSlider != null);
         AppendCheck(ref passed, ref report, "Battle Log title exists", battleLogTitleText != null);
         AppendCheck(ref passed, ref report, "Battle Log text exists", battleLogText != null);
         AppendCheck(ref passed, ref report, "Battle Log panel exists", battleLogPanel != null);
@@ -279,6 +289,8 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Enemy HP slider linked", HasObjectReference(serializedBattleUI, "enemyHpSlider"));
             AppendCheck(ref passed, ref report, "Enemy Status text linked", HasObjectReference(serializedBattleUI, "enemyStatusText"));
             AppendCheck(ref passed, ref report, "Enemy Intent text linked", HasObjectReference(serializedBattleUI, "enemyIntentText"));
+            AppendCheck(ref passed, ref report, "Enemy Break text linked", HasObjectReference(serializedBattleUI, "enemyBreakText"));
+            AppendCheck(ref passed, ref report, "Enemy Break slider linked", HasObjectReference(serializedBattleUI, "enemyBreakSlider"));
             AppendCheck(ref passed, ref report, "Run Status text linked", HasObjectReference(serializedBattleUI, "runStatusText"));
             AppendCheck(ref passed, ref report, "Stage text linked", HasObjectReference(serializedBattleUI, "stageText"));
             AppendCheck(ref passed, ref report, "Stage Objective text linked", HasObjectReference(serializedBattleUI, "stageObjectiveText"));

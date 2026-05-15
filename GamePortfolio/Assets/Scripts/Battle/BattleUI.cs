@@ -22,6 +22,8 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Slider enemyHpSlider;
     [SerializeField] private TMP_Text enemyStatusText;
     [SerializeField] private TMP_Text enemyIntentText;
+    [SerializeField] private TMP_Text enemyBreakText;
+    [SerializeField] private Slider enemyBreakSlider;
     [SerializeField] private Image enemySpriteImage;
 
     [Header("Stage UI")]
@@ -69,6 +71,9 @@ public class BattleUI : MonoBehaviour
     public string DebugPlayerStatusText => playerStatusText != null ? playerStatusText.text : "";
     public string DebugEnemyStatusText => enemyStatusText != null ? enemyStatusText.text : "";
     public string DebugEnemyIntentText => enemyIntentText != null ? enemyIntentText.text : "";
+    public string DebugEnemyBreakText => enemyBreakText != null ? enemyBreakText.text : "";
+    public float DebugEnemyBreakBarValue => enemyBreakSlider != null ? enemyBreakSlider.value : -1f;
+    public float DebugEnemyBreakBarMaxValue => enemyBreakSlider != null ? enemyBreakSlider.maxValue : -1f;
     public string DebugImpactText => impactText != null ? impactText.text : "";
     public string DebugRunStatusText => runStatusText != null ? runStatusText.text : "";
     public string DebugStageText => stageText != null ? stageText.text : "";
@@ -150,6 +155,7 @@ public class BattleUI : MonoBehaviour
         SetPlayerStatusText(currentState, playerIsGuarding);
         SetEnemyHp(enemy.currentHp, enemy.maxHp, enemyName);
         SetEnemyStatusText(enemy);
+        SetEnemyBreakText(enemy);
         SetEnemyIntentText(currentState, enemyPattern, enemyTurnCount);
         SetRunStatusText(currentState, currentStageIndex, stageEncounters);
         SetStageText(currentStageIndex, stageEncounters);
@@ -243,6 +249,18 @@ public class BattleUI : MonoBehaviour
         enemyStatusText.text = enemy.currentStatusEffect == StatusEffectType.None
             ? "Status: None"
             : $"Status: {enemy.currentStatusEffect} ({enemy.statusTurnsRemaining} turns)";
+    }
+
+    private void SetEnemyBreakText(CharacterData enemy)
+    {
+        if (enemyBreakText != null)
+            enemyBreakText.text = enemy.DebugBuildBreakText();
+        if (enemyBreakSlider != null)
+        {
+            enemyBreakSlider.minValue = 0f;
+            enemyBreakSlider.maxValue = enemy.maxBreakGauge;
+            enemyBreakSlider.value = enemy.isBroken ? 0f : enemy.currentBreakGauge;
+        }
     }
 
     private void SetEnemyIntentText(BattleState state, EnemyPatternData pattern, int turnCount)

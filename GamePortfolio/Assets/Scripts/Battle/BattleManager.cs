@@ -67,6 +67,9 @@ public class BattleManager : MonoBehaviour
     public string DebugPlayerStatusText => battleUI != null ? battleUI.DebugPlayerStatusText : "";
     public string DebugEnemyStatusText => battleUI != null ? battleUI.DebugEnemyStatusText : "";
     public string DebugEnemyIntentText => battleUI != null ? battleUI.DebugEnemyIntentText : "";
+    public string DebugEnemyBreakText => battleUI != null ? battleUI.DebugEnemyBreakText : "";
+    public float DebugEnemyBreakBarValue => battleUI != null ? battleUI.DebugEnemyBreakBarValue : -1f;
+    public float DebugEnemyBreakBarMaxValue => battleUI != null ? battleUI.DebugEnemyBreakBarMaxValue : -1f;
     public string DebugImpactText => battleUI != null ? battleUI.DebugImpactText : "";
     public string DebugRunStatusText => battleUI != null ? battleUI.DebugRunStatusText : "";
     public string DebugStageText => battleUI != null ? battleUI.DebugStageText : "";
@@ -117,6 +120,16 @@ public class BattleManager : MonoBehaviour
     public void DebugStartBattleForTest() => StartBattle();
     public void DebugEndBattleForTest(BattleState resultState) => EndBattle(resultState);
     public void DebugResolveEnemyAttackForTest() => ResolveEnemyAttack();
+    public void DebugForceEnemyBrokenForTest()
+    {
+        if (enemy == null) return;
+        enemy.currentBreakGauge = 0;
+        enemy.isBroken = true;
+        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Debug: Forced BROKEN",
+            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+    }
 
     // --- Battle flow ---
 
@@ -230,6 +243,11 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetActionButtonsInteractable(false);
         skillsUsedCount++;
         int damage = CalculateSkillDamage(enemy, skill);
+        bool wasBroken = enemy != null && enemy.isBroken;
+        if (wasBroken)
+        {
+            damage = Mathf.RoundToInt(damage * 1.5f);
+        }
         int before = enemy.currentHp;
         enemy.TakeDamage(damage);
         TrackDamageDealt(before);
@@ -237,10 +255,22 @@ public class BattleManager : MonoBehaviour
         if (skill.statusEffectType == StatusEffectType.Burn)
             enemy.ApplyStatusEffect(StatusEffectType.Burn, CfgBurnTurnDuration);
 
+        // Break gauge: reduce on weakness hit
+        if (!wasBroken && skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
+        {
+            enemy.ReduceBreakGauge(1);
+        }
+
+        // Reset Break after consuming it with an attack
+        if (wasBroken)
+        {
+            enemy.ResetBreakGauge();
+        }
+
         string msg = BuildSkillMessage(skill, damage);
 
-        // Set impact text based on skill
-        string impact = BuildImpactText(skill, damage);
+        // Set impact text based on skill - pass wasBroken for correct text before reset
+        string impact = BuildImpactText(skill, damage, wasBroken);
         battleUI?.SetImpactText(impact);
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
@@ -362,12 +392,22 @@ public class BattleManager : MonoBehaviour
         return msg;
     }
 
-    private string BuildImpactText(SkillData skill, int damage)
+    private string BuildImpactText(SkillData skill, int damage, bool wasBrokenBeforeHit = false)
     {
         if (skill == null) return "Impact: Ready";
         string impact = $"Impact: {skill.skillName} dealt {damage} damage";
-        if (skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
+        if (wasBrokenBeforeHit)
+        {
+            impact += " | Break bonus consumed";
+        }
+        else if (skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
+        {
             impact += " | Weakness hit";
+            if (enemy.isBroken)
+                impact += " | BREAK!";
+            else
+                impact += $" | Break {enemy.currentBreakGauge}/{enemy.maxBreakGauge}";
+        }
         if (skill.HasStatusEffect())
             impact += $" | {skill.statusEffectType} applied";
         return impact;
