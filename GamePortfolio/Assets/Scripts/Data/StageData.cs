@@ -55,7 +55,7 @@ public class StageData
                     normalAttackDamage = 18,
                     strongAttackName = "Royal Slam",
                     strongAttackDamage = 36,
-                    strongAttackEveryTurns = 1
+                    strongAttackEveryTurns = 3
                 }
             )
         };

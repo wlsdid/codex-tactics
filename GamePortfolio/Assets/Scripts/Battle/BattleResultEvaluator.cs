@@ -1,18 +1,23 @@
 public static class BattleResultEvaluator
 {
-    public static string BuildRank(BattleState resultState, int enemyTurnCount, int totalDamageTaken)
+    public static string BuildRank(BattleState resultState, int enemyTurnCount, int totalDamageTaken, BattleBalanceConfig config = null)
     {
         if (resultState != BattleState.Victory)
         {
             return "C";
         }
 
-        if (enemyTurnCount <= 1 && totalDamageTaken == 0)
+        int maxTurnsS = config != null ? config.sRankMaxTurns : 1;
+        int maxDamageS = config != null ? config.sRankMaxDamageTaken : 0;
+        int maxTurnsA = config != null ? config.aRankMaxTurns : 3;
+        int maxDamageA = config != null ? config.aRankMaxDamageTaken : 30;
+
+        if (enemyTurnCount <= maxTurnsS && totalDamageTaken <= maxDamageS)
         {
             return "S";
         }
 
-        if (enemyTurnCount <= 3 && totalDamageTaken <= 30)
+        if (enemyTurnCount <= maxTurnsA && totalDamageTaken <= maxDamageA)
         {
             return "A";
         }
@@ -20,19 +25,22 @@ public static class BattleResultEvaluator
         return "B";
     }
 
-    public static string BuildPaceLabel(BattleState resultState, int enemyTurnCount)
+    public static string BuildPaceLabel(BattleState resultState, int enemyTurnCount, BattleBalanceConfig config = null)
     {
         if (resultState != BattleState.Victory)
         {
             return "Defeated";
         }
 
-        if (enemyTurnCount <= 1)
+        int fastMax = config != null ? config.fastPaceMaxTurns : 1;
+        int steadyMax = config != null ? config.steadyPaceMaxTurns : 3;
+
+        if (enemyTurnCount <= fastMax)
         {
             return "Fast";
         }
 
-        if (enemyTurnCount <= 3)
+        if (enemyTurnCount <= steadyMax)
         {
             return "Steady";
         }

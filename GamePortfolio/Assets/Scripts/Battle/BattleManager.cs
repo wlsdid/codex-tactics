@@ -9,46 +9,34 @@ public class BattleManager : MonoBehaviour
     [Header("Battle State")]
     [SerializeField] private BattleState currentState;
 
-    [Header("Characters")]
+    [Header("Balance Config (optional)")]
+    [SerializeField] private BattleBalanceConfig balanceConfig;
+
+    [Header("Player Stats")]
     [SerializeField] private string playerName = "Hero";
-    [SerializeField] private int playerMaxHp = 100;
-    [SerializeField] private int playerAttack = 20;
-    [SerializeField] private int playerMaxAp = 3;
-    [SerializeField] private int playerApRecoveryPerTurn = 1;
 
     [Header("Stage Encounters")]
     [SerializeField] private List<StageData> stageEncounters = new List<StageData>();
-    [SerializeField] private int currentStageIndex;
+    [NonSerialized] private int currentStageIndex;
 
-    [SerializeField] private string enemyName = "Slime";
-    [SerializeField] private int enemyMaxHp = 80;
-    [SerializeField] private ElementType enemyWeakness = ElementType.Fire;
-    [SerializeField] private EnemyPatternData enemyPattern = new EnemyPatternData();
+    // These are overwritten by ApplyCurrentStageData() — keep as private backing fields
+    private string enemyName = "Slime";
+    private int enemyMaxHp = 80;
+    private ElementType enemyWeakness = ElementType.Fire;
+    private EnemyPatternData enemyPattern = new EnemyPatternData();
 
-    [Header("Player Skill")]
+    // Skill names kept serialized for Inspector readability
     [SerializeField] private string basicSkillName = "Slash";
-    [SerializeField] private int basicSkillPower = 20;
-    [SerializeField] private int basicSkillApCost = 0;
-    [SerializeField] private ElementType basicSkillElement = ElementType.Physical;
-
-    [Header("Fire Skill")]
     [SerializeField] private string fireSkillName = "Fire Bolt";
-    [SerializeField] private int fireSkillPower = 30;
-    [SerializeField] private int fireSkillApCost = 2;
-    [SerializeField] private ElementType fireSkillElement = ElementType.Fire;
 
-    [Header("Status Effect")]
-    [SerializeField] private int burnDamagePerTurn = 3;
-    [SerializeField] private int burnTurnDuration = 2;
-
-    [Header("Guard")]
-    [SerializeField] private int guardDamageReductionPercent = 50;
-
-    [Header("Result Reward")]
-    [SerializeField] private int sRankRewardGold = 150;
-    [SerializeField] private int aRankRewardGold = 120;
-    [SerializeField] private int bRankRewardGold = 100;
-    [SerializeField] private int defeatRewardGold = 0;
+    // Runtime backing fields with defaults (config-driven via Config* helpers)
+    private int burnDamagePerTurn = 3;
+    private int burnTurnDuration = 2;
+    private int guardDamageReductionPercent = 50;
+    private int sRankRewardGold = 150;
+    private int aRankRewardGold = 120;
+    private int bRankRewardGold = 100;
+    private int defeatRewardGold = 0;
 
     [Header("UI")]
     [SerializeField] private TMP_Text playerHpText;
@@ -91,7 +79,6 @@ public class BattleManager : MonoBehaviour
     private readonly HashSet<int> rewardedStageIndexes = new HashSet<int>();
     private readonly List<string> battleLogEntries = new List<string>();
     private int battleLogSequence;
-    private const int MaxBattleLogEntries = 6;
 
     public string DebugPlayerHpText => playerHpText != null ? playerHpText.text : "";
     public string DebugPlayerApText => playerApText != null ? playerApText.text : "";
@@ -146,10 +133,10 @@ public class BattleManager : MonoBehaviour
         ApplyCurrentStageData();
         EnsureEnemyPattern();
 
-        player = new CharacterData(playerName, playerMaxHp, playerAttack, ElementType.None, playerMaxAp);
+        player = new CharacterData(playerName, ConfigPlayerMaxHp, 20, ElementType.None, ConfigPlayerMaxAp);
         enemy = new CharacterData(enemyName, enemyMaxHp, enemyPattern.normalAttackDamage, enemyWeakness);
-        basicAttackSkill = new SkillData(basicSkillName, basicSkillPower, basicSkillApCost, basicSkillElement, StatusEffectType.None);
-        fireSkill = new SkillData(fireSkillName, fireSkillPower, fireSkillApCost, fireSkillElement, StatusEffectType.Burn);
+        basicAttackSkill = new SkillData(basicSkillName, ConfigBasicSkillPower, ConfigBasicSkillApCost, ElementType.Physical, StatusEffectType.None);
+        fireSkill = new SkillData(fireSkillName, ConfigFireSkillPower, ConfigFireSkillApCost, ElementType.Fire, StatusEffectType.Burn);
         basicAttackSkill.description = "Reliable no-cost physical attack.";
         fireSkill.description = "Costs AP, hits the enemy weakness, and applies Burn.";
         playerIsGuarding = false;
@@ -210,9 +197,9 @@ public class BattleManager : MonoBehaviour
     private void StartPlayerTurn()
     {
         currentState = BattleState.PlayerTurn;
-        player.RecoverAp(playerApRecoveryPerTurn);
+        player.RecoverAp(ConfigPlayerApRecovery);
         UpdateActionButtons();
-        UpdateUI($"Player Turn: recovered {playerApRecoveryPerTurn} AP. Choose an action.");
+        UpdateUI($"Player Turn: recovered {ConfigPlayerApRecovery} AP. Choose an action.");
     }
 
     public void OnClickAttackButton()
@@ -315,7 +302,7 @@ public class BattleManager : MonoBehaviour
 
         if (skill.statusEffectType == StatusEffectType.Burn)
         {
-            enemy.ApplyStatusEffect(StatusEffectType.Burn, burnTurnDuration);
+            enemy.ApplyStatusEffect(StatusEffectType.Burn, ConfigBurnTurnDuration);
         }
 
         UpdateUI(BuildSkillMessage(skill, damage));
@@ -339,10 +326,10 @@ public class BattleManager : MonoBehaviour
         if (enemy.HasStatusEffect(StatusEffectType.Burn))
         {
             int enemyHpBeforeBurn = enemy.currentHp;
-            enemy.TakeDamage(burnDamagePerTurn);
+            enemy.TakeDamage(ConfigBurnDamagePerTurn);
             TrackDamageDealt(enemyHpBeforeBurn);
             enemy.ReduceStatusTurn();
-            UpdateUI($"{enemy.characterName} takes {burnDamagePerTurn} burn damage.");
+            UpdateUI($"{enemy.characterName} takes {ConfigBurnDamagePerTurn} burn damage.");
 
             if (enemy.IsDead())
             {
@@ -382,7 +369,7 @@ public class BattleManager : MonoBehaviour
 
         if (playerIsGuarding)
         {
-            damage = Mathf.Max(1, damage * (100 - guardDamageReductionPercent) / 100);
+            damage = Mathf.Max(1, damage * (100 - ConfigGuardReductionPercent) / 100);
             playerIsGuarding = false;
             int playerHpBeforeDamage = player.currentHp;
             player.TakeDamage(damage);
@@ -439,7 +426,7 @@ public class BattleManager : MonoBehaviour
 
         if (skill.HasStatusEffect())
         {
-            message += $" Extra effect: {skill.statusEffectType} for {burnTurnDuration} turns.";
+            message += $" Extra effect: {skill.statusEffectType} for {ConfigBurnTurnDuration} turns.";
         }
 
         return message;
@@ -559,7 +546,7 @@ public class BattleManager : MonoBehaviour
         battleLogSequence++;
         battleLogEntries.Add($"{battleLogSequence}. {message}");
 
-        while (battleLogEntries.Count > MaxBattleLogEntries)
+        while (battleLogEntries.Count > ConfigMaxBattleLogEntries)
         {
             battleLogEntries.RemoveAt(0);
         }
@@ -685,9 +672,9 @@ public class BattleManager : MonoBehaviour
     {
         EnsureEnemyPattern();
 
-        string rank = BattleResultEvaluator.BuildRank(resultState, enemyTurnCount, totalDamageTaken);
+        string rank = BattleResultEvaluator.BuildRank(resultState, enemyTurnCount, totalDamageTaken, balanceConfig);
         string lastEnemyPattern = BattleResultEvaluator.BuildLastEnemyPatternLabel(enemyTurnCount, enemyPattern);
-        string paceLabel = BattleResultEvaluator.BuildPaceLabel(resultState, enemyTurnCount);
+        string paceLabel = BattleResultEvaluator.BuildPaceLabel(resultState, enemyTurnCount, balanceConfig);
 
         return new BattleResultData
         {
@@ -708,7 +695,7 @@ public class BattleManager : MonoBehaviour
             paceLabel = paceLabel,
             survivalLabel = BattleResultEvaluator.BuildSurvivalLabel(player.currentHp, player.maxHp),
             rank = rank,
-            rewardGold = BattleResultEvaluator.BuildRewardGold(rank, sRankRewardGold, aRankRewardGold, bRankRewardGold, defeatRewardGold),
+            rewardGold = BattleResultEvaluator.BuildRewardGold(rank, ConfigSRankRewardGold, ConfigARankRewardGold, ConfigBRankRewardGold, ConfigDefeatRewardGold),
             totalGold = totalGoldEarned,
             resultTip = BattleResultEvaluator.BuildResultTip(rank, lastEnemyPattern, enemyPattern.strongAttackName),
             lastEnemyPattern = lastEnemyPattern
@@ -735,7 +722,7 @@ public class BattleManager : MonoBehaviour
         EnsureEnemyPattern();
         string attackHelp = BuildSkillHelpLine(basicAttackSkill);
         string fireHelp = BuildSkillHelpLine(fireSkill);
-        string guardHelp = $"Guard: reduce next enemy attack by {guardDamageReductionPercent}%.";
+        string guardHelp = $"Guard: reduce next enemy attack by {ConfigGuardReductionPercent}%.";
         string turnHint = enemyPattern.BuildPatternHelpText();
         skillHelpText.text = attackHelp + "\n" + fireHelp + "\n" + guardHelp + "\n" + turnHint;
     }
