@@ -87,32 +87,38 @@ public static class BattleSceneAutoBuilder
 
         GameObject battleManagerObject = new GameObject("BattleManager");
         BattleManager battleManager = battleManagerObject.AddComponent<BattleManager>();
+        BattleUI battleUI = battleManagerObject.AddComponent<BattleUI>();
 
+        SerializedObject serializedBattleUI = new SerializedObject(battleUI);
+        SetObjectReference(serializedBattleUI, "playerHpText", playerHpText);
+        SetObjectReference(serializedBattleUI, "playerHpSlider", playerHpSlider);
+        SetObjectReference(serializedBattleUI, "playerApText", playerApText);
+        SetObjectReference(serializedBattleUI, "playerApSlider", playerApSlider);
+        SetObjectReference(serializedBattleUI, "playerStatusText", playerStatusText);
+        SetObjectReference(serializedBattleUI, "enemyHpText", enemyHpText);
+        SetObjectReference(serializedBattleUI, "enemyHpSlider", enemyHpSlider);
+        SetObjectReference(serializedBattleUI, "enemyStatusText", enemyStatusText);
+        SetObjectReference(serializedBattleUI, "enemyIntentText", enemyIntentText);
+        SetObjectReference(serializedBattleUI, "runStatusText", runStatusText);
+        SetObjectReference(serializedBattleUI, "stageText", stageText);
+        SetObjectReference(serializedBattleUI, "stageObjectiveText", stageObjectiveText);
+        SetObjectReference(serializedBattleUI, "stageProgressText", stageProgressText);
+        SetObjectReference(serializedBattleUI, "messageText", messageText);
+        SetObjectReference(serializedBattleUI, "skillHelpText", skillHelpText);
+        SetObjectReference(serializedBattleUI, "battleLogText", battleLogText);
+        SetObjectReference(serializedBattleUI, "resultSummaryText", resultSummaryText);
+        SetObjectReference(serializedBattleUI, "resultSummaryPanel", resultSummaryPanel.gameObject);
+        SetObjectReference(serializedBattleUI, "attackButton", attackButton);
+        SetObjectReference(serializedBattleUI, "fireSkillButton", fireSkillButton);
+        SetObjectReference(serializedBattleUI, "guardButton", guardButton);
+        SetObjectReference(serializedBattleUI, "endTurnButton", endTurnButton);
+        SetObjectReference(serializedBattleUI, "retryButton", retryButton);
+        SetObjectReference(serializedBattleUI, "continueButton", continueButton);
+        serializedBattleUI.ApplyModifiedPropertiesWithoutUndo();
+
+        // Link BattleUI to BattleManager
         SerializedObject serializedBattleManager = new SerializedObject(battleManager);
-        SetObjectReference(serializedBattleManager, "playerHpText", playerHpText);
-        SetObjectReference(serializedBattleManager, "playerHpSlider", playerHpSlider);
-        SetObjectReference(serializedBattleManager, "playerApText", playerApText);
-        SetObjectReference(serializedBattleManager, "playerApSlider", playerApSlider);
-        SetObjectReference(serializedBattleManager, "playerStatusText", playerStatusText);
-        SetObjectReference(serializedBattleManager, "enemyHpText", enemyHpText);
-        SetObjectReference(serializedBattleManager, "enemyHpSlider", enemyHpSlider);
-        SetObjectReference(serializedBattleManager, "enemyStatusText", enemyStatusText);
-        SetObjectReference(serializedBattleManager, "enemyIntentText", enemyIntentText);
-        SetObjectReference(serializedBattleManager, "runStatusText", runStatusText);
-        SetObjectReference(serializedBattleManager, "stageText", stageText);
-        SetObjectReference(serializedBattleManager, "stageObjectiveText", stageObjectiveText);
-        SetObjectReference(serializedBattleManager, "stageProgressText", stageProgressText);
-        SetObjectReference(serializedBattleManager, "messageText", messageText);
-        SetObjectReference(serializedBattleManager, "skillHelpText", skillHelpText);
-        SetObjectReference(serializedBattleManager, "battleLogText", battleLogText);
-        SetObjectReference(serializedBattleManager, "resultSummaryText", resultSummaryText);
-        SetObjectReference(serializedBattleManager, "resultSummaryPanel", resultSummaryPanel.gameObject);
-        SetObjectReference(serializedBattleManager, "attackButton", attackButton);
-        SetObjectReference(serializedBattleManager, "fireSkillButton", fireSkillButton);
-        SetObjectReference(serializedBattleManager, "guardButton", guardButton);
-        SetObjectReference(serializedBattleManager, "endTurnButton", endTurnButton);
-        SetObjectReference(serializedBattleManager, "retryButton", retryButton);
-        SetObjectReference(serializedBattleManager, "continueButton", continueButton);
+        SetObjectReference(serializedBattleManager, "battleUI", battleUI);
         serializedBattleManager.ApplyModifiedPropertiesWithoutUndo();
 
         EditorSceneManager.MarkSceneDirty(scene);

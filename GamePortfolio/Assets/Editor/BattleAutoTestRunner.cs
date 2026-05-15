@@ -13,31 +13,36 @@ public static class BattleAutoTestRunner
 
         GameObject root = new GameObject("BattleManager Auto Test Root");
         BattleManager battleManager = root.AddComponent<BattleManager>();
+        BattleUI battleUI = root.AddComponent<BattleUI>();
 
-        SetPrivateField(battleManager, "playerHpText", CreateText("Player HP Text"));
-        SetPrivateField(battleManager, "playerHpSlider", CreateSlider("Player HP Slider"));
-        SetPrivateField(battleManager, "playerApText", CreateText("Player AP Text"));
-        SetPrivateField(battleManager, "playerApSlider", CreateSlider("Player AP Slider"));
-        SetPrivateField(battleManager, "enemyHpText", CreateText("Enemy HP Text"));
-        SetPrivateField(battleManager, "enemyHpSlider", CreateSlider("Enemy HP Slider"));
-        SetPrivateField(battleManager, "playerStatusText", CreateText("Player Status Text"));
-        SetPrivateField(battleManager, "enemyStatusText", CreateText("Enemy Status Text"));
-        SetPrivateField(battleManager, "enemyIntentText", CreateText("Enemy Intent Text"));
-        SetPrivateField(battleManager, "runStatusText", CreateText("Run Status Text"));
-        SetPrivateField(battleManager, "stageText", CreateText("Stage Text"));
-        SetPrivateField(battleManager, "stageObjectiveText", CreateText("Stage Objective Text"));
-        SetPrivateField(battleManager, "stageProgressText", CreateText("Stage Progress Text"));
-        SetPrivateField(battleManager, "messageText", CreateText("Message Text"));
-        SetPrivateField(battleManager, "skillHelpText", CreateText("Skill Help Text"));
-        SetPrivateField(battleManager, "battleLogText", CreateText("Battle Log Text"));
-        SetPrivateField(battleManager, "resultSummaryText", CreateText("Result Summary Text"));
-        SetPrivateField(battleManager, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
-        SetPrivateField(battleManager, "attackButton", CreateButton("Attack Button"));
-        SetPrivateField(battleManager, "fireSkillButton", CreateButton("Fire Skill Button"));
-        SetPrivateField(battleManager, "guardButton", CreateButton("Guard Button"));
-        SetPrivateField(battleManager, "endTurnButton", CreateButton("End Turn Button"));
-        SetPrivateField(battleManager, "retryButton", CreateButton("Retry Button"));
-        SetPrivateField(battleManager, "continueButton", CreateButton("Continue Button"));
+        // Assign UI references to BattleUI (private fields via reflection)
+        SetPrivateField(battleUI, "playerHpText", CreateText("Player HP Text"));
+        SetPrivateField(battleUI, "playerHpSlider", CreateSlider("Player HP Slider"));
+        SetPrivateField(battleUI, "playerApText", CreateText("Player AP Text"));
+        SetPrivateField(battleUI, "playerApSlider", CreateSlider("Player AP Slider"));
+        SetPrivateField(battleUI, "enemyHpText", CreateText("Enemy HP Text"));
+        SetPrivateField(battleUI, "enemyHpSlider", CreateSlider("Enemy HP Slider"));
+        SetPrivateField(battleUI, "playerStatusText", CreateText("Player Status Text"));
+        SetPrivateField(battleUI, "enemyStatusText", CreateText("Enemy Status Text"));
+        SetPrivateField(battleUI, "enemyIntentText", CreateText("Enemy Intent Text"));
+        SetPrivateField(battleUI, "runStatusText", CreateText("Run Status Text"));
+        SetPrivateField(battleUI, "stageText", CreateText("Stage Text"));
+        SetPrivateField(battleUI, "stageObjectiveText", CreateText("Stage Objective Text"));
+        SetPrivateField(battleUI, "stageProgressText", CreateText("Stage Progress Text"));
+        SetPrivateField(battleUI, "messageText", CreateText("Message Text"));
+        SetPrivateField(battleUI, "skillHelpText", CreateText("Skill Help Text"));
+        SetPrivateField(battleUI, "battleLogText", CreateText("Battle Log Text"));
+        SetPrivateField(battleUI, "resultSummaryText", CreateText("Result Summary Text"));
+        SetPrivateField(battleUI, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
+        SetPrivateField(battleUI, "attackButton", CreateButton("Attack Button"));
+        SetPrivateField(battleUI, "fireSkillButton", CreateButton("Fire Skill Button"));
+        SetPrivateField(battleUI, "guardButton", CreateButton("Guard Button"));
+        SetPrivateField(battleUI, "endTurnButton", CreateButton("End Turn Button"));
+        SetPrivateField(battleUI, "retryButton", CreateButton("Retry Button"));
+        SetPrivateField(battleUI, "continueButton", CreateButton("Continue Button"));
+
+        // Link BattleUI to BattleManager
+        SetPrivateField(battleManager, "battleUI", battleUI);
 
         battleManager.DebugStartBattleForTest();
         AppendCheck(ref passed, ref report, "Battle starts at the first slime encounter", battleManager.DebugStageText == "Stage 1-1: Slime Scout");
@@ -162,7 +167,7 @@ public static class BattleAutoTestRunner
 
         Object.DestroyImmediate(root);
 
-        report += passed ? "\nRESULT: PASS" : "\nRESULT: FAIL";
+        report += passed ? "\n\nRESULT: PASS" : "\n\nRESULT: FAIL";
         EditorUtility.DisplayDialog(passed ? "Battle Logic Test Passed" : "Battle Logic Test Failed", report, "OK");
     }
 
@@ -206,10 +211,6 @@ public static class BattleAutoTestRunner
     {
         report += condition ? "[OK] " : "[FAIL] ";
         report += label + "\n";
-
-        if (!condition)
-        {
-            passed = false;
-        }
+        if (!condition) passed = false;
     }
 }
