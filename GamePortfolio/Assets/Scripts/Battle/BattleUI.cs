@@ -15,12 +15,14 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text playerApText;
     [SerializeField] private Slider playerApSlider;
     [SerializeField] private TMP_Text playerStatusText;
+    [SerializeField] private Image playerSpriteImage;
 
     [Header("Enemy UI")]
     [SerializeField] private TMP_Text enemyHpText;
     [SerializeField] private Slider enemyHpSlider;
     [SerializeField] private TMP_Text enemyStatusText;
     [SerializeField] private TMP_Text enemyIntentText;
+    [SerializeField] private Image enemySpriteImage;
 
     [Header("Stage UI")]
     [SerializeField] private TMP_Text runStatusText;
@@ -109,6 +111,15 @@ public class BattleUI : MonoBehaviour
         SetRetryButtonVisible(false);
         SetContinueButtonVisible(false);
         SetResultSummaryVisible(false, "");
+        SetupPlaceholderSprites();
+    }
+
+    public void SetupPlaceholderSprites(bool isBoss = false)
+    {
+        if (playerSpriteImage != null && playerSpriteImage.sprite == null)
+            playerSpriteImage.sprite = PlaceholderSpriteGenerator.CreateHeroSprite();
+        if (enemySpriteImage != null)
+            enemySpriteImage.sprite = PlaceholderSpriteGenerator.CreateEnemySprite(isBoss);
     }
 
     // --- Main Update ---

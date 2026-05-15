@@ -45,6 +45,7 @@ public static class BattleSceneAutoBuilder
         stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
 
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 95), new Vector2(420, 50), TextAlignmentOptions.Left);
+        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-360, 200), new Vector2(100, 100));
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 80), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
         TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-360, 55), new Vector2(420, 45), TextAlignmentOptions.Left);
         Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-360, 30), new Vector2(420, 18), new Color(0.26f, 0.56f, 1.0f));
@@ -52,6 +53,7 @@ public static class BattleSceneAutoBuilder
         playerStatusText.fontSize = 22;
         playerStatusText.color = new Color(0.78f, 1.0f, 0.76f);
         TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(360, 110), new Vector2(420, 50), TextAlignmentOptions.Right);
+        Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(360, 200), new Vector2(100, 100));
         Slider enemyHpSlider = CreateHpSlider(canvas.transform, "Enemy HP Slider", new Vector2(360, 80), new Vector2(420, 22), new Color(0.82f, 0.22f, 0.24f));
         TMP_Text enemyStatusText = CreateText(canvas.transform, "Enemy Status Text", "Status: None", new Vector2(360, 55), new Vector2(420, 45), TextAlignmentOptions.Right);
         TMP_Text enemyIntentText = CreateText(canvas.transform, "Enemy Intent Text", "Next Enemy: Normal Attack (15)", new Vector2(360, 25), new Vector2(420, 45), TextAlignmentOptions.Right);
@@ -95,10 +97,12 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "playerApText", playerApText);
         SetObjectReference(serializedBattleUI, "playerApSlider", playerApSlider);
         SetObjectReference(serializedBattleUI, "playerStatusText", playerStatusText);
+        SetObjectReference(serializedBattleUI, "playerSpriteImage", playerSpriteImage);
         SetObjectReference(serializedBattleUI, "enemyHpText", enemyHpText);
         SetObjectReference(serializedBattleUI, "enemyHpSlider", enemyHpSlider);
         SetObjectReference(serializedBattleUI, "enemyStatusText", enemyStatusText);
         SetObjectReference(serializedBattleUI, "enemyIntentText", enemyIntentText);
+        SetObjectReference(serializedBattleUI, "enemySpriteImage", enemySpriteImage);
         SetObjectReference(serializedBattleUI, "runStatusText", runStatusText);
         SetObjectReference(serializedBattleUI, "stageText", stageText);
         SetObjectReference(serializedBattleUI, "stageObjectiveText", stageObjectiveText);
@@ -586,6 +590,24 @@ public static class BattleSceneAutoBuilder
 
         Image image = panelObject.AddComponent<Image>();
         image.color = color;
+        image.raycastTarget = false;
+        return image;
+    }
+
+    private static Image CreatePortrait(Transform parent, string name, Vector2 anchoredPosition, Vector2 size)
+    {
+        GameObject portraitObject = new GameObject(name);
+        portraitObject.transform.SetParent(parent, false);
+
+        RectTransform rectTransform = portraitObject.AddComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = anchoredPosition;
+        rectTransform.sizeDelta = size;
+
+        Image image = portraitObject.AddComponent<Image>();
+        image.color = new Color(0.15f, 0.15f, 0.20f, 0.6f);
         image.raycastTarget = false;
         return image;
     }
