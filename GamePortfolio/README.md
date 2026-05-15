@@ -2,6 +2,13 @@
 
 Unity 2D 턴제 RPG 포트폴리오용 전투 프로토타입입니다. 현재 목표는 작은 전투 루프를 안정적으로 만들고, 포트폴리오에서 설명하기 좋은 시스템을 단계적으로 추가하는 것입니다.
 
+![전투 시작 화면](Docs/Captures/01_battle_start.png)
+
+![결과 요약 화면](Docs/Captures/04_result_summary_rank.png)
+
+> 아키텍처 다이어그램: [`Docs/architecture.html`](Docs/architecture.html)
+> 영문 README: [`README.EN.md`](README.EN.md)
+
 ## 현재 구현된 핵심 기능
 
 - 플레이어/적 HP 텍스트 표시(현재/최대치와 퍼센트)
