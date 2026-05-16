@@ -149,6 +149,67 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Retry restarts the current boss encounter instead of resetting the stage", battleManager.DebugStageText == "Stage 1-2: Slime King" && battleManager.DebugEnemyHpText == "Slime King HP: 140/140 (100%)");
         battleManager.DebugEndBattleForTest(BattleState.Victory);
         AppendCheck(ref passed, ref report, "Retrying an already rewarded encounter does not duplicate Total Gold", battleManager.DebugResultSummaryText.Contains("Total Gold: 300G") && battleManager.DebugTotalGoldEarned == 300);
+
+        // --- End-to-end: BattleManager + ProgressState integration ---
+        // Verify that final Victory calls ProgressState.MarkStageCompleted
+        // when StageSelectController.SelectedStageIndex is set.
+        // This simulates the real game flow: StageSelect → Battle → Victory → unlock.
+        ProgressState.Reset();
+        var selectedStageField = typeof(StageSelectController).GetField(
+            "<SelectedStageIndex>k__BackingField",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        if (selectedStageField != null)
+        {
+            // Set SelectedStageIndex = 0 (Stage 1) via reflection
+            selectedStageField.SetValue(null, 0);
+            // Run Stage 1 boss-only clear (single encounter)
+            var e2eRoot = new GameObject("E2ETestRoot");
+            var e2eManager = e2eRoot.AddComponent<BattleManager>();
+            var e2eUI = e2eRoot.AddComponent<BattleUI>();
+            SetPrivateField(e2eUI, "playerHpText", CreateText("Player HP Text"));
+            SetPrivateField(e2eUI, "playerHpSlider", CreateSlider("Player HP Slider"));
+            SetPrivateField(e2eUI, "playerApText", CreateText("Player AP Text"));
+            SetPrivateField(e2eUI, "playerApSlider", CreateSlider("Player AP Slider"));
+            SetPrivateField(e2eUI, "enemyHpText", CreateText("Enemy HP Text"));
+            SetPrivateField(e2eUI, "enemyHpSlider", CreateSlider("Enemy HP Slider"));
+            SetPrivateField(e2eUI, "playerStatusText", CreateText("Player Status Text"));
+            SetPrivateField(e2eUI, "enemyStatusText", CreateText("Enemy Status Text"));
+            SetPrivateField(e2eUI, "enemyIntentText", CreateText("Enemy Intent Text"));
+            SetPrivateField(e2eUI, "enemyBreakText", CreateText("Enemy Break Text"));
+            SetPrivateField(e2eUI, "enemyBreakSlider", CreateSlider("Enemy Break Slider"));
+            SetPrivateField(e2eUI, "runStatusText", CreateText("Run Status Text"));
+            SetPrivateField(e2eUI, "stageText", CreateText("Stage Text"));
+            SetPrivateField(e2eUI, "stageObjectiveText", CreateText("Stage Objective Text"));
+            SetPrivateField(e2eUI, "stageProgressText", CreateText("Stage Progress Text"));
+            SetPrivateField(e2eUI, "messageText", CreateText("Message Text"));
+            SetPrivateField(e2eUI, "impactText", CreateText("Impact Text"));
+            SetPrivateField(e2eUI, "skillHelpText", CreateText("Skill Help Text"));
+            SetPrivateField(e2eUI, "battleLogText", CreateText("Battle Log Text"));
+            SetPrivateField(e2eUI, "resultSummaryText", CreateText("Result Summary Text"));
+            SetPrivateField(e2eUI, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
+            SetPrivateField(e2eUI, "attackButton", CreateButton("Attack Button"));
+            SetPrivateField(e2eUI, "fireSkillButton", CreateButton("Fire Skill Button"));
+            SetPrivateField(e2eUI, "guardButton", CreateButton("Guard Button"));
+            SetPrivateField(e2eUI, "endTurnButton", CreateButton("End Turn Button"));
+            SetPrivateField(e2eUI, "retryButton", CreateButton("Retry Button"));
+            SetPrivateField(e2eUI, "continueButton", CreateButton("Continue Button"));
+            SetPrivateField(e2eUI, "stageSelectButton", CreateButton("Stage Select Button"));
+            SetPrivateField(e2eManager, "battleUI", e2eUI);
+            e2eManager.DebugStartBattleForTest();
+            AppendCheck(ref passed, ref report, "E2E: Selected Stage 1 loads Stage 1-1", e2eManager.DebugStageText == "Stage 1-1: Slime Scout");
+            // Clear all encounters (Normal + Boss = 2 encounters, but DebugEndBattleForTest skips HasNextStage check)
+            e2eManager.DebugEndBattleForTest(BattleState.Victory);
+            e2eManager.OnClickContinueButton();
+            e2eManager.DebugEndBattleForTest(BattleState.Victory);
+            AppendCheck(ref passed, ref report, "E2E: Stage 1 final clear marks progress unlocked", ProgressState.IsStageUnlocked(1));
+            AppendCheck(ref passed, ref report, "E2E: Stage 1 marked as completed", ProgressState.DebugIsStage0Completed);
+            Object.DestroyImmediate(e2eRoot);
+        }
+        else
+        {
+            AppendCheck(ref passed, ref report, "E2E: StageSelectController.SelectedStageIndex field accessible", false);
+        }
+
         AppendCheck(ref passed, ref report, "EnemyData and StageData presets can describe multiple encounters", StageData.CreateStage1Boss().enemy.enemyName == "Slime King" && StageData.CreateStage1Normal().enemy.maxHp == 80);
         AppendCheck(ref passed, ref report, "BattleResultEvaluator builds rank, pace, survival, reward, tip, and last pattern", BattleResultEvaluator.BuildRank(BattleState.Victory, 2, 20) == "A" && BattleResultEvaluator.BuildPaceLabel(BattleState.Victory, 2) == "Steady" && BattleResultEvaluator.BuildSurvivalLabel(70, 100) == "70%" && BattleResultEvaluator.BuildRewardGold("A", 150, 120, 100, 0) == 120 && BattleResultEvaluator.BuildResultTip("A", "Normal Attack", "Heavy Slam") == "Take less damage for a higher rank." && BattleResultEvaluator.BuildLastEnemyPatternLabel(3, new EnemyPatternData()) == "Heavy Slam");
 
