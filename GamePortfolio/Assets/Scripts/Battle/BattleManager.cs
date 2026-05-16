@@ -438,12 +438,8 @@ public class BattleManager : MonoBehaviour
     private int CalculateSkillDamage(CharacterData target, SkillData skill)
     {
         float multiplier = CfgNeutralMultiplier;
-        string effLabel = "Neutral";
         if (skill.elementType != ElementType.None && skill.elementType == target.weaknessElement)
-        {
             multiplier = CfgWeaknessMultiplier;
-            effLabel = "Weakness";
-        }
         return Mathf.RoundToInt(skill.power * multiplier);
     }
 

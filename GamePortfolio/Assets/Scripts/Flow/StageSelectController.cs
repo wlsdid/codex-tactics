@@ -11,9 +11,15 @@ public class StageSelectController : MonoBehaviour
     [Header("Stage Cards")]
     [SerializeField] private Button stage1CardButton;
     [SerializeField] private Button stage2CardButton;
+    [SerializeField] private Button stage3CardButton;
+    [SerializeField] private Button stage4CardButton;
     [SerializeField] private Image stage1CardBg;
     [SerializeField] private Image stage2CardBg;
+    [SerializeField] private Image stage3CardBg;
+    [SerializeField] private Image stage4CardBg;
     [SerializeField] private TMP_Text stage2StatusText;
+    [SerializeField] private TMP_Text stage3StatusText;
+    [SerializeField] private TMP_Text stage4StatusText;
 
     [Header("Description Panel")]
     [SerializeField] private TMP_Text stageNameText;
@@ -57,12 +63,12 @@ public class StageSelectController : MonoBehaviour
 
     private void Start()
     {
-        // Wire buttons
-        if (stage1CardButton != null)
-            stage1CardButton.onClick.AddListener(() => OnStageCardClicked(0));
-        if (stage2CardButton != null)
-            stage2CardButton.onClick.AddListener(() => OnStageCardClicked(1));
-        // Stage 3 and 4 are data-complete but need scene card objects to appear in stage select
+        // Wire stage card buttons
+        WireStageCard(0, stage1CardButton);
+        WireStageCard(1, stage2CardButton);
+        WireStageCard(2, stage3CardButton);
+        WireStageCard(3, stage4CardButton);
+        // Stage 3 and 4 cards are optional (need scene objects) — WireStageCard handles null
         if (backButton != null)
             backButton.onClick.AddListener(OnBackClicked);
         if (startBattleButton != null)
@@ -70,6 +76,15 @@ public class StageSelectController : MonoBehaviour
 
         // Initialize UI state
         UpdateCardVisuals();
+    }
+
+    private void WireStageCard(int index, Button cardButton)
+    {
+        if (cardButton != null)
+        {
+            int captured = index;
+            cardButton.onClick.AddListener(() => OnStageCardClicked(captured));
+        }
     }
 
     private void OnStageCardClicked(int index)
@@ -99,26 +114,23 @@ public class StageSelectController : MonoBehaviour
 
     private void UpdateCardVisuals()
     {
-        bool stage1Unlocked = ProgressState.IsStageUnlocked(0);
-        bool stage2Unlocked = ProgressState.IsStageUnlocked(1);
-        // Stage 1 — selectable
-        if (stage1CardButton != null)
-        {
-            stage1CardButton.interactable = stage1Unlocked;
-            SetCardState(stage1CardBg, stage1CardButton.interactable, stage1Unlocked);
-        }
-
-        // Stage 2 — locked
-        if (stage2CardButton != null)
-        {
-            stage2CardButton.interactable = stage2Unlocked;
-            SetCardState(stage2CardBg, stage2CardButton.interactable, stage2Unlocked);
-        }
-        if (stage2StatusText != null)
-            stage2StatusText.text = stage2Unlocked ? "Available" : "Locked";
+        UpdateSingleCardVisual(0, stage1CardButton, stage1CardBg, null);
+        UpdateSingleCardVisual(1, stage2CardButton, stage2CardBg, stage2StatusText);
+        UpdateSingleCardVisual(2, stage3CardButton, stage3CardBg, stage3StatusText);
+        UpdateSingleCardVisual(3, stage4CardButton, stage4CardBg, stage4StatusText);
     }
 
-    private void SetCardState(Image bg, bool canInteract, bool isUnlocked)
+    private void UpdateSingleCardVisual(int stageIndex, Button cardButton, Image cardBg, TMP_Text statusText)
+    {
+        if (cardButton == null) return;
+        bool unlocked = ProgressState.IsStageUnlocked(stageIndex);
+        cardButton.interactable = unlocked;
+        SetCardState(cardBg, cardButton.interactable, unlocked, stageIndex);
+        if (statusText != null)
+            statusText.text = unlocked ? "Available" : "Locked";
+    }
+
+    private void SetCardState(Image bg, bool canInteract, bool isUnlocked, int stageIndex)
     {
         if (bg == null) return;
 
@@ -134,8 +146,11 @@ public class StageSelectController : MonoBehaviour
     {
         // Match by name convention
         if (cardBg == null) return false;
-        return stageIndex == 0 && cardBg.name.Contains("Stage Card 1") ||
-               stageIndex == 1 && cardBg.name.Contains("Stage Card 2");
+        if (stageIndex == 0 && cardBg.name.Contains("Stage Card 1")) return true;
+        if (stageIndex == 1 && cardBg.name.Contains("Stage Card 2")) return true;
+        if (stageIndex == 2 && cardBg.name.Contains("Stage Card 3")) return true;
+        if (stageIndex == 3 && cardBg.name.Contains("Stage Card 4")) return true;
+        return false;
     }
 
     private void UpdateDescription(int index)
@@ -171,7 +186,6 @@ public class StageSelectController : MonoBehaviour
 
     public void DebugSelectStage(int index)
     {
-        if (index == 0) OnStageCardClicked(0);
-        else if (index == 1) OnStageCardClicked(1);
+        if (index >= 0 && index < 4) OnStageCardClicked(index);
     }
 }
