@@ -3,7 +3,7 @@
 Unity 2D 턴제 RPG 포트폴리오용 전투 프로토타입입니다. 현재 목표는 작은 전투 루프를 안정적으로 만들고, 포트폴리오에서 설명하기 좋은 시스템을 단계적으로 추가하는 것입니다.
 
 현재 구현: 타이틀 → 스테이지 선택 → 전투 → 결과 → 재시작/다음 → 스테이지 선택 복귀의 완전한 게임 루프.  
-3개 스테이지(각 2개 encounter), Stage 1만 플레이 가능, Stage 2/3은 순차 클리어 시 잠금 해제.
+4개 스테이지(각 2개 encounter, Fire/Nature/Earth/Lightning), 4개 플레이어 스킬(Slash/Ice Lance/Fire Bolt/Lightning Strike), 속성 약점, Break/Stun 시스템 포함.
 
 > 영문 README: [`README.EN.md`](README.EN.md)
 

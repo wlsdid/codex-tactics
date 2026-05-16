@@ -1,105 +1,84 @@
-# Battle State Machine
+# Portfolio Showcase Draft
 
-This prototype uses a small, readable state machine for the battle loop.
+> Updated: 2026-05-16 — covers 4 stages, 4 skills, element system, Stun, Break
 
-```text
-Start
-  -> PlayerTurn
-      -> EnemyTurn
-          -> PlayerTurn
-      -> Victory
-          -> Continue -> Start (next encounter, if one exists)
-          -> Retry -> Start (current encounter)
-      -> Defeat
-          -> Retry -> Start (current encounter)
-```
+## Game overview
 
-## State summary
+Codex Tactics is a turn-based tactical RPG vertical slice built in Unity. It demonstrates a complete battle loop with stage progression, elemental mechanics, multiple player skills, and automated validation.
 
-## Start
+## Current features
 
-Battle data is reset for the current stage encounter:
+### 4 stages with increasing difficulty
+| Stage | Enemies | Type | Normal HP | Boss HP |
+|-------|---------|------|-----------|---------|
+| Slime Scout Route | Slime Scout, Slime King | Fire | 80 | 140 |
+| Wolf Ambush | Wolf Scout, Alpha Wolf | Nature | 100 | 180 |
+| Golem Depths | Golem Sentry, Ancient Golem | Earth | 120 | 220 |
+| Storm Peaks | Storm Hawk, Thunder Phoenix | Lightning | 140 | 250 |
 
-- Current `StageData` / `EnemyData` values are loaded
-- Stage label
-- Stage objective label
-- Stage progress label
-- Player HP/AP
-- Enemy HP
-- Player/Enemy HP bars
-- Player AP bar
-- Player status text
-- Enemy status text
-- Enemy intent text
-- Skills
-- Guard flag
-- Enemy turn counter
-- Damage dealt/taken counters
-- Guard use counter
-- Skills used counter
-- Battle log
-- Result summary UI is cleared/hidden
-- Result summary panel is cleared/hidden
+### 4 player skills
+| Skill | AP | Element | Power | Effect |
+|-------|----|---------|-------|--------|
+| Slash | 0 | Physical | 20 | — |
+| Ice Lance | 1 | Ice | 25 | Stun (enemy skips turn) |
+| Fire Bolt | 2 | Fire | 30 | Burn (3/turn for 2 turns) |
+| Lightning Strike | 3 | Lightning | 40 | — |
 
-After setup, the battle immediately enters `PlayerTurn`.
+### Element weakness system
+- Configurable multiplier (1.5x default) via `BattleBalanceConfig`
+- Visible impact text (`Weakness x1.5`, `Neutral x1.0`, `Physical`)
+- Effects Break gauge on weakness hits
 
-## PlayerTurn
+### Break & Stun mechanics
+- **Break gauge** (2 points): weakness hits reduce gauge; at 0 → BROKEN, next attack deals 1.5x
+- **Stun**: enemy skips its entire attack turn — a pure delay tactic
 
-The player can choose one action:
+### Battle result evaluation
+- Rank (S/A/B/C) based on turns taken and damage received
+- Pace label (Fast/Steady/Long/Defeated)
+- Survival percentage
+- Reward gold scaled to rank
+- Configurable thresholds via `BattleBalanceConfig`
 
-- `Attack`: free physical damage
-- `Fire Skill`: costs AP, deals Fire damage, applies Burn
-- `Guard`: ends the turn and reduces the next enemy attack
-- `End Turn`: skips action and lets the next turn recover AP
+### Full game flow
+- Title screen → Stage Select → Battle → Result → Title
+- Stage progression: clear all encounters → next stage unlocks
+- Retry / Continue / Stage Select navigation
 
-At the start of a player turn, AP recovers by `playerApRecoveryPerTurn`. HP text, HP bars, AP text, and the AP bar are refreshed whenever battle UI updates.
+## Technical highlights
 
-Using `Fire Skill` spends 2 AP immediately, so the AP text and AP bar change from full `3/3` to `1/3` before the enemy turn begins. Attack and Fire Skill both increase the skills used counter after AP payment succeeds. The damage dealt counter records the actual HP removed from the enemy, including weakness bonus damage.
+### Config-driven design
+All balance values live in `BattleBalanceConfig` (ScriptableObject). Designers can tune without code changes: damage, HP, AP costs, weakness multipliers, rank thresholds, rewards.
 
-Choosing `Guard` sets the player status text to `Status: Guarding` until the next enemy attack is resolved. After the guard damage reduction is consumed, it returns to `Status: Ready`. Each chosen Guard action increases the guard use counter once.
+### Clean separation
+- `BattleManager` — state machine and turn flow
+- `BattleUI` — all rendering (extracted from BattleManager)
+- `StageData` / `EnemyData` — encounter definitions
+- `BattleResultEvaluator` / `BattleResultPresenter` — result logic
+- `BattleBalanceConfig` — all magic numbers
 
-## EnemyTurn
+### Automated testing
+- Scene validation (checks all critical UI elements exist)
+- Battle logic auto-test (230+ regression checks)
+- Unity batchmode compile: PASS
+- Test coverage: skills, damage, status effects, elements, progress, stage data
 
-The enemy turn resolves in this order:
+### Generated scenes
+`BattleSceneAutoBuilder` creates the complete battle scene from code — no manual prefab editing needed. This ensures the scene stays in sync with code changes.
 
-1. Burn damage, if active
-2. Enemy attack
-3. Victory/Defeat check
-4. Return to `PlayerTurn` if both sides are alive
+## How to play
 
-The enemy has a simple pattern counter. Every 3rd enemy turn, it uses `Heavy Slam` for stronger damage. Each resolved enemy hit increases the damage taken counter by the actual HP removed from the player.
+1. Open `Assets/Scenes/BattleScene.unity` (or `StageSelectScene.unity`)
+2. Press Play
+3. Click card to select stage → Start Battle
+4. Choose actions: Attack (free), Ice Lance (1 AP, Stun), Fire Bolt (2 AP, Burn), Guard, End Turn
+5. Defeat all encounters to complete the stage
 
-The Enemy Intent text previews the next enemy action from `enemyTurnCount + 1`:
-
-- `Next Enemy: Normal Attack (15)` for ordinary turns
-- `Next Enemy: Heavy Slam (30)` before every 3rd enemy turn
-- `Next Enemy: Battle ended` after Victory/Defeat
-
-## Victory / Defeat
-
-- `Victory`: enemy HP reaches 0
-- `Defeat`: player HP reaches 0
-
-All action buttons are disabled when the battle ends.
-The retry button is shown for both Victory and Defeat. If the current Victory is not the final encounter, the continue button is also shown and advances to the next `StageData` entry. The stage objective label changes from `Objective: Defeat ...` to `Objective Complete: ... | Continue to Stage 1-2: Slime King`, making the next destination visible before the button press. The stage progress label changes from active progress, such as `Progress: Encounter 1/2 | Active`, to result states such as `Encounter Clear`, `Retry Needed`, or `Stage Clear`. If the last encounter is cleared, Continue stays hidden, the message tells the player to review Total Gold, and the objective label becomes `Objective Complete: Stage 1 cleared | Final Clear`. A compact result summary appears with:
-
-`BattleResultData.cs` contains the values used by the summary. `BattleResultEvaluator.cs` owns result evaluation rules such as pace, rank, reward, tip, and last enemy pattern labels. `BattleResultPresenter.cs` owns the final summary text formatting. `BattleManager` builds the data object through the evaluator, then passes it to the presenter. This keeps result metrics grouped in one place while keeping evaluation rules and display text in separate classes as the combat report grows.
-
-- Result: Victory or Defeat, grouped with the enemy turns resolved
-- Player final HP/AP
-- Enemy final HP
-- Damage dealt / damage taken, grouped into one line
-- Guard uses / Skills used, grouped into one choices line
-- Pace label (`Fast`, `Steady`, `Long`, or `Defeated`) grouped with Survival
-- Survival label, such as `40%` or `100%`
-- Battle rank (`S`, `A`, `B`, or `C`) grouped with Reward gold and Total Gold
-- Reward gold (`150G` for S, `120G` for A, `100G` for B, `0G` for C/Defeat)
-- Total Gold display, which carries earned encounter rewards across the current stage run without inventory/shop logic
-- Result tip, such as `Perfect clear!` or `Guard before Heavy Slam.`
-- Last enemy pattern used, such as `Normal Attack` or `Heavy Slam`
-
-The player status text changes to `Status: Battle ended` when the result state is reached. The result summary panel is shown with the summary text, then hidden again on Retry so the next battle starts cleanly. Pace is intentionally simple: fast Victory is `Fast`, medium Victory is `Steady`, longer Victory is `Long`, and Defeat is `Defeated`. Rank is intentionally simple: Defeat is `C`, a clean fast Victory is `S`, solid Victory is `A`, and slower or rougher Victory is `B`. Reward gold is scaled from that rank so the result summary connects performance to payout. The current Victory reward is added to `totalGoldEarned` once per stage encounter and displayed as `Total Gold` so the stage run feels carried forward without adding inventory or a shop. The result tip gives one short next-action hint based on the rank and the last enemy pattern.
-
-## Portfolio note
-
-This is intentionally small and beginner-readable. It is a good base for later features such as more stages, multiple enemies, boss phases, stage rewards, or a ScriptableObject-based skill database.
+## Screenshots needed
+- [ ] Battle scene with all UI panels visible
+- [ ] Fire Bolt dealing weakness damage with impact text
+- [ ] Stun message ("is STUNNED!")
+- [ ] Break gauge at max / depleted / BROKEN
+- [ ] Stage select with locked/unlocked cards
+- [ ] Result summary (Victory S rank)
+- [ ] Result summary (Defeat)

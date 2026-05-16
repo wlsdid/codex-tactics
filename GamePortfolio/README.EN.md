@@ -3,7 +3,7 @@
 > **A learn-by-building portfolio project**: A playable 2D turn-based battle system built in Unity, demonstrating data-driven design, clean code practices, scene flow architecture, and thorough documentation.
 
 **Complete game loop:** Title → Stage Select → Battle → Result → Retry/Next → Stage Select return.  
-3 stages (2 encounters each), sequential unlock on clear. Stage editor automation + 221 auto tests.
+4 stages (Fire/Nature/Earth/Lightning, 2 encounters each), 4 player skills (Slash/Ice Lance/Fire Bolt/Lightning Strike), element weakness system, Break/Stun mechanics. Sequential unlock + 230+ auto tests.
 
 ---
 
