@@ -57,6 +57,8 @@ public class BattleUI : MonoBehaviour
     private TMP_Text continueButtonText;
     [SerializeField] private Button stageSelectButton;
     [SerializeField] private Button speedToggleButton;
+    [SerializeField] private Button autoBattleButton;
+    [SerializeField] private TMP_Text autoBattleIndicatorText;
 
     private readonly List<string> battleLogEntries = new List<string>();
     private int battleLogSequence;
@@ -105,7 +107,8 @@ public class BattleUI : MonoBehaviour
         UnityEngine.Events.UnityAction onRetry,
         UnityEngine.Events.UnityAction onContinue,
         UnityEngine.Events.UnityAction onStageSelect = null,
-        UnityEngine.Events.UnityAction onSpeedToggle = null)
+        UnityEngine.Events.UnityAction onSpeedToggle = null,
+        UnityEngine.Events.UnityAction onAutoBattleToggle = null)
     {
         WireButton(attackButton, onAttack);
         WireButton(fireSkillButton, onFireSkill);
@@ -119,6 +122,8 @@ public class BattleUI : MonoBehaviour
             WireButton(stageSelectButton, onStageSelect);
         if (onSpeedToggle != null)
             WireButton(speedToggleButton, onSpeedToggle);
+        if (onAutoBattleToggle != null)
+            WireButton(autoBattleButton, onAutoBattleToggle);
     }
 
     private static void WireButton(Button btn, UnityEngine.Events.UnityAction action)
@@ -126,6 +131,14 @@ public class BattleUI : MonoBehaviour
         if (btn == null) return;
         btn.onClick.RemoveListener(action);
         btn.onClick.AddListener(action);
+    }
+
+    public void SetAutoBattleIndicator(bool enabled)
+    {
+        if (autoBattleIndicatorText == null && autoBattleButton != null)
+            autoBattleIndicatorText = autoBattleButton.GetComponentInChildren<TMP_Text>();
+        if (autoBattleIndicatorText != null)
+            autoBattleIndicatorText.text = enabled ? "Auto: ON" : "Auto: OFF";
     }
 
     public void SetSpeedToggleButton(int speedState, Button speedButton)

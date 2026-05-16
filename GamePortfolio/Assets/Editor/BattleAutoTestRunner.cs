@@ -47,6 +47,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "continueButton", CreateButton("Continue Button"));
         SetPrivateField(battleUI, "stageSelectButton", CreateButton("Stage Select Button"));
         SetPrivateField(battleUI, "speedToggleButton", CreateButton("Speed Toggle Button"));
+        SetPrivateField(battleUI, "autoBattleButton", CreateButton("Auto Battle Button"));
 
         // Link BattleUI to BattleManager
         SetPrivateField(battleManager, "battleUI", battleUI);
@@ -219,6 +220,7 @@ public static class BattleAutoTestRunner
             SetPrivateField(e2eUI, "continueButton", CreateButton("Continue Button"));
             SetPrivateField(e2eUI, "stageSelectButton", CreateButton("Stage Select Button"));
             SetPrivateField(e2eUI, "speedToggleButton", CreateButton("Speed Toggle Button"));
+            SetPrivateField(e2eUI, "autoBattleButton", CreateButton("Auto Battle Button"));
             SetPrivateField(e2eManager, "battleUI", e2eUI);
             e2eManager.DebugStartBattleForTest();
             AppendCheck(ref passed, ref report, "E2E: Selected Stage 1 loads Stage 1-1", e2eManager.DebugStageText == "Stage 1-1: Slime Scout");
@@ -319,6 +321,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(ui2, "continueButton", CreateButton("Continue Button"));
         SetPrivateField(ui2, "stageSelectButton", CreateButton("Stage Select Button"));
             SetPrivateField(ui2, "speedToggleButton", CreateButton("Speed Toggle Button"));
+            SetPrivateField(ui2, "autoBattleButton", CreateButton("Auto Battle Button"));
         SetPrivateField(manager2, "battleUI", ui2);
 
         // Test: default (no selection) → Stage 1
@@ -361,6 +364,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(ui1, "continueButton", CreateButton("Continue Button"));
         SetPrivateField(ui1, "stageSelectButton", CreateButton("Stage Select Button"));
             SetPrivateField(ui1, "speedToggleButton", CreateButton("Speed Toggle Button"));
+            SetPrivateField(ui1, "autoBattleButton", CreateButton("Auto Battle Button"));
         SetPrivateField(manager1, "battleUI", ui1);
         manager1.DebugLoadEncountersForStage(0);
         manager1.DebugStartBattleForTest();

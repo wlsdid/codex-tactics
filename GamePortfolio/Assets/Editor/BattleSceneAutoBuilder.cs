@@ -110,6 +110,7 @@ public static class BattleSceneAutoBuilder
         TMP_Text continueButtonLabel = continueButton.GetComponentInChildren<TMP_Text>();
         Button stageSelectButton = CreateButton(canvas.transform, "Stage Select Button", "Stage Select", new Vector2(-410, -325), new Vector2(220, 70));
         Button speedToggleButton = CreateButton(canvas.transform, "Speed Toggle Button", "1x", new Vector2(410, -325), new Vector2(140, 70));
+        Button autoBattleButton = CreateButton(canvas.transform, "Auto Battle Button", "Auto: OFF", new Vector2(410, -245), new Vector2(140, 50));
         stageSelectButton.gameObject.SetActive(false);
 
         GameObject battleManagerObject = new GameObject("BattleManager");
@@ -150,6 +151,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "continueButton", continueButton);
         SetObjectReference(serializedBattleUI, "stageSelectButton", stageSelectButton);
         SetObjectReference(serializedBattleUI, "speedToggleButton", speedToggleButton);
+        SetObjectReference(serializedBattleUI, "autoBattleButton", autoBattleButton);
         serializedBattleUI.ApplyModifiedPropertiesWithoutUndo();
 
         // Link BattleUI to BattleManager
@@ -204,6 +206,7 @@ public static class BattleSceneAutoBuilder
         Button continueButton = FindButtonIncludingInactive("Continue Button");
         Button stageSelectButton = FindButtonIncludingInactive("Stage Select Button");
         Button speedToggleButton = FindButtonIncludingInactive("Speed Toggle Button");
+        Button autoBattleButton = FindButtonIncludingInactive("Auto Battle Button");
         TMP_Text playerHpText = FindText("Player HP Text");
         TMP_Text playerApText = FindText("Player AP Text");
         TMP_Text enemyHpText = FindText("Enemy HP Text");
@@ -278,6 +281,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Continue button exists", continueButton != null);
         AppendCheck(ref passed, ref report, "Stage Select button exists", stageSelectButton != null);
         AppendCheck(ref passed, ref report, "Speed Toggle button exists", speedToggleButton != null);
+        AppendCheck(ref passed, ref report, "Auto Battle button exists", autoBattleButton != null);
         AppendCheck(ref passed, ref report, "Player HP text includes percentage", IsResourceTextLikelyConfigured(playerHpText, "Hero HP", "100%"));
         AppendCheck(ref passed, ref report, "Player AP text includes percentage", IsResourceTextLikelyConfigured(playerApText, "AP", "100%"));
         AppendCheck(ref passed, ref report, "Enemy HP text includes percentage", IsResourceTextLikelyConfigured(enemyHpText, "Slime HP", "100%"));

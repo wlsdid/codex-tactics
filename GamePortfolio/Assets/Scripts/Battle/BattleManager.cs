@@ -46,7 +46,9 @@ public class BattleManager : MonoBehaviour
     private SkillData lightningSkill;
     private bool playerIsGuarding;
     private int enemyTurnCount;
-    private int speedState = 1; // 1=1x, 2=2x
+    private int speedState = 1;
+    private bool autoBattleEnabled;
+    public bool DebugAutoBattleEnabled => autoBattleEnabled; // 1=1x, 2=2x
     private int totalDamageDealt;
     private int totalDamageTaken;
     private int guardUseCount;
@@ -128,7 +130,7 @@ public class BattleManager : MonoBehaviour
                 OnClickAttackButton, OnClickFireSkillButton, OnClickIceSkillButton, OnClickLightningSkillButton,
                 OnClickEndTurnButton, OnClickGuardButton,
                 OnClickRetryButton, OnClickContinueButton,
-                OnClickStageSelectButton, OnClickSpeedToggle);
+                OnClickStageSelectButton, OnClickSpeedToggle, OnClickAutoBattleToggle);
         }
         InitializeFromStageSelection();
         StartBattle();
@@ -212,6 +214,7 @@ public class BattleManager : MonoBehaviour
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"Player Turn: recovered {CfgPlayerApRecovery} AP. Choose an action.",
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+        if (autoBattleEnabled) ExecuteAutoAction();
     }
 
     // --- Player actions (public for button binding & testing) ---
@@ -228,6 +231,72 @@ public class BattleManager : MonoBehaviour
         if (currentState != BattleState.Victory && currentState != BattleState.Defeat) return;
         StopAllCoroutines();
         StartBattle();
+    }
+
+    public void OnClickAutoBattleToggle()
+    {
+        autoBattleEnabled = !autoBattleEnabled;
+        battleUI?.SetAutoBattleIndicator(autoBattleEnabled);
+        if (autoBattleEnabled && currentState == BattleState.PlayerTurn)
+            ExecuteAutoAction();
+    }
+
+    private void ExecuteAutoAction()
+    {
+        if (currentState != BattleState.PlayerTurn || player == null || enemy == null) return;
+        if (enemy.IsDead()) { EndBattle(BattleState.Victory); return; }
+
+        // AI decision tree (ordered by priority):
+        // 1. Guard if incoming strong attack
+        bool strongAttackIncoming = enemyPattern.IsStrongAttackTurn(enemyTurnCount + 1);
+        if (strongAttackIncoming && playerIsGuarding == false)
+        {
+            GuardAndEndPlayerTurn();
+            return;
+        }
+
+        // 2. Use weakness skill if enemy has break gauge remaining
+        SkillData weaknessSkill = GetWeaknessSkill();
+        if (weaknessSkill != null && !enemy.isBroken && player.HasEnoughAp(weaknessSkill.apCost))
+        {
+            UsePlayerSkill(weaknessSkill);
+            return;
+        }
+
+        // 3. Use Lightning Strike if enough AP
+        if (player.HasEnoughAp(lightningSkill.apCost))
+        {
+            UsePlayerSkill(lightningSkill);
+            return;
+        }
+
+        // 4. Use Ice Lance if enough AP
+        if (player.HasEnoughAp(iceSkill.apCost))
+        {
+            UsePlayerSkill(iceSkill);
+            return;
+        }
+
+        // 5. Use Fire Bolt if enough AP
+        if (player.HasEnoughAp(fireSkill.apCost))
+        {
+            UsePlayerSkill(fireSkill);
+            return;
+        }
+
+        // 6. Default: basic attack
+        OnClickAttackButton();
+    }
+
+    private SkillData GetWeaknessSkill()
+    {
+        if (enemy == null) return null;
+        ElementType weak = enemy.weaknessElement;
+        if (weak == ElementType.None) return null;
+        if (iceSkill.elementType == weak) return iceSkill;
+        if (fireSkill.elementType == weak) return fireSkill;
+        if (lightningSkill.elementType == weak) return lightningSkill;
+        return null;
     }
 
     public void OnClickSpeedToggle()
