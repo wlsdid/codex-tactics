@@ -51,6 +51,19 @@ public class TitleManager : MonoBehaviour
         titleRt.sizeDelta = new Vector2(800, 80);
         titleRt.anchoredPosition = new Vector2(0, 80);
 
+        // Hero title text
+        GameObject heroTitleObj = new GameObject("Hero Title");
+        heroTitleObj.transform.SetParent(canvasObj.transform, false);
+        TMP_Text heroTitle = heroTitleObj.AddComponent<TextMeshProUGUI>();
+        heroTitle.text = $"★ {PlaceholderSpriteGenerator.HeroName} — {PlaceholderSpriteGenerator.HeroTitle} ★";
+        heroTitle.fontSize = 18;
+        heroTitle.fontStyle = FontStyles.Italic;
+        heroTitle.alignment = TextAlignmentOptions.Center;
+        heroTitle.color = new Color(0.50f, 0.75f, 1.0f);
+        RectTransform heroRt = heroTitleObj.GetComponent<RectTransform>();
+        heroRt.sizeDelta = new Vector2(800, 30);
+        heroRt.anchoredPosition = new Vector2(0, -5);
+
         // Subtitle
         GameObject subObj = new GameObject("Subtitle Text");
         subObj.transform.SetParent(canvasObj.transform, false);
@@ -61,7 +74,7 @@ public class TitleManager : MonoBehaviour
         subtitle.color = new Color(0.72f, 0.90f, 1.0f);
         RectTransform subRt = subObj.GetComponent<RectTransform>();
         subRt.sizeDelta = new Vector2(600, 40);
-        subRt.anchoredPosition = new Vector2(0, 30);
+        subRt.anchoredPosition = new Vector2(0, -40);
 
         // Start button
         GameObject btnObj = new GameObject("Start Button");

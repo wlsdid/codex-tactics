@@ -187,7 +187,6 @@ public class BattleUI : MonoBehaviour
         SetContinueButtonVisible(false);
         SetStageSelectButtonVisible(false);
         SetResultSummaryVisible(false, "");
-        SetupPlaceholderSprites();
         // Cache continue button's child text component if not yet set
         if (continueButtonText == null && continueButton != null)
             continueButtonText = continueButton.GetComponentInChildren<TMP_Text>();
@@ -198,12 +197,19 @@ public class BattleUI : MonoBehaviour
         if (continueButtonText != null) continueButtonText.text = label;
     }
 
-    public void SetupPlaceholderSprites(bool isBoss = false)
+    public void SetupPlaceholderSprites(ElementType enemyElement = ElementType.Fire, bool isBoss = false)
     {
         if (playerSpriteImage != null && playerSpriteImage.sprite == null)
             playerSpriteImage.sprite = PlaceholderSpriteGenerator.CreateHeroSprite();
         if (enemySpriteImage != null)
-            enemySpriteImage.sprite = PlaceholderSpriteGenerator.CreateEnemySprite(isBoss);
+            enemySpriteImage.sprite = PlaceholderSpriteGenerator.CreateEnemySprite(enemyElement, isBoss);
+    }
+
+    /// <summary>Clears cached sprite references so they can be regenerated on next battle.</summary>
+    public void ClearCachedSprites()
+    {
+        if (playerSpriteImage != null) playerSpriteImage.sprite = null;
+        if (enemySpriteImage != null) enemySpriteImage.sprite = null;
     }
 
     // --- Main Update ---

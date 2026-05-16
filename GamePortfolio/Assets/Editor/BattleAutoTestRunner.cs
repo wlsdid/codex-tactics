@@ -385,7 +385,7 @@ public static class BattleAutoTestRunner
         ProgressState.Reset();
         AppendCheck(ref passed, ref report, "ProgressState starts fresh with stage 0 unlocked", ProgressState.IsStageUnlocked(0) && !ProgressState.IsStageUnlocked(1));
         AppendCheck(ref passed, ref report, "ProgressState reset shows no completed stages", ProgressState.DebugCompletedStageCount == 0);
-        AppendCheck(ref passed, ref report, "ProgressState default TotalStages is 4", ProgressState.TotalStages == 4);
+        AppendCheck(ref passed, ref report, "ProgressState default TotalStages is 6", ProgressState.TotalStages == 6);
         AppendCheck(ref passed, ref report, "Stage 2 is locked initially", !ProgressState.IsStageUnlocked(2));
 
         // Mark stage 1 (index 0) as completed → stage 2 (index 1) unlocks

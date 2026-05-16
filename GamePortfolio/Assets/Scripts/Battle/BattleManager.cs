@@ -239,6 +239,11 @@ public class BattleManager : MonoBehaviour
             new ItemData { itemName = "Ether", description = "Restore 2 AP.", effectType = ItemEffectType.RestoreAp, effectValue = 2, quantity = 2 }
         };
 
+        // Set up element-aware sprites
+        bool isBossEncounter = stageEncounters != null && currentStageIndex == 1;
+        battleUI?.ClearCachedSprites();
+        battleUI?.SetupPlaceholderSprites(enemyWeakness, isBossEncounter);
+
         battleUI?.StartNewBattle();
         battleUI?.SetImpactText("Impact: Ready");
         battleUI?.SetPlayerShieldText(0);

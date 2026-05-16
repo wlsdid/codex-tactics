@@ -52,6 +52,15 @@ public class StageSelectController : MonoBehaviour
         "Sanctuary of Radiance"
     };
 
+    private static readonly ElementType[] StageElements = {
+        ElementType.Fire,      // Stage 1: Slime/Fire
+        ElementType.Nature,    // Stage 2: Wolf/Nature
+        ElementType.Earth,     // Stage 3: Golem/Earth
+        ElementType.Lightning, // Stage 4: Storm Hawk/Lightning
+        ElementType.Dark,      // Stage 5: Shadow Wraith/Dark
+        ElementType.Light      // Stage 6: Light Warden/Light
+    };
+
     private static readonly string[] StageDescriptions = {
         "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.",
         "Wolf packs hunt in the moonlit clearing.\nRequires completing Slime Scout Route first.\nBeware of coordinated attacks.",
@@ -143,7 +152,11 @@ public class StageSelectController : MonoBehaviour
         cardButton.interactable = unlocked;
         SetCardState(cardBg, cardButton.interactable, unlocked, stageIndex);
         if (statusText != null)
-            statusText.text = unlocked ? "Available" : "Locked";
+        {
+            statusText.text = unlocked ? "Available" : "🔒 Locked";
+            if (unlocked && stageIndex >= 0 && stageIndex < StageElements.Length)
+                statusText.color = PlaceholderSpriteGenerator.GetElementTextColor(StageElements[stageIndex]);
+        }
     }
 
     private void SetCardState(Image bg, bool canInteract, bool isUnlocked, int stageIndex)
@@ -151,11 +164,30 @@ public class StageSelectController : MonoBehaviour
         if (bg == null) return;
 
         if (!isUnlocked)
+        {
             bg.color = lockedColor;
+        }
         else if (canInteract && selectedStageIndex >= 0 && IsCardForStage(bg, selectedStageIndex))
-            bg.color = selectedColor;
+        {
+            // Selected: use element color with full alpha
+            var elem = stageIndex >= 0 && stageIndex < StageElements.Length
+                ? PlaceholderSpriteGenerator.GetElementColor(StageElements[stageIndex])
+                : normalColor;
+            bg.color = new Color(elem.r * 0.8f, elem.g * 0.8f, elem.b * 0.8f, 0.9f);
+        }
         else
-            bg.color = normalColor;
+        {
+            // Unlocked but not selected: use element color with reduced alpha
+            if (stageIndex >= 0 && stageIndex < StageElements.Length)
+            {
+                var elemColor = PlaceholderSpriteGenerator.GetElementColor(StageElements[stageIndex]);
+                bg.color = new Color(elemColor.r * 0.25f, elemColor.g * 0.25f, elemColor.b * 0.25f, 0.8f);
+            }
+            else
+            {
+                bg.color = normalColor;
+            }
+        }
     }
 
     private bool IsCardForStage(Image cardBg, int stageIndex)
