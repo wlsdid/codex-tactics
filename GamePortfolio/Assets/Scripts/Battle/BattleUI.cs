@@ -212,6 +212,7 @@ public class BattleUI : MonoBehaviour
         SetEnemyHp(enemy.currentHp, enemy.maxHp, enemyName);
         SetEnemyStatusText(enemy);
         SetEnemyBreakText(enemy);
+        SetEnemyElementLabel(enemy.weaknessElement);
         SetEnemyIntentText(currentState, enemyPattern, enemyTurnCount);
         SetRunStatusText(currentState, currentStageIndex, stageEncounters);
         SetStageText(currentStageIndex, stageEncounters);
@@ -331,6 +332,15 @@ public class BattleUI : MonoBehaviour
         }
     }
 
+    private string enemyElementLabel = "";
+    public void SetEnemyElementLabel(ElementType element)
+    {
+        if (element == ElementType.None || element == ElementType.Physical)
+            enemyElementLabel = "";
+        else
+            enemyElementLabel = $"[{element}] ";
+    }
+
     private void SetEnemyIntentText(BattleState state, EnemyPatternData pattern, int turnCount)
     {
         if (enemyIntentText == null) return;
@@ -341,8 +351,8 @@ public class BattleUI : MonoBehaviour
         }
         int nextTurn = turnCount + 1;
         enemyIntentText.text = pattern.IsStrongAttackTurn(nextTurn)
-            ? $"Next Enemy: {pattern.strongAttackName} ({pattern.strongAttackDamage})"
-            : $"Next Enemy: Normal Attack ({pattern.normalAttackDamage})";
+            ? $"Next Enemy: {enemyElementLabel}{pattern.strongAttackName} ({pattern.strongAttackDamage})"
+            : $"Next Enemy: {enemyElementLabel}Normal Attack ({pattern.normalAttackDamage})";
     }
 
     private void SetRunStatusText(BattleState state, int stageIndex, List<StageData> encounters)
@@ -452,6 +462,17 @@ public class BattleUI : MonoBehaviour
     }
 
     // --- Utility ---
+
+    public void SetLevelText(string playerName, int playerMaxHp, int level)
+    {
+        if (runStatusText != null)
+        {
+            string baseText = runStatusText.text;
+            // Prepend level info if not already there
+            if (!baseText.Contains("Lv."))
+                runStatusText.text = $"Lv.{level} | {baseText}";
+        }
+    }
 
     public string BuildVictoryGuideMessage(int stageIndex, List<StageData> encounters)
     {

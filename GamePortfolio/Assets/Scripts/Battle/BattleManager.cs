@@ -48,12 +48,17 @@ public class BattleManager : MonoBehaviour
     private int enemyTurnCount;
     private int speedState = 1;
     private bool autoBattleEnabled;
-    public bool DebugAutoBattleEnabled => autoBattleEnabled; // 1=1x, 2=2x
+    public bool DebugAutoBattleEnabled => autoBattleEnabled;
+    public int DebugPlayerLevel => playerLevel;
+    public int DebugPlayerXp => playerXp; // 1=1x, 2=2x
     private int totalDamageDealt;
     private int totalDamageTaken;
     private int guardUseCount;
     private int skillsUsedCount;
     private int totalGoldEarned;
+    private int playerLevel = 1;
+    private int playerXp;
+    private int xpToNextLevel = 100;
     private bool currentBattleRewardClaimed;
     private readonly HashSet<int> rewardedStageIndexes = new HashSet<int>();
 
@@ -497,8 +502,23 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetStageSelectButtonVisible(true);
 
         // Mark stage as completed when all encounters are cleared
+        // Award XP on stage clear
         if (resultState == BattleState.Victory && !HasNextStage())
         {
+            int gainedXp = 50 + (StageSelectController.SelectedStageIndex + 1) * 30;
+            playerXp += gainedXp;
+            if (playerXp >= xpToNextLevel)
+            {
+                playerXp -= xpToNextLevel;
+                playerLevel++;
+                xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * 1.5f);
+                if (player != null) player.maxHp += 20;
+                string lvlMsg = $"Level Up! Now Level {playerLevel}. Max HP increased to {player?.maxHp}.";
+                battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+                    currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+                    CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, lvlMsg,
+                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            }
             int stageIdx = StageSelectController.SelectedStageIndex;
             if (stageIdx >= 0) ProgressState.MarkStageCompleted(stageIdx);
         }
