@@ -21,6 +21,7 @@ public class BattleManager : MonoBehaviour
     [Header("Skills")]
     [SerializeField] private string basicSkillName = "Slash";
     [SerializeField] private string fireSkillName = "Fire Bolt";
+    [SerializeField] private string iceSkillName = "Ice Lance";
 
     [Header("Stage Encounters")]
     [SerializeField] private List<StageData> stageEncounters = new List<StageData>();
@@ -40,6 +41,7 @@ public class BattleManager : MonoBehaviour
     private CharacterData enemy;
     private SkillData basicAttackSkill;
     private SkillData fireSkill;
+    private SkillData iceSkill;
     private bool playerIsGuarding;
     private int enemyTurnCount;
     private int totalDamageDealt;
@@ -96,6 +98,9 @@ public class BattleManager : MonoBehaviour
     private int CfgBasicSkillApCost => balanceConfig != null ? balanceConfig.basicSkillApCost : 0;
     private int CfgFireSkillPower => balanceConfig != null ? balanceConfig.fireSkillPower : 30;
     private int CfgFireSkillApCost => balanceConfig != null ? balanceConfig.fireSkillApCost : 2;
+    private int CfgIceSkillPower => balanceConfig != null ? balanceConfig.iceSkillPower : 25;
+    private int CfgIceSkillApCost => balanceConfig != null ? balanceConfig.iceSkillApCost : 1;
+    private int CfgStunTurnDuration => balanceConfig != null ? balanceConfig.stunTurnDuration : 1;
     private int CfgBurnDamagePerTurn => balanceConfig != null ? balanceConfig.burnDamagePerTurn : 3;
     private int CfgBurnTurnDuration => balanceConfig != null ? balanceConfig.burnTurnDuration : 2;
     private int CfgGuardReductionPercent => balanceConfig != null ? balanceConfig.guardDamageReductionPercent : 50;
@@ -114,7 +119,7 @@ public class BattleManager : MonoBehaviour
         if (battleUI != null)
         {
             battleUI.SetupButtonListeners(
-                OnClickAttackButton, OnClickFireSkillButton,
+                OnClickAttackButton, OnClickFireSkillButton, OnClickIceSkillButton,
                 OnClickEndTurnButton, OnClickGuardButton,
                 OnClickRetryButton, OnClickContinueButton,
                 OnClickStageSelectButton);
@@ -149,7 +154,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Debug: Forced BROKEN",
-            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
     }
 
     // --- Battle flow ---
@@ -165,8 +170,10 @@ public class BattleManager : MonoBehaviour
         enemy = new CharacterData(enemyName, enemyMaxHp, enemyPattern.normalAttackDamage, enemyWeakness);
         basicAttackSkill = new SkillData(basicSkillName, CfgBasicSkillPower, CfgBasicSkillApCost, ElementType.Physical, StatusEffectType.None);
         fireSkill = new SkillData(fireSkillName, CfgFireSkillPower, CfgFireSkillApCost, ElementType.Fire, StatusEffectType.Burn);
+        iceSkill = new SkillData(iceSkillName, CfgIceSkillPower, CfgIceSkillApCost, ElementType.Ice, StatusEffectType.Stun);
         basicAttackSkill.description = "Reliable no-cost physical attack.";
         fireSkill.description = "Costs AP, hits the enemy weakness, and applies Burn.";
+        iceSkill.description = "1 AP, Ice element, applies Stun for 1 turn.";
 
         playerIsGuarding = false;
         enemyTurnCount = 0;
@@ -182,7 +189,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Battle Start!",
-            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
 
         StartPlayerTurn();
     }
@@ -191,18 +198,19 @@ public class BattleManager : MonoBehaviour
     {
         currentState = BattleState.PlayerTurn;
         if (player != null) player.RecoverAp(CfgPlayerApRecovery);
-        battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, currentState);
+        battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, currentState);
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"Player Turn: recovered {CfgPlayerApRecovery} AP. Choose an action.",
-            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
     }
 
     // --- Player actions (public for button binding & testing) ---
 
     public void OnClickAttackButton() => UsePlayerSkill(basicAttackSkill);
     public void OnClickFireSkillButton() => UsePlayerSkill(fireSkill);
+    public void OnClickIceSkillButton() => UsePlayerSkill(iceSkill);
     public void OnClickEndTurnButton() => EndPlayerTurn();
     public void OnClickGuardButton() => GuardAndEndPlayerTurn();
 
@@ -235,7 +243,7 @@ public class BattleManager : MonoBehaviour
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"{player?.characterName} skipped the turn. You can recover more AP next turn.",
-            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
     }
 
@@ -249,7 +257,7 @@ public class BattleManager : MonoBehaviour
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"{player?.characterName} guards. Next enemy attack damage is reduced.",
-            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
     }
 
@@ -262,8 +270,8 @@ public class BattleManager : MonoBehaviour
                 currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
                 CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
                 $"Not enough AP. {skill.skillName} needs {skill.apCost} AP.",
-                basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
-            battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, currentState);
+                basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
+            battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, currentState);
             return;
         }
 
@@ -281,6 +289,8 @@ public class BattleManager : MonoBehaviour
 
         if (skill.statusEffectType == StatusEffectType.Burn)
             enemy.ApplyStatusEffect(StatusEffectType.Burn, CfgBurnTurnDuration);
+        else if (skill.statusEffectType == StatusEffectType.Stun)
+            enemy.ApplyStatusEffect(StatusEffectType.Stun, CfgStunTurnDuration);
 
         // Break gauge: reduce on weakness hit
         if (!wasBroken && skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
@@ -303,7 +313,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
 
         if (enemy.IsDead()) { EndBattle(BattleState.Victory); return; }
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
@@ -312,6 +322,20 @@ public class BattleManager : MonoBehaviour
     private IEnumerator EnemyTurnRoutine()
     {
         currentState = BattleState.EnemyTurn;
+
+        // Check Stun first - if stunned, enemy skips this turn
+        if (enemy != null && enemy.HasStatusEffect(StatusEffectType.Stun))
+        {
+            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
+                $"{enemy.characterName} is STUNNED! Skips this turn.",
+                basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
+            enemy.ReduceStatusTurn();
+            yield return new WaitForSeconds(1.0f);
+            StartPlayerTurn();
+            yield break;
+        }
 
         if (enemy != null && enemy.HasStatusEffect(StatusEffectType.Burn))
         {
@@ -323,7 +347,7 @@ public class BattleManager : MonoBehaviour
                 currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
                 CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
                 $"{enemy.characterName} takes {CfgBurnDamagePerTurn} burn damage.",
-                basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+                basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
             if (enemy.IsDead()) { yield return new WaitForSeconds(1.0f); EndBattle(BattleState.Victory); yield break; }
             yield return new WaitForSeconds(1.0f);
         }
@@ -367,7 +391,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
     }
 
     private void EndBattle(BattleState resultState)
@@ -399,7 +423,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, CfgMaxBattleLogEntries);
     }
 
     // --- Damage tracking ---
@@ -443,7 +467,11 @@ public class BattleManager : MonoBehaviour
         if (player == null || enemy == null) return "";
         var (effLabel, _) = GetElementEffectiveness(enemy, skill);
         string msg = $"{player.characterName} uses {skill.skillName}! {enemy.characterName} takes {damage} damage. ({skill.elementType} | {effLabel})";
-        if (skill.HasStatusEffect()) msg += $" Extra effect: {skill.statusEffectType} for {CfgBurnTurnDuration} turns.";
+        if (skill.HasStatusEffect())
+        {
+            int dur = skill.statusEffectType == StatusEffectType.Burn ? CfgBurnTurnDuration : CfgStunTurnDuration;
+            msg += $" Extra effect: {skill.statusEffectType} for {dur} turns.";
+        }
         return msg;
     }
 

@@ -47,6 +47,7 @@ public class BattleUI : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button attackButton;
     [SerializeField] private Button fireSkillButton;
+    [SerializeField] private Button iceSkillButton;
     [SerializeField] private Button endTurnButton;
     [SerializeField] private Button guardButton;
     [SerializeField] private Button retryButton;
@@ -95,6 +96,7 @@ public class BattleUI : MonoBehaviour
     public void SetupButtonListeners(
         UnityEngine.Events.UnityAction onAttack,
         UnityEngine.Events.UnityAction onFireSkill,
+        UnityEngine.Events.UnityAction onIceSkill,
         UnityEngine.Events.UnityAction onEndTurn,
         UnityEngine.Events.UnityAction onGuard,
         UnityEngine.Events.UnityAction onRetry,
@@ -103,6 +105,7 @@ public class BattleUI : MonoBehaviour
     {
         WireButton(attackButton, onAttack);
         WireButton(fireSkillButton, onFireSkill);
+        WireButton(iceSkillButton, onIceSkill);
         WireButton(endTurnButton, onEndTurn);
         WireButton(guardButton, onGuard);
         WireButton(retryButton, onRetry);
@@ -165,6 +168,7 @@ public class BattleUI : MonoBehaviour
         string message,
         SkillData basicSkill,
         SkillData fireSkill,
+        SkillData iceSkill,
         int maxBattleLogEntries)
     {
         SetPlayerHp(player.currentHp, player.maxHp, playerName);
@@ -179,7 +183,7 @@ public class BattleUI : MonoBehaviour
         SetStageObjectiveText(currentState, currentStageIndex, stageEncounters);
         SetStageProgressText(currentState, currentStageIndex, stageEncounters);
         SetMessageText(message);
-        UpdateSkillHelpText(basicSkill, fireSkill, guardReductionPercent, enemyPattern);
+        UpdateSkillHelpText(basicSkill, fireSkill, iceSkill, guardReductionPercent, enemyPattern);
         AddBattleLogEntry(message, maxBattleLogEntries);
     }
 
@@ -191,10 +195,11 @@ public class BattleUI : MonoBehaviour
         SetButtonInteractable(guardButton, isInteractable);
     }
 
-    public void UpdateActionButtons(CharacterData player, SkillData basicSkill, SkillData fireSkill, BattleState currentState)
+    public void UpdateActionButtons(CharacterData player, SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, BattleState currentState)
     {
         SetButtonInteractable(attackButton, player.HasEnoughAp(basicSkill.apCost));
         SetButtonInteractable(fireSkillButton, player.HasEnoughAp(fireSkill.apCost));
+        SetButtonInteractable(iceSkillButton, player.HasEnoughAp(iceSkill.apCost));
         SetButtonInteractable(endTurnButton, currentState == BattleState.PlayerTurn);
         SetButtonInteractable(guardButton, currentState == BattleState.PlayerTurn);
     }
@@ -369,14 +374,15 @@ public class BattleUI : MonoBehaviour
             impactText.text = text;
     }
 
-    private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, int guardReduction, EnemyPatternData pattern)
+    private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, int guardReduction, EnemyPatternData pattern)
     {
-        if (skillHelpText == null || basicSkill == null || fireSkill == null) return;
+        if (skillHelpText == null || basicSkill == null || fireSkill == null || iceSkill == null) return;
         string attackHelp = BuildSkillHelpLine(basicSkill);
         string fireHelp = BuildSkillHelpLine(fireSkill);
+        string iceHelp = BuildSkillHelpLine(iceSkill);
         string guardHelp = $"Guard: reduce next enemy attack by {guardReduction}%.";
         string turnHint = pattern?.BuildPatternHelpText() ?? "";
-        skillHelpText.text = $"{attackHelp}\n{fireHelp}\n{guardHelp}\n{turnHint}";
+        skillHelpText.text = $"{attackHelp}\n{fireHelp}\n{iceHelp}\n{guardHelp}\n{turnHint}";
     }
 
     private string BuildSkillHelpLine(SkillData skill)

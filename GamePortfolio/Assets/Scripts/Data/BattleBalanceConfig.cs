@@ -21,6 +21,11 @@ public class BattleBalanceConfig : ScriptableObject
     public int fireSkillPower = 30;
     public int fireSkillApCost = 2;
 
+    [Header("Ice Skill (Ice Lance)")]
+    public int iceSkillPower = 25;
+    public int iceSkillApCost = 1;
+    public int stunTurnDuration = 1;
+
     [Header("Status Effects")]
     public int burnDamagePerTurn = 3;
     public int burnTurnDuration = 2;
