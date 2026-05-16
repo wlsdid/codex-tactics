@@ -67,6 +67,11 @@ public class BattleManager : MonoBehaviour
     private bool currentBattleRewardClaimed;
     private readonly HashSet<int> rewardedStageIndexes = new HashSet<int>();
 
+    // Bonus tracking
+    private readonly HashSet<string> skillsUsedNames = new HashSet<string>();
+    private bool guardedStrongAttack;
+    private bool usedItems;
+
     // --- Debug pass-throughs (for auto-tester) ---
     public string DebugPlayerHpText => battleUI != null ? battleUI.DebugPlayerHpText : "";
     public string DebugPlayerApText => battleUI != null ? battleUI.DebugPlayerApText : "";
@@ -212,6 +217,9 @@ public class BattleManager : MonoBehaviour
         currentBattleRewardClaimed = false;
         playerShieldAmount = 0;
         selectedItemIndex = -1;
+        skillsUsedNames.Clear();
+        guardedStrongAttack = false;
+        usedItems = false;
 
         // Initialize player inventory
         playerItems = new List<ItemData>
@@ -424,6 +432,7 @@ public class BattleManager : MonoBehaviour
     {
         if (currentState != BattleState.PlayerTurn || player == null || item == null) return;
         item.quantity--;
+        usedItems = true;
 
         string msg;
         switch (item.effectType)
@@ -483,6 +492,7 @@ public class BattleManager : MonoBehaviour
 
         battleUI?.SetActionButtonsInteractable(false);
         skillsUsedCount++;
+        if (skill != null) skillsUsedNames.Add(skill.skillName);
         int damage = CalculateSkillDamage(enemy, skill);
         bool wasBroken = enemy != null && enemy.isBroken;
         if (wasBroken)
@@ -605,6 +615,7 @@ public class BattleManager : MonoBehaviour
         {
             damage = Mathf.Max(1, damage * (100 - CfgGuardReductionPercent) / 100);
             playerIsGuarding = false;
+            if (isStrong) guardedStrongAttack = true;
         }
 
         // Shield absorbs damage before it reaches the player
@@ -693,6 +704,23 @@ public class BattleManager : MonoBehaviour
             int stageIdx = StageSelectController.SelectedStageIndex;
             if (stageIdx >= 0) ProgressState.MarkStageCompleted(stageIdx);
             SaveManager.Save();
+        }
+
+        // Evaluate stage bonuses on victory
+        if (resultState == BattleState.Victory)
+        {
+            var (bonuses, bonusGold) = StageBonusEvaluator.Evaluate(
+                totalDamageTaken, enemyTurnCount, skillsUsedNames,
+                guardedStrongAttack, usedItems, 5);
+            totalGoldEarned += bonusGold;
+            if (bonuses.Count > 0 && battleUI != null)
+            {
+                string bonusMsg = "Bonuses: " + string.Join(", ", bonuses.ConvertAll(b => $"{StageBonusEvaluator.GetBonusName(b)}(+{StageBonusEvaluator.GetBonusGold(b)}g)"));
+                battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+                    currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+                    CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, bonusMsg,
+                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+            }
         }
 
         string resultSummary = BuildResultSummaryText(resultState);
