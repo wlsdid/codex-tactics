@@ -226,6 +226,9 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Stage 3 Normal creates Golem Sentry", StageData.CreateStage3Normal().enemy.enemyName == "Golem Sentry" && StageData.CreateStage3Normal().enemy.maxHp == 120);
         AppendCheck(ref passed, ref report, "Stage 3 Boss creates Ancient Golem", StageData.CreateStage3Boss().enemy.enemyName == "Ancient Golem" && StageData.CreateStage3Boss().enemy.maxHp == 220);
         AppendCheck(ref passed, ref report, "Stage 3 encounters loaded from GetEncountersForStage", StageData.GetEncountersForStage(2).Count == 2 && StageData.GetEncountersForStage(2)[0].encounterName == "Golem Sentry");
+        AppendCheck(ref passed, ref report, "Stage 4 Normal creates Storm Hawk", StageData.CreateStage4Normal().enemy.enemyName == "Storm Hawk" && StageData.CreateStage4Normal().enemy.maxHp == 140);
+        AppendCheck(ref passed, ref report, "Stage 4 Boss creates Thunder Phoenix", StageData.CreateStage4Boss().enemy.enemyName == "Thunder Phoenix" && StageData.CreateStage4Boss().enemy.maxHp == 250);
+        AppendCheck(ref passed, ref report, "Stage 4 encounters loaded from GetEncountersForStage", StageData.GetEncountersForStage(3).Count == 2 && StageData.GetEncountersForStage(3)[0].encounterName == "Storm Hawk");
         AppendCheck(ref passed, ref report, "BattleResultEvaluator builds rank, pace, survival, reward, tip, and last pattern", BattleResultEvaluator.BuildRank(BattleState.Victory, 2, 20) == "A" && BattleResultEvaluator.BuildPaceLabel(BattleState.Victory, 2) == "Steady" && BattleResultEvaluator.BuildSurvivalLabel(70, 100) == "70%" && BattleResultEvaluator.BuildRewardGold("A", 150, 120, 100, 0) == 120 && BattleResultEvaluator.BuildResultTip("A", "Normal Attack", "Heavy Slam") == "Take less damage for a higher rank." && BattleResultEvaluator.BuildLastEnemyPatternLabel(3, new EnemyPatternData()) == "Heavy Slam");
 
         BattleResultData presenterTestData = new BattleResultData
@@ -361,7 +364,7 @@ public static class BattleAutoTestRunner
         ProgressState.Reset();
         AppendCheck(ref passed, ref report, "ProgressState starts fresh with stage 0 unlocked", ProgressState.IsStageUnlocked(0) && !ProgressState.IsStageUnlocked(1));
         AppendCheck(ref passed, ref report, "ProgressState reset shows no completed stages", ProgressState.DebugCompletedStageCount == 0);
-        AppendCheck(ref passed, ref report, "ProgressState default TotalStages is 3", ProgressState.TotalStages == 3);
+        AppendCheck(ref passed, ref report, "ProgressState default TotalStages is 4", ProgressState.TotalStages == 4);
         AppendCheck(ref passed, ref report, "Stage 2 is locked initially", !ProgressState.IsStageUnlocked(2));
 
         // Mark stage 1 (index 0) as completed → stage 2 (index 1) unlocks

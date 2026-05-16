@@ -150,6 +150,50 @@ public class StageData
         };
     }
 
+    public static StageData CreateStage4Normal()
+    {
+        return new StageData
+        {
+            stageName = "Stage 4-1",
+            encounterName = "Storm Hawk",
+            enemy = new EnemyData(
+                "Storm Hawk",
+                140,
+                ElementType.Lightning,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "swoops",
+                    normalAttackDamage = 22,
+                    strongAttackName = "Thunder Dive",
+                    strongAttackDamage = 40,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
+    public static StageData CreateStage4Boss()
+    {
+        return new StageData
+        {
+            stageName = "Stage 4-2",
+            encounterName = "Thunder Phoenix",
+            enemy = new EnemyData(
+                "Thunder Phoenix",
+                250,
+                ElementType.Lightning,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "calls lightning",
+                    normalAttackDamage = 28,
+                    strongAttackName = "Skyfall",
+                    strongAttackDamage = 55,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
     public static List<StageData> GetEncountersForStage(int stageIndex)
     {
         var list = new List<StageData>();
@@ -166,6 +210,10 @@ public class StageData
             case 2:
                 list.Add(CreateStage3Normal());
                 list.Add(CreateStage3Boss());
+                break;
+            case 3:
+                list.Add(CreateStage4Normal());
+                list.Add(CreateStage4Boss());
                 break;
             default:
                 list.Add(CreateStage1Normal());

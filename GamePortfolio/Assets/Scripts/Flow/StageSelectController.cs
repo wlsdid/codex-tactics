@@ -34,19 +34,22 @@ public class StageSelectController : MonoBehaviour
     private static readonly string[] StageNames = {
         "Slime Scout Route",
         "Wolf Ambush",
-        "Golem Depths"
+        "Golem Depths",
+        "Storm Peaks"
     };
 
     private static readonly string[] StageDescriptions = {
         "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.",
         "Wolf packs hunt in the moonlit clearing.\nRequires completing Slime Scout Route first.\nBeware of coordinated attacks.",
-        "Ancient golems guard the underground depths.\nTougher enemies with stronger defenses.\nRequires completing Wolf Ambush first."
+        "Ancient golems guard the underground depths.\nTougher enemies with stronger defenses.\nRequires completing Wolf Ambush first.",
+        "Lightning birds rule the high peaks.\nFast, powerful enemies with devastating aerial attacks.\nRequires completing Golem Depths first."
     };
 
     private static readonly string[] StageStageNames = {
         "Stage 1-1: Slime Scout",
         "Stage 1-2: Wolf Ambush",
-        "Stage 2-1: Golem Depths"
+        "Stage 2-1: Golem Depths",
+        "Stage 2-2: Storm Peaks"
     };
 
     /// <summary>Selected stage index (0-based) for BattleScene to read.</summary>
@@ -59,6 +62,7 @@ public class StageSelectController : MonoBehaviour
             stage1CardButton.onClick.AddListener(() => OnStageCardClicked(0));
         if (stage2CardButton != null)
             stage2CardButton.onClick.AddListener(() => OnStageCardClicked(1));
+        // Stage 3 and 4 are data-complete but need scene card objects to appear in stage select
         if (backButton != null)
             backButton.onClick.AddListener(OnBackClicked);
         if (startBattleButton != null)
