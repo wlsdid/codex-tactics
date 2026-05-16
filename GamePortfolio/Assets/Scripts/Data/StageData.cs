@@ -250,6 +250,52 @@ public class StageData
         };
     }
 
+    public static StageData CreateStage6Normal()
+    {
+        return new StageData
+        {
+            stageName = "Stage 6-1",
+            encounterName = "Light Warden",
+            encounterDescription = "A radiant warden stands guard.\nLight pulses with protective energy.",
+            enemy = new EnemyData(
+                "Light Warden",
+                180,
+                ElementType.Light,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "strikes with holy light",
+                    normalAttackDamage = 28,
+                    strongAttackName = "Radiance Blast",
+                    strongAttackDamage = 50,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
+    public static StageData CreateStage6Boss()
+    {
+        return new StageData
+        {
+            stageName = "Stage 6-2",
+            encounterName = "Holy Sentinel",
+            encounterDescription = "The Holy Sentinel descends in a pillar of light!\nIts divine power is unmatched.",
+            enemy = new EnemyData(
+                "Holy Sentinel",
+                320,
+                ElementType.Light,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "commands divine judgment",
+                    normalAttackDamage = 32,
+                    strongAttackName = "Heavenly Wrath",
+                    strongAttackDamage = 60,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
     public static List<StageData> GetEncountersForStage(int stageIndex)
     {
         var list = new List<StageData>();
@@ -274,6 +320,10 @@ public class StageData
             case 4:
                 list.Add(CreateStage5Normal());
                 list.Add(CreateStage5Boss());
+                break;
+            case 5:
+                list.Add(CreateStage6Normal());
+                list.Add(CreateStage6Boss());
                 break;
             default:
                 list.Add(CreateStage1Normal());

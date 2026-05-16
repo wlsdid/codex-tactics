@@ -14,15 +14,18 @@ public class StageSelectController : MonoBehaviour
     [SerializeField] private Button stage3CardButton;
     [SerializeField] private Button stage4CardButton;
     [SerializeField] private Button stage5CardButton;
+    [SerializeField] private Button stage6CardButton;
     [SerializeField] private Image stage1CardBg;
     [SerializeField] private Image stage2CardBg;
     [SerializeField] private Image stage3CardBg;
     [SerializeField] private Image stage4CardBg;
     [SerializeField] private Image stage5CardBg;
+    [SerializeField] private Image stage6CardBg;
     [SerializeField] private TMP_Text stage2StatusText;
     [SerializeField] private TMP_Text stage3StatusText;
     [SerializeField] private TMP_Text stage4StatusText;
     [SerializeField] private TMP_Text stage5StatusText;
+    [SerializeField] private TMP_Text stage6StatusText;
 
     [Header("Description Panel")]
     [SerializeField] private TMP_Text stageNameText;
@@ -45,7 +48,8 @@ public class StageSelectController : MonoBehaviour
         "Wolf Ambush",
         "Golem Depths",
         "Storm Peaks",
-        "Shadow Realm"
+        "Shadow Realm",
+        "Sanctuary of Radiance"
     };
 
     private static readonly string[] StageDescriptions = {
@@ -53,7 +57,8 @@ public class StageSelectController : MonoBehaviour
         "Wolf packs hunt in the moonlit clearing.\nRequires completing Slime Scout Route first.\nBeware of coordinated attacks.",
         "Ancient golems guard the underground depths.\nTougher enemies with stronger defenses.\nRequires completing Wolf Ambush first.",
         "Lightning birds rule the high peaks.\nFast, powerful enemies with devastating aerial attacks.\nRequires completing Golem Depths first.",
-        "Darkness consumes the Shadow Realm.\nOnly the strongest can face the void.\nRequires completing Storm Peaks first."
+        "Darkness consumes the Shadow Realm.\nOnly the strongest can face the void.\nRequires completing Storm Peaks first.",
+        "The Sanctuary of Radiance awaits.\nHoly light tests the worthy.\nRequires completing Shadow Realm first."
     };
 
     private static readonly string[] StageStageNames = {
@@ -61,7 +66,8 @@ public class StageSelectController : MonoBehaviour
         "Stage 1-2: Wolf Ambush",
         "Stage 2-1: Golem Depths",
         "Stage 2-2: Storm Peaks",
-        "Stage 3-1: Shadow Realm"
+        "Stage 3-1: Shadow Realm",
+        "Stage 3-2: Sanctuary of Radiance"
     };
 
     /// <summary>Selected stage index (0-based) for BattleScene to read.</summary>
@@ -75,7 +81,8 @@ public class StageSelectController : MonoBehaviour
         WireStageCard(2, stage3CardButton);
         WireStageCard(3, stage4CardButton);
         WireStageCard(4, stage5CardButton);
-        // Stage 3-5 cards are optional (need scene objects) — WireStageCard handles null
+        WireStageCard(5, stage6CardButton);
+        // Stage 3-6 cards are optional (need scene objects) — WireStageCard handles null
         if (backButton != null)
             backButton.onClick.AddListener(OnBackClicked);
         if (startBattleButton != null)
@@ -126,6 +133,7 @@ public class StageSelectController : MonoBehaviour
         UpdateSingleCardVisual(2, stage3CardButton, stage3CardBg, stage3StatusText);
         UpdateSingleCardVisual(3, stage4CardButton, stage4CardBg, stage4StatusText);
         UpdateSingleCardVisual(4, stage5CardButton, stage5CardBg, stage5StatusText);
+        UpdateSingleCardVisual(5, stage6CardButton, stage6CardBg, stage6StatusText);
     }
 
     private void UpdateSingleCardVisual(int stageIndex, Button cardButton, Image cardBg, TMP_Text statusText)
@@ -159,6 +167,7 @@ public class StageSelectController : MonoBehaviour
         if (stageIndex == 2 && cardBg.name.Contains("Stage Card 3")) return true;
         if (stageIndex == 3 && cardBg.name.Contains("Stage Card 4")) return true;
         if (stageIndex == 4 && cardBg.name.Contains("Stage Card 5")) return true;
+        if (stageIndex == 5 && cardBg.name.Contains("Stage Card 6")) return true;
         return false;
     }
 
@@ -195,6 +204,6 @@ public class StageSelectController : MonoBehaviour
 
     public void DebugSelectStage(int index)
     {
-        if (index >= 0 && index < 5) OnStageCardClicked(index);
+        if (index >= 0 && index < 6) OnStageCardClicked(index);
     }
 }
