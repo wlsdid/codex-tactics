@@ -141,6 +141,12 @@ public static class BattleSceneAutoBuilder
             new GameObject("AudioManager", typeof(AudioManager));
         }
 
+        // Ensure ScreenFade exists
+        if (Object.FindObjectOfType<ScreenFade>() == null)
+        {
+            new GameObject("ScreenFade", typeof(ScreenFade));
+        }
+
         SerializedObject serializedBattleUI = new SerializedObject(battleUI);
         SetObjectReference(serializedBattleUI, "playerHpText", playerHpText);
         SetObjectReference(serializedBattleUI, "playerHpSlider", playerHpSlider);

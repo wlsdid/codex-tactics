@@ -50,6 +50,7 @@ public class BattleManager : MonoBehaviour
     private int enemyTurnCount;
     private int speedState = 1;
     private bool autoBattleEnabled;
+    private ScreenFade screenFade;
     public bool DebugAutoBattleEnabled => autoBattleEnabled;
     public int DebugPlayerLevel => playerLevel;
     public int DebugPlayerXp => playerXp; // 1=1x, 2=2x
@@ -242,6 +243,10 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetImpactText("Impact: Ready");
         battleUI?.SetPlayerShieldText(0);
 
+        // Screen fade in
+        if (screenFade == null) screenFade = FindObjectOfType<ScreenFade>();
+        if (screenFade != null) screenFade.FadeIn(0.3f, null);
+
         // Start BGM
         AudioManager.Instance?.PlayBattleBgm();
 
@@ -430,8 +435,14 @@ public class BattleManager : MonoBehaviour
     {
         if (currentState != BattleState.Victory || !HasNextStage()) return;
         StopAllCoroutines();
-        currentStageIndex++;
-        StartBattle();
+        if (screenFade == null) screenFade = FindObjectOfType<ScreenFade>();
+        if (screenFade != null)
+            screenFade.FadeOut(0.3f, () => { currentStageIndex++; StartBattle(); });
+        else
+        {
+            currentStageIndex++;
+            StartBattle();
+        }
     }
 
     public void OnClickStageSelectButton()
