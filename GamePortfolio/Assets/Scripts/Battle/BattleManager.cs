@@ -59,6 +59,8 @@ public class BattleManager : MonoBehaviour
     private int skillsUsedCount;
     private int totalGoldEarned;
     private int playerShieldAmount;
+    private List<ItemData> playerItems;
+    private int selectedItemIndex = -1;
     private int playerLevel = 1;
     private int playerXp;
     private int xpToNextLevel = 100;
@@ -102,6 +104,7 @@ public class BattleManager : MonoBehaviour
     public int DebugGuardUseCount => guardUseCount;
     public int DebugSkillsUsedCount => skillsUsedCount;
     public int DebugTotalGoldEarned => totalGoldEarned;
+    public string DebugItemsText => playerItems != null ? string.Join(" | ", playerItems.ConvertAll(i => $"{i.itemName}x{i.quantity}")) : "";
 
     // --- Config helpers ---
     private int CfgPlayerMaxHp => balanceConfig != null ? balanceConfig.playerMaxHp : 100;
@@ -142,7 +145,8 @@ public class BattleManager : MonoBehaviour
                 OnClickEarthSkillButton,
                 OnClickEndTurnButton, OnClickGuardButton,
                 OnClickRetryButton, OnClickContinueButton,
-                OnClickStageSelectButton, OnClickSpeedToggle, OnClickAutoBattleToggle);
+                OnClickStageSelectButton, OnClickSpeedToggle, OnClickAutoBattleToggle,
+                OnClickItemButton);
         }
         InitializeFromStageSelection();
         StartBattle();
@@ -207,6 +211,14 @@ public class BattleManager : MonoBehaviour
         skillsUsedCount = 0;
         currentBattleRewardClaimed = false;
         playerShieldAmount = 0;
+        selectedItemIndex = -1;
+
+        // Initialize player inventory
+        playerItems = new List<ItemData>
+        {
+            new ItemData { itemName = "Potion", description = "Restore 30 HP.", effectType = ItemEffectType.HealHp, effectValue = 30, quantity = 3 },
+            new ItemData { itemName = "Ether", description = "Restore 2 AP.", effectType = ItemEffectType.RestoreAp, effectValue = 2, quantity = 2 }
+        };
 
         battleUI?.StartNewBattle();
         battleUI?.SetImpactText("Impact: Ready");
@@ -338,6 +350,34 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateSpeedLabel(speedState);
     }
 
+    public void OnClickItemButton()
+    {
+        if (currentState != BattleState.PlayerTurn || player == null) return;
+        if (playerItems == null || playerItems.Count == 0 || playerItems.TrueForAll(i => i.quantity <= 0))
+        {
+            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
+                "No items available.",
+                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+            return;
+        }
+        // Cycle to next available item
+        selectedItemIndex = (selectedItemIndex + 1) % playerItems.Count;
+        int attempts = 0;
+        while (playerItems[selectedItemIndex].quantity <= 0 && attempts < playerItems.Count)
+        {
+            selectedItemIndex = (selectedItemIndex + 1) % playerItems.Count;
+            attempts++;
+        }
+        if (playerItems[selectedItemIndex].quantity <= 0)
+        {
+            selectedItemIndex = -1;
+            return;
+        }
+        UseItem(playerItems[selectedItemIndex]);
+    }
+
     public void OnClickContinueButton()
     {
         if (currentState != BattleState.Victory || !HasNextStage()) return;
@@ -361,6 +401,39 @@ public class BattleManager : MonoBehaviour
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"{player?.characterName} skipped the turn. You can recover more AP next turn.",
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+        if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
+    }
+
+    private void UseItem(ItemData item)
+    {
+        if (currentState != BattleState.PlayerTurn || player == null || item == null) return;
+        item.quantity--;
+
+        string msg;
+        switch (item.effectType)
+        {
+            case ItemEffectType.HealHp:
+                int heal = Mathf.Min(item.effectValue, player.maxHp - player.currentHp);
+                player.currentHp += heal;
+                msg = $"{player.characterName} uses {item.itemName}! Restores {heal} HP.";
+                break;
+            case ItemEffectType.RestoreAp:
+                int apGain = Mathf.Min(item.effectValue, player.maxAp - player.currentAp);
+                player.currentAp += apGain;
+                msg = $"{player.characterName} uses {item.itemName}! Restores {apGain} AP.";
+                break;
+            default:
+                msg = $"{player.characterName} uses {item.itemName}.";
+                break;
+        }
+
+        battleUI?.SetActionButtonsInteractable(false);
+        battleUI?.SetImpactText($"Impact: Used {item.itemName}");
+        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
     }
 

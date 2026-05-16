@@ -64,6 +64,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Button stageSelectButton;
     [SerializeField] private Button speedToggleButton;
     [SerializeField] private Button autoBattleButton;
+    [SerializeField] private Button itemButton;
     [SerializeField] private TMP_Text autoBattleIndicatorText;
 
     private readonly List<string> battleLogEntries = new List<string>();
@@ -115,7 +116,8 @@ public class BattleUI : MonoBehaviour
         UnityEngine.Events.UnityAction onContinue,
         UnityEngine.Events.UnityAction onStageSelect = null,
         UnityEngine.Events.UnityAction onSpeedToggle = null,
-        UnityEngine.Events.UnityAction onAutoBattleToggle = null)
+        UnityEngine.Events.UnityAction onAutoBattleToggle = null,
+        UnityEngine.Events.UnityAction onItem = null)
     {
         WireButton(attackButton, onAttack);
         WireButton(fireSkillButton, onFireSkill);
@@ -132,6 +134,8 @@ public class BattleUI : MonoBehaviour
             WireButton(speedToggleButton, onSpeedToggle);
         if (onAutoBattleToggle != null)
             WireButton(autoBattleButton, onAutoBattleToggle);
+        if (onItem != null)
+            WireButton(itemButton, onItem);
     }
 
     private static void WireButton(Button btn, UnityEngine.Events.UnityAction action)
