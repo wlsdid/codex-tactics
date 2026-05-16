@@ -292,7 +292,23 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // 2. Use weakness skill if enemy has break gauge remaining
+        // 2. Use Potion if HP is critical (< 30%)
+        var potion = playerItems?.Find(i => i.itemName == "Potion" && i.quantity > 0);
+        if (potion != null && player != null && player.currentHp < player.maxHp * 0.3f)
+        {
+            UseItem(potion);
+            return;
+        }
+
+        // 3. Use Ether if no AP for any elemental skill
+        var ether = playerItems?.Find(i => i.itemName == "Ether" && i.quantity > 0);
+        if (ether != null && player != null && player.currentAp < 1 && !player.HasEnoughAp(fireSkill.apCost))
+        {
+            UseItem(ether);
+            return;
+        }
+
+        // 4. Use weakness skill if enemy has break gauge remaining
         SkillData weaknessSkill = GetWeaknessSkill();
         if (weaknessSkill != null && !enemy.isBroken && player.HasEnoughAp(weaknessSkill.apCost))
         {
