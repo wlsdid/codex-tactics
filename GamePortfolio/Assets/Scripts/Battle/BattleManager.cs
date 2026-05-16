@@ -582,6 +582,7 @@ public class BattleManager : MonoBehaviour
             }
             int stageIdx = StageSelectController.SelectedStageIndex;
             if (stageIdx >= 0) ProgressState.MarkStageCompleted(stageIdx);
+            SaveManager.Save();
         }
 
         string resultSummary = BuildResultSummaryText(resultState);

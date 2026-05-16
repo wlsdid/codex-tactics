@@ -89,6 +89,32 @@ public class TitleManager : MonoBehaviour
         btnTextRt.offsetMin = Vector2.zero;
         btnTextRt.offsetMax = Vector2.zero;
 
+        // Reset Progress button
+        GameObject resetObj = new GameObject("Reset Button");
+        resetObj.transform.SetParent(canvasObj.transform, false);
+        Image resetImage = resetObj.AddComponent<Image>();
+        resetImage.color = new Color(0.12f, 0.12f, 0.18f);
+        Button resetBtn = resetObj.AddComponent<Button>();
+        resetBtn.targetGraphic = resetImage;
+        resetBtn.onClick.AddListener(OnResetProgress);
+
+        RectTransform resetRt = resetObj.GetComponent<RectTransform>();
+        resetRt.sizeDelta = new Vector2(200, 40);
+        resetRt.anchoredPosition = new Vector2(0, -120);
+
+        GameObject resetTextObj = new GameObject("Reset Text");
+        resetTextObj.transform.SetParent(resetObj.transform, false);
+        TMP_Text resetText = resetTextObj.AddComponent<TextMeshProUGUI>();
+        resetText.text = "Reset Progress";
+        resetText.fontSize = 18;
+        resetText.alignment = TextAlignmentOptions.Center;
+        resetText.color = new Color(0.65f, 0.30f, 0.30f);
+        RectTransform resetTextRt = resetTextObj.GetComponent<RectTransform>();
+        resetTextRt.anchorMin = Vector2.zero;
+        resetTextRt.anchorMax = Vector2.one;
+        resetTextRt.offsetMin = Vector2.zero;
+        resetTextRt.offsetMax = Vector2.zero;
+
         // Version text
         GameObject verObj = new GameObject("Version Text");
         verObj.transform.SetParent(canvasObj.transform, false);
@@ -104,7 +130,12 @@ public class TitleManager : MonoBehaviour
 
     private void OnStartGame()
     {
-        // Load battle scene by name — must be in Build Settings
-        SceneManager.LoadScene("BattleScene");
+        SaveManager.Load();
+        SceneManager.LoadScene("StageSelectScene");
+    }
+
+    private void OnResetProgress()
+    {
+        SaveManager.ResetSave();
     }
 }

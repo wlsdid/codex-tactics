@@ -11,6 +11,11 @@ public class GameSceneFlow : MonoBehaviour
     public const string StageSelectSceneName = "StageSelectScene";
     public const string BattleSceneName = "BattleScene";
 
+    private void Awake()
+    {
+        SaveManager.Load();
+    }
+
     public void LoadTitle()
     {
         SceneManager.LoadScene(TitleSceneName);
