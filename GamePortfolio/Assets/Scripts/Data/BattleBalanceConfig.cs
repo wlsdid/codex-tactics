@@ -26,6 +26,10 @@ public class BattleBalanceConfig : ScriptableObject
     public int iceSkillApCost = 1;
     public int stunTurnDuration = 1;
 
+    [Header("Lightning Skill (Lightning Strike)")]
+    public int lightningSkillPower = 40;
+    public int lightningSkillApCost = 3;
+
     [Header("Status Effects")]
     public int burnDamagePerTurn = 3;
     public int burnTurnDuration = 2;

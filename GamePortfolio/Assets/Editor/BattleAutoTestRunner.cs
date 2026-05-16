@@ -40,6 +40,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "attackButton", CreateButton("Attack Button"));
         SetPrivateField(battleUI, "fireSkillButton", CreateButton("Fire Skill Button"));
         SetPrivateField(battleUI, "iceSkillButton", CreateButton("Ice Lance Button"));
+        SetPrivateField(battleUI, "lightningSkillButton", CreateButton("Lightning Strike Button"));
         SetPrivateField(battleUI, "guardButton", CreateButton("Guard Button"));
         SetPrivateField(battleUI, "endTurnButton", CreateButton("End Turn Button"));
         SetPrivateField(battleUI, "retryButton", CreateButton("Retry Button"));
@@ -68,7 +69,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Player status starts as Ready", battleManager.DebugPlayerStatusText == "Status: Ready");
         AppendCheck(ref passed, ref report, "Enemy status starts as None", battleManager.DebugEnemyStatusText == "Status: None");
         AppendCheck(ref passed, ref report, "Enemy intent starts with normal attack preview", battleManager.DebugEnemyIntentText == "Next Enemy: Normal Attack (15)");
-        AppendCheck(ref passed, ref report, "Skill help explains all skills, Guard, and readable enemy pattern values", battleManager.DebugSkillHelpText.Contains("Slash: 20 power, 0 AP") && battleManager.DebugSkillHelpText.Contains("Fire Bolt: 30 power, 2 AP") && battleManager.DebugSkillHelpText.Contains("Ice Lance: 25 power, 1 AP") && battleManager.DebugSkillHelpText.Contains("Guard: reduce next enemy attack") && battleManager.DebugSkillHelpText.Contains("Normal attack: 15 damage") && battleManager.DebugSkillHelpText.Contains("Heavy Slam: 30 damage every 3rd enemy turn"));
+        AppendCheck(ref passed, ref report, "Skill help explains all skills, Guard, and readable enemy pattern values", battleManager.DebugSkillHelpText.Contains("Slash: 20 power, 0 AP") && battleManager.DebugSkillHelpText.Contains("Fire Bolt: 30 power, 2 AP") && battleManager.DebugSkillHelpText.Contains("Ice Lance: 25 power, 1 AP") && battleManager.DebugSkillHelpText.Contains("Lightning Strike: 40 power, 3 AP") && battleManager.DebugSkillHelpText.Contains("Guard: reduce next enemy attack") && battleManager.DebugSkillHelpText.Contains("Normal attack: 15 damage") && battleManager.DebugSkillHelpText.Contains("Heavy Slam: 30 damage every 3rd enemy turn"));
         AppendCheck(ref passed, ref report, "Battle log has a readable Recent Actions heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions"));
         AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("1. Player Turn: recovered 1 AP. Choose an action."));
         AppendCheck(ref passed, ref report, "Impact text starts with ready feedback", battleManager.DebugImpactText == "Impact: Ready");
@@ -99,6 +100,15 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Impact text summarizes Ice Lance Stun", battleManager.DebugImpactText.Contains("Impact: Ice Lance dealt 25 damage") && battleManager.DebugImpactText.Contains("Stun applied"));
         AppendCheck(ref passed, ref report, "Damage dealt tracks Ice Lance damage", battleManager.DebugTotalDamageDealt == 25);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Ice Lance", battleManager.DebugSkillsUsedCount == 1);
+
+        // Lightning Strike: costs 3 AP, Lightning element, high damage, no status
+        battleManager.DebugStartBattleForTest();
+        battleManager.OnClickLightningSkillButton();
+        AppendCheck(ref passed, ref report, "Player AP spends 3 AP after Lightning Strike", battleManager.DebugPlayerApBarValue == 0f && battleManager.DebugPlayerApBarMaxValue == 3f);
+        AppendCheck(ref passed, ref report, "Player AP text shows 0% after Lightning Strike", battleManager.DebugPlayerApText == "AP: 0/3 (0%)");
+        AppendCheck(ref passed, ref report, "Enemy HP shows Lightning Strike neutral damage", battleManager.DebugEnemyHpText == "Slime HP: 40/80 (50%)");
+        AppendCheck(ref passed, ref report, "Damage dealt tracks Lightning Strike damage", battleManager.DebugTotalDamageDealt == 40);
+        AppendCheck(ref passed, ref report, "Skills used counter tracks Lightning Strike", battleManager.DebugSkillsUsedCount == 1);
 
         battleManager.OnClickGuardButton();
         AppendCheck(ref passed, ref report, "Player status shows Guarding before enemy attack", battleManager.DebugPlayerStatusText == "Status: Guarding");
@@ -201,6 +211,7 @@ public static class BattleAutoTestRunner
             SetPrivateField(e2eUI, "attackButton", CreateButton("Attack Button"));
             SetPrivateField(e2eUI, "fireSkillButton", CreateButton("Fire Skill Button"));
             SetPrivateField(e2eUI, "iceSkillButton", CreateButton("Ice Lance Button"));
+        SetPrivateField(e2eUI, "lightningSkillButton", CreateButton("Lightning Strike Button"));
             SetPrivateField(e2eUI, "guardButton", CreateButton("Guard Button"));
             SetPrivateField(e2eUI, "endTurnButton", CreateButton("End Turn Button"));
             SetPrivateField(e2eUI, "retryButton", CreateButton("Retry Button"));
@@ -299,6 +310,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(ui2, "attackButton", CreateButton("Attack Button"));
         SetPrivateField(ui2, "fireSkillButton", CreateButton("Fire Skill Button"));
         SetPrivateField(ui2, "iceSkillButton", CreateButton("Ice Lance Button"));
+        SetPrivateField(ui2, "lightningSkillButton", CreateButton("Lightning Strike Button"));
         SetPrivateField(ui2, "guardButton", CreateButton("Guard Button"));
         SetPrivateField(ui2, "endTurnButton", CreateButton("End Turn Button"));
         SetPrivateField(ui2, "retryButton", CreateButton("Retry Button"));
@@ -339,6 +351,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(ui1, "attackButton", CreateButton("Attack Button"));
         SetPrivateField(ui1, "fireSkillButton", CreateButton("Fire Skill Button"));
         SetPrivateField(ui1, "iceSkillButton", CreateButton("Ice Lance Button"));
+        SetPrivateField(ui1, "lightningSkillButton", CreateButton("Lightning Strike Button"));
         SetPrivateField(ui1, "guardButton", CreateButton("Guard Button"));
         SetPrivateField(ui1, "endTurnButton", CreateButton("End Turn Button"));
         SetPrivateField(ui1, "retryButton", CreateButton("Retry Button"));
