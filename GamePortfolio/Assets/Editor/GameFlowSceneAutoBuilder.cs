@@ -77,44 +77,68 @@ public static class GameFlowSceneAutoBuilder
         headerText.fontSize = 40;
         headerText.color = new Color(0.92f, 0.78f, 0.38f);
 
-        // Stage Card 1 — Available
-        Image stage1Card = CreatePanel(canvas.transform, "Stage Card 1", new Vector2(-200, 80), new Vector2(300, 200), new Color(0.07f, 0.07f, 0.12f, 0.92f));
-        TMP_Text stage1Text = CreateText(canvas.transform, "Stage 1 Name Text", "Slime Scout Route", new Vector2(-200, 135), new Vector2(260, 40), TextAlignmentOptions.Center);
+        // Stage Card 1 — Available (clickable Button)
+        Button stage1CardBtn = CreateCardButton(canvas.transform, "Stage Card 1", new Vector2(-200, 80), new Vector2(300, 200),
+            new Color(0.07f, 0.07f, 0.12f, 0.92f), new Color(0.15f, 0.20f, 0.35f, 0.95f));
+        TMP_Text stage1Text = CreateText(stage1CardBtn.transform, "Stage 1 Name Text", "Slime Scout Route", new Vector2(0, 55), new Vector2(260, 40), TextAlignmentOptions.Center);
         stage1Text.fontSize = 24;
         stage1Text.color = new Color(1f, 1f, 1f);
-        TMP_Text stage1Desc = CreateText(canvas.transform, "Stage 1 Desc Text", "Basic encounter. Slimes patrol\nthe forest path.", new Vector2(-200, 65), new Vector2(260, 80), TextAlignmentOptions.Top);
+        TMP_Text stage1Desc = CreateText(stage1CardBtn.transform, "Stage 1 Desc Text", "Basic encounter. Slimes patrol\nthe forest path.", new Vector2(0, 0), new Vector2(260, 60), TextAlignmentOptions.Top);
         stage1Desc.fontSize = 18;
         stage1Desc.color = new Color(0.72f, 0.72f, 0.72f);
-        TMP_Text stage1Status = CreateText(canvas.transform, "Stage 1 Status Text", "Available", new Vector2(-200, 5), new Vector2(260, 40), TextAlignmentOptions.Center);
+        TMP_Text stage1Status = CreateText(stage1CardBtn.transform, "Stage 1 Status Text", "Available", new Vector2(0, -55), new Vector2(260, 40), TextAlignmentOptions.Center);
         stage1Status.fontSize = 20;
         stage1Status.color = new Color(0.38f, 1f, 0.42f);
 
-        // Stage Card 2 — Locked
-        Image stage2Card = CreatePanel(canvas.transform, "Stage Card 2", new Vector2(200, 80), new Vector2(300, 200), new Color(0.06f, 0.06f, 0.10f, 0.92f));
-        TMP_Text stage2Text = CreateText(canvas.transform, "Stage 2 Name Text", "Wolf Ambush", new Vector2(200, 135), new Vector2(260, 40), TextAlignmentOptions.Center);
+        // Stage Card 2 — Locked (Button with interactable=false for future unlock)
+        Button stage2CardBtn = CreateCardButton(canvas.transform, "Stage Card 2", new Vector2(200, 80), new Vector2(300, 200),
+            new Color(0.04f, 0.04f, 0.07f, 0.92f), new Color(0.04f, 0.04f, 0.07f, 0.92f));
+        stage2CardBtn.interactable = false;
+        TMP_Text stage2Text = CreateText(stage2CardBtn.transform, "Stage 2 Name Text", "Wolf Ambush", new Vector2(0, 55), new Vector2(260, 40), TextAlignmentOptions.Center);
         stage2Text.fontSize = 24;
         stage2Text.color = new Color(0.5f, 0.5f, 0.5f);
-        TMP_Text stage2Desc = CreateText(canvas.transform, "Stage 2 Desc Text", "Wolf packs hunt in the\nmoonlit clearing.", new Vector2(200, 65), new Vector2(260, 80), TextAlignmentOptions.Top);
+        TMP_Text stage2Desc = CreateText(stage2CardBtn.transform, "Stage 2 Desc Text", "Wolf packs hunt in the\nmoonlit clearing.", new Vector2(0, 0), new Vector2(260, 60), TextAlignmentOptions.Top);
         stage2Desc.fontSize = 18;
         stage2Desc.color = new Color(0.5f, 0.5f, 0.5f);
-        TMP_Text stage2Status = CreateText(canvas.transform, "Stage 2 Status Text", "Locked", new Vector2(200, 5), new Vector2(260, 40), TextAlignmentOptions.Center);
+        TMP_Text stage2Status = CreateText(stage2CardBtn.transform, "Stage 2 Status Text", "Locked", new Vector2(0, -55), new Vector2(260, 40), TextAlignmentOptions.Center);
         stage2Status.fontSize = 20;
         stage2Status.color = new Color(1f, 0.5f, 0.5f);
 
-        // Description panel
+        // Description panel — expanded for stage name + description
         Image descPanel = CreatePanel(canvas.transform, "Description Panel", new Vector2(0, -120), new Vector2(700, 100), new Color(0.06f, 0.06f, 0.10f, 0.88f));
-        TMP_Text descText = CreateText(canvas.transform, "Description Text", "Slime Scout Route: A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.", new Vector2(0, -100), new Vector2(660, 80), TextAlignmentOptions.TopLeft);
-        descText.fontSize = 20;
+        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Stage 1-1: Slime Scout", new Vector2(0, -100), new Vector2(660, 30), TextAlignmentOptions.Center);
+        stageNameText.fontSize = 22;
+        stageNameText.color = new Color(0.92f, 0.78f, 0.38f);
+        TMP_Text descText = CreateText(canvas.transform, "Stage Description Text", "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.", new Vector2(0, -130), new Vector2(660, 60), TextAlignmentOptions.Top);
+        descText.fontSize = 18;
         descText.color = new Color(0.82f, 0.82f, 0.92f);
 
         Button startBattleButton = CreateButton(canvas.transform, "Start Battle Button", "Start Battle", new Vector2(-120, -250), new Vector2(260, 65));
         Button backButton = CreateButton(canvas.transform, "Back Button", "Back", new Vector2(120, -250), new Vector2(260, 65));
 
-        // Create GameSceneFlow and wire buttons (persistent listeners for serialization)
+        // Create StageSelectController and wire everything
+        GameObject controllerObj = new GameObject("StageSelectController");
+        StageSelectController controller = controllerObj.AddComponent<StageSelectController>();
+
+        SerializedObject serializedController = new SerializedObject(controller);
+        SetObjectReference(serializedController, "stage1CardButton", stage1CardBtn);
+        SetObjectReference(serializedController, "stage1CardBg", stage1CardBtn.GetComponent<Image>());
+        SetObjectReference(serializedController, "stage2CardButton", stage2CardBtn);
+        SetObjectReference(serializedController, "stage2CardBg", stage2CardBtn.GetComponent<Image>());
+        SetObjectReference(serializedController, "stage2StatusText", stage2Status);
+        SetObjectReference(serializedController, "stageNameText", stageNameText);
+        SetObjectReference(serializedController, "stageDescriptionText", descText);
+        SetObjectReference(serializedController, "startBattleButton", startBattleButton);
+        SetObjectReference(serializedController, "backButton", backButton);
+        serializedController.ApplyModifiedPropertiesWithoutUndo();
+
+        // Init button states (controller.Start sets these, but ensure initial state in builder too)
+        startBattleButton.interactable = false;
+        stage1CardBtn.interactable = true;
+
+        // Create GameSceneFlow (kept for scene name constants)
         GameObject flowObject = new GameObject("GameSceneFlow");
-        GameSceneFlow flow = flowObject.AddComponent<GameSceneFlow>();
-        UnityEventTools.AddPersistentListener(startBattleButton.onClick, flow.LoadBattle);
-        UnityEventTools.AddPersistentListener(backButton.onClick, flow.LoadTitle);
+        flowObject.AddComponent<GameSceneFlow>();
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, StageSelectScenePath);
@@ -153,15 +177,22 @@ public static class GameFlowSceneAutoBuilder
             EditorSceneManager.OpenScene(StageSelectScenePath, OpenSceneMode.Single);
             AppendCheck(ref passed, ref report, "StageSelectScene has Canvas", Object.FindObjectOfType<Canvas>() != null);
             AppendCheck(ref passed, ref report, "StageSelectScene has EventSystem", Object.FindObjectOfType<EventSystem>() != null);
-            Button battleBtn = FindButtonInScene("Start Battle Button");
-            Button backBtn = FindButtonInScene("Back Button");
-            AppendCheck(ref passed, ref report, "StageSelectScene has Start Battle Button", battleBtn != null);
-            AppendCheck(ref passed, ref report, "StageSelectScene has Back Button", backBtn != null);
             AppendCheck(ref passed, ref report, "StageSelectScene has GameSceneFlow component", Object.FindObjectOfType<GameSceneFlow>() != null);
-            if (battleBtn != null)
-                AppendCheck(ref passed, ref report, "Start Battle Button has LoadBattle persistent listener", VerifyButtonPersistentListener(battleBtn, "LoadBattle"));
-            if (backBtn != null)
-                AppendCheck(ref passed, ref report, "Back Button has LoadTitle persistent listener", VerifyButtonPersistentListener(backBtn, "LoadTitle"));
+            StageSelectController controller = Object.FindObjectOfType<StageSelectController>();
+            AppendCheck(ref passed, ref report, "StageSelectController exists", controller != null);
+            if (controller != null)
+            {
+                AppendCheck(ref passed, ref report, "Stage 1 Card button exists", controller.DebugStage1CardButtonExists);
+                AppendCheck(ref passed, ref report, "Stage 1 Card is interactable (unlocked)", controller.DebugStage1CardInteractable);
+                AppendCheck(ref passed, ref report, "Stage 2 Card button is non-interactive (locked)", !controller.DebugStage2CardInteractable);
+                AppendCheck(ref passed, ref report, "Stage 2 Card button exists (unlock-ready)", controller.DebugStage2CardButtonExists);
+                AppendCheck(ref passed, ref report, "Stage 2 status shows Locked", controller.DebugStage2StatusText == "Locked");
+                AppendCheck(ref passed, ref report, "Stage Name text exists", controller.DebugStageNameTextExists);
+                AppendCheck(ref passed, ref report, "Stage Description text exists", controller.DebugStageDescriptionTextExists);
+                AppendCheck(ref passed, ref report, "Start Battle button exists", controller.DebugStartBattleButtonExists);
+                AppendCheck(ref passed, ref report, "Start Battle button starts disabled (no selection)", !controller.DebugStartBattleButtonInteractable);
+                AppendCheck(ref passed, ref report, "Back button exists", controller.DebugBackButtonExists);
+            }
         }
 
         // Check Build Settings registration
@@ -320,6 +351,36 @@ public static class GameFlowSceneAutoBuilder
         Button btn = obj.GetComponent<Button>();
         btn.targetGraphic = img;
         return btn;
+    }
+
+    private static Button CreateCardButton(Transform parent, string name, Vector2 position, Vector2 size, Color bgColor, Color selectedColor)
+    {
+        GameObject obj = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+        obj.transform.SetParent(parent, false);
+        RectTransform rt = obj.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = position;
+        rt.sizeDelta = size;
+
+        Image img = obj.GetComponent<Image>();
+        img.color = bgColor;
+
+        Button btn = obj.GetComponent<Button>();
+        btn.targetGraphic = img;
+        ColorBlock cb = btn.colors;
+        cb.selectedColor = selectedColor;
+        btn.colors = cb;
+        return btn;
+    }
+
+    private static void SetObjectReference(SerializedObject so, string fieldName, Object obj)
+    {
+        if (obj == null) return;
+        SerializedProperty prop = so.FindProperty(fieldName);
+        if (prop != null)
+            prop.objectReferenceValue = obj;
     }
 
     private static void AppendCheck(ref bool passed, ref string report, string label, bool condition)
