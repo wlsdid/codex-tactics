@@ -24,6 +24,11 @@ public static class ProgressState
     public static float DifficultyDamageMultiplier => DifficultyMode == 0 ? 1.0f : 1.3f;
     public static int DifficultyBreakGaugeMultiplier => DifficultyMode == 0 ? 1 : 2;
 
+    /// <summary>Persistent run-wide player progression.</summary>
+    public static int PlayerLevel { get; set; } = 1;
+    public static int PlayerXp { get; set; } = 0;
+    public static int TotalGold { get; set; } = 0;
+
     /// <summary>Skill unlock thresholds: stage index required to unlock each skill.</summary>
     public static bool IsSkillUnlocked(string skillName)
     {
@@ -67,6 +72,11 @@ public static class ProgressState
         return completedStages.Contains(stageIndex);
     }
 
+    public static List<int> GetCompletedStages()
+    {
+        return new List<int>(completedStages);
+    }
+
     /// <summary>
     /// Reset all progress. Useful for testing or new game.
     /// </summary>
@@ -74,6 +84,9 @@ public static class ProgressState
     {
         completedStages.Clear();
         TotalStages = 6;
+        PlayerLevel = 1;
+        PlayerXp = 0;
+        TotalGold = 0;
     }
 
     // --- Debug accessors (for auto-test) ---

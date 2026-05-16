@@ -62,5 +62,5 @@ Nine batches in one extended session. The game evolved from a 3-stage prototype 
 | Player skills | 4 (Slash, Ice Lance, Fire Bolt, Lightning Strike) |
 | Systems | Element weakness, Break, Stun, Auto-battle, Speed toggle |
 | UI features | Color-coded HP/AP bars, element labels, encounter descriptions |
-| Auto tests | 235+ — all PASS |
+| Auto tests | Battle logic + BattleScene validation — PASS |
 | Total commits today | 8 |

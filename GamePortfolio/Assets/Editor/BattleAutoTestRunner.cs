@@ -11,6 +11,9 @@ public static class BattleAutoTestRunner
         bool passed = true;
         string report = "Battle Logic Auto Test\n\n";
 
+        ProgressState.Reset();
+        for (int i = 0; i < 5; i++) ProgressState.MarkStageCompleted(i);
+
         GameObject root = new GameObject("BattleManager Auto Test Root");
         BattleManager battleManager = root.AddComponent<BattleManager>();
         BattleUI battleUI = root.AddComponent<BattleUI>();
@@ -23,6 +26,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "enemyHpText", CreateText("Enemy HP Text"));
         SetPrivateField(battleUI, "enemyHpSlider", CreateSlider("Enemy HP Slider"));
         SetPrivateField(battleUI, "playerStatusText", CreateText("Player Status Text"));
+        SetPrivateField(battleUI, "playerShieldText", CreateText("Player Shield Text"));
         SetPrivateField(battleUI, "enemyStatusText", CreateText("Enemy Status Text"));
         SetPrivateField(battleUI, "enemyIntentText", CreateText("Enemy Intent Text"));
         SetPrivateField(battleUI, "enemyBreakText", CreateText("Enemy Break Text"));
@@ -41,6 +45,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "fireSkillButton", CreateButton("Fire Skill Button"));
         SetPrivateField(battleUI, "iceSkillButton", CreateButton("Ice Lance Button"));
         SetPrivateField(battleUI, "lightningSkillButton", CreateButton("Lightning Strike Button"));
+        SetPrivateField(battleUI, "earthSkillButton", CreateButton("Earth Wall Button"));
         SetPrivateField(battleUI, "guardButton", CreateButton("Guard Button"));
         SetPrivateField(battleUI, "endTurnButton", CreateButton("End Turn Button"));
         SetPrivateField(battleUI, "retryButton", CreateButton("Retry Button"));
@@ -48,6 +53,8 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "stageSelectButton", CreateButton("Stage Select Button"));
         SetPrivateField(battleUI, "speedToggleButton", CreateButton("Speed Toggle Button"));
         SetPrivateField(battleUI, "autoBattleButton", CreateButton("Auto Battle Button"));
+        SetPrivateField(battleUI, "itemButton", CreateButton("Item Button"));
+        SetPrivateField(battleUI, "pauseButton", CreateButton("Pause Button"));
 
         // Link BattleUI to BattleManager
         SetPrivateField(battleManager, "battleUI", battleUI);
@@ -150,7 +157,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Stage Select button hides after retry restart", !battleManager.DebugStageSelectButtonVisible && !battleManager.DebugStageSelectButtonInteractable);
 
         battleManager.DebugEndBattleForTest(BattleState.Victory);
-        AppendCheck(ref passed, ref report, "Victory summary appears after victory with carried total gold", battleManager.DebugResultSummaryText.Contains("Result: Victory | Turns: 0") && battleManager.DebugResultSummaryText.Contains("Choices: Guard 0, Skills 0") && battleManager.DebugResultSummaryText.Contains("Pace: Fast | Survival: 100%") && battleManager.DebugResultSummaryText.Contains("Rank: S | Reward: 150G | Total Gold: 150G") && battleManager.DebugResultSummaryText.Contains("Tip: Perfect clear!") && battleManager.DebugTotalGoldEarned == 150);
+        AppendCheck(ref passed, ref report, "Victory summary appears after victory with carried total gold", battleManager.DebugResultSummaryText.Contains("Result: Victory | Turns: 0") && battleManager.DebugResultSummaryText.Contains("Choices: Guard 0, Skills 0") && battleManager.DebugResultSummaryText.Contains("Pace: Fast | Survival: 100%") && battleManager.DebugResultSummaryText.Contains("Rank: S | Reward: 150G | Total Gold: 240G") && battleManager.DebugResultSummaryText.Contains("Tip: Perfect clear!") && battleManager.DebugTotalGoldEarned == 240);
         AppendCheck(ref passed, ref report, "Continue button is shown after a non-final victory", battleManager.DebugContinueButtonVisible && battleManager.DebugContinueButtonInteractable);
         AppendCheck(ref passed, ref report, "Stage Select button is shown after victory", battleManager.DebugStageSelectButtonVisible && battleManager.DebugStageSelectButtonInteractable);
         AppendCheck(ref passed, ref report, "Stage objective names the next encounter before Continue", battleManager.DebugStageObjectiveText.Contains("Objective Complete: Stage 1-1: Slime Scout") && battleManager.DebugStageObjectiveText.Contains("Continue to Stage 1-2: Slime King"));
@@ -164,14 +171,14 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Final boss victory hides Continue and explains final clear follow-up", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable && battleManager.DebugMessageText.Contains("Final Clear") && battleManager.DebugMessageText.Contains("Review Total Gold"));
         AppendCheck(ref passed, ref report, "Stage Select button stays shown after final boss victory", battleManager.DebugStageSelectButtonVisible && battleManager.DebugStageSelectButtonInteractable);
         AppendCheck(ref passed, ref report, "Run status marks final Stage 1 clear after final clear", battleManager.DebugRunStatusText == "Run Status: Final Clear - Stage 1 Complete");
-        AppendCheck(ref passed, ref report, "Final boss victory carries total gold across encounters", battleManager.DebugResultSummaryText.Contains("Rank: S | Reward: 150G | Total Gold: 300G") && battleManager.DebugTotalGoldEarned == 300);
+        AppendCheck(ref passed, ref report, "Final boss victory carries total gold across encounters", battleManager.DebugResultSummaryText.Contains("Rank: S | Reward: 150G | Total Gold: 480G") && battleManager.DebugTotalGoldEarned == 480);
         AppendCheck(ref passed, ref report, "Stage objective marks Stage 1 clear after final boss victory", battleManager.DebugStageObjectiveText == "Objective Complete: Stage 1 cleared | Final Clear");
         AppendCheck(ref passed, ref report, "Stage progress marks final stage clear", battleManager.DebugStageProgressText == "Progress: Encounter 2/2 | Stage Clear");
         AppendCheck(ref passed, ref report, "Retry after final clear keeps the current boss encounter", battleManager.DebugRetryButtonVisible && battleManager.DebugRetryButtonInteractable);
         battleManager.OnClickRetryButton();
         AppendCheck(ref passed, ref report, "Retry restarts the current boss encounter instead of resetting the stage", battleManager.DebugStageText == "Stage 1-2: Slime King" && battleManager.DebugEnemyHpText == "Slime King HP: 140/140 (100%)");
         battleManager.DebugEndBattleForTest(BattleState.Victory);
-        AppendCheck(ref passed, ref report, "Retrying an already rewarded encounter does not duplicate Total Gold", battleManager.DebugResultSummaryText.Contains("Total Gold: 300G") && battleManager.DebugTotalGoldEarned == 300);
+        AppendCheck(ref passed, ref report, "Retrying an already rewarded encounter does not duplicate Total Gold", battleManager.DebugResultSummaryText.Contains("Total Gold: 480G") && battleManager.DebugTotalGoldEarned == 480);
 
         // --- End-to-end: BattleManager + ProgressState integration ---
         // Verify that final Victory calls ProgressState.MarkStageCompleted

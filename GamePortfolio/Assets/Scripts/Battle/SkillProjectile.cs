@@ -28,7 +28,7 @@ public class SkillProjectile : MonoBehaviour
 
         RectTransform rt = obj.GetComponent<RectTransform>();
         rt.sizeDelta = element == ElementType.Lightning ? new Vector2(6, 24) : new Vector2(20, 20);
-        rt.anchoredPosition3D = start;
+        rt.position = start;
 
         SkillProjectile proj = obj.AddComponent<SkillProjectile>();
         proj.StartCoroutine(proj.MoveRoutine(start, end));

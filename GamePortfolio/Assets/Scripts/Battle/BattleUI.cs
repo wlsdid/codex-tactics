@@ -500,6 +500,12 @@ public class BattleUI : MonoBehaviour
         return Vector3.zero;
     }
 
+    public Transform GetProjectileParent()
+    {
+        Canvas canvas = playerSpriteImage != null ? playerSpriteImage.GetComponentInParent<Canvas>() : GetComponentInParent<Canvas>();
+        return canvas != null ? canvas.transform : transform;
+    }
+
     public void SetPauseVisible(bool visible)
     {
         if (pausePanel != null) pausePanel.SetActive(visible);

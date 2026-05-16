@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+using UnityEngine.InputSystem.UI;
+#endif
 
 public static class StageSelectSceneAutoBuilder
 {
@@ -27,9 +30,9 @@ public static class StageSelectSceneAutoBuilder
         // Stage cards — 6 cards in 2 rows of 3
         int cardCount = 6;
         float cardStartX = -320f;
-        float cardY = 130f;
+        float cardY = 165f;
         float cardSpacingX = 320f;
-        float cardSpacingY = -200f;
+        float cardSpacingY = -190f;
         Vector2 cardSize = new Vector2(280, 170);
 
         Button[] cardButtons = new Button[cardCount];
@@ -65,18 +68,19 @@ public static class StageSelectSceneAutoBuilder
         }
 
         // Description panel
-        Image descPanel = CreatePanel(canvas.transform, "Description Panel", new Vector2(0, -120), new Vector2(700, 90), new Color(0.06f, 0.07f, 0.10f, 0.86f));
-        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Select a stage", new Vector2(0, -100), new Vector2(660, 30), TextAlignmentOptions.Center);
+        Image descPanel = CreatePanel(canvas.transform, "Description Panel", new Vector2(0, -180), new Vector2(700, 90), new Color(0.06f, 0.07f, 0.10f, 0.86f));
+        descPanel.raycastTarget = false;
+        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Select a stage", new Vector2(0, -160), new Vector2(660, 30), TextAlignmentOptions.Center);
         stageNameText.fontSize = 22;
         stageNameText.color = new Color(0.92f, 0.86f, 0.55f);
-        TMP_Text stageDescText = CreateText(canvas.transform, "Stage Description Text", "", new Vector2(0, -130), new Vector2(660, 60), TextAlignmentOptions.TopLeft);
+        TMP_Text stageDescText = CreateText(canvas.transform, "Stage Description Text", "", new Vector2(0, -190), new Vector2(660, 60), TextAlignmentOptions.TopLeft);
         stageDescText.fontSize = 16;
         stageDescText.color = new Color(0.82f, 0.86f, 0.95f);
 
         // Buttons
-        Button startButton = CreateButton(canvas.transform, "Start Battle Button", "Start Battle", new Vector2(-160, -225), new Vector2(260, 60));
+        Button startButton = CreateButton(canvas.transform, "Start Battle Button", "Start Battle", new Vector2(-160, -285), new Vector2(260, 60));
         startButton.interactable = false;
-        Button backButton = CreateButton(canvas.transform, "Back Button", "Back to Title", new Vector2(160, -225), new Vector2(260, 60));
+        Button backButton = CreateButton(canvas.transform, "Back Button", "Back to Title", new Vector2(160, -285), new Vector2(260, 60));
 
         // StageSelectController
         GameObject controllerObj = new GameObject("StageSelectController");
@@ -151,7 +155,11 @@ public static class StageSelectSceneAutoBuilder
         {
             GameObject obj = new GameObject("EventSystem");
             obj.AddComponent<EventSystem>();
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+            obj.AddComponent<InputSystemUIInputModule>();
+#else
             obj.AddComponent<StandaloneInputModule>();
+#endif
         }
     }
 

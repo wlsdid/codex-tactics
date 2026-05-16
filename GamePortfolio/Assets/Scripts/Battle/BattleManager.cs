@@ -67,6 +67,8 @@ public class BattleManager : MonoBehaviour
     private int xpToNextLevel = 100;
     private bool currentBattleRewardClaimed;
     private readonly HashSet<int> rewardedStageIndexes = new HashSet<int>();
+    private readonly HashSet<int> bonusRewardedStageIndexes = new HashSet<int>();
+    private bool loadedProgressState;
 
     // Bonus tracking
     private readonly HashSet<string> skillsUsedNames = new HashSet<string>();
@@ -160,6 +162,7 @@ public class BattleManager : MonoBehaviour
             battleUI.SetupPauseListeners(OnResumeGame, OnClickStageSelectButton);
         }
         InitializeFromStageSelection();
+        LoadProgressFromState();
         StartBattle();
     }
 
@@ -197,6 +200,7 @@ public class BattleManager : MonoBehaviour
     private void StartBattle()
     {
         currentState = BattleState.Start;
+        if (!loadedProgressState) LoadProgressFromState();
         EnsureStageEncounters();
         ApplyCurrentStageData();
         EnsureEnemyPattern();
@@ -281,6 +285,21 @@ public class BattleManager : MonoBehaviour
         if (autoBattleEnabled) ExecuteAutoAction();
     }
 
+    private void LoadProgressFromState()
+    {
+        playerLevel = Mathf.Max(1, ProgressState.PlayerLevel);
+        playerXp = Mathf.Max(0, ProgressState.PlayerXp);
+        totalGoldEarned = Mathf.Max(0, ProgressState.TotalGold);
+        loadedProgressState = true;
+    }
+
+    private void SyncProgressToState()
+    {
+        ProgressState.PlayerLevel = Mathf.Max(1, playerLevel);
+        ProgressState.PlayerXp = Mathf.Max(0, playerXp);
+        ProgressState.TotalGold = Mathf.Max(0, totalGoldEarned);
+    }
+
     // --- Player actions (public for button binding & testing) ---
 
     public void OnClickAttackButton() => UsePlayerSkill(basicAttackSkill);
@@ -338,35 +357,35 @@ public class BattleManager : MonoBehaviour
 
         // 4. Use weakness skill if enemy has break gauge remaining
         SkillData weaknessSkill = GetWeaknessSkill();
-        if (weaknessSkill != null && !enemy.isBroken && player.HasEnoughAp(weaknessSkill.apCost))
+        if (weaknessSkill != null && IsSkillAvailable(weaknessSkill) && !enemy.isBroken && player.HasEnoughAp(weaknessSkill.apCost))
         {
             UsePlayerSkill(weaknessSkill);
             return;
         }
 
         // 3. Use Lightning Strike if enough AP
-        if (player.HasEnoughAp(lightningSkill.apCost))
+        if (IsSkillAvailable(lightningSkill) && player.HasEnoughAp(lightningSkill.apCost))
         {
             UsePlayerSkill(lightningSkill);
             return;
         }
 
         // 4. Use Ice Lance if enough AP
-        if (player.HasEnoughAp(iceSkill.apCost))
+        if (IsSkillAvailable(iceSkill) && player.HasEnoughAp(iceSkill.apCost))
         {
             UsePlayerSkill(iceSkill);
             return;
         }
 
         // 5. Use Earth Wall if shield not active and HP is low (defensive)
-        if (playerShieldAmount <= 0 && player != null && player.currentHp < player.maxHp * 0.6f && player.HasEnoughAp(earthSkill.apCost))
+        if (IsSkillAvailable(earthSkill) && playerShieldAmount <= 0 && player != null && player.currentHp < player.maxHp * 0.6f && player.HasEnoughAp(earthSkill.apCost))
         {
             UsePlayerSkill(earthSkill);
             return;
         }
 
         // 6. Use Fire Bolt if enough AP
-        if (player.HasEnoughAp(fireSkill.apCost))
+        if (IsSkillAvailable(fireSkill) && player.HasEnoughAp(fireSkill.apCost))
         {
             UsePlayerSkill(fireSkill);
             return;
@@ -392,6 +411,11 @@ public class BattleManager : MonoBehaviour
     {
         speedState = speedState >= 2 ? 1 : 2;
         battleUI?.UpdateSpeedLabel(speedState);
+    }
+
+    private bool IsSkillAvailable(SkillData skill)
+    {
+        return skill != null && ProgressState.IsSkillUnlocked(skill.skillName);
     }
 
     public void OnClickItemButton()
@@ -452,7 +476,8 @@ public class BattleManager : MonoBehaviour
 
     public void OnClickStageSelectButton()
     {
-        if (currentState != BattleState.Victory && currentState != BattleState.Defeat) return;
+        StopAllCoroutines();
+        battleUI?.SetPauseVisible(false);
         UnityEngine.SceneManagement.SceneManager.LoadScene("StageSelectScene");
     }
 
@@ -518,7 +543,17 @@ public class BattleManager : MonoBehaviour
 
     private void UsePlayerSkill(SkillData skill)
     {
-        if (currentState != BattleState.PlayerTurn || player == null || enemy == null) return;
+        if (currentState != BattleState.PlayerTurn || player == null || enemy == null || skill == null) return;
+        if (!IsSkillAvailable(skill))
+        {
+            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
+                $"{skill.skillName} is locked. Clear earlier stages to unlock it.",
+                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+            battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
+            return;
+        }
         if (!player.SpendAp(skill.apCost))
         {
             battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
@@ -600,7 +635,7 @@ public class BattleManager : MonoBehaviour
         {
             Vector3 start = battleUI.GetPlayerSpriteWorldPosition();
             Vector3 end = battleUI.GetEnemySpriteWorldPosition();
-            SkillProjectile.Spawn(skill.elementType, start, end, battleUI.transform);
+            SkillProjectile.Spawn(skill.elementType, start, end, battleUI.GetProjectileParent());
         }
         // Play sound effects
         if (skill == basicAttackSkill)
@@ -619,7 +654,7 @@ public class BattleManager : MonoBehaviour
 
     private WaitForSeconds WaitForBattleTick(float seconds = 1.0f)
     {
-        return new WaitForSeconds(seconds / Mathf.Max(0.1f, CfgBattleSpeed));
+        return new WaitForSeconds(seconds / Mathf.Max(0.1f, CfgBattleSpeed * speedState));
     }
 
     private IEnumerator EnemyTurnRoutine()
@@ -684,7 +719,7 @@ public class BattleManager : MonoBehaviour
         if (shieldAbsorbed)
         {
             int absorbed = Mathf.Min(playerShieldAmount, damage);
-            damage = Mathf.Max(1, damage - absorbed);
+            damage = Mathf.Max(0, damage - absorbed);
             playerShieldAmount = 0;
         }
 
@@ -701,7 +736,7 @@ public class BattleManager : MonoBehaviour
         string impactText = wasGuarding
             ? $"Impact: Guard reduced incoming damage to {damage}"
             : shieldAbsorbed
-                ? $"Impact: Shield absorbed {CfgEarthSkillShieldAmount} damage, reduced to {damage}"
+                ? $"Impact: Shield absorbed damage, reduced to {damage}"
                 : $"Impact: {enemy?.characterName} dealt {damage} damage{(isEnraged ? " (ENRAGED!)" : "")}";
         battleUI?.SetImpactText(impactText);
         battleUI?.SetPlayerShieldText(playerShieldAmount);
@@ -746,7 +781,8 @@ public class BattleManager : MonoBehaviour
 
         // Mark stage as completed when all encounters are cleared
         // Award XP on stage clear
-        if (resultState == BattleState.Victory && !HasNextStage())
+        bool finalStageCleared = resultState == BattleState.Victory && !HasNextStage();
+        if (finalStageCleared)
         {
             int gainedXp = 50 + (StageSelectController.SelectedStageIndex + 1) * 30;
             playerXp += gainedXp;
@@ -764,16 +800,16 @@ public class BattleManager : MonoBehaviour
             }
             int stageIdx = StageSelectController.SelectedStageIndex;
             if (stageIdx >= 0) ProgressState.MarkStageCompleted(stageIdx);
-            SaveManager.Save();
         }
 
         // Evaluate stage bonuses on victory
-        if (resultState == BattleState.Victory)
+        if (resultState == BattleState.Victory && !currentBattleRewardClaimed && !bonusRewardedStageIndexes.Contains(currentStageIndex))
         {
             var (bonuses, bonusGold) = StageBonusEvaluator.Evaluate(
                 totalDamageTaken, enemyTurnCount, skillsUsedNames,
                 guardedStrongAttack, usedItems, 5);
             totalGoldEarned += bonusGold;
+            bonusRewardedStageIndexes.Add(currentStageIndex);
             if (bonuses.Count > 0 && battleUI != null)
             {
                 string bonusMsg = "Bonuses: " + string.Join(", ", bonuses.ConvertAll(b => $"{StageBonusEvaluator.GetBonusName(b)}(+{StageBonusEvaluator.GetBonusGold(b)}g)"));
@@ -786,6 +822,8 @@ public class BattleManager : MonoBehaviour
 
         string resultSummary = BuildResultSummaryText(resultState);
         battleUI?.SetResultSummaryVisible(true, resultSummary);
+        SyncProgressToState();
+        if (finalStageCleared) SaveManager.Save();
 
         string msg = resultState == BattleState.Victory
             ? battleUI?.BuildVictoryGuideMessage(currentStageIndex, stageEncounters) ?? "Victory!"

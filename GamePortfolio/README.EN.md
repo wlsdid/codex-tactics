@@ -80,15 +80,15 @@ Title Screen → Stage Select → Battle (6 stages × 2 encounters = 12 battles)
 
 - **Edit Mode Tests:** `Window > General > Test Runner` > `EditMode` > `Run All`
 - **Scene Validate:** `Tools > Codex Tactics > Validate Battle Test Scene`
-- 230+ auto test checks, ALL PASS
+- Battle logic auto-test + BattleScene validation PASS
 - Testable headlessly via `-batchmode -nographics`
 
 ## Documentation Structure
 
 ```
 Docs/
-├── Devlog/        — Daily development logs (38 files)
-└── Study/         — System design deep-dives (13 files)
+├── Devlog/        — Daily development logs (51 files)
+└── Study/         — System design deep-dives (45 files)
 ```
 
 ## Tech Stack

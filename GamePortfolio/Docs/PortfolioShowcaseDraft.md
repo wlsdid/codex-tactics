@@ -59,7 +59,7 @@ All balance values live in `BattleBalanceConfig` (ScriptableObject). Designers c
 
 ### Automated testing
 - Scene validation (checks all critical UI elements exist)
-- Battle logic auto-test (230+ regression checks)
+- Battle logic auto-test and BattleScene validation (PASS)
 - Unity batchmode compile: PASS
 - Test coverage: skills, damage, status effects, elements, progress, stage data
 

@@ -64,6 +64,9 @@ public static class BattleSceneAutoBuilder
         TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-360, 5), new Vector2(420, 40), TextAlignmentOptions.Left);
         playerStatusText.fontSize = 22;
         playerStatusText.color = new Color(0.78f, 1.0f, 0.76f);
+        TMP_Text playerShieldText = CreateText(canvas.transform, "Player Shield Text", "", new Vector2(-360, -25), new Vector2(420, 35), TextAlignmentOptions.Left);
+        playerShieldText.fontSize = 20;
+        playerShieldText.color = new Color(0.45f, 0.78f, 1.0f);
         TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(360, 110), new Vector2(420, 50), TextAlignmentOptions.Right);
         Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(360, 200), new Vector2(100, 100));
         Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(360, 200), new Vector2(100, 100));
@@ -153,6 +156,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "playerApText", playerApText);
         SetObjectReference(serializedBattleUI, "playerApSlider", playerApSlider);
         SetObjectReference(serializedBattleUI, "playerStatusText", playerStatusText);
+        SetObjectReference(serializedBattleUI, "playerShieldText", playerShieldText);
         SetObjectReference(serializedBattleUI, "playerSpriteImage", playerSpriteImage);
         SetObjectReference(serializedBattleUI, "enemyHpText", enemyHpText);
         SetObjectReference(serializedBattleUI, "enemyHpSlider", enemyHpSlider);

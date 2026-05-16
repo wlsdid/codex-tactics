@@ -23,18 +23,11 @@ public static class SaveManager
     {
         var data = new SaveData
         {
-            completedStages = new List<int>(),
-            playerLevel = 1,
-            playerXp = 0,
-            totalGold = 0
+            completedStages = ProgressState.GetCompletedStages(),
+            playerLevel = ProgressState.PlayerLevel,
+            playerXp = ProgressState.PlayerXp,
+            totalGold = ProgressState.TotalGold
         };
-
-        // Export from ProgressState
-        for (int i = 0; i < ProgressState.TotalStages; i++)
-        {
-            if (ProgressState.IsStageCompleted(i))
-                data.completedStages.Add(i);
-        }
 
         string json = JsonUtility.ToJson(data, prettyPrint: true);
         File.WriteAllText(SavePath, json);
@@ -54,13 +47,21 @@ public static class SaveManager
 
         // Import to ProgressState
         ProgressState.Reset();
-        foreach (int stageIdx in data.completedStages)
+        if (data.completedStages != null)
         {
-            if (stageIdx >= 0 && stageIdx < ProgressState.TotalStages)
-                ProgressState.MarkStageCompleted(stageIdx);
+            foreach (int stageIdx in data.completedStages)
+            {
+                if (stageIdx >= 0 && stageIdx < ProgressState.TotalStages)
+                    ProgressState.MarkStageCompleted(stageIdx);
+            }
         }
 
-        Debug.Log($"Save loaded from {SavePath}: {data.completedStages.Count} stages completed.");
+        ProgressState.PlayerLevel = data.playerLevel <= 0 ? 1 : data.playerLevel;
+        ProgressState.PlayerXp = data.playerXp < 0 ? 0 : data.playerXp;
+        ProgressState.TotalGold = data.totalGold < 0 ? 0 : data.totalGold;
+
+        int completedCount = data.completedStages != null ? data.completedStages.Count : 0;
+        Debug.Log($"Save loaded from {SavePath}: {completedCount} stages completed, Lv.{ProgressState.PlayerLevel}, {ProgressState.TotalGold}G.");
     }
 
     public static void ResetSave()
