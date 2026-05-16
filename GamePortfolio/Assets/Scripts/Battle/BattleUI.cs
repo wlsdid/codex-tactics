@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -436,6 +437,29 @@ public class BattleUI : MonoBehaviour
     {
         if (playerShieldText != null)
             playerShieldText.text = shieldAmount > 0 ? $"Shield: {shieldAmount}" : "";
+    }
+
+    /// <summary>Brief flash effect on enemy sprite when damage is dealt.</summary>
+    public void FlashEnemyDamage()
+    {
+        if (enemySpriteImage != null)
+            StartCoroutine(FlashRoutine(enemySpriteImage, Color.white, 0.1f));
+    }
+
+    /// <summary>Brief flash effect on player sprite when damaged.</summary>
+    public void FlashPlayerDamage()
+    {
+        if (playerSpriteImage != null)
+            StartCoroutine(FlashRoutine(playerSpriteImage, Color.red, 0.15f));
+    }
+
+    private IEnumerator FlashRoutine(Image target, Color flashColor, float duration)
+    {
+        if (target == null) yield break;
+        Color original = target.color;
+        target.color = flashColor;
+        yield return new WaitForSeconds(duration);
+        target.color = original;
     }
 
     private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, int guardReduction, EnemyPatternData pattern)

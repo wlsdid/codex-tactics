@@ -20,6 +20,7 @@ public static class BattleSceneAutoBuilder
         scene.name = "BattleScene";
 
         Camera camera = CreateCamera();
+        camera.gameObject.AddComponent<ScreenShake>();
         Canvas canvas = CreateCanvas(camera);
         CreateEventSystem();
 

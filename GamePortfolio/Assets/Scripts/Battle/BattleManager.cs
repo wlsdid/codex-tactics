@@ -440,6 +440,7 @@ public class BattleManager : MonoBehaviour
         }
         battleUI?.SetImpactText(impact);
         battleUI?.SetPlayerShieldText(playerShieldAmount);
+        battleUI?.FlashEnemyDamage();
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
@@ -535,6 +536,12 @@ public class BattleManager : MonoBehaviour
                 : $"Impact: {enemy?.characterName} dealt {damage} damage";
         battleUI?.SetImpactText(impactText);
         battleUI?.SetPlayerShieldText(playerShieldAmount);
+        battleUI?.FlashPlayerDamage();
+        if (isStrong)
+        {
+            var shake = Camera.main != null ? Camera.main.GetComponent<ScreenShake>() : null;
+            if (shake != null) shake.Shake();
+        }
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
