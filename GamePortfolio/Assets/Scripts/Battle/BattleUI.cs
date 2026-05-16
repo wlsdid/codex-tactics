@@ -27,6 +27,9 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text enemyBreakText;
     [SerializeField] private Slider enemyBreakSlider;
     [SerializeField] private Image enemySpriteImage;
+    [SerializeField] private Image burnOverlay;
+    [SerializeField] private Image stunOverlay;
+    [SerializeField] private Image brokenOverlay;
 
     [Header("Stage UI")]
     [SerializeField] private TMP_Text runStatusText;
@@ -322,12 +325,26 @@ public class BattleUI : MonoBehaviour
             playerStatusText.text = "Status: Ready";
     }
 
-    private void SetEnemyStatusText(CharacterData enemy)
+    public void SetEnemyStatusText(CharacterData enemy)
     {
         if (enemyStatusText == null) return;
         enemyStatusText.text = enemy.currentStatusEffect == StatusEffectType.None
             ? "Status: None"
             : $"Status: {enemy.currentStatusEffect} ({enemy.statusTurnsRemaining} turns)";
+
+        // Update status overlays
+        bool hasBurn = enemy.currentStatusEffect == StatusEffectType.Burn;
+        bool hasStun = enemy.currentStatusEffect == StatusEffectType.Stun;
+        if (burnOverlay != null)
+        {
+            burnOverlay.gameObject.SetActive(hasBurn);
+            if (hasBurn) StartCoroutine(PulseOverlay(burnOverlay, 0.5f, new Color(1f, 0.3f, 0.1f, 0.3f)));
+        }
+        if (stunOverlay != null)
+        {
+            stunOverlay.gameObject.SetActive(hasStun);
+            if (hasStun) StartCoroutine(PulseOverlay(stunOverlay, 0.3f, new Color(0.3f, 0.5f, 1f, 0.3f)));
+        }
     }
 
     private void SetEnemyBreakText(CharacterData enemy)
@@ -340,6 +357,8 @@ public class BattleUI : MonoBehaviour
             enemyBreakSlider.maxValue = enemy.maxBreakGauge;
             enemyBreakSlider.value = enemy.isBroken ? 0f : enemy.currentBreakGauge;
         }
+        if (brokenOverlay != null)
+            brokenOverlay.gameObject.SetActive(enemy.isBroken);
     }
 
     private string enemyElementLabel = "";
@@ -460,6 +479,21 @@ public class BattleUI : MonoBehaviour
         target.color = flashColor;
         yield return new WaitForSeconds(duration);
         target.color = original;
+    }
+
+    /// <summary>Pulses an overlay image between transparent and tinted for status visual feedback.</summary>
+    private IEnumerator PulseOverlay(Image overlay, float speed, Color tint)
+    {
+        if (overlay == null) yield break;
+        float t = 0f;
+        while (overlay.gameObject.activeSelf)
+        {
+            float alpha = Mathf.Abs(Mathf.Sin(t * Mathf.PI * speed)) * 0.5f + 0.1f;
+            overlay.color = new Color(tint.r, tint.g, tint.b, alpha);
+            t += Time.deltaTime;
+            yield return null;
+        }
+        overlay.color = Color.clear;
     }
 
     private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, int guardReduction, EnemyPatternData pattern)

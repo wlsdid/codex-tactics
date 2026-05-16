@@ -66,6 +66,12 @@ public static class BattleSceneAutoBuilder
         playerStatusText.color = new Color(0.78f, 1.0f, 0.76f);
         TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(360, 110), new Vector2(420, 50), TextAlignmentOptions.Right);
         Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(360, 200), new Vector2(100, 100));
+        Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(360, 200), new Vector2(100, 100));
+        Image stunOverlay = CreateStatusOverlay(canvas.transform, "Stun Overlay", new Vector2(360, 200), new Vector2(100, 100));
+        Image brokenOverlay = CreateStatusOverlay(canvas.transform, "Broken Overlay", new Vector2(360, 200), new Vector2(100, 100));
+        burnOverlay.gameObject.SetActive(false);
+        stunOverlay.gameObject.SetActive(false);
+        brokenOverlay.gameObject.SetActive(false);
         Slider enemyHpSlider = CreateHpSlider(canvas.transform, "Enemy HP Slider", new Vector2(360, 80), new Vector2(420, 22), new Color(0.82f, 0.22f, 0.24f));
         TMP_Text enemyStatusText = CreateText(canvas.transform, "Enemy Status Text", "Status: None", new Vector2(360, 55), new Vector2(420, 45), TextAlignmentOptions.Right);
         TMP_Text enemyIntentText = CreateText(canvas.transform, "Enemy Intent Text", "Next Enemy: Normal Attack (15)", new Vector2(360, 25), new Vector2(420, 45), TextAlignmentOptions.Right);
@@ -139,6 +145,9 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "enemyBreakText", enemyBreakText);
         SetObjectReference(serializedBattleUI, "enemyBreakSlider", enemyBreakSlider);
         SetObjectReference(serializedBattleUI, "enemySpriteImage", enemySpriteImage);
+        SetObjectReference(serializedBattleUI, "burnOverlay", burnOverlay);
+        SetObjectReference(serializedBattleUI, "stunOverlay", stunOverlay);
+        SetObjectReference(serializedBattleUI, "brokenOverlay", brokenOverlay);
         SetObjectReference(serializedBattleUI, "runStatusText", runStatusText);
         SetObjectReference(serializedBattleUI, "stageText", stageText);
         SetObjectReference(serializedBattleUI, "stageObjectiveText", stageObjectiveText);
@@ -712,6 +721,24 @@ public static class BattleSceneAutoBuilder
 
         Image image = portraitObject.AddComponent<Image>();
         image.color = new Color(0.15f, 0.15f, 0.20f, 0.6f);
+        image.raycastTarget = false;
+        return image;
+    }
+
+    private static Image CreateStatusOverlay(Transform parent, string name, Vector2 anchoredPosition, Vector2 size)
+    {
+        GameObject overlayObj = new GameObject(name);
+        overlayObj.transform.SetParent(parent, false);
+
+        RectTransform rectTransform = overlayObj.AddComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = anchoredPosition;
+        rectTransform.sizeDelta = size;
+
+        Image image = overlayObj.AddComponent<Image>();
+        image.color = Color.clear;
         image.raycastTarget = false;
         return image;
     }
