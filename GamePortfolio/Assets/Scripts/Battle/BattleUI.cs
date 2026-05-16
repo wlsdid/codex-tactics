@@ -260,11 +260,11 @@ public class BattleUI : MonoBehaviour
 
     public void UpdateActionButtons(CharacterData player, SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, BattleState currentState)
     {
-        SetButtonInteractable(attackButton, player.HasEnoughAp(basicSkill.apCost));
-        SetButtonInteractable(fireSkillButton, player.HasEnoughAp(fireSkill.apCost));
-        SetButtonInteractable(iceSkillButton, player.HasEnoughAp(iceSkill.apCost));
-        SetButtonInteractable(lightningSkillButton, player.HasEnoughAp(lightningSkill.apCost));
-        SetButtonInteractable(earthSkillButton, player.HasEnoughAp(earthSkill.apCost));
+        SetButtonInteractable(attackButton, player.HasEnoughAp(basicSkill.apCost) && ProgressState.IsSkillUnlocked(basicSkill.skillName));
+        SetButtonInteractable(fireSkillButton, player.HasEnoughAp(fireSkill.apCost) && ProgressState.IsSkillUnlocked(fireSkill.skillName));
+        SetButtonInteractable(iceSkillButton, player.HasEnoughAp(iceSkill.apCost) && ProgressState.IsSkillUnlocked(iceSkill.skillName));
+        SetButtonInteractable(lightningSkillButton, player.HasEnoughAp(lightningSkill.apCost) && ProgressState.IsSkillUnlocked(lightningSkill.skillName));
+        SetButtonInteractable(earthSkillButton, player.HasEnoughAp(earthSkill.apCost) && ProgressState.IsSkillUnlocked(earthSkill.skillName));
         SetButtonInteractable(endTurnButton, currentState == BattleState.PlayerTurn);
         SetButtonInteractable(guardButton, currentState == BattleState.PlayerTurn);
     }
@@ -551,6 +551,8 @@ public class BattleUI : MonoBehaviour
 
     private string BuildSkillHelpLine(SkillData skill)
     {
+        if (!ProgressState.IsSkillUnlocked(skill.skillName))
+            return $"{skill.skillName}: Locked — complete earlier stages to unlock.";
         string line = $"{skill.skillName}: {skill.power} power, {skill.apCost} AP, {skill.elementType}.";
         if (skill.HasStatusEffect()) line += $" Applies {skill.statusEffectType}.";
         if (!string.IsNullOrWhiteSpace(skill.description)) line += $" {skill.description}";

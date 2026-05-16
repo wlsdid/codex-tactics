@@ -24,6 +24,22 @@ public static class ProgressState
     public static float DifficultyDamageMultiplier => DifficultyMode == 0 ? 1.0f : 1.3f;
     public static int DifficultyBreakGaugeMultiplier => DifficultyMode == 0 ? 1 : 2;
 
+    /// <summary>Skill unlock thresholds: stage index required to unlock each skill.</summary>
+    public static bool IsSkillUnlocked(string skillName)
+    {
+        int completed = 0;
+        for (int i = 0; i < TotalStages; i++) if (IsStageCompleted(i)) completed++;
+        return skillName switch
+        {
+            "Slash" => true,
+            "Fire Bolt" => completed >= 1,
+            "Ice Lance" => completed >= 2,
+            "Earth Wall" => completed >= 3,
+            "Lightning Strike" => completed >= 4,
+            _ => true
+        };
+    }
+
     /// <summary>
     /// Check if a stage is unlocked for play.
     /// Stage 0 is always unlocked. Subsequent stages unlock when the previous stage is completed.
