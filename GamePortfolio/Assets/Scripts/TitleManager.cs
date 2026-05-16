@@ -115,6 +115,33 @@ public class TitleManager : MonoBehaviour
         resetTextRt.offsetMin = Vector2.zero;
         resetTextRt.offsetMax = Vector2.zero;
 
+        // Difficulty toggle
+        GameObject diffObj = new GameObject("Difficulty Button");
+        diffObj.transform.SetParent(canvasObj.transform, false);
+        Image diffImage = diffObj.AddComponent<Image>();
+        diffImage.color = new Color(0.12f, 0.15f, 0.22f);
+        Button diffBtn = diffObj.AddComponent<Button>();
+        diffBtn.targetGraphic = diffImage;
+        diffBtn.onClick.AddListener(OnToggleDifficulty);
+
+        RectTransform diffRt = diffObj.GetComponent<RectTransform>();
+        diffRt.sizeDelta = new Vector2(200, 40);
+        diffRt.anchoredPosition = new Vector2(0, -170);
+
+        GameObject diffTextObj = new GameObject("Difficulty Text");
+        diffTextObj.transform.SetParent(diffObj.transform, false);
+        TMP_Text diffText = diffTextObj.AddComponent<TextMeshProUGUI>();
+        diffText.name = "Difficulty Label";
+        diffText.text = $"Mode: {ProgressState.DifficultyLabel}";
+        diffText.fontSize = 18;
+        diffText.alignment = TextAlignmentOptions.Center;
+        diffText.color = new Color(0.72f, 0.90f, 1.0f);
+        RectTransform diffTextRt = diffTextObj.GetComponent<RectTransform>();
+        diffTextRt.anchorMin = Vector2.zero;
+        diffTextRt.anchorMax = Vector2.one;
+        diffTextRt.offsetMin = Vector2.zero;
+        diffTextRt.offsetMax = Vector2.zero;
+
         // Version text
         GameObject verObj = new GameObject("Version Text");
         verObj.transform.SetParent(canvasObj.transform, false);
@@ -137,5 +164,13 @@ public class TitleManager : MonoBehaviour
     private void OnResetProgress()
     {
         SaveManager.ResetSave();
+    }
+
+    private void OnToggleDifficulty()
+    {
+        ProgressState.DifficultyMode = ProgressState.DifficultyMode == 0 ? 1 : 0;
+        // Update the button label
+        var label = GameObject.Find("Difficulty Label")?.GetComponent<TMPro.TMP_Text>();
+        if (label != null) label.text = $"Mode: {ProgressState.DifficultyLabel}";
     }
 }

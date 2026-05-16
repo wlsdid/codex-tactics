@@ -196,7 +196,11 @@ public class BattleManager : MonoBehaviour
         EnsureEnemyPattern();
 
         player = new CharacterData(playerName, CfgPlayerMaxHp, 20, ElementType.None, CfgPlayerMaxAp);
-        enemy = new CharacterData(enemyName, enemyMaxHp, enemyPattern.normalAttackDamage, enemyWeakness);
+        int diffHp = Mathf.RoundToInt(enemyMaxHp * ProgressState.DifficultyHpMultiplier);
+        int diffAtk = Mathf.RoundToInt(enemyPattern.normalAttackDamage * ProgressState.DifficultyDamageMultiplier);
+        enemy = new CharacterData(enemyName, diffHp, diffAtk, enemyWeakness);
+        enemy.maxBreakGauge = 2 * ProgressState.DifficultyBreakGaugeMultiplier;
+        enemy.currentBreakGauge = enemy.maxBreakGauge;
         basicAttackSkill = new SkillData(basicSkillName, CfgBasicSkillPower, CfgBasicSkillApCost, ElementType.Physical, StatusEffectType.None);
         fireSkill = new SkillData(fireSkillName, CfgFireSkillPower, CfgFireSkillApCost, ElementType.Fire, StatusEffectType.Burn);
         iceSkill = new SkillData(iceSkillName, CfgIceSkillPower, CfgIceSkillApCost, ElementType.Ice, StatusEffectType.Stun);
@@ -607,7 +611,8 @@ public class BattleManager : MonoBehaviour
     {
         EnsureEnemyPattern();
         enemyTurnCount++;
-        int damage = enemyPattern.GetDamageForTurn(enemyTurnCount);
+        int baseDamage = enemyPattern.GetDamageForTurn(enemyTurnCount);
+        int damage = Mathf.RoundToInt(baseDamage * ProgressState.DifficultyDamageMultiplier);
         bool isStrong = enemyPattern.IsStrongAttackTurn(enemyTurnCount);
 
         bool wasGuarding = playerIsGuarding;

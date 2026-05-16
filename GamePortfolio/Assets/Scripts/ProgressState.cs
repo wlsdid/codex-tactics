@@ -17,6 +17,13 @@ public static class ProgressState
     /// <summary>Total number of stages defined in the game.</summary>
     public static int TotalStages { get; set; } = 6;
 
+    /// <summary>Current difficulty mode: 0 = Normal, 1 = Hard.</summary>
+    public static int DifficultyMode { get; set; } = 0;
+    public static string DifficultyLabel => DifficultyMode == 0 ? "Normal" : "Hard";
+    public static float DifficultyHpMultiplier => DifficultyMode == 0 ? 1.0f : 1.5f;
+    public static float DifficultyDamageMultiplier => DifficultyMode == 0 ? 1.0f : 1.3f;
+    public static int DifficultyBreakGaugeMultiplier => DifficultyMode == 0 ? 1 : 2;
+
     /// <summary>
     /// Check if a stage is unlocked for play.
     /// Stage 0 is always unlocked. Subsequent stages unlock when the previous stage is completed.
