@@ -201,9 +201,14 @@ public class BattleManager : MonoBehaviour
         battleUI?.StartNewBattle();
         battleUI?.SetImpactText("Impact: Ready");
 
+        var stageData = GetCurrentStageData();
+        string startMsg = stageData != null && !string.IsNullOrEmpty(stageData.encounterDescription)
+            ? $"Battle Start!\n{stageData.encounterDescription}"
+            : "Battle Start!";
+
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Battle Start!",
+            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, startMsg,
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
 
         StartPlayerTurn();

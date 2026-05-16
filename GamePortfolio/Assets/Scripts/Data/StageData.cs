@@ -6,6 +6,8 @@ public class StageData
 {
     public string stageName = "Stage 1-1";
     public string encounterName = "Slime Scout";
+    [TextArea(2, 4)]
+    public string encounterDescription = "";
     public EnemyData enemy = new EnemyData();
 
     public string BuildDisplayName()
@@ -24,6 +26,7 @@ public class StageData
         {
             stageName = "Stage 1-1",
             encounterName = "Slime Scout",
+            encounterDescription = "A small slime scout patrols the area.\nA good opportunity to test your skills.",
             enemy = new EnemyData(
                 "Slime",
                 80,
@@ -46,6 +49,7 @@ public class StageData
         {
             stageName = "Stage 1-2",
             encounterName = "Slime King",
+            encounterDescription = "The Slime King emerges!\nThis towering blob commands respect.",
             enemy = new EnemyData(
                 "Slime King",
                 140,
@@ -68,6 +72,7 @@ public class StageData
         {
             stageName = "Stage 2-1",
             encounterName = "Wolf Scout",
+            encounterDescription = "A wolf scout prowls the moonlit clearing.\nIts pack may be nearby...",
             enemy = new EnemyData(
                 "Wolf Scout",
                 100,
@@ -90,6 +95,7 @@ public class StageData
         {
             stageName = "Stage 2-2",
             encounterName = "Alpha Wolf",
+            encounterDescription = "The Alpha Wolf leads the charge!\nIts howl echoes through the night.",
             enemy = new EnemyData(
                 "Alpha Wolf",
                 180,
@@ -112,6 +118,7 @@ public class StageData
         {
             stageName = "Stage 3-1",
             encounterName = "Golem Sentry",
+            encounterDescription = "A stone golem blocks the path ahead.\nIts rocky hide shrugs off weak attacks.",
             enemy = new EnemyData(
                 "Golem Sentry",
                 120,
@@ -134,6 +141,7 @@ public class StageData
         {
             stageName = "Stage 3-2",
             encounterName = "Ancient Golem",
+            encounterDescription = "The Ancient Golem awakens from its slumber!\nThe ground trembles with each step.",
             enemy = new EnemyData(
                 "Ancient Golem",
                 220,
@@ -156,6 +164,7 @@ public class StageData
         {
             stageName = "Stage 4-1",
             encounterName = "Storm Hawk",
+            encounterDescription = "A Storm Hawk circles overhead.\nLightning crackles in its feathers.",
             enemy = new EnemyData(
                 "Storm Hawk",
                 140,
@@ -178,6 +187,7 @@ public class StageData
         {
             stageName = "Stage 4-2",
             encounterName = "Thunder Phoenix",
+            encounterDescription = "The legendary Thunder Phoenix rises!\nThe sky darkens as it spreads its wings.",
             enemy = new EnemyData(
                 "Thunder Phoenix",
                 250,

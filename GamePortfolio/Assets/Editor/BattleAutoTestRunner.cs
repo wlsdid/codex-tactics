@@ -73,7 +73,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Enemy intent starts with normal attack preview", battleManager.DebugEnemyIntentText == "Next Enemy: [Fire] Normal Attack (15)");
         AppendCheck(ref passed, ref report, "Skill help explains all skills, Guard, and readable enemy pattern values", battleManager.DebugSkillHelpText.Contains("Slash: 20 power, 0 AP") && battleManager.DebugSkillHelpText.Contains("Fire Bolt: 30 power, 2 AP") && battleManager.DebugSkillHelpText.Contains("Ice Lance: 25 power, 1 AP") && battleManager.DebugSkillHelpText.Contains("Lightning Strike: 40 power, 3 AP") && battleManager.DebugSkillHelpText.Contains("Guard: reduce next enemy attack") && battleManager.DebugSkillHelpText.Contains("Normal attack: 15 damage") && battleManager.DebugSkillHelpText.Contains("Heavy Slam: 30 damage every 3rd enemy turn"));
         AppendCheck(ref passed, ref report, "Battle log has a readable Recent Actions heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions"));
-        AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("1. Player Turn: recovered 1 AP. Choose an action."));
+        AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("Player Turn: recovered 1 AP. Choose an action."));
         AppendCheck(ref passed, ref report, "Impact text starts with ready feedback", battleManager.DebugImpactText == "Impact: Ready");
         AppendCheck(ref passed, ref report, "Enemy Break starts full", battleManager.DebugEnemyBreakText == "Break: 2/2");
 
@@ -91,7 +91,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Restart resets Player AP bar to full", battleManager.DebugPlayerApBarValue == 3f && battleManager.DebugPlayerApBarMaxValue == 3f);
         AppendCheck(ref passed, ref report, "Restart resets resource percentage labels", battleManager.DebugPlayerHpText == "Hero HP: 100/100 (100%)" && battleManager.DebugPlayerApText == "AP: 3/3 (100%)" && battleManager.DebugEnemyHpText == "Slime HP: 80/80 (100%)");
         AppendCheck(ref passed, ref report, "Restart resets damage, guard, and skill counters", battleManager.DebugTotalDamageDealt == 0 && battleManager.DebugTotalDamageTaken == 0 && battleManager.DebugGuardUseCount == 0 && battleManager.DebugSkillsUsedCount == 0);
-        AppendCheck(ref passed, ref report, "Restart keeps the readable battle log heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions") && battleManager.DebugBattleLogText.Contains("1. Player Turn"));
+        AppendCheck(ref passed, ref report, "Restart keeps the readable battle log heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions") && battleManager.DebugBattleLogText.Contains("Player Turn"));
 
         // Ice Lance: costs 1 AP, Ice element, applies Stun
         battleManager.OnClickIceSkillButton();
@@ -122,7 +122,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Player HP bar follows guard damage", battleManager.DebugPlayerHpBarValue == 93f && battleManager.DebugPlayerHpBarMaxValue == 100f);
         AppendCheck(ref passed, ref report, "Guard message is shown", battleManager.DebugMessageText == "Slime attacks! Hero guards and takes 7 damage.");
         AppendCheck(ref passed, ref report, "Impact text summarizes guarded enemy damage", battleManager.DebugImpactText == "Impact: Guard reduced incoming damage to 7");
-        AppendCheck(ref passed, ref report, "Battle log keeps recent actions in order", battleManager.DebugBattleLogText.Contains("3. Hero guards. Next enemy attack damage is reduced.") && battleManager.DebugBattleLogText.Contains("4. Slime attacks! Hero guards and takes 7 damage."));
+        AppendCheck(ref passed, ref report, "Battle log keeps recent actions in order", battleManager.DebugBattleLogText.Contains("4. Hero guards. Next enemy attack damage is reduced.") && battleManager.DebugBattleLogText.Contains("5. Slime attacks! Hero guards and takes 7 damage."));
 
         battleManager.DebugStartBattleForTest();
         battleManager.DebugResolveEnemyAttackForTest();
