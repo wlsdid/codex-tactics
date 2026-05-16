@@ -1,51 +1,88 @@
 # GamePortfolio — 2D Turn-Based RPG Prototype
 
-> **A learn-by-building portfolio project**: A small, playable 2D turn-based battle system built in Unity, demonstrating data-driven design, clean code practices, and thorough documentation.
+> **A learn-by-building portfolio project**: A playable 2D turn-based battle system built in Unity, demonstrating data-driven design, clean code practices, scene flow architecture, and thorough documentation.
 
-![Battle overview](Docs/Captures/01_battle_start.png)
+**Complete game loop:** Title → Stage Select → Battle → Result → Retry/Next → Stage Select return.  
+3 stages (2 encounters each), sequential unlock on clear. Stage editor automation + 221 auto tests.
 
 ---
 
 ## What This Project Shows
 
-### 🎮 Gameplay (Vertical Slice)
+### 🎮 Gameplay
 
-A single stage with two encounters: a normal **Slime Scout** followed by a **Slime King** boss. The player chooses from four actions each turn:
+**Full game loop:**
+- **Title Screen** → "Start Game" button
+- **Stage Select** — 3 stage cards with lock/unlock, descriptions, Start Battle
+- **Battle** — turn-based combat with Attack, Fire Skill, Guard, End Turn
+- **Result** — Victory/Defeat summary (rank S/A/B/C, rewards, tips)
+- **Post-battle** — Retry, Continue to next encounter, or Stage Select return
 
-- **Attack** — free physical damage
-- **Fire Skill (Fire Bolt)** — costs AP, deals fire damage, applies Burn (damage-over-time)
-- **Guard** — reduces next enemy attack by 50%
-- **End Turn** — skip to recover AP faster
+**3 stages with progressive difficulty:**
 
-The enemy has an intent system (previewing its next attack), a pattern-based AI (Heavy Slam every 3rd turn), and elemental weakness mechanics. Victory ranks (S/A/B/C) scale rewards and provide feedback.
+| Stage | Normal | Boss |
+|-------|--------|------|
+| 1: Slime Scout Route | Slime Scout (80HP, Fire weak) | Slime King (140HP, Fire weak) |
+| 2: Wolf Ambush | Wolf Scout (100HP, Nature weak) | Alpha Wolf (180HP, Nature weak) |
+| 3: Golem Depths | Golem Sentry (120HP, Earth weak) | Ancient Golem (220HP, Earth weak) |
 
-![Fire Skill with Burn](Docs/Captures/02_fire_skill_burn.png)
-![Guard state](Docs/Captures/03_guard_status.png)
+Only Stage 1 is unlocked initially. Clearing all encounters in a stage unlocks the next.
+
+**Battle mechanics:** AP resource management, elemental weakness (+10 damage), Break gauge, Guard (50% damage reduction), Burn (damage-over-time), enemy pattern AI (heavy attack every 3rd turn), intent preview.
+
+**UX highlights:**
+- Stage card selection with selected/default/locked visual states
+- Run Status, Objective, Progress labels for current stage awareness
+- Enemy Intent preview before every enemy turn
+- Recent Actions battle log panel
+- Compact result summary (turns, HP/AP, damage, choices, rank, gold, tips)
 
 ### 🏗️ Architecture
 
-The project separates concerns into three layers:
+```
+Assets/Scripts/
+├── Flow/                     # Scene navigation
+│   ├── GameSceneFlow.cs      — Scene loader (Title/StageSelect/Battle)
+│   └── StageSelectController — Card selection, lock/unlock, Start Battle
+├── Battle/                   # Battle system
+│   ├── BattleManager.cs      — State machine, turns, damage
+│   ├── BattleUI.cs           — UI rendering (separated from logic)
+│   ├── BattleResult*.cs      — Result data / evaluator / presenter
+│   └── BattleState.cs        — State enum
+├── Data/                     # All configurable values
+│   ├── StageData.cs          — 3 stages, 6 encounters total
+│   ├── ElementType.cs        — 9 elements (incl. Earth)
+│   └── ... (EnemyData, CharacterData, SkillData, EnemyPatternData)
+└── ProgressState.cs          — Static unlock/clear tracking
+Assets/Editor/
+├── GameFlowSceneAutoBuilder.cs — Title/StageSelect scene generator + validator (36 checks)
+├── BattleSceneAutoBuilder.cs   — Battle scene generator + validator
+└── BattleAutoTestRunner.cs     — Battle logic auto test (221 checks)
+```
 
-| Layer | Scripts | Purpose |
-|-------|---------|---------|
-| **Battle Flow** | `BattleManager` | State machine, turns, damage, UI updates |
-| **Results** | `BattleResultData` + `Evaluator` + `Presenter` | Metrics collection, rank/tip rules, display formatting |
-| **Data** | `CharacterData`, `SkillData`, `StageData`, `EnemyPatternData`, `BattleBalanceConfig` (ScriptableObject) | All configurable values — no magic numbers in battle logic |
+Key pattern: **separation of concerns** — BattleManager (logic) → BattleUI (display) → BattleResultEvaluator (rules) → BattleResultPresenter (formatting). Each has one responsibility.
 
-![Result summary](Docs/Captures/04_result_summary_rank.png)
+### 🔓 Progress System
+
+`ProgressState` static class tracks stage completion across scene loads:
+- Stage 0 always unlocked
+- Clearing all encounters in a stage → `ProgressState.MarkStageCompleted(stageIndex)` → next stage unlocks
+- Static fields persist within a Unity play session (reset on Play Mode exit)
+- Ready for Save/Load system integration
 
 ### 🧪 Testing & Validation
 
-- **Scene auto-builder**: Regenerates the battle test scene from code (`BattleSceneAutoBuilder.cs`)
-- **Auto test runner**: Runs battle logic through all states (`BattleAutoTestRunner.cs`)
-- **Manual validation checklist**: Step-by-step Unity verification guide
-- **Balance table**: Documented design intent for HP, damage, and rank thresholds
+| Menu Command | What It Does |
+|---|---|
+| `Tools > Codex Tactics > Create Game Flow Scenes` | Regenerates Title + StageSelect + Battle scenes |
+| `Tools > Codex Tactics > Validate Game Flow Scenes` | Validates scene structure + UI links + button listeners (36 checks) |
+| `Tools > Codex Tactics > Run Battle Logic Auto Test` | Battle logic + ProgressState + stage data tests (221 checks) |
 
 ### 📝 Documentation Culture
 
-Every feature is paired with two documents:
+Every feature batch is paired with:
 - **Devlog** — what was done and how
-- **Study Note** — what was learned and why
+- **Study notes** — what was learned and why
 
 This practice makes the project a genuine portfolio of growth, not just a feature list.
 
@@ -54,11 +91,13 @@ This practice makes the project a genuine portfolio of growth, not just a featur
 ## Quick Start
 
 1. Open the project in Unity Hub
-2. `Tools > Codex Tactics > Create Battle Test Scene`
-3. Press **Play**
-4. Try Attack → Fire Skill → Guard to experience the full loop
-
-![Retry state](Docs/Captures/05_retry_reset.png)
+2. `Tools > Codex Tactics > Create Game Flow Scenes`
+3. Verify 3 scenes are in Build Settings (Scene In Build checked)
+4. Press **Play** → TitleScreen
+5. Click "Start Game" → StageSelectScene
+6. Select Stage 1 → "Start Battle" → fight!
+7. After Victory: "Next Encounter" → boss fight → Stage Select return
+8. Repeat Stage 1 → Stage 2 unlocks → select and battle Stage 2
 
 ---
 
@@ -66,30 +105,41 @@ This practice makes the project a genuine portfolio of growth, not just a featur
 
 ```
 Assets/
+├── Scenes/
+│   ├── TitleScene.unity
+│   ├── StageSelectScene.unity
+│   └── BattleScene.unity
 ├── Scripts/
+│   ├── Flow/
+│   │   ├── GameSceneFlow.cs
+│   │   └── StageSelectController.cs
 │   ├── Battle/
-│   │   ├── BattleManager.cs        — Core battle loop (state machine)
-│   │   ├── BattleResultData.cs     — Result value container
-│   │   ├── BattleResultEvaluator.cs— Rank/pace/reward rules
-│   │   ├── BattleResultPresenter.cs— Result display formatting
-│   │   └── BattleState.cs          — State enum
-│   └── Data/
-│       ├── BattleBalanceConfig.cs  — ScriptableObject (all tuning values)
-│       ├── CharacterData.cs        — Player/enemy stats
-│       ├── SkillData.cs            — Skill definitions
-│       ├── StageData.cs            — Encounter configurations
-│       ├── EnemyData.cs            — Enemy definitions
-│       └── EnemyPatternData.cs     — Enemy AI patterns
+│   │   ├── BattleManager.cs
+│   │   ├── BattleUI.cs
+│   │   ├── BattleResultData.cs
+│   │   ├── BattleResultEvaluator.cs
+│   │   └── BattleResultPresenter.cs
+│   ├── Data/
+│   │   ├── StageData.cs
+│   │   ├── EnemyData.cs
+│   │   ├── CharacterData.cs
+│   │   ├── SkillData.cs
+│   │   ├── EnemyPatternData.cs
+│   │   ├── ElementType.cs
+│   │   └── BattleBalanceConfig.cs
+│   └── ProgressState.cs
 ├── Editor/
-│   ├── BattleSceneAutoBuilder.cs   — Test scene generator
-│   ├── BattleAutoTestRunner.cs     — Battle logic auto tester
-│   └── CreateBalanceConfigAsset.cs — Config asset creator
+│   ├── GameFlowSceneAutoBuilder.cs
+│   ├── BattleSceneAutoBuilder.cs
+│   ├── BattleAutoTestRunner.cs
+│   └── CreateBalanceConfigAsset.cs
 Docs/
-├── Captures/                       — Screenshots & GIFs
-├── Devlog/                         — Per-feature dev notes
-├── Study/                          — Per-feature learning notes
-├── BalanceTable.md                 — Tuning rationale
-└── PortfolioShowcaseDraft.md       — Portfolio narrative draft
+├── Captures/             — Screenshots & GIFs
+├── Devlog/               — Per-batch dev notes
+├── Study/                — Per-feature learning notes
+├── BalanceTable.md       — Tuning rationale
+├── PortfolioShowcaseDraft.md
+└── ManualValidat*        — QA checklists
 ```
 
 ---
@@ -98,23 +148,27 @@ Docs/
 
 | Decision | Rationale |
 |----------|-----------|
-| **ScriptableObject balance config** | All tuning values in one Inspector-editable asset; zero hardcoded magic numbers in battle code |
+| **Separate Flow/ from Battle/** | Scene navigation independent of combat logic; clean entry points for future menu systems |
+| **ProgressState static class** | Simple cross-scene state without MonoBehaviour lifecycle issues; easy to replace with persistence later |
+| **StageSelectController via serialized fields** | Inspector-driven card references; no hardcoded scene object lookups |
+| **Data-driven stages & enemies** | Adding Stage 4+ = data additions only; Encounter difficulty tuned per stage in one place |
 | **Separate Result Data/Evaluator/Presenter** | Prevents result logic from bloating BattleManager; each class has one responsibility |
-| **Data-driven enemies & stages** | Adding a new encounter = adding a ScriptableObject asset, no code changes |
-| **Editor automation** | Test scene and auto-tester enable rapid iteration without manual setup |
+| **Editor automation** | Scene generators + validators + auto-tester enable rapid iteration without manual setup; 221 auto checks catch regressions |
 
 ---
 
-## Roadmap (Planned)
+## Roadmap
 
-- [x] Core battle loop (attack, skill, guard)
-- [x] Stage encounters (normal → boss)
+- [x] Core battle loop (attack, skill, guard, enemy AI)
+- [x] Stage encounters (normal → boss per stage)
 - [x] Result system (ranks, rewards, tips)
-- [x] Balance config as ScriptableObject
-- [ ] Capture screenshots/GIFs for README
-- [ ] BattleManager refactor (split UI/logic/state)
-- [ ] Multiple enemy encounters per stage
-- [ ] Simple title screen
+- [x] Title → Stage Select → Battle → Result full scene flow
+- [x] Stage lock/unlock via ProgressState
+- [x] 3 stages with data-driven encounters
+- [x] Continue button label ("Next Encounter")
+- [ ] Save/Load persistence for ProgressState
+- [ ] BattleManager UI polish / sprite integration
+- [ ] Additional stages (Stage 4+)
 - [ ] Shop / inventory system
 
 ---
@@ -124,7 +178,7 @@ Docs/
 - **Engine**: Unity 6000.4.6f1 (URP)
 - **Language**: C#
 - **UI**: TextMeshPro + uGUI
-- **Testing**: Editor script-based auto-tests
+- **Testing**: Editor script-based auto-tests (221 checks)
 
 ---
 
