@@ -376,6 +376,13 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && HasNextStage());
         battleUI?.SetStageSelectButtonVisible(true);
 
+        // Mark stage as completed when all encounters are cleared
+        if (resultState == BattleState.Victory && !HasNextStage())
+        {
+            int stageIdx = StageSelectController.SelectedStageIndex;
+            if (stageIdx >= 0) ProgressState.MarkStageCompleted(stageIdx);
+        }
+
         string resultSummary = BuildResultSummaryText(resultState);
         battleUI?.SetResultSummaryVisible(true, resultSummary);
 

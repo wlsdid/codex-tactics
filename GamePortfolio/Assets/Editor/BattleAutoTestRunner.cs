@@ -278,6 +278,30 @@ public static class BattleAutoTestRunner
 
         Object.DestroyImmediate(stage1Root);
 
+        // --- Progress State Tests ---
+        // Reset any state from previous test runs
+        ProgressState.Reset();
+        AppendCheck(ref passed, ref report, "ProgressState starts fresh with stage 0 unlocked", ProgressState.IsStageUnlocked(0) && !ProgressState.IsStageUnlocked(1));
+        AppendCheck(ref passed, ref report, "ProgressState reset shows no completed stages", ProgressState.DebugCompletedStageCount == 0);
+
+        // Mark stage 1 (index 0) as completed → stage 2 (index 1) unlocks
+        ProgressState.MarkStageCompleted(0);
+        AppendCheck(ref passed, ref report, "Marking stage 0 completed unlocks stage 1", ProgressState.IsStageUnlocked(0) && ProgressState.IsStageUnlocked(1));
+        AppendCheck(ref passed, ref report, "Completed stage count increments", ProgressState.DebugCompletedStageCount == 1);
+        AppendCheck(ref passed, ref report, "Stage 0 is tracked as completed", ProgressState.DebugIsStage0Completed);
+
+        // Reset again
+        ProgressState.Reset();
+        AppendCheck(ref passed, ref report, "ProgressState.Reset restores locked state", ProgressState.IsStageUnlocked(0) && !ProgressState.IsStageUnlocked(1));
+
+        // Edge cases
+        ProgressState.MarkStageCompleted(-1);
+        AppendCheck(ref passed, ref report, "MarkStageCompleted with negative index is a no-op", ProgressState.DebugCompletedStageCount == 0);
+
+        // Test that marking stage 1 completed doesn't unlock stage 2 unless stage 0 is also completed
+        ProgressState.MarkStageCompleted(1);
+        AppendCheck(ref passed, ref report, "Marking stage 1 without stage 0 keeps stage 2 locked", !ProgressState.IsStageUnlocked(1));
+
         report += passed ? "\n\nRESULT: PASS" : "\n\nRESULT: FAIL";
         Debug.Log(report);
         EditorUtility.DisplayDialog(passed ? "Battle Logic Test Passed" : "Battle Logic Test Failed", report, "OK");

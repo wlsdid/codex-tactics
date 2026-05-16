@@ -29,8 +29,6 @@ public class StageSelectController : MonoBehaviour
     [SerializeField] private Color lockedColor = new Color(0.04f, 0.04f, 0.07f, 0.92f);
 
     private int selectedStageIndex = -1;
-    private bool stage1Unlocked = true;
-    private bool stage2Unlocked = false;
 
     // Stage metadata for descriptions
     private static readonly string[] StageNames = {
@@ -69,8 +67,7 @@ public class StageSelectController : MonoBehaviour
 
     private void OnStageCardClicked(int index)
     {
-        if (index == 0 && !stage1Unlocked) return;
-        if (index == 1 && !stage2Unlocked) return;
+        if (!ProgressState.IsStageUnlocked(index)) return;
 
         selectedStageIndex = index;
         UpdateCardVisuals();
@@ -81,8 +78,7 @@ public class StageSelectController : MonoBehaviour
     private void OnStartBattleClicked()
     {
         if (selectedStageIndex < 0) return;
-        if (selectedStageIndex == 0 && !stage1Unlocked) return;
-        if (selectedStageIndex == 1 && !stage2Unlocked) return;
+        if (!ProgressState.IsStageUnlocked(selectedStageIndex)) return;
 
         // Store selected stage for BattleScene
         SelectedStageIndex = selectedStageIndex;
@@ -96,6 +92,8 @@ public class StageSelectController : MonoBehaviour
 
     private void UpdateCardVisuals()
     {
+        bool stage1Unlocked = ProgressState.IsStageUnlocked(0);
+        bool stage2Unlocked = ProgressState.IsStageUnlocked(1);
         // Stage 1 — selectable
         if (stage1CardButton != null)
         {
@@ -146,7 +144,7 @@ public class StageSelectController : MonoBehaviour
     {
         if (startBattleButton == null) return;
         bool canStart = selectedStageIndex >= 0 &&
-                        (selectedStageIndex == 0 ? stage1Unlocked : stage2Unlocked);
+                        ProgressState.IsStageUnlocked(selectedStageIndex);
         startBattleButton.interactable = canStart;
     }
 
