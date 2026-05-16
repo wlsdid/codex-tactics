@@ -1,187 +1,110 @@
 # GamePortfolio — 2D Turn-Based RPG Prototype
 
-> **A learn-by-building portfolio project**: A playable 2D turn-based battle system built in Unity, demonstrating data-driven design, clean code practices, scene flow architecture, and thorough documentation.
-
-**Complete game loop:** Title → Stage Select → Battle → Result → Retry/Next → Stage Select return.  
-4 stages (Fire/Nature/Earth/Lightning, 2 encounters each), 4 player skills (Slash/Ice Lance/Fire Bolt/Lightning Strike), element weakness system, Break/Stun mechanics. Sequential unlock + 230+ auto tests.
+> **A learn-by-building portfolio project**: A fully playable 2D turn-based battle system built entirely in Unity over 37 incremental batches. Features 6 unique stages, 5 player skills, 2 items, status effects, auto-battle AI, difficulty modes, save/load, and full visual/audio feedback.
 
 ---
 
-## What This Project Shows
-
-### 🎮 Gameplay
-
-**Full game loop:**
-- **Title Screen** → "Start Game" button
-- **Stage Select** — 3 stage cards with lock/unlock, descriptions, Start Battle
-- **Battle** — turn-based combat with Attack, Fire Skill, Guard, End Turn
-- **Result** — Victory/Defeat summary (rank S/A/B/C, rewards, tips)
-- **Post-battle** — Retry, Continue to next encounter, or Stage Select return
-
-**3 stages with progressive difficulty:**
-
-| Stage | Normal | Boss |
-|-------|--------|------|
-| 1: Slime Scout Route | Slime Scout (80HP, Fire weak) | Slime King (140HP, Fire weak) |
-| 2: Wolf Ambush | Wolf Scout (100HP, Nature weak) | Alpha Wolf (180HP, Nature weak) |
-| 3: Golem Depths | Golem Sentry (120HP, Earth weak) | Ancient Golem (220HP, Earth weak) |
-
-Only Stage 1 is unlocked initially. Clearing all encounters in a stage unlocks the next.
-
-**Battle mechanics:** AP resource management, elemental weakness (+10 damage), Break gauge, Guard (50% damage reduction), Burn (damage-over-time), enemy pattern AI (heavy attack every 3rd turn), intent preview.
-
-**UX highlights:**
-- Stage card selection with selected/default/locked visual states
-- Run Status, Objective, Progress labels for current stage awareness
-- Enemy Intent preview before every enemy turn
-- Recent Actions battle log panel
-- Compact result summary (turns, HP/AP, damage, choices, rank, gold, tips)
-
-### 🏗️ Architecture
-
-```
-Assets/Scripts/
-├── Flow/                     # Scene navigation
-│   ├── GameSceneFlow.cs      — Scene loader (Title/StageSelect/Battle)
-│   └── StageSelectController — Card selection, lock/unlock, Start Battle
-├── Battle/                   # Battle system
-│   ├── BattleManager.cs      — State machine, turns, damage
-│   ├── BattleUI.cs           — UI rendering (separated from logic)
-│   ├── BattleResult*.cs      — Result data / evaluator / presenter
-│   └── BattleState.cs        — State enum
-├── Data/                     # All configurable values
-│   ├── StageData.cs          — 3 stages, 6 encounters total
-│   ├── ElementType.cs        — 9 elements (incl. Earth)
-│   └── ... (EnemyData, CharacterData, SkillData, EnemyPatternData)
-└── ProgressState.cs          — Static unlock/clear tracking
-Assets/Editor/
-├── GameFlowSceneAutoBuilder.cs — Title/StageSelect scene generator + validator (36 checks)
-├── BattleSceneAutoBuilder.cs   — Battle scene generator + validator
-└── BattleAutoTestRunner.cs     — Battle logic auto test (221 checks)
-```
-
-Key pattern: **separation of concerns** — BattleManager (logic) → BattleUI (display) → BattleResultEvaluator (rules) → BattleResultPresenter (formatting). Each has one responsibility.
-
-### 🔓 Progress System
-
-`ProgressState` static class tracks stage completion across scene loads:
-- Stage 0 always unlocked
-- Clearing all encounters in a stage → `ProgressState.MarkStageCompleted(stageIndex)` → next stage unlocks
-- Static fields persist within a Unity play session (reset on Play Mode exit)
-- Ready for Save/Load system integration
-
-### 🧪 Testing & Validation
-
-| Menu Command | What It Does |
-|---|---|
-| `Tools > Codex Tactics > Create Game Flow Scenes` | Regenerates Title + StageSelect + Battle scenes |
-| `Tools > Codex Tactics > Validate Game Flow Scenes` | Validates scene structure + UI links + button listeners (36 checks) |
-| `Tools > Codex Tactics > Run Battle Logic Auto Test` | Battle logic + ProgressState + stage data tests (221 checks) |
-
-### 📝 Documentation Culture
-
-Every feature batch is paired with:
-- **Devlog** — what was done and how
-- **Study notes** — what was learned and why
-
-This practice makes the project a genuine portfolio of growth, not just a feature list.
+## Quick Links
+- Korean README: [`README.md`](README.md)
+- Devlog: [`Docs/Devlog/`](Docs/Devlog/)
+- Study Docs: [`Docs/Study/`](Docs/Study/)
 
 ---
+
+## Game Loop
+
+```
+Title Screen → Stage Select → Battle (6 stages × 2 encounters = 12 battles) → Result/Bonuses → Next Encounter → Stage Select
+```
+
+## Features (37 Batches)
+
+### Battle System
+- **6 Stages** — Fire, Nature, Earth, Lightning, Dark, Light (2 encounters each, 12 total)
+- **5 Player Skills** — Slash (Phys/0AP), Ice Lance (Ice+Stun/1AP), Earth Wall (Earth+Shield/2AP), Fire Bolt (Fire+Burn/2AP), Lightning Strike (Lightning/3AP)
+- **Skill Unlock** — Skills unlock progressively as you clear stages
+- **Element System** — 1.5x weakness multiplier, 7 elements (Fire/Ice/Lightning/Nature/Dark/Light/Earth)
+- **Status Effects** — Burn (DoT), Stun (skip turn), Shield (absorb damage), Break (1.5x bonus damage), Enrage (enemy berserks at low HP)
+- **Difficulty Modes** — Normal / Hard (1.5x HP, 1.3x damage, 2x Break gauge)
+
+### Items
+- **Potion** — Restore 30 HP (3 units)
+- **Ether** — Restore 2 AP (2 units)
+- Auto-battle: Potion at HP<30%, Ether at AP<1
+
+### AI & Automation
+- **Auto-Battle AI** — Priority tree: Guard → Items → Weakness → Lightning → Ice → Earth → Fire → Basic Attack
+- **Enemy Enrage** — Below 30% HP: 1.5x damage multiplier + ENRAGED! indicator
+
+### UI & Visual Effects
+- **Dynamic HP/AP Bars** — Green→Yellow→Red (HP), Blue→Cyan→Orange (AP)
+- **2x Speed Toggle**
+- **Status Overlays** — Burn (red pulse), Stun (blue pulse), Broken (white flash)
+- **Screen Shake** — On strong enemy attacks
+- **Hit Flash** — Enemy white flash / Player red flash on damage
+- **Skill Projectiles** — Colored by element (Fire=orange, Ice=blue, Lightning=yellow, Earth=green)
+- **Screen Fade** — Black fade in/out between encounters
+- **Pause Menu** — Resume / Quit to Stage Select
+
+### Save & Progression
+- **JSON Save** — Persistent stage completion
+- **Level/XP** — XP on stage clear, +20 Max HP per level
+- **Stage Bonuses** — Untouchable(+50g), Swift Victory(+30g), Jack of All Trades(+20g), Iron Wall(+15g), Pure Combat(+10g)
+
+### Audio
+- **BGM** — Battle/Victory music hooks
+- **SFX** — Attack/Skill/Guard/Hit/Victory/Defeat sounds
+- **AudioManager** — Singleton, DontDestroyOnLoad
+
+### Editor Tools
+- `Tools > Codex Tactics > Create Battle Test Scene` — Auto-generates full battle scene
+- `Tools > Codex Tactics > Validate Battle Test Scene` — 220+ validation checks
+- `Tools > Codex Tactics > Create Stage Select Scene` — Auto-generates stage select scene
+
+## System Requirements
+
+- **Unity:** 6000.4.6f1 (or compatible)
+- **Platform:** Windows/Mac
+- **Storage:** ~100MB
 
 ## Quick Start
 
-1. Open the project in Unity Hub
-2. `Tools > Codex Tactics > Create Game Flow Scenes`
-3. Verify 3 scenes are in Build Settings (Scene In Build checked)
-4. Press **Play** → TitleScreen
-5. Click "Start Game" → StageSelectScene
-6. Select Stage 1 → "Start Battle" → fight!
-7. After Victory: "Next Encounter" → boss fight → Stage Select return
-8. Repeat Stage 1 → Stage 2 unlocks → select and battle Stage 2
+1. Add/open project folder in Unity Hub
+2. `Tools > Codex Tactics > Create Battle Test Scene`
+3. `Tools > Codex Tactics > Validate Battle Test Scene` (should PASS)
+4. `Tools > Codex Tactics > Create Stage Select Scene`
+5. Add scenes to **Build Settings**: TitleScene, StageSelectScene, BattleScene
+6. Press Play (start from TitleScene)
 
----
+## Testing
 
-## Project Layout
+- **Edit Mode Tests:** `Window > General > Test Runner` > `EditMode` > `Run All`
+- **Scene Validate:** `Tools > Codex Tactics > Validate Battle Test Scene`
+- 230+ auto test checks, ALL PASS
+- Testable headlessly via `-batchmode -nographics`
+
+## Documentation Structure
 
 ```
-Assets/
-├── Scenes/
-│   ├── TitleScene.unity
-│   ├── StageSelectScene.unity
-│   └── BattleScene.unity
-├── Scripts/
-│   ├── Flow/
-│   │   ├── GameSceneFlow.cs
-│   │   └── StageSelectController.cs
-│   ├── Battle/
-│   │   ├── BattleManager.cs
-│   │   ├── BattleUI.cs
-│   │   ├── BattleResultData.cs
-│   │   ├── BattleResultEvaluator.cs
-│   │   └── BattleResultPresenter.cs
-│   ├── Data/
-│   │   ├── StageData.cs
-│   │   ├── EnemyData.cs
-│   │   ├── CharacterData.cs
-│   │   ├── SkillData.cs
-│   │   ├── EnemyPatternData.cs
-│   │   ├── ElementType.cs
-│   │   └── BattleBalanceConfig.cs
-│   └── ProgressState.cs
-├── Editor/
-│   ├── GameFlowSceneAutoBuilder.cs
-│   ├── BattleSceneAutoBuilder.cs
-│   ├── BattleAutoTestRunner.cs
-│   └── CreateBalanceConfigAsset.cs
 Docs/
-├── Captures/             — Screenshots & GIFs
-├── Devlog/               — Per-batch dev notes
-├── Study/                — Per-feature learning notes
-├── BalanceTable.md       — Tuning rationale
-├── PortfolioShowcaseDraft.md
-└── ManualValidat*        — QA checklists
+├── Devlog/        — Daily development logs (38 files)
+└── Study/         — System design deep-dives (13 files)
 ```
-
----
-
-## Key Technical Decisions
-
-| Decision | Rationale |
-|----------|-----------|
-| **Separate Flow/ from Battle/** | Scene navigation independent of combat logic; clean entry points for future menu systems |
-| **ProgressState static class** | Simple cross-scene state without MonoBehaviour lifecycle issues; easy to replace with persistence later |
-| **StageSelectController via serialized fields** | Inspector-driven card references; no hardcoded scene object lookups |
-| **Data-driven stages & enemies** | Adding Stage 4+ = data additions only; Encounter difficulty tuned per stage in one place |
-| **Separate Result Data/Evaluator/Presenter** | Prevents result logic from bloating BattleManager; each class has one responsibility |
-| **Editor automation** | Scene generators + validators + auto-tester enable rapid iteration without manual setup; 221 auto checks catch regressions |
-
----
-
-## Roadmap
-
-- [x] Core battle loop (attack, skill, guard, enemy AI)
-- [x] Stage encounters (normal → boss per stage)
-- [x] Result system (ranks, rewards, tips)
-- [x] Title → Stage Select → Battle → Result full scene flow
-- [x] Stage lock/unlock via ProgressState
-- [x] 3 stages with data-driven encounters
-- [x] Continue button label ("Next Encounter")
-- [ ] Save/Load persistence for ProgressState
-- [ ] BattleManager UI polish / sprite integration
-- [ ] Additional stages (Stage 4+)
-- [ ] Shop / inventory system
-
----
 
 ## Tech Stack
 
-- **Engine**: Unity 6000.4.6f1 (URP)
-- **Language**: C#
-- **UI**: TextMeshPro + uGUI
-- **Testing**: Editor script-based auto-tests (221 checks)
+- **Unity 6000.4.6f1** (URP, 2D Orthographic)
+- **C#** — Pure C#, zero external libraries
+- **TextMeshPro** — UI text rendering
+- **Batchmode** — CI/CD compatible (WSL tested)
 
----
+## Commit History
 
-## License
-
-MIT — free to use as a learning reference or portfolio template.
+| Batch | Feature |
+|-------|---------|
+| 1-11 | Core battle loop, elements, Break/Stun, stage select |
+| 12-15 | Element multiplier, Ice Lance, Stage 4, Lightning Strike |
+| 16-21 | Portfolio docs, auto-battle, speed toggle, HP colors, Earth Wall |
+| 22-25 | Stage 5-6, screen shake, save system, audio system |
+| 26-30 | Status overlays, items, stage bonuses, difficulty modes |
+| 31-37 | Enrage AI, stage select builder, pause menu, projectiles, fade, skill unlock |
