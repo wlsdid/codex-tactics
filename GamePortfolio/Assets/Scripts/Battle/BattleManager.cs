@@ -46,6 +46,7 @@ public class BattleManager : MonoBehaviour
     private SkillData lightningSkill;
     private bool playerIsGuarding;
     private int enemyTurnCount;
+    private int speedState = 1; // 1=1x, 2=2x
     private int totalDamageDealt;
     private int totalDamageTaken;
     private int guardUseCount;
@@ -115,6 +116,7 @@ public class BattleManager : MonoBehaviour
     private int CfgMaxBattleLogEntries => balanceConfig != null ? balanceConfig.maxBattleLogEntries : 6;
     private float CfgWeaknessMultiplier => balanceConfig != null ? balanceConfig.weaknessDamageMultiplier : 1.5f;
     private float CfgNeutralMultiplier => balanceConfig != null ? balanceConfig.neutralDamageMultiplier : 1.0f;
+    private float CfgBattleSpeed => balanceConfig != null ? balanceConfig.battleSpeedMultiplier : 1.0f;
 
     // --- Lifecycle ---
 
@@ -126,7 +128,7 @@ public class BattleManager : MonoBehaviour
                 OnClickAttackButton, OnClickFireSkillButton, OnClickIceSkillButton, OnClickLightningSkillButton,
                 OnClickEndTurnButton, OnClickGuardButton,
                 OnClickRetryButton, OnClickContinueButton,
-                OnClickStageSelectButton);
+                OnClickStageSelectButton, OnClickSpeedToggle);
         }
         InitializeFromStageSelection();
         StartBattle();
@@ -228,6 +230,12 @@ public class BattleManager : MonoBehaviour
         StartBattle();
     }
 
+    public void OnClickSpeedToggle()
+    {
+        speedState = speedState >= 2 ? 1 : 2;
+        battleUI?.UpdateSpeedLabel(speedState);
+    }
+
     public void OnClickContinueButton()
     {
         if (currentState != BattleState.Victory || !HasNextStage()) return;
@@ -326,6 +334,11 @@ public class BattleManager : MonoBehaviour
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
     }
 
+    private WaitForSeconds WaitForBattleTick(float seconds = 1.0f)
+    {
+        return new WaitForSeconds(seconds / Mathf.Max(0.1f, CfgBattleSpeed));
+    }
+
     private IEnumerator EnemyTurnRoutine()
     {
         currentState = BattleState.EnemyTurn;
@@ -339,7 +352,7 @@ public class BattleManager : MonoBehaviour
                 $"{enemy.characterName} is STUNNED! Skips this turn.",
                 basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
             enemy.ReduceStatusTurn();
-            yield return new WaitForSeconds(1.0f);
+            yield return WaitForBattleTick();
             StartPlayerTurn();
             yield break;
         }
@@ -355,14 +368,14 @@ public class BattleManager : MonoBehaviour
                 CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
                 $"{enemy.characterName} takes {CfgBurnDamagePerTurn} burn damage.",
                 basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
-            if (enemy.IsDead()) { yield return new WaitForSeconds(1.0f); EndBattle(BattleState.Victory); yield break; }
-            yield return new WaitForSeconds(1.0f);
+            if (enemy.IsDead()) { yield return WaitForBattleTick(); EndBattle(BattleState.Victory); yield break; }
+            yield return WaitForBattleTick();
         }
-        yield return new WaitForSeconds(1.0f);
+        yield return WaitForBattleTick();
 
         ResolveEnemyAttack();
         if (player != null && player.IsDead()) { EndBattle(BattleState.Defeat); yield break; }
-        yield return new WaitForSeconds(1.0f);
+        yield return WaitForBattleTick();
         StartPlayerTurn();
     }
 

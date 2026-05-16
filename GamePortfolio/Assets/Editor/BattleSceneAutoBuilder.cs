@@ -109,6 +109,7 @@ public static class BattleSceneAutoBuilder
         // Create the label child that shows "Continue" by default, will be changed to "Next Encounter" at runtime
         TMP_Text continueButtonLabel = continueButton.GetComponentInChildren<TMP_Text>();
         Button stageSelectButton = CreateButton(canvas.transform, "Stage Select Button", "Stage Select", new Vector2(-410, -325), new Vector2(220, 70));
+        Button speedToggleButton = CreateButton(canvas.transform, "Speed Toggle Button", "1x", new Vector2(410, -325), new Vector2(140, 70));
         stageSelectButton.gameObject.SetActive(false);
 
         GameObject battleManagerObject = new GameObject("BattleManager");
@@ -148,6 +149,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "retryButton", retryButton);
         SetObjectReference(serializedBattleUI, "continueButton", continueButton);
         SetObjectReference(serializedBattleUI, "stageSelectButton", stageSelectButton);
+        SetObjectReference(serializedBattleUI, "speedToggleButton", speedToggleButton);
         serializedBattleUI.ApplyModifiedPropertiesWithoutUndo();
 
         // Link BattleUI to BattleManager
@@ -201,6 +203,7 @@ public static class BattleSceneAutoBuilder
         Button retryButton = FindButtonIncludingInactive("Retry Button");
         Button continueButton = FindButtonIncludingInactive("Continue Button");
         Button stageSelectButton = FindButtonIncludingInactive("Stage Select Button");
+        Button speedToggleButton = FindButtonIncludingInactive("Speed Toggle Button");
         TMP_Text playerHpText = FindText("Player HP Text");
         TMP_Text playerApText = FindText("Player AP Text");
         TMP_Text enemyHpText = FindText("Enemy HP Text");
@@ -274,6 +277,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Retry button exists", retryButton != null);
         AppendCheck(ref passed, ref report, "Continue button exists", continueButton != null);
         AppendCheck(ref passed, ref report, "Stage Select button exists", stageSelectButton != null);
+        AppendCheck(ref passed, ref report, "Speed Toggle button exists", speedToggleButton != null);
         AppendCheck(ref passed, ref report, "Player HP text includes percentage", IsResourceTextLikelyConfigured(playerHpText, "Hero HP", "100%"));
         AppendCheck(ref passed, ref report, "Player AP text includes percentage", IsResourceTextLikelyConfigured(playerApText, "AP", "100%"));
         AppendCheck(ref passed, ref report, "Enemy HP text includes percentage", IsResourceTextLikelyConfigured(enemyHpText, "Slime HP", "100%"));

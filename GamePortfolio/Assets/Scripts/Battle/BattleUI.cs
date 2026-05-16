@@ -56,6 +56,7 @@ public class BattleUI : MonoBehaviour
     /// <summary>Child Text component of continueButton, for dynamic label.</summary>
     private TMP_Text continueButtonText;
     [SerializeField] private Button stageSelectButton;
+    [SerializeField] private Button speedToggleButton;
 
     private readonly List<string> battleLogEntries = new List<string>();
     private int battleLogSequence;
@@ -103,7 +104,8 @@ public class BattleUI : MonoBehaviour
         UnityEngine.Events.UnityAction onGuard,
         UnityEngine.Events.UnityAction onRetry,
         UnityEngine.Events.UnityAction onContinue,
-        UnityEngine.Events.UnityAction onStageSelect = null)
+        UnityEngine.Events.UnityAction onStageSelect = null,
+        UnityEngine.Events.UnityAction onSpeedToggle = null)
     {
         WireButton(attackButton, onAttack);
         WireButton(fireSkillButton, onFireSkill);
@@ -115,6 +117,8 @@ public class BattleUI : MonoBehaviour
         WireButton(continueButton, onContinue);
         if (onStageSelect != null)
             WireButton(stageSelectButton, onStageSelect);
+        if (onSpeedToggle != null)
+            WireButton(speedToggleButton, onSpeedToggle);
     }
 
     private static void WireButton(Button btn, UnityEngine.Events.UnityAction action)
@@ -122,6 +126,20 @@ public class BattleUI : MonoBehaviour
         if (btn == null) return;
         btn.onClick.RemoveListener(action);
         btn.onClick.AddListener(action);
+    }
+
+    public void SetSpeedToggleButton(int speedState, Button speedButton)
+    {
+        if (speedButton == null) return;
+        if (speedToggleButton == null) speedToggleButton = speedButton;
+        UpdateSpeedLabel(speedState);
+    }
+
+    public void UpdateSpeedLabel(int speedState)
+    {
+        if (speedToggleButton == null) return;
+        TMP_Text label = speedToggleButton.GetComponentInChildren<TMP_Text>();
+        if (label != null) label.text = speedState >= 2 ? "2x" : "1x";
     }
 
     public void StartNewBattle()
@@ -250,6 +268,7 @@ public class BattleUI : MonoBehaviour
         if (playerHpText != null)
             playerHpText.text = BuildResourceText($"{name} HP", current, max);
         UpdateResourceSlider(playerHpSlider, current, max);
+        SetSliderColorByRatio(playerHpSlider, current, max, new Color(0.22f, 0.72f, 0.38f), new Color(0.85f, 0.72f, 0.18f), new Color(0.82f, 0.22f, 0.24f));
     }
 
     private void SetPlayerAp(int current, int max)
@@ -257,6 +276,7 @@ public class BattleUI : MonoBehaviour
         if (playerApText != null)
             playerApText.text = BuildResourceText("AP", current, max);
         UpdateResourceSlider(playerApSlider, current, max);
+        SetSliderColorByRatio(playerApSlider, current, max, new Color(0.26f, 0.56f, 1.0f), new Color(0.26f, 0.86f, 0.76f), new Color(0.92f, 0.56f, 0.18f));
     }
 
     private void SetEnemyHp(int current, int max, string name)
@@ -264,6 +284,7 @@ public class BattleUI : MonoBehaviour
         if (enemyHpText != null)
             enemyHpText.text = BuildResourceText($"{name} HP", current, max);
         UpdateResourceSlider(enemyHpSlider, current, max);
+        SetSliderColorByRatio(enemyHpSlider, current, max, new Color(0.22f, 0.72f, 0.38f), new Color(0.85f, 0.72f, 0.18f), new Color(0.82f, 0.22f, 0.24f));
     }
 
     private void SetPlayerStatusText(BattleState state, bool isGuarding)
@@ -450,6 +471,20 @@ public class BattleUI : MonoBehaviour
     {
         int pct = maxValue > 0 ? Mathf.RoundToInt((float)currentValue / maxValue * 100f) : 0;
         return $"{label}: {currentValue}/{maxValue} ({pct}%)";
+    }
+
+    private static void SetSliderColorByRatio(Slider slider, int current, int max, Color highColor, Color midColor, Color lowColor)
+    {
+        if (slider == null) return;
+        Image fill = slider.fillRect?.GetComponent<Image>();
+        if (fill == null) return;
+        float ratio = max > 0 ? (float)current / max : 0f;
+        if (ratio > 0.60f)
+            fill.color = highColor;
+        else if (ratio > 0.30f)
+            fill.color = midColor;
+        else
+            fill.color = lowColor;
     }
 
     private static void UpdateResourceSlider(Slider slider, int currentValue, int maxValue)

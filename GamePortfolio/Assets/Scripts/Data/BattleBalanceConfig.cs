@@ -30,6 +30,11 @@ public class BattleBalanceConfig : ScriptableObject
     public int lightningSkillPower = 40;
     public int lightningSkillApCost = 3;
 
+    [Header("Battle Speed")]
+    [Range(1.0f, 3.0f)]
+    [Tooltip("Multiplier for battle animation speed (1 = normal, 2 = 2x)")]
+    public float battleSpeedMultiplier = 1.0f;
+
     [Header("Status Effects")]
     public int burnDamagePerTurn = 3;
     public int burnTurnDuration = 2;
