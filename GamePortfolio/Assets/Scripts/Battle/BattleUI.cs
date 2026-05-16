@@ -65,10 +65,16 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Button speedToggleButton;
     [SerializeField] private Button autoBattleButton;
     [SerializeField] private Button itemButton;
+    [SerializeField] private Button pauseButton;
     [SerializeField] private TMP_Text autoBattleIndicatorText;
 
     private readonly List<string> battleLogEntries = new List<string>();
     private int battleLogSequence;
+
+    [Header("Pause Menu")]
+    [SerializeField] private GameObject pausePanel;
+    [SerializeField] private Button resumeButton;
+    [SerializeField] private Button quitButton;
 
     public string DebugPlayerHpText => playerHpText != null ? playerHpText.text : "";
     public string DebugPlayerApText => playerApText != null ? playerApText.text : "";
@@ -117,7 +123,8 @@ public class BattleUI : MonoBehaviour
         UnityEngine.Events.UnityAction onStageSelect = null,
         UnityEngine.Events.UnityAction onSpeedToggle = null,
         UnityEngine.Events.UnityAction onAutoBattleToggle = null,
-        UnityEngine.Events.UnityAction onItem = null)
+        UnityEngine.Events.UnityAction onItem = null,
+        UnityEngine.Events.UnityAction onPause = null)
     {
         WireButton(attackButton, onAttack);
         WireButton(fireSkillButton, onFireSkill);
@@ -136,6 +143,10 @@ public class BattleUI : MonoBehaviour
             WireButton(autoBattleButton, onAutoBattleToggle);
         if (onItem != null)
             WireButton(itemButton, onItem);
+        if (pauseButton != null)
+        {
+            WireButton(pauseButton, onPause);
+        }
     }
 
     private static void WireButton(Button btn, UnityEngine.Events.UnityAction action)
@@ -467,6 +478,17 @@ public class BattleUI : MonoBehaviour
     {
         if (enemySpriteImage != null)
             StartCoroutine(FlashRoutine(enemySpriteImage, Color.white, 0.1f));
+    }
+
+    public void SetPauseVisible(bool visible)
+    {
+        if (pausePanel != null) pausePanel.SetActive(visible);
+    }
+
+    public void SetupPauseListeners(UnityEngine.Events.UnityAction onResume, UnityEngine.Events.UnityAction onQuit)
+    {
+        if (resumeButton != null) { resumeButton.onClick.RemoveAllListeners(); resumeButton.onClick.AddListener(onResume); }
+        if (quitButton != null) { quitButton.onClick.RemoveAllListeners(); quitButton.onClick.AddListener(onQuit); }
     }
 
     /// <summary>Brief flash effect on player sprite when damaged.</summary>

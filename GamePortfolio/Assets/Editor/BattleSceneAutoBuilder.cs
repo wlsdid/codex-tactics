@@ -120,7 +120,16 @@ public static class BattleSceneAutoBuilder
         Button speedToggleButton = CreateButton(canvas.transform, "Speed Toggle Button", "1x", new Vector2(410, -325), new Vector2(140, 70));
         Button autoBattleButton = CreateButton(canvas.transform, "Auto Battle Button", "Auto: OFF", new Vector2(410, -245), new Vector2(140, 50));
         Button itemButton = CreateButton(canvas.transform, "Item Button", "Items", new Vector2(330, 15), new Vector2(180, 55));
+        Button pauseButton = CreateButton(canvas.transform, "Pause Button", "Pause", new Vector2(-410, 85), new Vector2(140, 50));
         stageSelectButton.gameObject.SetActive(false);
+
+        // Pause overlay panel
+        Image pausePanel = CreatePanel(canvas.transform, "Pause Panel", new Vector2(0, 0), new Vector2(600, 400), new Color(0.05f, 0.06f, 0.10f, 0.92f));
+        pausePanel.gameObject.SetActive(false);
+        Button resumeButton = CreateButton(canvas.transform, "Resume Button", "Resume", new Vector2(0, 40), new Vector2(260, 60));
+        resumeButton.gameObject.SetActive(false);
+        Button quitToSelectButton = CreateButton(canvas.transform, "Quit To Select Button", "Quit to Stage Select", new Vector2(0, -40), new Vector2(260, 60));
+        quitToSelectButton.gameObject.SetActive(false);
 
         GameObject battleManagerObject = new GameObject("BattleManager");
         BattleManager battleManager = battleManagerObject.AddComponent<BattleManager>();
@@ -172,6 +181,10 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "speedToggleButton", speedToggleButton);
         SetObjectReference(serializedBattleUI, "autoBattleButton", autoBattleButton);
         SetObjectReference(serializedBattleUI, "itemButton", itemButton);
+        SetObjectReference(serializedBattleUI, "pauseButton", pauseButton);
+        SetObjectReference(serializedBattleUI, "pausePanel", pausePanel.gameObject);
+        SetObjectReference(serializedBattleUI, "resumeButton", resumeButton);
+        SetObjectReference(serializedBattleUI, "quitButton", quitToSelectButton);
         serializedBattleUI.ApplyModifiedPropertiesWithoutUndo();
 
         // Link BattleUI to BattleManager

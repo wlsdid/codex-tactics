@@ -154,7 +154,9 @@ public class BattleManager : MonoBehaviour
                 OnClickEndTurnButton, OnClickGuardButton,
                 OnClickRetryButton, OnClickContinueButton,
                 OnClickStageSelectButton, OnClickSpeedToggle, OnClickAutoBattleToggle,
-                OnClickItemButton);
+                OnClickItemButton,
+                OnClickPauseButton);
+            battleUI.SetupPauseListeners(OnResumeGame, OnClickStageSelectButton);
         }
         InitializeFromStageSelection();
         StartBattle();
@@ -408,6 +410,20 @@ public class BattleManager : MonoBehaviour
             return;
         }
         UseItem(playerItems[selectedItemIndex]);
+    }
+
+    public void OnClickPauseButton()
+    {
+        if (currentState == BattleState.Victory || currentState == BattleState.Defeat) return;
+        battleUI?.SetPauseVisible(true);
+        battleUI?.SetActionButtonsInteractable(false);
+    }
+
+    public void OnResumeGame()
+    {
+        battleUI?.SetPauseVisible(false);
+        if (currentState == BattleState.PlayerTurn)
+            battleUI?.SetActionButtonsInteractable(true);
     }
 
     public void OnClickContinueButton()
