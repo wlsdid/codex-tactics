@@ -15,7 +15,7 @@ public static class ProgressState
     private static readonly HashSet<int> completedStages = new HashSet<int>();
 
     /// <summary>Total number of stages defined in the game.</summary>
-    public static int TotalStages { get; set; } = 4;
+    public static int TotalStages { get; set; } = 5;
 
     /// <summary>
     /// Check if a stage is unlocked for play.
@@ -50,7 +50,7 @@ public static class ProgressState
     public static void Reset()
     {
         completedStages.Clear();
-        TotalStages = 4;
+        TotalStages = 5;
     }
 
     // --- Debug accessors (for auto-test) ---

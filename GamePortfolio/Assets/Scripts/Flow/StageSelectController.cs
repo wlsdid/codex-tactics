@@ -13,13 +13,16 @@ public class StageSelectController : MonoBehaviour
     [SerializeField] private Button stage2CardButton;
     [SerializeField] private Button stage3CardButton;
     [SerializeField] private Button stage4CardButton;
+    [SerializeField] private Button stage5CardButton;
     [SerializeField] private Image stage1CardBg;
     [SerializeField] private Image stage2CardBg;
     [SerializeField] private Image stage3CardBg;
     [SerializeField] private Image stage4CardBg;
+    [SerializeField] private Image stage5CardBg;
     [SerializeField] private TMP_Text stage2StatusText;
     [SerializeField] private TMP_Text stage3StatusText;
     [SerializeField] private TMP_Text stage4StatusText;
+    [SerializeField] private TMP_Text stage5StatusText;
 
     [Header("Description Panel")]
     [SerializeField] private TMP_Text stageNameText;
@@ -41,21 +44,24 @@ public class StageSelectController : MonoBehaviour
         "Slime Scout Route",
         "Wolf Ambush",
         "Golem Depths",
-        "Storm Peaks"
+        "Storm Peaks",
+        "Shadow Realm"
     };
 
     private static readonly string[] StageDescriptions = {
         "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.",
         "Wolf packs hunt in the moonlit clearing.\nRequires completing Slime Scout Route first.\nBeware of coordinated attacks.",
         "Ancient golems guard the underground depths.\nTougher enemies with stronger defenses.\nRequires completing Wolf Ambush first.",
-        "Lightning birds rule the high peaks.\nFast, powerful enemies with devastating aerial attacks.\nRequires completing Golem Depths first."
+        "Lightning birds rule the high peaks.\nFast, powerful enemies with devastating aerial attacks.\nRequires completing Golem Depths first.",
+        "Darkness consumes the Shadow Realm.\nOnly the strongest can face the void.\nRequires completing Storm Peaks first."
     };
 
     private static readonly string[] StageStageNames = {
         "Stage 1-1: Slime Scout",
         "Stage 1-2: Wolf Ambush",
         "Stage 2-1: Golem Depths",
-        "Stage 2-2: Storm Peaks"
+        "Stage 2-2: Storm Peaks",
+        "Stage 3-1: Shadow Realm"
     };
 
     /// <summary>Selected stage index (0-based) for BattleScene to read.</summary>
@@ -68,7 +74,8 @@ public class StageSelectController : MonoBehaviour
         WireStageCard(1, stage2CardButton);
         WireStageCard(2, stage3CardButton);
         WireStageCard(3, stage4CardButton);
-        // Stage 3 and 4 cards are optional (need scene objects) — WireStageCard handles null
+        WireStageCard(4, stage5CardButton);
+        // Stage 3-5 cards are optional (need scene objects) — WireStageCard handles null
         if (backButton != null)
             backButton.onClick.AddListener(OnBackClicked);
         if (startBattleButton != null)
@@ -118,6 +125,7 @@ public class StageSelectController : MonoBehaviour
         UpdateSingleCardVisual(1, stage2CardButton, stage2CardBg, stage2StatusText);
         UpdateSingleCardVisual(2, stage3CardButton, stage3CardBg, stage3StatusText);
         UpdateSingleCardVisual(3, stage4CardButton, stage4CardBg, stage4StatusText);
+        UpdateSingleCardVisual(4, stage5CardButton, stage5CardBg, stage5StatusText);
     }
 
     private void UpdateSingleCardVisual(int stageIndex, Button cardButton, Image cardBg, TMP_Text statusText)
@@ -150,6 +158,7 @@ public class StageSelectController : MonoBehaviour
         if (stageIndex == 1 && cardBg.name.Contains("Stage Card 2")) return true;
         if (stageIndex == 2 && cardBg.name.Contains("Stage Card 3")) return true;
         if (stageIndex == 3 && cardBg.name.Contains("Stage Card 4")) return true;
+        if (stageIndex == 4 && cardBg.name.Contains("Stage Card 5")) return true;
         return false;
     }
 
@@ -186,6 +195,6 @@ public class StageSelectController : MonoBehaviour
 
     public void DebugSelectStage(int index)
     {
-        if (index >= 0 && index < 4) OnStageCardClicked(index);
+        if (index >= 0 && index < 5) OnStageCardClicked(index);
     }
 }

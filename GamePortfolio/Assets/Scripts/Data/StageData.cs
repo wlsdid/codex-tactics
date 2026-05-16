@@ -204,6 +204,52 @@ public class StageData
         };
     }
 
+    public static StageData CreateStage5Normal()
+    {
+        return new StageData
+        {
+            stageName = "Stage 5-1",
+            encounterName = "Shadow Wraith",
+            encounterDescription = "A shadowy wraith drifts through the darkness.\nThe chill of void emanates from its form.",
+            enemy = new EnemyData(
+                "Shadow Wraith",
+                160,
+                ElementType.Dark,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "lashes out with shadow",
+                    normalAttackDamage = 25,
+                    strongAttackName = "Void Grasp",
+                    strongAttackDamage = 45,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
+    public static StageData CreateStage5Boss()
+    {
+        return new StageData
+        {
+            stageName = "Stage 5-2",
+            encounterName = "Shadow Lord",
+            encounterDescription = "The Shadow Lord descends from the void!\nDarkness pulses with malevolent intent.",
+            enemy = new EnemyData(
+                "Shadow Lord",
+                280,
+                ElementType.Dark,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "commands shadow tendrils",
+                    normalAttackDamage = 30,
+                    strongAttackName = "Oblivion Strike",
+                    strongAttackDamage = 55,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
     public static List<StageData> GetEncountersForStage(int stageIndex)
     {
         var list = new List<StageData>();
@@ -224,6 +270,10 @@ public class StageData
             case 3:
                 list.Add(CreateStage4Normal());
                 list.Add(CreateStage4Boss());
+                break;
+            case 4:
+                list.Add(CreateStage5Normal());
+                list.Add(CreateStage5Boss());
                 break;
             default:
                 list.Add(CreateStage1Normal());
