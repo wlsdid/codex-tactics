@@ -76,11 +76,11 @@ public static class BattleAutoTestRunner
         battleManager.OnClickFireSkillButton();
         AppendCheck(ref passed, ref report, "Player AP bar spends 2 AP after Fire Skill", battleManager.DebugPlayerApBarValue == 1f && battleManager.DebugPlayerApBarMaxValue == 3f);
         AppendCheck(ref passed, ref report, "Player AP text shows 33% after Fire Skill", battleManager.DebugPlayerApText == "AP: 1/3 (33%)");
-        AppendCheck(ref passed, ref report, "Enemy HP text shows 50% after Fire Skill weakness damage", battleManager.DebugEnemyHpText == "Slime HP: 40/80 (50%)");
+        AppendCheck(ref passed, ref report, "Enemy HP text shows 44% after Fire Skill weakness damage", battleManager.DebugEnemyHpText == "Slime HP: 35/80 (44%)");
         AppendCheck(ref passed, ref report, "Enemy status shows Burn after Fire Skill", battleManager.DebugEnemyStatusText == "Status: Burn (2 turns)");
-        AppendCheck(ref passed, ref report, "Impact text summarizes Fire Skill weakness and Burn", battleManager.DebugImpactText == "Impact: Fire Bolt dealt 40 damage | Weakness hit | Break 1/2 | Burn applied");
+        AppendCheck(ref passed, ref report, "Impact text summarizes Fire Skill weakness and Burn", battleManager.DebugImpactText == "Impact: Fire Bolt dealt 45 damage | Weakness x1.5 | Break 1/2 | Burn applied");
         AppendCheck(ref passed, ref report, "Weakness hit reduces Break gauge", battleManager.DebugEnemyBreakText == "Break: 1/2");
-        AppendCheck(ref passed, ref report, "Damage dealt tracks Fire Skill weakness damage", battleManager.DebugTotalDamageDealt == 40);
+        AppendCheck(ref passed, ref report, "Damage dealt tracks Fire Skill weakness damage", battleManager.DebugTotalDamageDealt == 45);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Fire Skill", battleManager.DebugSkillsUsedCount == 1);
 
         battleManager.DebugStartBattleForTest();

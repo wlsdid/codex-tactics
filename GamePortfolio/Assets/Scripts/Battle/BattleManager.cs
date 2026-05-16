@@ -104,6 +104,8 @@ public class BattleManager : MonoBehaviour
     private int CfgBRankRewardGold => balanceConfig != null ? balanceConfig.bRankRewardGold : 100;
     private int CfgDefeatRewardGold => balanceConfig != null ? balanceConfig.defeatRewardGold : 0;
     private int CfgMaxBattleLogEntries => balanceConfig != null ? balanceConfig.maxBattleLogEntries : 6;
+    private float CfgWeaknessMultiplier => balanceConfig != null ? balanceConfig.weaknessDamageMultiplier : 1.5f;
+    private float CfgNeutralMultiplier => balanceConfig != null ? balanceConfig.neutralDamageMultiplier : 1.0f;
 
     // --- Lifecycle ---
 
@@ -404,10 +406,24 @@ public class BattleManager : MonoBehaviour
 
     private int CalculateSkillDamage(CharacterData target, SkillData skill)
     {
-        int dmg = skill.power;
+        float multiplier = CfgNeutralMultiplier;
+        string effLabel = "Neutral";
         if (skill.elementType != ElementType.None && skill.elementType == target.weaknessElement)
-            dmg += 10;
-        return dmg;
+        {
+            multiplier = CfgWeaknessMultiplier;
+            effLabel = "Weakness";
+        }
+        return Mathf.RoundToInt(skill.power * multiplier);
+    }
+
+    /// <summary>Returns a short label and the calculated multiplier for the given skill/target pair.</summary>
+    private (string label, float multiplier) GetElementEffectiveness(CharacterData target, SkillData skill)
+    {
+        if (skill.elementType == ElementType.None)
+            return ("Physical", 1f);
+        if (skill.elementType == target.weaknessElement)
+            return ("Weakness", CfgWeaknessMultiplier);
+        return ("Neutral", CfgNeutralMultiplier);
     }
 
     private void TrackDamageDealt(int beforeHp)
@@ -425,7 +441,8 @@ public class BattleManager : MonoBehaviour
     private string BuildSkillMessage(SkillData skill, int damage)
     {
         if (player == null || enemy == null) return "";
-        string msg = $"{player.characterName} uses {skill.skillName}! {enemy.characterName} takes {damage} damage. ({skill.elementType})";
+        var (effLabel, _) = GetElementEffectiveness(enemy, skill);
+        string msg = $"{player.characterName} uses {skill.skillName}! {enemy.characterName} takes {damage} damage. ({skill.elementType} | {effLabel})";
         if (skill.HasStatusEffect()) msg += $" Extra effect: {skill.statusEffectType} for {CfgBurnTurnDuration} turns.";
         return msg;
     }
@@ -433,6 +450,7 @@ public class BattleManager : MonoBehaviour
     private string BuildImpactText(SkillData skill, int damage, bool wasBrokenBeforeHit = false)
     {
         if (skill == null) return "Impact: Ready";
+        var (effLabel, effMultiplier) = GetElementEffectiveness(enemy, skill);
         string impact = $"Impact: {skill.skillName} dealt {damage} damage";
         if (wasBrokenBeforeHit)
         {
@@ -440,11 +458,19 @@ public class BattleManager : MonoBehaviour
         }
         else if (skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
         {
-            impact += " | Weakness hit";
+            impact += $" | Weakness x{effMultiplier:0.0}";
             if (enemy.isBroken)
                 impact += " | BREAK!";
             else
                 impact += $" | Break {enemy.currentBreakGauge}/{enemy.maxBreakGauge}";
+        }
+        else if (skill.elementType != ElementType.None && skill.elementType != ElementType.Physical && Mathf.Abs(effMultiplier - 1.0f) < 0.01f)
+        {
+            impact += $" | Neutral x{effMultiplier:0.0}";
+        }
+        else if (skill.elementType == ElementType.Physical)
+        {
+            impact += " | Physical";
         }
         if (skill.HasStatusEffect())
             impact += $" | {skill.statusEffectType} applied";

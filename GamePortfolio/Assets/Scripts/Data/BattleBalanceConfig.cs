@@ -43,6 +43,14 @@ public class BattleBalanceConfig : ScriptableObject
     public int fastPaceMaxTurns = 1;
     public int steadyPaceMaxTurns = 3;
 
+    [Header("Element Weakness")]
+    [Range(1.0f, 3.0f)]
+    [Tooltip("Damage multiplier when skill element matches enemy weakness")]
+    public float weaknessDamageMultiplier = 1.5f;
+    [Range(0.1f, 1.0f)]
+    [Tooltip("Damage multiplier when no relationship (neutral hit)")]
+    public float neutralDamageMultiplier = 1.0f;
+
     [Header("Rewards")]
     public int sRankRewardGold = 150;
     public int aRankRewardGold = 120;
