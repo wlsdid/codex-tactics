@@ -119,6 +119,12 @@ public static class BattleSceneAutoBuilder
         BattleManager battleManager = battleManagerObject.AddComponent<BattleManager>();
         BattleUI battleUI = battleManagerObject.AddComponent<BattleUI>();
 
+        // Ensure AudioManager exists (singleton, DontDestroyOnLoad)
+        if (Object.FindObjectOfType<AudioManager>() == null)
+        {
+            new GameObject("AudioManager", typeof(AudioManager));
+        }
+
         SerializedObject serializedBattleUI = new SerializedObject(battleUI);
         SetObjectReference(serializedBattleUI, "playerHpText", playerHpText);
         SetObjectReference(serializedBattleUI, "playerHpSlider", playerHpSlider);

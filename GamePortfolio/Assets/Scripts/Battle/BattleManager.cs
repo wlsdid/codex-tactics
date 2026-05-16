@@ -212,6 +212,9 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetImpactText("Impact: Ready");
         battleUI?.SetPlayerShieldText(0);
 
+        // Start BGM
+        AudioManager.Instance?.PlayBattleBgm();
+
         var stageData = GetCurrentStageData();
         string startMsg = stageData != null && !string.IsNullOrEmpty(stageData.encounterDescription)
             ? $"Battle Start!\n{stageData.encounterDescription}"
@@ -441,6 +444,11 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetImpactText(impact);
         battleUI?.SetPlayerShieldText(playerShieldAmount);
         battleUI?.FlashEnemyDamage();
+        // Play sound effects
+        if (skill == basicAttackSkill)
+            AudioManager.Instance?.PlayAttackSfx();
+        else
+            AudioManager.Instance?.PlaySkillSfx();
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
@@ -537,6 +545,8 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetImpactText(impactText);
         battleUI?.SetPlayerShieldText(playerShieldAmount);
         battleUI?.FlashPlayerDamage();
+        AudioManager.Instance?.PlayDamageSfx();
+        if (wasGuarding) AudioManager.Instance?.PlayGuardSfx();
         if (isStrong)
         {
             var shake = Camera.main != null ? Camera.main.GetComponent<ScreenShake>() : null;
@@ -554,6 +564,17 @@ public class BattleManager : MonoBehaviour
         currentState = resultState;
         battleUI?.SetActionButtonsInteractable(false);
         battleUI?.SetRetryButtonVisible(true);
+        // Audio feedback
+        if (resultState == BattleState.Victory)
+        {
+            AudioManager.Instance?.PlayVictoryBgm();
+            AudioManager.Instance?.PlayVictorySfx();
+        }
+        else
+        {
+            AudioManager.Instance?.StopBgm();
+            AudioManager.Instance?.PlayDefeatSfx();
+        }
         bool hasNext = HasNextStage();
         battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && hasNext);
         if (resultState == BattleState.Victory && hasNext)
