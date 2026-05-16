@@ -33,17 +33,20 @@ public class StageSelectController : MonoBehaviour
     // Stage metadata for descriptions
     private static readonly string[] StageNames = {
         "Slime Scout Route",
-        "Wolf Ambush"
+        "Wolf Ambush",
+        "Golem Depths"
     };
 
     private static readonly string[] StageDescriptions = {
         "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.",
-        "Wolf packs hunt in the moonlit clearing.\nRequires completing Slime Scout Route first.\nBeware of coordinated attacks."
+        "Wolf packs hunt in the moonlit clearing.\nRequires completing Slime Scout Route first.\nBeware of coordinated attacks.",
+        "Ancient golems guard the underground depths.\nTougher enemies with stronger defenses.\nRequires completing Wolf Ambush first."
     };
 
     private static readonly string[] StageStageNames = {
         "Stage 1-1: Slime Scout",
-        "Stage 1-2: Wolf Ambush"
+        "Stage 1-2: Wolf Ambush",
+        "Stage 2-1: Golem Depths"
     };
 
     /// <summary>Selected stage index (0-based) for BattleScene to read.</summary>

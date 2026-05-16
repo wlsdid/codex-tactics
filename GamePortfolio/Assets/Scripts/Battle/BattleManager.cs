@@ -373,7 +373,12 @@ public class BattleManager : MonoBehaviour
         currentState = resultState;
         battleUI?.SetActionButtonsInteractable(false);
         battleUI?.SetRetryButtonVisible(true);
-        battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && HasNextStage());
+        bool hasNext = HasNextStage();
+        battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && hasNext);
+        if (resultState == BattleState.Victory && hasNext)
+        {
+            battleUI?.SetContinueButtonLabel("Next Encounter");
+        }
         battleUI?.SetStageSelectButtonVisible(true);
 
         // Mark stage as completed when all encounters are cleared

@@ -106,6 +106,50 @@ public class StageData
         };
     }
 
+    public static StageData CreateStage3Normal()
+    {
+        return new StageData
+        {
+            stageName = "Stage 3-1",
+            encounterName = "Golem Sentry",
+            enemy = new EnemyData(
+                "Golem Sentry",
+                120,
+                ElementType.Earth,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "pounds",
+                    normalAttackDamage = 20,
+                    strongAttackName = "Bedrock Slam",
+                    strongAttackDamage = 38,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
+    public static StageData CreateStage3Boss()
+    {
+        return new StageData
+        {
+            stageName = "Stage 3-2",
+            encounterName = "Ancient Golem",
+            enemy = new EnemyData(
+                "Ancient Golem",
+                220,
+                ElementType.Earth,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "crumbles earth",
+                    normalAttackDamage = 25,
+                    strongAttackName = "Cataclysm",
+                    strongAttackDamage = 48,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
     public static List<StageData> GetEncountersForStage(int stageIndex)
     {
         var list = new List<StageData>();
@@ -118,6 +162,10 @@ public class StageData
             case 1:
                 list.Add(CreateStage2Normal());
                 list.Add(CreateStage2Boss());
+                break;
+            case 2:
+                list.Add(CreateStage3Normal());
+                list.Add(CreateStage3Boss());
                 break;
             default:
                 list.Add(CreateStage1Normal());

@@ -51,6 +51,8 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Button guardButton;
     [SerializeField] private Button retryButton;
     [SerializeField] private Button continueButton;
+    /// <summary>Child Text component of continueButton, for dynamic label.</summary>
+    private TMP_Text continueButtonText;
     [SerializeField] private Button stageSelectButton;
 
     private readonly List<string> battleLogEntries = new List<string>();
@@ -126,6 +128,14 @@ public class BattleUI : MonoBehaviour
         SetStageSelectButtonVisible(false);
         SetResultSummaryVisible(false, "");
         SetupPlaceholderSprites();
+        // Cache continue button's child text component if not yet set
+        if (continueButtonText == null && continueButton != null)
+            continueButtonText = continueButton.GetComponentInChildren<TMP_Text>();
+    }
+
+    public void SetContinueButtonLabel(string label)
+    {
+        if (continueButtonText != null) continueButtonText.text = label;
     }
 
     public void SetupPlaceholderSprites(bool isBoss = false)

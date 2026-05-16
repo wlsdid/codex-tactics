@@ -7,5 +7,6 @@ public enum ElementType
     Lightning,
     Nature,
     Dark,
-    Light
+    Light,
+    Earth
 }

@@ -104,6 +104,8 @@ public static class BattleSceneAutoBuilder
         retryButton.gameObject.SetActive(false);
         Button continueButton = CreateButton(canvas.transform, "Continue Button", "Continue", new Vector2(130, -325), new Vector2(220, 70));
         continueButton.gameObject.SetActive(false);
+        // Create the label child that shows "Continue" by default, will be changed to "Next Encounter" at runtime
+        TMP_Text continueButtonLabel = continueButton.GetComponentInChildren<TMP_Text>();
         Button stageSelectButton = CreateButton(canvas.transform, "Stage Select Button", "Stage Select", new Vector2(-410, -325), new Vector2(220, 70));
         stageSelectButton.gameObject.SetActive(false);
 
