@@ -72,6 +72,9 @@ public class BattleManager : MonoBehaviour
     private bool guardedStrongAttack;
     private bool usedItems;
 
+    // Enrage state
+    private bool isEnraged;
+
     // --- Debug pass-throughs (for auto-tester) ---
     public string DebugPlayerHpText => battleUI != null ? battleUI.DebugPlayerHpText : "";
     public string DebugPlayerApText => battleUI != null ? battleUI.DebugPlayerApText : "";
@@ -224,6 +227,7 @@ public class BattleManager : MonoBehaviour
         skillsUsedNames.Clear();
         guardedStrongAttack = false;
         usedItems = false;
+        isEnraged = false;
 
         // Initialize player inventory
         playerItems = new List<ItemData>
@@ -530,6 +534,18 @@ public class BattleManager : MonoBehaviour
             playerShieldAmount = CfgEarthSkillShieldAmount;
         }
 
+        // Check enrage: enemy enrages when HP drops below 30%
+        if (!isEnraged && enemy != null && !enemy.IsDead() && enemy.currentHp < enemy.maxHp * 0.3f)
+        {
+            isEnraged = true;
+            string enrageMsg = $"{enemy.characterName} is ENRAGED! Its attacks intensify!";
+            // Add to battle log via the message
+            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, enrageMsg,
+                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+        }
+
         string msg = BuildSkillMessage(skill, damage);
         // Append shield info for Earth Wall
         if (skill == earthSkill)
@@ -613,6 +629,7 @@ public class BattleManager : MonoBehaviour
         enemyTurnCount++;
         int baseDamage = enemyPattern.GetDamageForTurn(enemyTurnCount);
         int damage = Mathf.RoundToInt(baseDamage * ProgressState.DifficultyDamageMultiplier);
+        if (isEnraged) damage = Mathf.RoundToInt(damage * 1.5f);
         bool isStrong = enemyPattern.IsStrongAttackTurn(enemyTurnCount);
 
         bool wasGuarding = playerIsGuarding;
@@ -638,15 +655,15 @@ public class BattleManager : MonoBehaviour
 
         string msg;
         if (isStrong)
-            msg = $"{enemy?.characterName} uses {enemyPattern.strongAttackName} on turn {enemyTurnCount}! {player?.characterName}{(wasGuarding ? " guards and" : "")}{(shieldAbsorbed ? " shield absorbs some damage and" : "")} takes {damage} damage.";
+            msg = $"{(isEnraged ? "ENRAGED! " : "")}{enemy?.characterName} uses {enemyPattern.strongAttackName} on turn {enemyTurnCount}! {player?.characterName}{(wasGuarding ? " guards and" : "")}{(shieldAbsorbed ? " shield absorbs some damage and" : "")} takes {damage} damage.";
         else
-            msg = $"{enemy?.characterName} {enemyPattern.normalAttackMessageVerb}! {player?.characterName}{(wasGuarding ? " guards and" : "")}{(shieldAbsorbed ? " shield absorbs some damage and" : "")} takes {damage} damage.";
+            msg = $"{(isEnraged ? "ENRAGED! " : "")}{enemy?.characterName} {enemyPattern.normalAttackMessageVerb}! {player?.characterName}{(wasGuarding ? " guards and" : "")}{(shieldAbsorbed ? " shield absorbs some damage and" : "")} takes {damage} damage.";
 
         string impactText = wasGuarding
             ? $"Impact: Guard reduced incoming damage to {damage}"
             : shieldAbsorbed
                 ? $"Impact: Shield absorbed {CfgEarthSkillShieldAmount} damage, reduced to {damage}"
-                : $"Impact: {enemy?.characterName} dealt {damage} damage";
+                : $"Impact: {enemy?.characterName} dealt {damage} damage{(isEnraged ? " (ENRAGED!)" : "")}";
         battleUI?.SetImpactText(impactText);
         battleUI?.SetPlayerShieldText(playerShieldAmount);
         battleUI?.FlashPlayerDamage();
