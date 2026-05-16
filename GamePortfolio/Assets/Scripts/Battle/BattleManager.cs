@@ -23,6 +23,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private string fireSkillName = "Fire Bolt";
     [SerializeField] private string iceSkillName = "Ice Lance";
     [SerializeField] private string lightningSkillName = "Lightning Strike";
+    [SerializeField] private string earthSkillName = "Earth Wall";
 
     [Header("Stage Encounters")]
     [SerializeField] private List<StageData> stageEncounters = new List<StageData>();
@@ -44,6 +45,7 @@ public class BattleManager : MonoBehaviour
     private SkillData fireSkill;
     private SkillData iceSkill;
     private SkillData lightningSkill;
+    private SkillData earthSkill;
     private bool playerIsGuarding;
     private int enemyTurnCount;
     private int speedState = 1;
@@ -56,6 +58,7 @@ public class BattleManager : MonoBehaviour
     private int guardUseCount;
     private int skillsUsedCount;
     private int totalGoldEarned;
+    private int playerShieldAmount;
     private int playerLevel = 1;
     private int playerXp;
     private int xpToNextLevel = 100;
@@ -113,6 +116,9 @@ public class BattleManager : MonoBehaviour
     private int CfgStunTurnDuration => balanceConfig != null ? balanceConfig.stunTurnDuration : 1;
     private int CfgLightningSkillPower => balanceConfig != null ? balanceConfig.lightningSkillPower : 40;
     private int CfgLightningSkillApCost => balanceConfig != null ? balanceConfig.lightningSkillApCost : 3;
+    private int CfgEarthSkillPower => balanceConfig != null ? balanceConfig.earthSkillPower : 22;
+    private int CfgEarthSkillApCost => balanceConfig != null ? balanceConfig.earthSkillApCost : 2;
+    private int CfgEarthSkillShieldAmount => balanceConfig != null ? balanceConfig.earthSkillShieldAmount : 15;
     private int CfgBurnDamagePerTurn => balanceConfig != null ? balanceConfig.burnDamagePerTurn : 3;
     private int CfgBurnTurnDuration => balanceConfig != null ? balanceConfig.burnTurnDuration : 2;
     private int CfgGuardReductionPercent => balanceConfig != null ? balanceConfig.guardDamageReductionPercent : 50;
@@ -133,6 +139,7 @@ public class BattleManager : MonoBehaviour
         {
             battleUI.SetupButtonListeners(
                 OnClickAttackButton, OnClickFireSkillButton, OnClickIceSkillButton, OnClickLightningSkillButton,
+                OnClickEarthSkillButton,
                 OnClickEndTurnButton, OnClickGuardButton,
                 OnClickRetryButton, OnClickContinueButton,
                 OnClickStageSelectButton, OnClickSpeedToggle, OnClickAutoBattleToggle);
@@ -167,7 +174,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Debug: Forced BROKEN",
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
     }
 
     // --- Battle flow ---
@@ -185,10 +192,12 @@ public class BattleManager : MonoBehaviour
         fireSkill = new SkillData(fireSkillName, CfgFireSkillPower, CfgFireSkillApCost, ElementType.Fire, StatusEffectType.Burn);
         iceSkill = new SkillData(iceSkillName, CfgIceSkillPower, CfgIceSkillApCost, ElementType.Ice, StatusEffectType.Stun);
         lightningSkill = new SkillData(lightningSkillName, CfgLightningSkillPower, CfgLightningSkillApCost, ElementType.Lightning, StatusEffectType.None);
+        earthSkill = new SkillData(earthSkillName, CfgEarthSkillPower, CfgEarthSkillApCost, ElementType.Earth, StatusEffectType.None);
         basicAttackSkill.description = "Reliable no-cost physical attack.";
         fireSkill.description = "Costs AP, hits the enemy weakness, and applies Burn.";
         iceSkill.description = "1 AP, Ice element, applies Stun for 1 turn.";
         lightningSkill.description = "3 AP, Lightning element, high damage.";
+        earthSkill.description = "2 AP, Earth element, applies Shield reducing next incoming damage.";
 
         playerIsGuarding = false;
         enemyTurnCount = 0;
@@ -197,9 +206,11 @@ public class BattleManager : MonoBehaviour
         guardUseCount = 0;
         skillsUsedCount = 0;
         currentBattleRewardClaimed = false;
+        playerShieldAmount = 0;
 
         battleUI?.StartNewBattle();
         battleUI?.SetImpactText("Impact: Ready");
+        battleUI?.SetPlayerShieldText(0);
 
         var stageData = GetCurrentStageData();
         string startMsg = stageData != null && !string.IsNullOrEmpty(stageData.encounterDescription)
@@ -209,7 +220,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, startMsg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
 
         StartPlayerTurn();
     }
@@ -218,12 +229,12 @@ public class BattleManager : MonoBehaviour
     {
         currentState = BattleState.PlayerTurn;
         if (player != null) player.RecoverAp(CfgPlayerApRecovery);
-        battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, currentState);
+        battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"Player Turn: recovered {CfgPlayerApRecovery} AP. Choose an action.",
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
         if (autoBattleEnabled) ExecuteAutoAction();
     }
 
@@ -233,6 +244,7 @@ public class BattleManager : MonoBehaviour
     public void OnClickFireSkillButton() => UsePlayerSkill(fireSkill);
     public void OnClickIceSkillButton() => UsePlayerSkill(iceSkill);
     public void OnClickLightningSkillButton() => UsePlayerSkill(lightningSkill);
+    public void OnClickEarthSkillButton() => UsePlayerSkill(earthSkill);
     public void OnClickEndTurnButton() => EndPlayerTurn();
     public void OnClickGuardButton() => GuardAndEndPlayerTurn();
 
@@ -287,14 +299,21 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // 5. Use Fire Bolt if enough AP
+        // 5. Use Earth Wall if shield not active and HP is low (defensive)
+        if (playerShieldAmount <= 0 && player != null && player.currentHp < player.maxHp * 0.6f && player.HasEnoughAp(earthSkill.apCost))
+        {
+            UsePlayerSkill(earthSkill);
+            return;
+        }
+
+        // 6. Use Fire Bolt if enough AP
         if (player.HasEnoughAp(fireSkill.apCost))
         {
             UsePlayerSkill(fireSkill);
             return;
         }
 
-        // 6. Default: basic attack
+        // 7. Default: basic attack
         OnClickAttackButton();
     }
 
@@ -306,6 +325,7 @@ public class BattleManager : MonoBehaviour
         if (iceSkill.elementType == weak) return iceSkill;
         if (fireSkill.elementType == weak) return fireSkill;
         if (lightningSkill.elementType == weak) return lightningSkill;
+        if (earthSkill.elementType == weak) return earthSkill;
         return null;
     }
 
@@ -337,7 +357,7 @@ public class BattleManager : MonoBehaviour
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"{player?.characterName} skipped the turn. You can recover more AP next turn.",
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
     }
 
@@ -351,7 +371,7 @@ public class BattleManager : MonoBehaviour
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"{player?.characterName} guards. Next enemy attack damage is reduced.",
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
     }
 
@@ -364,8 +384,8 @@ public class BattleManager : MonoBehaviour
                 currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
                 CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
                 $"Not enough AP. {skill.skillName} needs {skill.apCost} AP.",
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
-            battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, currentState);
+                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+            battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
             return;
         }
 
@@ -398,16 +418,33 @@ public class BattleManager : MonoBehaviour
             enemy.ResetBreakGauge();
         }
 
+        // Earth Wall: apply Shield to player
+        if (skill == earthSkill)
+        {
+            playerShieldAmount = CfgEarthSkillShieldAmount;
+        }
+
         string msg = BuildSkillMessage(skill, damage);
+        // Append shield info for Earth Wall
+        if (skill == earthSkill)
+        {
+            msg += $" Shield active! ({CfgEarthSkillShieldAmount} damage absorbed next hit).";
+        }
 
         // Set impact text based on skill - pass wasBroken for correct text before reset
         string impact = BuildImpactText(skill, damage, wasBroken);
+        // Append shield info for Earth Wall
+        if (skill == earthSkill)
+        {
+            impact += $" | Shield {CfgEarthSkillShieldAmount} applied";
+        }
         battleUI?.SetImpactText(impact);
+        battleUI?.SetPlayerShieldText(playerShieldAmount);
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
 
         if (enemy.IsDead()) { EndBattle(BattleState.Victory); return; }
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
@@ -429,7 +466,7 @@ public class BattleManager : MonoBehaviour
                 currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
                 CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
                 $"{enemy.characterName} is STUNNED! Skips this turn.",
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
             enemy.ReduceStatusTurn();
             yield return WaitForBattleTick();
             StartPlayerTurn();
@@ -446,7 +483,7 @@ public class BattleManager : MonoBehaviour
                 currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
                 CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
                 $"{enemy.characterName} takes {CfgBurnDamagePerTurn} burn damage.",
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
             if (enemy.IsDead()) { yield return WaitForBattleTick(); EndBattle(BattleState.Victory); yield break; }
             yield return WaitForBattleTick();
         }
@@ -472,25 +509,37 @@ public class BattleManager : MonoBehaviour
             playerIsGuarding = false;
         }
 
+        // Shield absorbs damage before it reaches the player
+        bool shieldAbsorbed = playerShieldAmount > 0;
+        if (shieldAbsorbed)
+        {
+            int absorbed = Mathf.Min(playerShieldAmount, damage);
+            damage = Mathf.Max(1, damage - absorbed);
+            playerShieldAmount = 0;
+        }
+
         int before = player != null ? player.currentHp : 0;
         player?.TakeDamage(damage);
         TrackDamageTaken(before);
 
         string msg;
         if (isStrong)
-            msg = $"{enemy?.characterName} uses {enemyPattern.strongAttackName} on turn {enemyTurnCount}! {player?.characterName}{(wasGuarding ? " guards and" : "")} takes {damage} damage.";
+            msg = $"{enemy?.characterName} uses {enemyPattern.strongAttackName} on turn {enemyTurnCount}! {player?.characterName}{(wasGuarding ? " guards and" : "")}{(shieldAbsorbed ? " shield absorbs some damage and" : "")} takes {damage} damage.";
         else
-            msg = $"{enemy?.characterName} {enemyPattern.normalAttackMessageVerb}! {player?.characterName}{(wasGuarding ? " guards and" : "")} takes {damage} damage.";
+            msg = $"{enemy?.characterName} {enemyPattern.normalAttackMessageVerb}! {player?.characterName}{(wasGuarding ? " guards and" : "")}{(shieldAbsorbed ? " shield absorbs some damage and" : "")} takes {damage} damage.";
 
         string impactText = wasGuarding
             ? $"Impact: Guard reduced incoming damage to {damage}"
-            : $"Impact: {enemy?.characterName} dealt {damage} damage";
+            : shieldAbsorbed
+                ? $"Impact: Shield absorbed {CfgEarthSkillShieldAmount} damage, reduced to {damage}"
+                : $"Impact: {enemy?.characterName} dealt {damage} damage";
         battleUI?.SetImpactText(impactText);
+        battleUI?.SetPlayerShieldText(playerShieldAmount);
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
     }
 
     private void EndBattle(BattleState resultState)
@@ -522,7 +571,7 @@ public class BattleManager : MonoBehaviour
                 battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
                     currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
                     CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, lvlMsg,
-                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
             }
             int stageIdx = StageSelectController.SelectedStageIndex;
             if (stageIdx >= 0) ProgressState.MarkStageCompleted(stageIdx);
@@ -537,7 +586,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, CfgMaxBattleLogEntries);
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
     }
 
     // --- Damage tracking ---

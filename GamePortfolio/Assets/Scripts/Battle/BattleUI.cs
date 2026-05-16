@@ -15,6 +15,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text playerApText;
     [SerializeField] private Slider playerApSlider;
     [SerializeField] private TMP_Text playerStatusText;
+    [SerializeField] private TMP_Text playerShieldText;
     [SerializeField] private Image playerSpriteImage;
 
     [Header("Enemy UI")]
@@ -49,6 +50,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Button fireSkillButton;
     [SerializeField] private Button iceSkillButton;
     [SerializeField] private Button lightningSkillButton;
+    [SerializeField] private Button earthSkillButton;
     [SerializeField] private Button endTurnButton;
     [SerializeField] private Button guardButton;
     [SerializeField] private Button retryButton;
@@ -102,6 +104,7 @@ public class BattleUI : MonoBehaviour
         UnityEngine.Events.UnityAction onFireSkill,
         UnityEngine.Events.UnityAction onIceSkill,
         UnityEngine.Events.UnityAction onLightningSkill,
+        UnityEngine.Events.UnityAction onEarthSkill,
         UnityEngine.Events.UnityAction onEndTurn,
         UnityEngine.Events.UnityAction onGuard,
         UnityEngine.Events.UnityAction onRetry,
@@ -114,6 +117,7 @@ public class BattleUI : MonoBehaviour
         WireButton(fireSkillButton, onFireSkill);
         WireButton(iceSkillButton, onIceSkill);
         WireButton(lightningSkillButton, onLightningSkill);
+        WireButton(earthSkillButton, onEarthSkill);
         WireButton(endTurnButton, onEndTurn);
         WireButton(guardButton, onGuard);
         WireButton(retryButton, onRetry);
@@ -204,6 +208,7 @@ public class BattleUI : MonoBehaviour
         SkillData fireSkill,
         SkillData iceSkill,
         SkillData lightningSkill,
+        SkillData earthSkill,
         int maxBattleLogEntries)
     {
         SetPlayerHp(player.currentHp, player.maxHp, playerName);
@@ -219,7 +224,7 @@ public class BattleUI : MonoBehaviour
         SetStageObjectiveText(currentState, currentStageIndex, stageEncounters);
         SetStageProgressText(currentState, currentStageIndex, stageEncounters);
         SetMessageText(message);
-        UpdateSkillHelpText(basicSkill, fireSkill, iceSkill, lightningSkill, guardReductionPercent, enemyPattern);
+        UpdateSkillHelpText(basicSkill, fireSkill, iceSkill, lightningSkill, earthSkill, guardReductionPercent, enemyPattern);
         AddBattleLogEntry(message, maxBattleLogEntries);
     }
 
@@ -227,16 +232,20 @@ public class BattleUI : MonoBehaviour
     {
         SetButtonInteractable(attackButton, isInteractable);
         SetButtonInteractable(fireSkillButton, isInteractable);
+        SetButtonInteractable(iceSkillButton, isInteractable);
+        SetButtonInteractable(lightningSkillButton, isInteractable);
+        SetButtonInteractable(earthSkillButton, isInteractable);
         SetButtonInteractable(endTurnButton, isInteractable);
         SetButtonInteractable(guardButton, isInteractable);
     }
 
-    public void UpdateActionButtons(CharacterData player, SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, BattleState currentState)
+    public void UpdateActionButtons(CharacterData player, SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, BattleState currentState)
     {
         SetButtonInteractable(attackButton, player.HasEnoughAp(basicSkill.apCost));
         SetButtonInteractable(fireSkillButton, player.HasEnoughAp(fireSkill.apCost));
         SetButtonInteractable(iceSkillButton, player.HasEnoughAp(iceSkill.apCost));
         SetButtonInteractable(lightningSkillButton, player.HasEnoughAp(lightningSkill.apCost));
+        SetButtonInteractable(earthSkillButton, player.HasEnoughAp(earthSkill.apCost));
         SetButtonInteractable(endTurnButton, currentState == BattleState.PlayerTurn);
         SetButtonInteractable(guardButton, currentState == BattleState.PlayerTurn);
     }
@@ -423,16 +432,23 @@ public class BattleUI : MonoBehaviour
             impactText.text = text;
     }
 
-    private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, int guardReduction, EnemyPatternData pattern)
+    public void SetPlayerShieldText(int shieldAmount)
     {
-        if (skillHelpText == null || basicSkill == null || fireSkill == null || iceSkill == null || lightningSkill == null) return;
+        if (playerShieldText != null)
+            playerShieldText.text = shieldAmount > 0 ? $"Shield: {shieldAmount}" : "";
+    }
+
+    private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, int guardReduction, EnemyPatternData pattern)
+    {
+        if (skillHelpText == null || basicSkill == null || fireSkill == null || iceSkill == null || lightningSkill == null || earthSkill == null) return;
         string attackHelp = BuildSkillHelpLine(basicSkill);
         string fireHelp = BuildSkillHelpLine(fireSkill);
         string iceHelp = BuildSkillHelpLine(iceSkill);
         string lightningHelp = BuildSkillHelpLine(lightningSkill);
+        string earthHelp = BuildSkillHelpLine(earthSkill);
         string guardHelp = $"Guard: reduce next enemy attack by {guardReduction}%.";
         string turnHint = pattern?.BuildPatternHelpText() ?? "";
-        skillHelpText.text = $"{attackHelp}\n{fireHelp}\n{iceHelp}\n{lightningHelp}\n{guardHelp}\n{turnHint}";
+        skillHelpText.text = $"{attackHelp}\n{fireHelp}\n{iceHelp}\n{lightningHelp}\n{earthHelp}\n{guardHelp}\n{turnHint}";
     }
 
     private string BuildSkillHelpLine(SkillData skill)

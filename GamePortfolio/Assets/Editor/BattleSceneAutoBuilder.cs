@@ -100,6 +100,7 @@ public static class BattleSceneAutoBuilder
         Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire Skill", new Vector2(-110, 85), new Vector2(180, 65));
         Button iceSkillButton = CreateButton(canvas.transform, "Ice Lance Button", "Ice Lance", new Vector2(-330, 15), new Vector2(180, 55));
         Button lightningSkillButton = CreateButton(canvas.transform, "Lightning Strike Button", "Lightning Strike", new Vector2(-110, 15), new Vector2(180, 55));
+        Button earthSkillButton = CreateButton(canvas.transform, "Earth Wall Button", "Earth Wall", new Vector2(110, 15), new Vector2(180, 55));
         Button guardButton = CreateButton(canvas.transform, "Guard Button", "Guard", new Vector2(110, 85), new Vector2(180, 65));
         Button endTurnButton = CreateButton(canvas.transform, "End Turn Button", "End Turn", new Vector2(330, 85), new Vector2(180, 65));
         Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(-130, -325), new Vector2(220, 70));
@@ -145,6 +146,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "fireSkillButton", fireSkillButton);
         SetObjectReference(serializedBattleUI, "iceSkillButton", iceSkillButton);
         SetObjectReference(serializedBattleUI, "lightningSkillButton", lightningSkillButton);
+        SetObjectReference(serializedBattleUI, "earthSkillButton", earthSkillButton);
         SetObjectReference(serializedBattleUI, "guardButton", guardButton);
         SetObjectReference(serializedBattleUI, "endTurnButton", endTurnButton);
         SetObjectReference(serializedBattleUI, "retryButton", retryButton);
@@ -167,7 +169,7 @@ public static class BattleSceneAutoBuilder
         Selection.activeGameObject = battleManagerObject;
         EditorUtility.DisplayDialog(
             "BattleScene Created",
-            "Assets/Scenes/BattleScene.unity created!\n\nPress Play to test Attack / Fire Skill / Guard / End Turn / Continue / Retry.",
+            "Assets/Scenes/BattleScene.unity created!\n\nPress Play to test Attack / Fire Skill / Ice Lance / Lightning Strike / Earth Wall / Guard / End Turn / Continue / Retry.",
             "OK"
         );
     }
@@ -200,6 +202,7 @@ public static class BattleSceneAutoBuilder
         Button fireSkillButton = FindButton("Fire Skill Button");
         Button iceSkillButton = FindButton("Ice Lance Button");
         Button lightningSkillButton = FindButton("Lightning Strike Button");
+        Button earthSkillButton = FindButton("Earth Wall Button");
         Button guardButton = FindButton("Guard Button");
         Button endTurnButton = FindButton("End Turn Button");
         Button retryButton = FindButtonIncludingInactive("Retry Button");
@@ -275,6 +278,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Fire Skill button exists", fireSkillButton != null);
         AppendCheck(ref passed, ref report, "Ice Lance button exists", iceSkillButton != null);
         AppendCheck(ref passed, ref report, "Lightning Strike button exists", lightningSkillButton != null);
+        AppendCheck(ref passed, ref report, "Earth Wall button exists", earthSkillButton != null);
         AppendCheck(ref passed, ref report, "Guard button exists", guardButton != null);
         AppendCheck(ref passed, ref report, "End Turn button exists", endTurnButton != null);
         AppendCheck(ref passed, ref report, "Retry button exists", retryButton != null);

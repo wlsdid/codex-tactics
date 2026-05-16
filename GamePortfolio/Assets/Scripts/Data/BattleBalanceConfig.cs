@@ -30,6 +30,12 @@ public class BattleBalanceConfig : ScriptableObject
     public int lightningSkillPower = 40;
     public int lightningSkillApCost = 3;
 
+    [Header("Earth Skill (Earth Wall)")]
+    public int earthSkillPower = 22;
+    public int earthSkillApCost = 2;
+    [Tooltip("Amount of damage absorbed by Earth Wall shield")]
+    public int earthSkillShieldAmount = 15;
+
     [Header("Battle Speed")]
     [Range(1.0f, 3.0f)]
     [Tooltip("Multiplier for battle animation speed (1 = normal, 2 = 2x)")]
