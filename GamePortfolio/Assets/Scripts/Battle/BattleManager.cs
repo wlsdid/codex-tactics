@@ -79,6 +79,8 @@ public class BattleManager : MonoBehaviour
     public bool DebugRetryButtonInteractable => battleUI != null && battleUI.DebugRetryButtonInteractable;
     public bool DebugContinueButtonVisible => battleUI != null && battleUI.DebugContinueButtonVisible;
     public bool DebugContinueButtonInteractable => battleUI != null && battleUI.DebugContinueButtonInteractable;
+    public bool DebugStageSelectButtonVisible => battleUI != null && battleUI.DebugStageSelectButtonVisible;
+    public bool DebugStageSelectButtonInteractable => battleUI != null && battleUI.DebugStageSelectButtonInteractable;
     public bool DebugResultSummaryPanelVisible => battleUI != null && battleUI.DebugResultSummaryPanelVisible;
     public int DebugTotalDamageDealt => totalDamageDealt;
     public int DebugTotalDamageTaken => totalDamageTaken;
@@ -112,7 +114,8 @@ public class BattleManager : MonoBehaviour
             battleUI.SetupButtonListeners(
                 OnClickAttackButton, OnClickFireSkillButton,
                 OnClickEndTurnButton, OnClickGuardButton,
-                OnClickRetryButton, OnClickContinueButton);
+                OnClickRetryButton, OnClickContinueButton,
+                OnClickStageSelectButton);
         }
         StartBattle();
     }
@@ -198,6 +201,12 @@ public class BattleManager : MonoBehaviour
         StopAllCoroutines();
         currentStageIndex++;
         StartBattle();
+    }
+
+    public void OnClickStageSelectButton()
+    {
+        if (currentState != BattleState.Victory && currentState != BattleState.Defeat) return;
+        UnityEngine.SceneManagement.SceneManager.LoadScene("StageSelectScene");
     }
 
     private void EndPlayerTurn()
@@ -349,6 +358,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetActionButtonsInteractable(false);
         battleUI?.SetRetryButtonVisible(true);
         battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && HasNextStage());
+        battleUI?.SetStageSelectButtonVisible(true);
 
         string resultSummary = BuildResultSummaryText(resultState);
         battleUI?.SetResultSummaryVisible(true, resultSummary);

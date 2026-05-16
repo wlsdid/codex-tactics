@@ -51,6 +51,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Button guardButton;
     [SerializeField] private Button retryButton;
     [SerializeField] private Button continueButton;
+    [SerializeField] private Button stageSelectButton;
 
     private readonly List<string> battleLogEntries = new List<string>();
     private int battleLogSequence;
@@ -83,6 +84,8 @@ public class BattleUI : MonoBehaviour
     public bool DebugRetryButtonInteractable => retryButton != null && retryButton.interactable;
     public bool DebugContinueButtonVisible => continueButton != null && continueButton.gameObject.activeSelf;
     public bool DebugContinueButtonInteractable => continueButton != null && continueButton.interactable;
+    public bool DebugStageSelectButtonVisible => stageSelectButton != null && stageSelectButton.gameObject.activeSelf;
+    public bool DebugStageSelectButtonInteractable => stageSelectButton != null && stageSelectButton.interactable;
     public bool DebugResultSummaryPanelVisible => resultSummaryPanel != null && resultSummaryPanel.activeSelf;
 
     // --- Lifecycle ---
@@ -93,7 +96,8 @@ public class BattleUI : MonoBehaviour
         UnityEngine.Events.UnityAction onEndTurn,
         UnityEngine.Events.UnityAction onGuard,
         UnityEngine.Events.UnityAction onRetry,
-        UnityEngine.Events.UnityAction onContinue)
+        UnityEngine.Events.UnityAction onContinue,
+        UnityEngine.Events.UnityAction onStageSelect = null)
     {
         WireButton(attackButton, onAttack);
         WireButton(fireSkillButton, onFireSkill);
@@ -101,6 +105,8 @@ public class BattleUI : MonoBehaviour
         WireButton(guardButton, onGuard);
         WireButton(retryButton, onRetry);
         WireButton(continueButton, onContinue);
+        if (onStageSelect != null)
+            WireButton(stageSelectButton, onStageSelect);
     }
 
     private static void WireButton(Button btn, UnityEngine.Events.UnityAction action)
@@ -117,6 +123,7 @@ public class BattleUI : MonoBehaviour
         RefreshBattleLogText();
         SetRetryButtonVisible(false);
         SetContinueButtonVisible(false);
+        SetStageSelectButtonVisible(false);
         SetResultSummaryVisible(false, "");
         SetupPlaceholderSprites();
     }
@@ -207,6 +214,13 @@ public class BattleUI : MonoBehaviour
         if (continueButton == null) return;
         continueButton.interactable = isVisible;
         continueButton.gameObject.SetActive(isVisible);
+    }
+
+    public void SetStageSelectButtonVisible(bool isVisible)
+    {
+        if (stageSelectButton == null) return;
+        stageSelectButton.interactable = isVisible;
+        stageSelectButton.gameObject.SetActive(isVisible);
     }
 
     // --- Private helpers ---
