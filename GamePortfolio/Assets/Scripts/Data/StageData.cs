@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -59,5 +60,70 @@ public class StageData
                 }
             )
         };
+    }
+
+    public static StageData CreateStage2Normal()
+    {
+        return new StageData
+        {
+            stageName = "Stage 2-1",
+            encounterName = "Wolf Scout",
+            enemy = new EnemyData(
+                "Wolf Scout",
+                100,
+                ElementType.Nature,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "lunges",
+                    normalAttackDamage = 18,
+                    strongAttackName = "Pack Howl",
+                    strongAttackDamage = 35,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
+    public static StageData CreateStage2Boss()
+    {
+        return new StageData
+        {
+            stageName = "Stage 2-2",
+            encounterName = "Alpha Wolf",
+            enemy = new EnemyData(
+                "Alpha Wolf",
+                180,
+                ElementType.Nature,
+                new EnemyPatternData
+                {
+                    normalAttackMessageVerb = "leads the pack",
+                    normalAttackDamage = 22,
+                    strongAttackName = "Alpha Strike",
+                    strongAttackDamage = 42,
+                    strongAttackEveryTurns = 3
+                }
+            )
+        };
+    }
+
+    public static List<StageData> GetEncountersForStage(int stageIndex)
+    {
+        var list = new List<StageData>();
+        switch (stageIndex)
+        {
+            case 0:
+                list.Add(CreateStage1Normal());
+                list.Add(CreateStage1Boss());
+                break;
+            case 1:
+                list.Add(CreateStage2Normal());
+                list.Add(CreateStage2Boss());
+                break;
+            default:
+                list.Add(CreateStage1Normal());
+                list.Add(CreateStage1Boss());
+                break;
+        }
+        return list;
     }
 }

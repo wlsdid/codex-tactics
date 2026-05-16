@@ -117,7 +117,23 @@ public class BattleManager : MonoBehaviour
                 OnClickRetryButton, OnClickContinueButton,
                 OnClickStageSelectButton);
         }
+        InitializeFromStageSelection();
         StartBattle();
+    }
+
+    public void DebugLoadEncountersForStage(int stageIndex)
+    {
+        int clamped = stageIndex < 0 ? 0 : stageIndex;
+        stageEncounters = StageData.GetEncountersForStage(clamped);
+        currentStageIndex = 0;
+    }
+
+    private void InitializeFromStageSelection()
+    {
+        int idx = StageSelectController.SelectedStageIndex;
+        if (idx < 0) idx = 0; // fallback
+        stageEncounters = StageData.GetEncountersForStage(idx);
+        currentStageIndex = 0;
     }
 
     public void DebugStartBattleForTest() => StartBattle();

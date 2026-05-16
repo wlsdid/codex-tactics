@@ -189,7 +189,94 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Break bonus increases Slash damage", battleManager.DebugImpactText == "Impact: Slash dealt 30 damage | Break bonus consumed");
         AppendCheck(ref passed, ref report, "Break resets after bonus attack", battleManager.DebugEnemyBreakText == "Break: 2/2");
 
+        // --- Stage Selection Tests ---
         Object.DestroyImmediate(root);
+
+        // Test: Stage 1 encounters selected
+        GameObject stage2Root = new GameObject("Stage2TestRoot");
+        BattleManager manager2 = stage2Root.AddComponent<BattleManager>();
+        BattleUI ui2 = stage2Root.AddComponent<BattleUI>();
+        SetPrivateField(ui2, "playerHpText", CreateText("Player HP Text"));
+        SetPrivateField(ui2, "playerHpSlider", CreateSlider("Player HP Slider"));
+        SetPrivateField(ui2, "playerApText", CreateText("Player AP Text"));
+        SetPrivateField(ui2, "playerApSlider", CreateSlider("Player AP Slider"));
+        SetPrivateField(ui2, "enemyHpText", CreateText("Enemy HP Text"));
+        SetPrivateField(ui2, "enemyHpSlider", CreateSlider("Enemy HP Slider"));
+        SetPrivateField(ui2, "playerStatusText", CreateText("Player Status Text"));
+        SetPrivateField(ui2, "enemyStatusText", CreateText("Enemy Status Text"));
+        SetPrivateField(ui2, "enemyIntentText", CreateText("Enemy Intent Text"));
+        SetPrivateField(ui2, "enemyBreakText", CreateText("Enemy Break Text"));
+        SetPrivateField(ui2, "enemyBreakSlider", CreateSlider("Enemy Break Slider"));
+        SetPrivateField(ui2, "runStatusText", CreateText("Run Status Text"));
+        SetPrivateField(ui2, "stageText", CreateText("Stage Text"));
+        SetPrivateField(ui2, "stageObjectiveText", CreateText("Stage Objective Text"));
+        SetPrivateField(ui2, "stageProgressText", CreateText("Stage Progress Text"));
+        SetPrivateField(ui2, "messageText", CreateText("Message Text"));
+        SetPrivateField(ui2, "impactText", CreateText("Impact Text"));
+        SetPrivateField(ui2, "skillHelpText", CreateText("Skill Help Text"));
+        SetPrivateField(ui2, "battleLogText", CreateText("Battle Log Text"));
+        SetPrivateField(ui2, "resultSummaryText", CreateText("Result Summary Text"));
+        SetPrivateField(ui2, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
+        SetPrivateField(ui2, "attackButton", CreateButton("Attack Button"));
+        SetPrivateField(ui2, "fireSkillButton", CreateButton("Fire Skill Button"));
+        SetPrivateField(ui2, "guardButton", CreateButton("Guard Button"));
+        SetPrivateField(ui2, "endTurnButton", CreateButton("End Turn Button"));
+        SetPrivateField(ui2, "retryButton", CreateButton("Retry Button"));
+        SetPrivateField(ui2, "continueButton", CreateButton("Continue Button"));
+        SetPrivateField(ui2, "stageSelectButton", CreateButton("Stage Select Button"));
+        SetPrivateField(manager2, "battleUI", ui2);
+
+        // Test: default (no selection) → Stage 1
+        manager2.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Default (no selection) shows Stage 1 encounter", manager2.DebugStageText == "Stage 1-1: Slime Scout");
+
+        // Test: Stage 1 selected explicitly
+        Object.DestroyImmediate(stage2Root);
+        GameObject stage1Root = new GameObject("Stage1TestRoot");
+        BattleManager manager1 = stage1Root.AddComponent<BattleManager>();
+        BattleUI ui1 = stage1Root.AddComponent<BattleUI>();
+        SetPrivateField(ui1, "playerHpText", CreateText("Player HP Text"));
+        SetPrivateField(ui1, "playerHpSlider", CreateSlider("Player HP Slider"));
+        SetPrivateField(ui1, "playerApText", CreateText("Player AP Text"));
+        SetPrivateField(ui1, "playerApSlider", CreateSlider("Player AP Slider"));
+        SetPrivateField(ui1, "enemyHpText", CreateText("Enemy HP Text"));
+        SetPrivateField(ui1, "enemyHpSlider", CreateSlider("Enemy HP Slider"));
+        SetPrivateField(ui1, "playerStatusText", CreateText("Player Status Text"));
+        SetPrivateField(ui1, "enemyStatusText", CreateText("Enemy Status Text"));
+        SetPrivateField(ui1, "enemyIntentText", CreateText("Enemy Intent Text"));
+        SetPrivateField(ui1, "enemyBreakText", CreateText("Enemy Break Text"));
+        SetPrivateField(ui1, "enemyBreakSlider", CreateSlider("Enemy Break Slider"));
+        SetPrivateField(ui1, "runStatusText", CreateText("Run Status Text"));
+        SetPrivateField(ui1, "stageText", CreateText("Stage Text"));
+        SetPrivateField(ui1, "stageObjectiveText", CreateText("Stage Objective Text"));
+        SetPrivateField(ui1, "stageProgressText", CreateText("Stage Progress Text"));
+        SetPrivateField(ui1, "messageText", CreateText("Message Text"));
+        SetPrivateField(ui1, "impactText", CreateText("Impact Text"));
+        SetPrivateField(ui1, "skillHelpText", CreateText("Skill Help Text"));
+        SetPrivateField(ui1, "battleLogText", CreateText("Battle Log Text"));
+        SetPrivateField(ui1, "resultSummaryText", CreateText("Result Summary Text"));
+        SetPrivateField(ui1, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
+        SetPrivateField(ui1, "attackButton", CreateButton("Attack Button"));
+        SetPrivateField(ui1, "fireSkillButton", CreateButton("Fire Skill Button"));
+        SetPrivateField(ui1, "guardButton", CreateButton("Guard Button"));
+        SetPrivateField(ui1, "endTurnButton", CreateButton("End Turn Button"));
+        SetPrivateField(ui1, "retryButton", CreateButton("Retry Button"));
+        SetPrivateField(ui1, "continueButton", CreateButton("Continue Button"));
+        SetPrivateField(ui1, "stageSelectButton", CreateButton("Stage Select Button"));
+        SetPrivateField(manager1, "battleUI", ui1);
+        manager1.DebugLoadEncountersForStage(0);
+        manager1.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Stage 1 selected loads Slime Scout", manager1.DebugStageText == "Stage 1-1: Slime Scout");
+        manager1.DebugEndBattleForTest(BattleState.Victory);
+        manager1.OnClickContinueButton();
+        AppendCheck(ref passed, ref report, "Stage 1 selected advances to Slime King", manager1.DebugStageText == "Stage 1-2: Slime King");
+
+        // Test: invalid index fallback to Stage 1
+        manager1.DebugLoadEncountersForStage(-1);
+        manager1.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Invalid stage index falls back to Stage 1", manager1.DebugStageText == "Stage 1-1: Slime Scout");
+
+        Object.DestroyImmediate(stage1Root);
 
         report += passed ? "\n\nRESULT: PASS" : "\n\nRESULT: FAIL";
         Debug.Log(report);
