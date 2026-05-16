@@ -579,6 +579,13 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetImpactText(impact);
         battleUI?.SetPlayerShieldText(playerShieldAmount);
         battleUI?.FlashEnemyDamage();
+        // Skill projectile
+        if (battleUI != null)
+        {
+            Vector3 start = battleUI.GetPlayerSpriteWorldPosition();
+            Vector3 end = battleUI.GetEnemySpriteWorldPosition();
+            SkillProjectile.Spawn(skill.elementType, start, end, battleUI.transform);
+        }
         // Play sound effects
         if (skill == basicAttackSkill)
             AudioManager.Instance?.PlayAttackSfx();

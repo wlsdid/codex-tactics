@@ -480,6 +480,20 @@ public class BattleUI : MonoBehaviour
             StartCoroutine(FlashRoutine(enemySpriteImage, Color.white, 0.1f));
     }
 
+    public Vector3 GetPlayerSpriteWorldPosition()
+    {
+        if (playerSpriteImage != null)
+            return playerSpriteImage.rectTransform.position;
+        return Vector3.zero;
+    }
+
+    public Vector3 GetEnemySpriteWorldPosition()
+    {
+        if (enemySpriteImage != null)
+            return enemySpriteImage.rectTransform.position;
+        return Vector3.zero;
+    }
+
     public void SetPauseVisible(bool visible)
     {
         if (pausePanel != null) pausePanel.SetActive(visible);
