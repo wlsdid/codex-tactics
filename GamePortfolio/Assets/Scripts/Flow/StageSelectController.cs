@@ -255,13 +255,18 @@ public class StageSelectController : MonoBehaviour
 
             string encounters = $"Encounters: {PlaceholderSpriteGenerator.StageEnemyNames[index]} → {PlaceholderSpriteGenerator.StageBossNames[index]}";
             string element = $"Element: {elementIcon} {StageElements[index]} | Difficulty: {difficulty}";
-            string reward = $"Reward: {rewardGold} / {rewardXP}";
+            string reward = $"Reward: {rewardGold} + Bonuses / {rewardXP}";
 
+            string statusText = GetStageStatusText(index, unlocked, completed);
             string unlockCondition;
-            if (completed) unlockCondition = "Status: ✅ Cleared";
-            else if (unlocked) unlockCondition = "Status: ▶ Available — Click Start Battle";
-            else if (index == 0) unlockCondition = "Status: ▶ Available (Start)";
-            else unlockCondition = $"🔒 Locked — Clear \"{StageNames[index - 1]}\" to unlock";
+            if (completed)
+                unlockCondition = $"Status: {statusText}";
+            else if (unlocked)
+                unlockCondition = $"Status: {statusText} — Click Start Battle";
+            else if (index > 0)
+                unlockCondition = $"Status: {statusText} — Clear \"{StageNames[index - 1]}\" to unlock";
+            else
+                unlockCondition = $"Status: {statusText}";
 
             string description = StageDescriptions[index];
             stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{unlockCondition}";
