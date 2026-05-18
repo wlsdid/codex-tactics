@@ -450,6 +450,36 @@ public class BattleUI : MonoBehaviour
             playerStatusText.text = "Status: Guarding";
         else
             playerStatusText.text = "Status: Ready";
+
+        // Guard overlay on player sprite
+        UpdatePlayerGuardOverlay(isGuarding && state != BattleState.Victory && state != BattleState.Defeat);
+    }
+
+    private Image playerGuardOverlay;
+    private void UpdatePlayerGuardOverlay(bool show)
+    {
+        if (playerSpriteImage == null) return;
+        if (playerGuardOverlay == null)
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            GameObject overlayObj = new GameObject("Player Guard Overlay", typeof(RectTransform), typeof(Image));
+            overlayObj.transform.SetParent(canvas.transform, false);
+            RectTransform rt = overlayObj.GetComponent<RectTransform>();
+            // Position near player sprite
+            Vector3 spritePos = playerSpriteImage.rectTransform.position;
+            rt.anchorMin = new Vector2(0.0f, 0.85f);
+            rt.anchorMax = new Vector2(0.0f, 0.85f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(80, 0);
+            rt.sizeDelta = new Vector2(36, 36);
+            playerGuardOverlay = overlayObj.GetComponent<Image>();
+            playerGuardOverlay.sprite = null;
+            playerGuardOverlay.color = new Color(0.3f, 0.7f, 1.0f, 0.7f);
+        }
+        playerGuardOverlay.gameObject.SetActive(show);
+        if (show && playerGuardOverlay.gameObject.activeInHierarchy)
+            StartCoroutine(PulseOverlay(playerGuardOverlay, 0.5f, new Color(0.3f, 0.7f, 1.0f, 0.3f)));
     }
 
     public void SetEnemyStatusText(CharacterData enemy)
@@ -489,13 +519,62 @@ public class BattleUI : MonoBehaviour
     }
 
     private string enemyElementLabel = "";
+    private TMP_Text enemyElementBadge;
     public void SetEnemyElementLabel(ElementType element)
     {
         if (element == ElementType.None || element == ElementType.Physical)
             enemyElementLabel = "";
         else
             enemyElementLabel = $"[{element}] ";
+
+        // Update element badge (create if needed)
+        UpdateEnemyElementBadge(element);
     }
+
+    private void UpdateEnemyElementBadge(ElementType element)
+    {
+        if (enemyElementBadge == null)
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            GameObject badgeObj = new GameObject("Enemy Element Badge", typeof(RectTransform), typeof(TextMeshProUGUI));
+            badgeObj.transform.SetParent(canvas.transform, false);
+            RectTransform rt = badgeObj.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.85f);
+            rt.anchorMax = new Vector2(0.5f, 0.85f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(260, -10);
+            rt.sizeDelta = new Vector2(100, 30);
+            enemyElementBadge = badgeObj.GetComponent<TextMeshProUGUI>();
+            enemyElementBadge.fontSize = 20;
+            enemyElementBadge.alignment = TextAlignmentOptions.Center;
+            enemyElementBadge.fontStyle = FontStyles.Bold;
+        }
+
+        if (element == ElementType.None || element == ElementType.Physical)
+        {
+            enemyElementBadge.gameObject.SetActive(false);
+            return;
+        }
+
+        string icon = GetElementBadgeIcon(element);
+        Color color = PlaceholderSpriteGenerator.GetElementColor(element);
+        enemyElementBadge.text = $"{icon} {element}";
+        enemyElementBadge.color = new Color(color.r * 0.9f + 0.3f, color.g * 0.9f + 0.3f, color.b * 0.9f + 0.3f);
+        enemyElementBadge.gameObject.SetActive(true);
+    }
+
+    private static string GetElementBadgeIcon(ElementType element) => element switch
+    {
+        ElementType.Fire => "🔥",
+        ElementType.Ice => "❄",
+        ElementType.Lightning => "⚡",
+        ElementType.Nature => "🌿",
+        ElementType.Earth => "🌍",
+        ElementType.Dark => "🌑",
+        ElementType.Light => "✨",
+        _ => "❓"
+    };
 
     private void SetEnemyIntentText(BattleState state, EnemyPatternData pattern, int turnCount)
     {
@@ -576,7 +655,30 @@ public class BattleUI : MonoBehaviour
     public void SetImpactText(string text)
     {
         if (impactText != null)
+        {
             impactText.text = text;
+            // Color-code impact text based on content
+            if (text.Contains("hazard") || text.Contains("Storm Surge") || text.Contains("Void Drain"))
+                impactText.color = new Color(0.90f, 0.55f, 0.10f); // Orange for hazards
+            else if (text.Contains("Guard") || text.Contains("guarded") || text.Contains("reduced"))
+                impactText.color = new Color(0.30f, 0.70f, 1.0f);  // Blue for defense
+            else if (text.Contains("🔥") || text.Contains("Fire") || text.Contains("Burn"))
+                impactText.color = new Color(1.0f, 0.35f, 0.15f);  // Red-orange for fire
+            else if (text.Contains("❄") || text.Contains("Ice") || text.Contains("Stun"))
+                impactText.color = new Color(0.30f, 0.60f, 1.0f);  // Ice blue
+            else if (text.Contains("⚡") || text.Contains("Lightning"))
+                impactText.color = new Color(1.0f, 0.85f, 0.15f);  // Yellow-gold
+            else if (text.Contains("Heal") || text.Contains("restore"))
+                impactText.color = new Color(0.22f, 0.85f, 0.40f); // Green for healing
+            else if (text.Contains("BROKEN") || text.Contains("Break bonus"))
+                impactText.color = new Color(1.0f, 0.65f, 0.0f);   // Gold for break
+            else if (text.Contains("Ready"))
+                impactText.color = Color.white;
+            else if (text.Contains("dealt") || text.Contains("damage"))
+                impactText.color = new Color(0.92f, 0.28f, 0.28f); // Red for damage
+            else
+                impactText.color = Color.white;
+        }
     }
 
     public void SetPlayerShieldText(int shieldAmount)
