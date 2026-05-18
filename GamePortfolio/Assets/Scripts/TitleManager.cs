@@ -27,11 +27,14 @@ public class TitleManager : MonoBehaviour
         scaler.referenceResolution = new Vector2(1920, 1080);
         canvasObj.AddComponent<GraphicRaycaster>();
 
-        // Dark background
+        // Create background with floating particles
+        CreateStarParticles(canvasObj.transform);
+
+        // Dark background overlay for readability
         GameObject bgObj = new GameObject("Background");
         bgObj.transform.SetParent(canvasObj.transform, false);
         Image bg = bgObj.AddComponent<Image>();
-        bg.color = new Color(0.05f, 0.06f, 0.09f, 1f);
+        bg.color = new Color(0.05f, 0.06f, 0.09f, 0.85f);
         RectTransform bgRt = bgObj.GetComponent<RectTransform>();
         bgRt.anchorMin = Vector2.zero;
         bgRt.anchorMax = Vector2.one;
@@ -185,5 +188,113 @@ public class TitleManager : MonoBehaviour
         // Update the button label
         var label = GameObject.Find("Difficulty Label")?.GetComponent<TMPro.TMP_Text>();
         if (label != null) label.text = $"Mode: {ProgressState.DifficultyLabel}";
+    }
+
+    // ── Visual polish ──
+
+    private void Start()
+    {
+        StartCoroutine(TitleAnimationRoutine());
+    }
+
+    private IEnumerator TitleAnimationRoutine()
+    {
+        // Fade in
+        CanvasGroup cg = GetComponentInChildren<CanvasGroup>();
+        if (cg == null)
+        {
+            GameObject canvas = GameObject.Find("Title Canvas");
+            if (canvas != null) cg = canvas.AddComponent<CanvasGroup>();
+        }
+        if (cg != null)
+        {
+            cg.alpha = 0f;
+            float elapsed = 0f;
+            while (elapsed < 0.5f)
+            {
+                cg.alpha = Mathf.Lerp(0f, 1f, elapsed / 0.5f);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            cg.alpha = 1f;
+        }
+
+        // Continuous gentle title float
+        Transform titleTransform = GameObject.Find("Title Text")?.transform;
+        Transform startBtnTransform = GameObject.Find("Start Button")?.transform;
+
+        while (true)
+        {
+            float t = Time.time;
+            if (titleTransform != null)
+            {
+                float floatOffset = Mathf.Sin(t * 0.8f) * 4f;
+                titleTransform.localPosition = new Vector3(0, 80 + floatOffset, 0);
+            }
+            if (startBtnTransform != null)
+            {
+                float glow = 0.85f + 0.15f * (Mathf.Sin(t * 1.2f) * 0.5f + 0.5f);
+                Image btnImg = startBtnTransform.GetComponent<Image>();
+                if (btnImg != null)
+                    btnImg.color = new Color(0.15f * glow, 0.20f * glow, 0.30f * glow);
+            }
+            yield return new WaitForSeconds(0.05f);
+        }
+    }
+
+    /// <summary>Creates floating star/dot particles in the background.</summary>
+    private void CreateStarParticles(Transform parent)
+    {
+        for (int i = 0; i < 40; i++)
+        {
+            GameObject star = new GameObject($"Star_{i}", typeof(RectTransform), typeof(Image));
+            star.transform.SetParent(parent, false);
+            Image starImg = star.GetComponent<Image>();
+            starImg.color = new Color(1f, 1f, 1f, Random.Range(0.1f, 0.4f));
+            starImg.raycastTarget = false;
+
+            RectTransform rt = star.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(Random.Range(1.5f, 3f), Random.Range(1.5f, 3f));
+            rt.anchoredPosition = new Vector2(
+                Random.Range(-960f, 960f),
+                Random.Range(-540f, 540f)
+            );
+
+            StarParticle sp = star.AddComponent<StarParticle>();
+            sp.driftSpeed = Random.Range(2f, 8f);
+            sp.twinkleSpeed = Random.Range(0.3f, 1.5f);
+            sp.startAlpha = starImg.color.a;
+        }
+    }
+}
+
+/// <summary>Helper for floating star particles on the title screen.</summary>
+public class StarParticle : MonoBehaviour
+{
+    public float driftSpeed = 4f;
+    public float twinkleSpeed = 1f;
+    public float startAlpha = 0.3f;
+    private Image img;
+    private Vector3 startPos;
+
+    private void Start()
+    {
+        img = GetComponent<Image>();
+        startPos = transform.localPosition;
+    }
+
+    private void Update()
+    {
+        // Gentle drift
+        float driftX = Mathf.Sin(Time.time * driftSpeed * 0.1f + startPos.x * 0.01f) * 8f;
+        float driftY = Mathf.Sin(Time.time * driftSpeed * 0.05f + startPos.y * 0.01f) * 5f;
+        transform.localPosition = startPos + new Vector3(driftX, driftY, 0);
+
+        // Twinkle
+        if (img != null)
+        {
+            float twinkle = Mathf.Sin(Time.time * twinkleSpeed + startPos.x) * 0.5f + 0.5f;
+            img.color = new Color(1f, 1f, 1f, startAlpha * (0.5f + twinkle * 0.5f));
+        }
     }
 }
