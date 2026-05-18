@@ -806,6 +806,35 @@ public class BattleManager : MonoBehaviour
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+
+        // Storm Surge: periodic hazard damage every 3 enemy turns
+        if (enemyTurnCount > 0 && enemyTurnCount % 3 == 0 && player != null)
+        {
+            var currentStageData = GetCurrentStageData();
+            if (currentStageData != null && currentStageData.stageModifier == StageModifierType.StormSurge)
+            {
+                int surgeDamage = 8;
+                int beforeSurge = player.currentHp;
+                player.TakeDamage(surgeDamage);
+                totalDamageTaken += Mathf.Min(surgeDamage, beforeSurge > 0 ? beforeSurge : surgeDamage);
+
+                string surgeMsg = $"⚡ Storm Surge strikes! Player takes {surgeDamage} lightning damage.";
+                battleUI?.SetImpactText($"Impact: Storm Surge dealt {surgeDamage} hazard damage");
+                battleUI?.ScreenFlash(0.12f);
+                battleUI?.ShowDamageNumberOnPlayer(surgeDamage);
+
+                battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+                    currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+                    CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, surgeMsg,
+                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+
+                if (player.currentHp <= 0)
+                {
+                    EndBattle(BattleState.Defeat);
+                    return;
+                }
+            }
+        }
     }
 
     private void EndBattle(BattleState resultState)
@@ -1089,7 +1118,6 @@ public class BattleManager : MonoBehaviour
 
             case StageModifierType.StormSurge:
                 modifierMsg = "⚠ Stage Modifier: Storm Surge — Residual lightning strikes every 3 turns.";
-                // Full implementation in next batch
                 break;
 
             case StageModifierType.VoidDrain:

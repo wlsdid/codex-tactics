@@ -250,6 +250,8 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Stage 2 Boss metadata has PackPressure modifier", StageData.CreateStage2Boss().stageModifier == StageModifierType.PackPressure);
         AppendCheck(ref passed, ref report, "Stage 3 Normal metadata has Stoneguard modifier", StageData.CreateStage3Normal().stageModifier == StageModifierType.Stoneguard);
         AppendCheck(ref passed, ref report, "Stage 3 Boss metadata has Stoneguard modifier", StageData.CreateStage3Boss().stageModifier == StageModifierType.Stoneguard);
+        AppendCheck(ref passed, ref report, "Stage 4 Normal metadata has StormSurge modifier", StageData.CreateStage4Normal().stageModifier == StageModifierType.StormSurge);
+        AppendCheck(ref passed, ref report, "Stage 4 Boss metadata has StormSurge modifier", StageData.CreateStage4Boss().stageModifier == StageModifierType.StormSurge);
         AppendCheck(ref passed, ref report, "Stage 3 Normal creates Golem Sentry", StageData.CreateStage3Normal().enemy.enemyName == "Golem Sentry" && StageData.CreateStage3Normal().enemy.maxHp == 120);
         AppendCheck(ref passed, ref report, "Stage 3 Boss creates Ancient Golem", StageData.CreateStage3Boss().enemy.enemyName == "Ancient Golem" && StageData.CreateStage3Boss().enemy.maxHp == 220);
         AppendCheck(ref passed, ref report, "Stage 3 encounters loaded from GetEncountersForStage", StageData.GetEncountersForStage(2).Count == 2 && StageData.GetEncountersForStage(2)[0].encounterName == "Golem Sentry");
@@ -310,6 +312,24 @@ public static class BattleAutoTestRunner
             battleManager.DebugBattleLogText.Contains("Stoneguard"));
         AppendCheck(ref passed, ref report, "Stage 3 Stoneguard increases break gauge to 3",
             battleManager.DebugEnemyBreakText == "Break: 3/3");
+
+        // Stage 4 StormSurge: periodic hazard damage every 3 enemy turns
+        battleManager.DebugLoadEncountersForStage(3);
+        battleManager.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Stage 4 battle log shows Storm Surge modifier",
+            battleManager.DebugBattleLogText.Contains("Storm Surge"));
+        // First two attacks — no surge yet (enemyTurnCount 1 & 2)
+        battleManager.DebugResolveEnemyAttackForTest();
+        battleManager.DebugResolveEnemyAttackForTest();
+        int damageBeforeSurge = battleManager.DebugTotalDamageTaken;
+        // Third attack — Storm Surge fires on turn 3
+        battleManager.DebugResolveEnemyAttackForTest();
+        AppendCheck(ref passed, ref report, "Stage 4 Storm Surge message appears on 3rd enemy turn",
+            battleManager.DebugMessageText.Contains("Storm Surge") || battleManager.DebugBattleLogText.Contains("Storm Surge"));
+        AppendCheck(ref passed, ref report, "Stage 4 Storm Surge impact shows hazard damage",
+            battleManager.DebugImpactText.Contains("hazard") || battleManager.DebugImpactText.Contains("Storm Surge"));
+        AppendCheck(ref passed, ref report, "Stage 4 Storm Surge increases total damage taken by at least 8",
+            battleManager.DebugTotalDamageTaken >= damageBeforeSurge + 8);
 
         // --- Stage Selection Tests ---
         Object.DestroyImmediate(root);
