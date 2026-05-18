@@ -259,6 +259,9 @@ public static class GameFlowSceneAutoBuilder
                 AppendCheck(ref passed, ref report, "Start Battle button exists", controller.DebugStartBattleButtonExists);
                 AppendCheck(ref passed, ref report, "Start Battle button starts disabled (no selection)", !controller.DebugStartBattleButtonInteractable);
                 AppendCheck(ref passed, ref report, "Back button exists", controller.DebugBackButtonExists);
+                // Select Stage 1 to verify modifier info appears in description panel
+                controller.DebugSelectStage(0);
+                AppendCheck(ref passed, ref report, "Stage 1 description shows Modifier info", controller.DebugStageDescriptionText.Contains("Modifier:"));
             }
         }
 

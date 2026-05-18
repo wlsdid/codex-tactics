@@ -359,6 +359,7 @@ public class StageSelectController : MonoBehaviour
     public bool DebugBackButtonExists => backButton != null;
     public bool DebugStageNameTextExists => stageNameText != null;
     public bool DebugStageDescriptionTextExists => stageDescriptionText != null;
+    public string DebugStageDescriptionText => stageDescriptionText != null ? stageDescriptionText.text : "";
     public string DebugStage1StatusText => stage1StatusText != null ? stage1StatusText.text : "";
     public string DebugStage2StatusText => stage2StatusText != null ? stage2StatusText.text : "";
     public string DebugStage3StatusText => stage3StatusText != null ? stage3StatusText.text : "";
