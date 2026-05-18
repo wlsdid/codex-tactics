@@ -252,6 +252,8 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Stage 3 Boss metadata has Stoneguard modifier", StageData.CreateStage3Boss().stageModifier == StageModifierType.Stoneguard);
         AppendCheck(ref passed, ref report, "Stage 4 Normal metadata has StormSurge modifier", StageData.CreateStage4Normal().stageModifier == StageModifierType.StormSurge);
         AppendCheck(ref passed, ref report, "Stage 4 Boss metadata has StormSurge modifier", StageData.CreateStage4Boss().stageModifier == StageModifierType.StormSurge);
+        AppendCheck(ref passed, ref report, "Stage 5 Normal metadata has VoidDrain modifier", StageData.CreateStage5Normal().stageModifier == StageModifierType.VoidDrain);
+        AppendCheck(ref passed, ref report, "Stage 5 Boss metadata has VoidDrain modifier", StageData.CreateStage5Boss().stageModifier == StageModifierType.VoidDrain);
         AppendCheck(ref passed, ref report, "Stage 3 Normal creates Golem Sentry", StageData.CreateStage3Normal().enemy.enemyName == "Golem Sentry" && StageData.CreateStage3Normal().enemy.maxHp == 120);
         AppendCheck(ref passed, ref report, "Stage 3 Boss creates Ancient Golem", StageData.CreateStage3Boss().enemy.enemyName == "Ancient Golem" && StageData.CreateStage3Boss().enemy.maxHp == 220);
         AppendCheck(ref passed, ref report, "Stage 3 encounters loaded from GetEncountersForStage", StageData.GetEncountersForStage(2).Count == 2 && StageData.GetEncountersForStage(2)[0].encounterName == "Golem Sentry");
@@ -330,6 +332,24 @@ public static class BattleAutoTestRunner
             battleManager.DebugImpactText.Contains("hazard") || battleManager.DebugImpactText.Contains("Storm Surge"));
         AppendCheck(ref passed, ref report, "Stage 4 Storm Surge increases total damage taken by at least 8",
             battleManager.DebugTotalDamageTaken >= damageBeforeSurge + 8);
+
+        // Stage 5 VoidDrain: drain AP every 2 enemy turns
+        battleManager.DebugLoadEncountersForStage(4);
+        battleManager.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Stage 5 battle log shows Void Drain modifier",
+            battleManager.DebugBattleLogText.Contains("Void Drain"));
+        // Turn 1 — no drain (enemyTurnCount 1, not divisible by 2)
+        battleManager.DebugResolveEnemyAttackForTest();
+        AppendCheck(ref passed, ref report, "Stage 5 first attack does not trigger drain message",
+            !battleManager.DebugMessageText.Contains("Void Drain"));
+        // Turn 2 — Void Drain fires, reduces AP by 1 (from 3 to 2)
+        battleManager.DebugResolveEnemyAttackForTest();
+        AppendCheck(ref passed, ref report, "Stage 5 Void Drain saps AP on 2nd enemy turn",
+            battleManager.DebugMessageText.Contains("Void Drain") || battleManager.DebugBattleLogText.Contains("Void Drain"));
+        AppendCheck(ref passed, ref report, "Stage 5 Void Drain impact shows reduced AP",
+            battleManager.DebugImpactText.Contains("reduced AP"));
+        AppendCheck(ref passed, ref report, "Stage 5 Void Drain reduces player AP after 2 turns",
+            battleManager.DebugPlayerApText.Contains("2/3") || battleManager.DebugPlayerApText.Contains("1/3"));
 
         // --- Stage Selection Tests ---
         Object.DestroyImmediate(root);

@@ -835,6 +835,45 @@ public class BattleManager : MonoBehaviour
                 }
             }
         }
+
+        // Void Drain: drain AP every 2 enemy turns
+        if (enemyTurnCount > 0 && enemyTurnCount % 2 == 0 && player != null)
+        {
+            var currentStageData = GetCurrentStageData();
+            if (currentStageData != null && currentStageData.stageModifier == StageModifierType.VoidDrain)
+            {
+                string drainMsg;
+                string drainImpact;
+                if (player.currentAp >= 1)
+                {
+                    player.currentAp -= 1;
+                    drainMsg = $"🌑 Void Drain saps 1 AP from {playerName}.";
+                    drainImpact = "Impact: Void Drain reduced AP";
+                }
+                else
+                {
+                    int beforeDrain = player.currentHp;
+                    player.TakeDamage(5);
+                    totalDamageTaken += Mathf.Min(5, beforeDrain > 0 ? beforeDrain : 5);
+                    drainMsg = $"🌑 Void Drain lashes out! {playerName} takes 5 shadow damage.";
+                    drainImpact = "Impact: Void Drain dealt 5 hazard damage";
+                    battleUI?.ShowDamageNumberOnPlayer(5);
+                }
+
+                battleUI?.SetImpactText(drainImpact);
+                battleUI?.ScreenFlash(0.1f);
+                battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+                    currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+                    CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, drainMsg,
+                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+
+                if (player.currentHp <= 0)
+                {
+                    EndBattle(BattleState.Defeat);
+                    return;
+                }
+            }
+        }
     }
 
     private void EndBattle(BattleState resultState)
@@ -1122,7 +1161,6 @@ public class BattleManager : MonoBehaviour
 
             case StageModifierType.VoidDrain:
                 modifierMsg = "⚠ Stage Modifier: Void Drain — Shadow energy drains AP over time.";
-                // Full implementation in next batch
                 break;
 
             case StageModifierType.RadiantTrial:
