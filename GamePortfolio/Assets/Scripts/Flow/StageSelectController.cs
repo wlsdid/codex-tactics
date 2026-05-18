@@ -90,21 +90,21 @@ public class StageSelectController : MonoBehaviour
     };
 
     private static readonly string[] StageRewardGold = {
-        "50 Gold",    // Stage 1
-        "100 Gold",   // Stage 2
-        "150 Gold",   // Stage 3
-        "200 Gold",   // Stage 4
-        "250 Gold",   // Stage 5
-        "300 Gold"    // Stage 6
+        "Rank Reward: 100-150G",     // Stage 1
+        "Rank Reward: 100-150G",     // Stage 2
+        "Rank Reward: 100-150G",     // Stage 3
+        "Rank Reward: 100-150G",     // Stage 4
+        "Rank Reward: 100-150G",     // Stage 5
+        "Rank Reward: 100-150G"      // Stage 6
     };
 
     private static readonly string[] StageRewardXP = {
-        "30 XP",    // Stage 1
-        "60 XP",    // Stage 2
-        "90 XP",    // Stage 3
-        "120 XP",   // Stage 4
-        "150 XP",   // Stage 5
-        "180 XP"    // Stage 6
+        "80 XP",     // Stage 1: 50 + (0+1)*30
+        "110 XP",    // Stage 2: 50 + (1+1)*30
+        "140 XP",    // Stage 3: 50 + (2+1)*30
+        "170 XP",    // Stage 4: 50 + (3+1)*30
+        "200 XP",    // Stage 5: 50 + (4+1)*30
+        "230 XP"     // Stage 6: 50 + (5+1)*30
     };
 
     /// <summary>Selected stage index (0-based) for BattleScene to read.</summary>
@@ -276,14 +276,25 @@ public class StageSelectController : MonoBehaviour
         startBattleButton.interactable = canStart;
     }
 
+    /// <summary>Get the first unlocked but not completed stage index (recommended next).</summary>
+    private static int GetNextRecommendedStageIndex()
+    {
+        for (int i = 0; i < ProgressState.TotalStages; i++)
+        {
+            if (ProgressState.IsStageUnlocked(i) && !ProgressState.IsStageCompleted(i))
+                return i;
+        }
+        return -1;
+    }
+
     /// <summary>Get status text for a stage card based on progress.</summary>
     private static string GetStageStatusText(int index, bool unlocked, bool completed)
     {
         if (completed) return "✅ Cleared";
         if (!unlocked) return "🔒 Locked";
-        if (index == 0) return "▶ Available";
-        if (ProgressState.IsStageCompleted(index - 1)) return "▶ Available";
-        return "⭐ Next";
+        int nextIndex = GetNextRecommendedStageIndex();
+        if (index == nextIndex) return "⭐ Next";
+        return "▶ Available";
     }
 
     /// <summary>Get an emoji icon representing the given element type.</summary>

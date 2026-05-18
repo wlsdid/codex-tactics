@@ -141,7 +141,7 @@ public static class GameFlowSceneAutoBuilder
             shortDescText.color = i == 0 ? new Color(0.72f, 0.72f, 0.72f) : new Color(0.4f, 0.4f, 0.4f);
 
             // Status text
-            string statusLabel = i == 0 ? "▶ Available" : "🔒 Locked";
+            string statusLabel = i == 0 ? "⭐ Next" : "🔒 Locked";
             Color statusColor = i == 0 ? new Color(0.38f, 1f, 0.42f) : new Color(1f, 0.5f, 0.5f);
             TMP_Text statusText = CreateText(cardBtn.transform, $"Stage {i + 1} Status Text", statusLabel, new Vector2(0, -50), new Vector2(200, 28), TextAlignmentOptions.Center);
             statusText.fontSize = 18;
@@ -156,7 +156,7 @@ public static class GameFlowSceneAutoBuilder
         stageNameText.fontSize = 22;
         stageNameText.color = new Color(0.92f, 0.78f, 0.38f);
         TMP_Text descText = CreateText(canvas.transform, "Stage Description Text",
-            "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.\n\nEncounters: Slime → Slime King\nElement: 🔥 Fire | Difficulty: ★\nReward: 50 Gold / 30 XP\nStatus: ▶ Available — Click Start Battle",
+            "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.\n\nEncounters: Slime → Slime King\nElement: 🔥 Fire | Difficulty: ★\nReward: Rank 100-150G / 80 XP\nStatus: ⭐ Next — Click Start Battle",
             new Vector2(0, -155), new Vector2(660, 80), TextAlignmentOptions.TopLeft);
         descText.fontSize = 16;
         descText.color = new Color(0.82f, 0.82f, 0.92f);
@@ -246,7 +246,7 @@ public static class GameFlowSceneAutoBuilder
                 AppendCheck(ref passed, ref report, "Stage 1 Card button exists", controller.DebugStage1CardButtonExists);
                 AppendCheck(ref passed, ref report, "Stage 1 Card is interactable (unlocked)", controller.DebugStage1CardInteractable);
                 AppendCheck(ref passed, ref report, "Stage 1 status text exists", !string.IsNullOrEmpty(controller.DebugStage1StatusText));
-                AppendCheck(ref passed, ref report, "Stage 1 status shows ▶ Available", controller.DebugStage1StatusText == "▶ Available");
+                AppendCheck(ref passed, ref report, "Stage 1 status shows ⭐ Next (first unlocked + incomplete)", controller.DebugStage1StatusText == "⭐ Next");
                 AppendCheck(ref passed, ref report, "Stage 2 Card button exists (unlock-ready)", controller.DebugStage2CardButtonExists);
                 AppendCheck(ref passed, ref report, "Stage 2 Card button is non-interactive (locked)", !controller.DebugStage2CardInteractable);
                 AppendCheck(ref passed, ref report, "Stage 2 status shows 🔒 Locked", controller.DebugStage2StatusText == "🔒 Locked");
