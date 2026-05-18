@@ -335,6 +335,28 @@ public class StageData
         };
     }
 
+    public static string GetModifierDisplayName(StageModifierType type)
+    {
+        return type switch
+        {
+            StageModifierType.TutorialField => "Tutorial Field",
+            StageModifierType.PackPressure => "Pack Pressure",
+            StageModifierType.Stoneguard => "Stoneguard",
+            StageModifierType.StormSurge => "Storm Surge",
+            StageModifierType.VoidDrain => "Void Drain",
+            StageModifierType.RadiantTrial => "Radiant Trial",
+            _ => "None"
+        };
+    }
+
+    public string BuildModifierSummaryText()
+    {
+        string name = GetModifierDisplayName(stageModifier);
+        return string.IsNullOrWhiteSpace(stageModifierDescription)
+            ? $"Modifier: {name}"
+            : $"Modifier: {name}\nEffect: {stageModifierDescription}";
+    }
+
     public static List<StageData> GetEncountersForStage(int stageIndex)
     {
         var list = new List<StageData>();

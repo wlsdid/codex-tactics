@@ -269,17 +269,12 @@ public class StageSelectController : MonoBehaviour
                 unlockCondition = $"Status: {statusText}";
 
             string description = StageDescriptions[index];
-            // Read modifier from StageData first encounter to avoid duplication
-            string modifierName = "None";
-            string modifierDesc = "";
+            string modifierLine = "Modifier: None";
             var stageEncounters = StageData.GetEncountersForStage(index);
             if (stageEncounters != null && stageEncounters.Count > 0)
             {
-                var firstEncounter = stageEncounters[0];
-                modifierName = GetModifierDisplayName(firstEncounter.stageModifier);
-                modifierDesc = firstEncounter.stageModifierDescription;
+                modifierLine = stageEncounters[0].BuildModifierSummaryText();
             }
-            string modifierLine = $"Modifier: {modifierName}\nEffect: {modifierDesc}";
             stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{modifierLine}\n{unlockCondition}";
         }
     }
@@ -329,20 +324,6 @@ public class StageSelectController : MonoBehaviour
         };
     }
 
-    /// <summary>Get a display name for a StageModifierType.</summary>
-    private static string GetModifierDisplayName(StageModifierType type)
-    {
-        return type switch
-        {
-            StageModifierType.TutorialField => "Tutorial Field",
-            StageModifierType.PackPressure => "Pack Pressure",
-            StageModifierType.Stoneguard => "Stoneguard",
-            StageModifierType.StormSurge => "Storm Surge",
-            StageModifierType.VoidDrain => "Void Drain",
-            StageModifierType.RadiantTrial => "Radiant Trial",
-            _ => "None"
-        };
-    }
 
     // ── Public debug accessors (for auto-test) ──
 

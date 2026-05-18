@@ -256,6 +256,8 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Stage 5 Boss metadata has VoidDrain modifier", StageData.CreateStage5Boss().stageModifier == StageModifierType.VoidDrain);
         AppendCheck(ref passed, ref report, "Stage 6 Normal metadata has RadiantTrial modifier", StageData.CreateStage6Normal().stageModifier == StageModifierType.RadiantTrial);
         AppendCheck(ref passed, ref report, "Stage 6 Boss metadata has RadiantTrial modifier", StageData.CreateStage6Boss().stageModifier == StageModifierType.RadiantTrial);
+        AppendCheck(ref passed, ref report, "StageData centralizes readable modifier names", StageData.GetModifierDisplayName(StageModifierType.StormSurge) == "Storm Surge" && StageData.GetModifierDisplayName(StageModifierType.VoidDrain) == "Void Drain");
+        AppendCheck(ref passed, ref report, "StageData builds modifier summary text from source data", StageData.CreateStage5Normal().BuildModifierSummaryText().Contains("Modifier: Void Drain") && StageData.CreateStage5Normal().BuildModifierSummaryText().Contains("Effect: Shadow energy drains AP over time."));
         AppendCheck(ref passed, ref report, "Stage 3 Normal creates Golem Sentry", StageData.CreateStage3Normal().enemy.enemyName == "Golem Sentry" && StageData.CreateStage3Normal().enemy.maxHp == 120);
         AppendCheck(ref passed, ref report, "Stage 3 Boss creates Ancient Golem", StageData.CreateStage3Boss().enemy.enemyName == "Ancient Golem" && StageData.CreateStage3Boss().enemy.maxHp == 220);
         AppendCheck(ref passed, ref report, "Stage 3 encounters loaded from GetEncountersForStage", StageData.GetEncountersForStage(2).Count == 2 && StageData.GetEncountersForStage(2)[0].encounterName == "Golem Sentry");
