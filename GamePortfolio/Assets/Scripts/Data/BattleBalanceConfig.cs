@@ -11,7 +11,7 @@ public class BattleBalanceConfig : ScriptableObject
     public int playerMaxHp = 100;
     public int playerAttack = 20;
     public int playerMaxAp = 3;
-    public int playerApRecoveryPerTurn = 1;
+    public int playerApRecoveryPerTurn = 2;
 
     [Header("Basic Skill (Slash)")]
     public int basicSkillPower = 20;
@@ -34,7 +34,7 @@ public class BattleBalanceConfig : ScriptableObject
     public int earthSkillPower = 22;
     public int earthSkillApCost = 2;
     [Tooltip("Amount of damage absorbed by Earth Wall shield")]
-    public int earthSkillShieldAmount = 15;
+    public int earthSkillShieldAmount = 20;
 
     [Header("Battle Speed")]
     [Range(1.0f, 3.0f)]
@@ -42,7 +42,7 @@ public class BattleBalanceConfig : ScriptableObject
     public float battleSpeedMultiplier = 1.0f;
 
     [Header("Status Effects")]
-    public int burnDamagePerTurn = 3;
+    public int burnDamagePerTurn = 5;
     public int burnTurnDuration = 2;
 
     [Header("Guard")]
