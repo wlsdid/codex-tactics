@@ -249,7 +249,9 @@ public class BattleManager : MonoBehaviour
         playerItems = new List<ItemData>
         {
             new ItemData { itemName = "Potion", description = "Restore 30 HP.", effectType = ItemEffectType.HealHp, effectValue = 30, quantity = 3 },
-            new ItemData { itemName = "Ether", description = "Restore 2 AP.", effectType = ItemEffectType.RestoreAp, effectValue = 2, quantity = 2 }
+            new ItemData { itemName = "Hi-Potion", description = "Restore 60 HP.", effectType = ItemEffectType.HealHp, effectValue = 60, quantity = 2 },
+            new ItemData { itemName = "Ether", description = "Restore 2 AP.", effectType = ItemEffectType.RestoreAp, effectValue = 2, quantity = 2 },
+            new ItemData { itemName = "Full Ether", description = "Restore all AP.", effectType = ItemEffectType.RestoreAp, effectValue = 99, quantity = 1 }
         };
 
         // Set up element-aware sprites
