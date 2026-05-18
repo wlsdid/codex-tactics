@@ -246,6 +246,10 @@ public static class BattleAutoTestRunner
         }
 
         AppendCheck(ref passed, ref report, "EnemyData and StageData presets can describe multiple encounters", StageData.CreateStage1Boss().enemy.enemyName == "Slime King" && StageData.CreateStage1Normal().enemy.maxHp == 80);
+        AppendCheck(ref passed, ref report, "Stage 2 Normal metadata has PackPressure modifier", StageData.CreateStage2Normal().stageModifier == StageModifierType.PackPressure);
+        AppendCheck(ref passed, ref report, "Stage 2 Boss metadata has PackPressure modifier", StageData.CreateStage2Boss().stageModifier == StageModifierType.PackPressure);
+        AppendCheck(ref passed, ref report, "Stage 3 Normal metadata has Stoneguard modifier", StageData.CreateStage3Normal().stageModifier == StageModifierType.Stoneguard);
+        AppendCheck(ref passed, ref report, "Stage 3 Boss metadata has Stoneguard modifier", StageData.CreateStage3Boss().stageModifier == StageModifierType.Stoneguard);
         AppendCheck(ref passed, ref report, "Stage 3 Normal creates Golem Sentry", StageData.CreateStage3Normal().enemy.enemyName == "Golem Sentry" && StageData.CreateStage3Normal().enemy.maxHp == 120);
         AppendCheck(ref passed, ref report, "Stage 3 Boss creates Ancient Golem", StageData.CreateStage3Boss().enemy.enemyName == "Ancient Golem" && StageData.CreateStage3Boss().enemy.maxHp == 220);
         AppendCheck(ref passed, ref report, "Stage 3 encounters loaded from GetEncountersForStage", StageData.GetEncountersForStage(2).Count == 2 && StageData.GetEncountersForStage(2)[0].encounterName == "Golem Sentry");
@@ -290,6 +294,22 @@ public static class BattleAutoTestRunner
         battleManager.OnClickAttackButton();
         AppendCheck(ref passed, ref report, "Break bonus increases Slash damage", battleManager.DebugImpactText == "Impact: Slash dealt 30 damage | Break bonus consumed");
         AppendCheck(ref passed, ref report, "Break resets after bonus attack", battleManager.DebugEnemyBreakText == "Break: 2/2");
+
+        // --- Stage Modifier Tests ---
+        // Stage 2 PackPressure: verify modifier message in battle log
+        battleManager.DebugLoadEncountersForStage(1);
+        battleManager.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Stage 2 battle log shows Pack Pressure modifier",
+            battleManager.DebugBattleLogText.Contains("Pack Pressure"));
+        AppendCheck(ref passed, ref report, "Stage 2 PackPressure reduces strong attack period to 2 turns",
+            battleManager.DebugSkillHelpText.Contains("every 2"));
+        // Stage 3 Stoneguard: verify modifier message and break gauge increase
+        battleManager.DebugLoadEncountersForStage(2);
+        battleManager.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Stage 3 battle log shows Stoneguard modifier",
+            battleManager.DebugBattleLogText.Contains("Stoneguard"));
+        AppendCheck(ref passed, ref report, "Stage 3 Stoneguard increases break gauge to 3",
+            battleManager.DebugEnemyBreakText == "Break: 3/3");
 
         // --- Stage Selection Tests ---
         Object.DestroyImmediate(root);

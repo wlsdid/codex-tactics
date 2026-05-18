@@ -261,7 +261,8 @@ public static class GameFlowSceneAutoBuilder
                 AppendCheck(ref passed, ref report, "Back button exists", controller.DebugBackButtonExists);
                 // Select Stage 1 to verify modifier info appears in description panel
                 controller.DebugSelectStage(0);
-                AppendCheck(ref passed, ref report, "Stage 1 description shows Modifier info", controller.DebugStageDescriptionText.Contains("Modifier:"));
+                AppendCheck(ref passed, ref report, "Stage 1 description starts with Modifier: header", controller.DebugStageDescriptionText.Contains("Modifier:"));
+                AppendCheck(ref passed, ref report, "Stage 1 description shows Tutorial Field modifier name", controller.DebugStageDescriptionText.Contains("Tutorial Field"));
             }
         }
 
