@@ -76,6 +76,11 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button quitButton;
 
+    [Header("VFX")]
+    [SerializeField] private Image screenFlashImage;
+    private Canvas cachedCanvas;
+    private Transform cachedCanvasTransform;
+
     public string DebugPlayerHpText => playerHpText != null ? playerHpText.text : "";
     public string DebugPlayerApText => playerApText != null ? playerApText.text : "";
     public string DebugEnemyHpText => enemyHpText != null ? enemyHpText.text : "";
@@ -190,6 +195,59 @@ public class BattleUI : MonoBehaviour
         // Cache continue button's child text component if not yet set
         if (continueButtonText == null && continueButton != null)
             continueButtonText = continueButton.GetComponentInChildren<TMP_Text>();
+        // Apply element colors to skill buttons
+        StyleSkillButtons();
+    }
+
+    /// <summary>Applies element-appropriate colors to skill buttons for visual hierarchy.</summary>
+    public void StyleSkillButtons()
+    {
+        StyleButtonWithElement(attackButton, ElementType.Physical, "⚔");
+        StyleButtonWithElement(fireSkillButton, ElementType.Fire, "🔥");
+        StyleButtonWithElement(iceSkillButton, ElementType.Ice, "❄");
+        StyleButtonWithElement(lightningSkillButton, ElementType.Lightning, "⚡");
+        StyleButtonWithElement(earthSkillButton, ElementType.Earth, "\U0001F33F");
+        StyleButtonWithTint(guardButton, ElementGuardColor, "🛡");
+        StyleButtonWithTint(endTurnButton, ElementEndTurnColor, "⏭");
+        if (itemButton != null)
+        {
+            Image img = itemButton.GetComponent<Image>();
+            if (img != null) img.color = new Color(0.15f, 0.30f, 0.22f, 0.90f);
+            TMP_Text lbl = itemButton.GetComponentInChildren<TMP_Text>();
+            if (lbl != null) lbl.text = "🧪 Items";
+        }
+    }
+
+    private void StyleButtonWithElement(Button btn, ElementType element, string symbol)
+    {
+        if (btn == null) return;
+        Image img = btn.GetComponent<Image>();
+        if (img != null)
+        {
+            Color baseColor = GetElementButtonColor(element);
+            img.color = new Color(baseColor.r * 0.35f, baseColor.g * 0.35f, baseColor.b * 0.35f, 0.85f);
+        }
+        TMP_Text label = btn.GetComponentInChildren<TMP_Text>();
+        if (label != null)
+        {
+            Color elemColor = GetElementButtonColor(element);
+            label.color = new Color(elemColor.r * 0.9f + 0.3f, elemColor.g * 0.9f + 0.3f, elemColor.b * 0.9f + 0.3f);
+            label.text = $"{symbol} {label.text.Replace("⚔", "").Replace("🔥", "").Replace("❄", "").Replace("⚡", "").Replace("\U0001F33F", "").Replace("🛡", "").Replace("⏭", "").Replace("🧪", "").Trim()}";
+        }
+    }
+
+    private void StyleButtonWithTint(Button btn, Color tint, string symbol)
+    {
+        if (btn == null) return;
+        Image img = btn.GetComponent<Image>();
+        if (img != null)
+            img.color = new Color(tint.r * 0.30f, tint.g * 0.30f, tint.b * 0.30f, 0.85f);
+        TMP_Text label = btn.GetComponentInChildren<TMP_Text>();
+        if (label != null)
+        {
+            label.color = new Color(tint.r * 0.9f + 0.3f, tint.g * 0.9f + 0.3f, tint.b * 0.9f + 0.3f);
+            label.text = $"{symbol} {label.text.Replace("⚔", "").Replace("🔥", "").Replace("❄", "").Replace("⚡", "").Replace("\U0001F33F", "").Replace("🛡", "").Replace("⏭", "").Replace("🧪", "").Trim()}";
+        }
     }
 
     public void SetContinueButtonLabel(string label)
@@ -309,7 +367,33 @@ public class BattleUI : MonoBehaviour
         stageSelectButton.gameObject.SetActive(isVisible);
     }
 
-    // --- Private helpers ---
+    private static readonly Color ElementPhysicalColor = new Color(0.70f, 0.70f, 0.75f);
+    private static readonly Color ElementFireColor = new Color(0.85f, 0.25f, 0.10f);
+    private static readonly Color ElementIceColor = new Color(0.20f, 0.55f, 0.95f);
+    private static readonly Color ElementLightningColor = new Color(0.95f, 0.80f, 0.15f);
+    private static readonly Color ElementEarthColor = new Color(0.35f, 0.70f, 0.25f);
+    private static readonly Color ElementGuardColor = new Color(0.30f, 0.60f, 0.85f);
+    private static readonly Color ElementEndTurnColor = new Color(0.75f, 0.30f, 0.30f);
+
+    public static Color GetElementButtonColor(ElementType element)
+    {
+        return element switch
+        {
+            ElementType.Fire => ElementFireColor,
+            ElementType.Ice => ElementIceColor,
+            ElementType.Lightning => ElementLightningColor,
+            ElementType.Earth => ElementEarthColor,
+            _ => ElementPhysicalColor
+        };
+    }
+
+    // Element badge icons as simple text symbols
+    private static readonly string[] ElementSymbols = { "", "⚔", "🔥", "❄", "⚡", "\U0001F33F", "🌑", "✨" };
+    public static string GetElementSymbol(ElementType element)
+    {
+        int idx = (int)element;
+        return idx >= 0 && idx < ElementSymbols.Length ? ElementSymbols[idx] : "";
+    }
 
     private void SetPlayerHp(int current, int max, string name)
     {
@@ -627,7 +711,97 @@ public class BattleUI : MonoBehaviour
         if (resultSummaryText != null) resultSummaryText.text = text;
     }
 
-    // --- Static helpers ---
+    // --- VFX / Feedback ---
+
+    /// <summary>Shows a floating damage number near the enemy.</summary>
+    public void ShowDamageNumber(int damage, bool isWeaknessHit = false)
+    {
+        Vector3 pos = GetEnemySpriteWorldPosition();
+        Transform canvasTf = GetDamagePopupParent();
+        if (isWeaknessHit)
+            DamagePopup.ShowWeaknessHit(damage, pos, canvasTf);
+        else
+            DamagePopup.ShowDamage(damage, pos, canvasTf);
+    }
+
+    /// <summary>Shows a floating heal number near the player.</summary>
+    public void ShowHealNumber(int heal)
+    {
+        Vector3 pos = GetPlayerSpriteWorldPosition();
+        DamagePopup.ShowHeal(heal, pos, GetDamagePopupParent());
+    }
+
+    /// <summary>Shows a floating status/buff indicator near the enemy.</summary>
+    public void ShowStatusNumber(string text, Color color)
+    {
+        Vector3 pos = GetEnemySpriteWorldPosition();
+        DamagePopup.ShowBuff(text, pos, color, GetDamagePopupParent());
+    }
+
+    /// <summary>Shows a BREAK popup near the enemy.</summary>
+    public void ShowBreakPopup()
+    {
+        Vector3 pos = GetEnemySpriteWorldPosition();
+        DamagePopup.ShowBreak(pos, GetDamagePopupParent());
+    }
+
+    /// <summary>Full-screen white flash for impactful moments.</summary>
+    public void ScreenFlash(float duration = 0.15f)
+    {
+        if (screenFlashImage == null)
+        {
+            // Create the flash image on demand
+            EnsureScreenFlashImage();
+        }
+        if (screenFlashImage != null)
+            StartCoroutine(ScreenFlashRoutine(screenFlashImage, duration));
+    }
+
+    private void EnsureScreenFlashImage()
+    {
+        if (screenFlashImage != null) return;
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null) canvas = FindObjectOfType<Canvas>();
+        if (canvas == null) return;
+
+        GameObject flashObj = new GameObject("Screen Flash Image", typeof(RectTransform), typeof(Image));
+        flashObj.transform.SetParent(canvas.transform, false);
+        RectTransform rt = flashObj.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        screenFlashImage = flashObj.GetComponent<Image>();
+        screenFlashImage.color = Color.clear;
+        screenFlashImage.raycastTarget = false;
+    }
+
+    private IEnumerator ScreenFlashRoutine(Image flashImg, float duration)
+    {
+        if (flashImg == null) yield break;
+        flashImg.color = new Color(1f, 1f, 1f, 0.4f);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float alpha = Mathf.Lerp(0.4f, 0f, elapsed / duration);
+            flashImg.color = new Color(1f, 1f, 1f, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        flashImg.color = Color.clear;
+    }
+
+    private Transform GetDamagePopupParent()
+    {
+        if (cachedCanvasTransform == null)
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) canvas = FindObjectOfType<Canvas>();
+            if (canvas != null) cachedCanvasTransform = canvas.transform;
+        }
+        return cachedCanvasTransform;
+    }
 
     private static string BuildResourceText(string label, int currentValue, int maxValue)
     {

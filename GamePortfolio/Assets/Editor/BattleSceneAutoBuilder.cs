@@ -126,6 +126,9 @@ public static class BattleSceneAutoBuilder
         Button pauseButton = CreateButton(canvas.transform, "Pause Button", "Pause", new Vector2(-410, 85), new Vector2(140, 50));
         stageSelectButton.gameObject.SetActive(false);
 
+        // Screen flash image (hidden by default, used by BattleUI for impact feedback)
+        Image screenFlashImage = CreateScreenFlashImage(canvas.transform, "Screen Flash Image");
+
         // Pause overlay panel
         Image pausePanel = CreatePanel(canvas.transform, "Pause Panel", new Vector2(0, 0), new Vector2(600, 400), new Color(0.05f, 0.06f, 0.10f, 0.92f));
         pausePanel.gameObject.SetActive(false);
@@ -195,6 +198,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "pausePanel", pausePanel.gameObject);
         SetObjectReference(serializedBattleUI, "resumeButton", resumeButton);
         SetObjectReference(serializedBattleUI, "quitButton", quitToSelectButton);
+        SetObjectReference(serializedBattleUI, "screenFlashImage", screenFlashImage);
         serializedBattleUI.ApplyModifiedPropertiesWithoutUndo();
 
         // Link BattleUI to BattleManager
@@ -768,6 +772,21 @@ public static class BattleSceneAutoBuilder
         image.color = Color.clear;
         image.raycastTarget = false;
         return image;
+    }
+
+    private static Image CreateScreenFlashImage(Transform parent, string name)
+    {
+        GameObject flashObj = new GameObject(name, typeof(RectTransform), typeof(Image));
+        flashObj.transform.SetParent(parent, false);
+        RectTransform rt = flashObj.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        Image img = flashObj.GetComponent<Image>();
+        img.color = Color.clear;
+        img.raycastTarget = false;
+        return img;
     }
 
     private static Slider CreateHpSlider(Transform parent, string name, Vector2 anchoredPosition, Vector2 size, Color fillColor)

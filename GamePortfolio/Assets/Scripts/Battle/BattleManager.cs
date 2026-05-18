@@ -630,6 +630,29 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetImpactText(impact);
         battleUI?.SetPlayerShieldText(playerShieldAmount);
         battleUI?.FlashEnemyDamage();
+
+        // VFX: damage popup
+        bool isWeaknessHit = skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement;
+        battleUI?.ShowDamageNumber(damage, isWeaknessHit);
+
+        // VFX: screen shake on skill use (stronger for lightning/high-damage)
+        var shake = Camera.main != null ? Camera.main.GetComponent<ScreenShake>() : null;
+        if (shake != null)
+        {
+            float shMag = skill == lightningSkill ? 0.12f : 0.06f;
+            shake.Shake(0.12f, shMag);
+        }
+
+        // VFX: screen flash on break or weakness hit
+        if (wasBroken || isWeaknessHit)
+        {
+            battleUI?.ScreenFlash(0.12f);
+        }
+        if (wasBroken)
+        {
+            battleUI?.ShowBreakPopup();
+        }
+
         // Skill projectile
         if (battleUI != null)
         {
@@ -686,6 +709,8 @@ public class BattleManager : MonoBehaviour
                 CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
                 $"{enemy.characterName} takes {CfgBurnDamagePerTurn} burn damage.",
                 basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+            // VFX: burn damage popup
+            battleUI?.ShowDamageNumber(CfgBurnDamagePerTurn);
             if (enemy.IsDead()) { yield return WaitForBattleTick(); EndBattle(BattleState.Victory); yield break; }
             yield return WaitForBattleTick();
         }
@@ -747,7 +772,11 @@ public class BattleManager : MonoBehaviour
         {
             var shake = Camera.main != null ? Camera.main.GetComponent<ScreenShake>() : null;
             if (shake != null) shake.Shake();
+            // Screen flash on strong hits
+            battleUI?.ScreenFlash(0.15f);
         }
+        // Damage popup on player
+        battleUI?.ShowDamageNumber(damage);
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
@@ -760,6 +789,24 @@ public class BattleManager : MonoBehaviour
         currentState = resultState;
         battleUI?.SetActionButtonsInteractable(false);
         battleUI?.SetRetryButtonVisible(true);
+        // Screen fade + brief delay for dramatic effect
+        if (screenFade == null) screenFade = FindObjectOfType<ScreenFade>();
+        if (screenFade != null)
+        {
+            screenFade.FadeOut(0.2f, () =>
+            {
+                ShowBattleResult(resultState);
+                if (screenFade != null) screenFade.FadeIn(0.15f, null);
+            });
+        }
+        else
+        {
+            ShowBattleResult(resultState);
+        }
+    }
+
+    private void ShowBattleResult(BattleState resultState)
+    {
         // Audio feedback
         if (resultState == BattleState.Victory)
         {
