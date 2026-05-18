@@ -203,6 +203,7 @@ public class BattleManager : MonoBehaviour
         if (!loadedProgressState) LoadProgressFromState();
         EnsureStageEncounters();
         ApplyCurrentStageData();
+        ApplyStageModifier();
         EnsureEnemyPattern();
 
         player = new CharacterData(playerName, CfgPlayerMaxHp, 20, ElementType.None, CfgPlayerMaxAp);
@@ -1051,6 +1052,63 @@ public class BattleManager : MonoBehaviour
         enemyWeakness = stage.enemy.weakness;
         enemyPattern = stage.enemy.pattern;
     }
+
+    private void ApplyStageModifier()
+    {
+        var stage = GetCurrentStageData();
+        if (stage == null) return;
+        StageModifierType modifier = stage.stageModifier;
+        string modifierMsg = "";
+
+        switch (modifier)
+        {
+            case StageModifierType.PackPressure:
+                if (enemyPattern != null)
+                {
+                    enemyPattern.strongAttackEveryTurns = Mathf.Max(2, enemyPattern.strongAttackEveryTurns - 1);
+                }
+                modifierMsg = "⚠ Stage Modifier: Pack Pressure — Enemy uses strong attacks more frequently!";
+                break;
+
+            case StageModifierType.Stoneguard:
+                if (enemy != null)
+                {
+                    enemy.maxBreakGauge += 1;
+                    enemy.currentBreakGauge = enemy.maxBreakGauge;
+                }
+                modifierMsg = "⚠ Stage Modifier: Stoneguard — Enemy starts with reinforced break defense!";
+                break;
+
+            case StageModifierType.TutorialField:
+                modifierMsg = "Stage Modifier: Tutorial Field — A safe training ground.";
+                break;
+
+            case StageModifierType.StormSurge:
+                modifierMsg = "⚠ Stage Modifier: Storm Surge — Residual lightning strikes every 3 turns.";
+                // Full implementation in next batch
+                break;
+
+            case StageModifierType.VoidDrain:
+                modifierMsg = "⚠ Stage Modifier: Void Drain — Shadow energy drains AP over time.";
+                // Full implementation in next batch
+                break;
+
+            case StageModifierType.RadiantTrial:
+                modifierMsg = "⚠ Stage Modifier: Radiant Trial — The ultimate trial. Enemies are relentless.";
+                // Full implementation in next batch
+                break;
+
+            default:
+                return;
+        }
+
+        // Add modifier activation message to battle log
+        battleUI?.AddBattleLogEntry(modifierMsg, CfgMaxBattleLogEntries);
+        // Store message for display on first UI update
+        stageModifierActivationMessage = modifierMsg;
+    }
+
+    private string stageModifierActivationMessage = "";
 
     private StageData GetCurrentStageData()
     {

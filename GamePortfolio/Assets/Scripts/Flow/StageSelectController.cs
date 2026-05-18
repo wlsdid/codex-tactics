@@ -107,6 +107,24 @@ public class StageSelectController : MonoBehaviour
         "230 XP"     // Stage 6: 50 + (5+1)*30
     };
 
+    private static readonly string[] StageModifierNames = {
+        "Tutorial Field",     // Stage 1
+        "Pack Pressure",      // Stage 2
+        "Stoneguard",         // Stage 3
+        "Storm Surge",        // Stage 4
+        "Void Drain",         // Stage 5
+        "Radiant Trial"       // Stage 6
+    };
+
+    private static readonly string[] StageModifierDescriptions = {
+        "A safe training ground. No special hazards.",
+        "Enemy strong attacks come more frequently!",
+        "Enemy starts with reinforced break defense.",
+        "Every 3 turns, residual lightning strikes.",
+        "Shadow energy drains AP over time.",
+        "The ultimate trial. Enemies are relentless."
+    };
+
     /// <summary>Selected stage index (0-based) for BattleScene to read.</summary>
     public static int SelectedStageIndex { get; private set; } = -1;
 
@@ -269,7 +287,10 @@ public class StageSelectController : MonoBehaviour
                 unlockCondition = $"Status: {statusText}";
 
             string description = StageDescriptions[index];
-            stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{unlockCondition}";
+            string modifierName = index >= 0 && index < StageModifierNames.Length ? StageModifierNames[index] : "None";
+            string modifierDesc = index >= 0 && index < StageModifierDescriptions.Length ? StageModifierDescriptions[index] : "";
+            string modifierLine = $"Modifier: {modifierName}\nEffect: {modifierDesc}";
+            stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{modifierLine}\n{unlockCondition}";
         }
     }
 

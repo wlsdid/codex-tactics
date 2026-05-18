@@ -2,6 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
+public enum StageModifierType
+{
+    None = 0,
+    TutorialField,
+    PackPressure,
+    Stoneguard,
+    StormSurge,
+    VoidDrain,
+    RadiantTrial
+}
+
+[System.Serializable]
 public class StageData
 {
     public string stageName = "Stage 1-1";
@@ -9,6 +21,9 @@ public class StageData
     [TextArea(2, 4)]
     public string encounterDescription = "";
     public EnemyData enemy = new EnemyData();
+    public StageModifierType stageModifier = StageModifierType.None;
+    [TextArea(2, 4)]
+    public string stageModifierDescription = "";
 
     public string BuildDisplayName()
     {
@@ -27,6 +42,8 @@ public class StageData
             stageName = "Stage 1-1",
             encounterName = "Slime Scout",
             encounterDescription = "A small slime scout patrols the area.\nA good opportunity to test your skills.",
+            stageModifier = StageModifierType.TutorialField,
+            stageModifierDescription = "A safe training ground. No special hazards.",
             enemy = new EnemyData(
                 "Slime",
                 80,
@@ -50,6 +67,8 @@ public class StageData
             stageName = "Stage 1-2",
             encounterName = "Slime King",
             encounterDescription = "The Slime King emerges!\nThis towering blob commands respect.",
+            stageModifier = StageModifierType.TutorialField,
+            stageModifierDescription = "A safe training ground. No special hazards.",
             enemy = new EnemyData(
                 "Slime King",
                 140,
@@ -73,6 +92,8 @@ public class StageData
             stageName = "Stage 2-1",
             encounterName = "Wolf Scout",
             encounterDescription = "A wolf scout prowls the moonlit clearing.\nIts pack may be nearby...",
+            stageModifier = StageModifierType.PackPressure,
+            stageModifierDescription = "Enemy strong attacks come more frequently!",
             enemy = new EnemyData(
                 "Wolf Scout",
                 100,
@@ -96,6 +117,8 @@ public class StageData
             stageName = "Stage 2-2",
             encounterName = "Alpha Wolf",
             encounterDescription = "The Alpha Wolf leads the charge!\nIts howl echoes through the night.",
+            stageModifier = StageModifierType.PackPressure,
+            stageModifierDescription = "Enemy strong attacks come more frequently!",
             enemy = new EnemyData(
                 "Alpha Wolf",
                 180,
@@ -119,6 +142,8 @@ public class StageData
             stageName = "Stage 3-1",
             encounterName = "Golem Sentry",
             encounterDescription = "A stone golem blocks the path ahead.\nIts rocky hide shrugs off weak attacks.",
+            stageModifier = StageModifierType.Stoneguard,
+            stageModifierDescription = "Enemy starts with reinforced break defense.",
             enemy = new EnemyData(
                 "Golem Sentry",
                 120,
@@ -142,6 +167,8 @@ public class StageData
             stageName = "Stage 3-2",
             encounterName = "Ancient Golem",
             encounterDescription = "The Ancient Golem awakens from its slumber!\nThe ground trembles with each step.",
+            stageModifier = StageModifierType.Stoneguard,
+            stageModifierDescription = "Enemy starts with reinforced break defense.",
             enemy = new EnemyData(
                 "Ancient Golem",
                 220,
@@ -165,6 +192,8 @@ public class StageData
             stageName = "Stage 4-1",
             encounterName = "Storm Hawk",
             encounterDescription = "A Storm Hawk circles overhead.\nLightning crackles in its feathers.",
+            stageModifier = StageModifierType.StormSurge,
+            stageModifierDescription = "Every 3 turns, residual lightning strikes.",
             enemy = new EnemyData(
                 "Storm Hawk",
                 140,
@@ -188,6 +217,8 @@ public class StageData
             stageName = "Stage 4-2",
             encounterName = "Thunder Phoenix",
             encounterDescription = "The legendary Thunder Phoenix rises!\nThe sky darkens as it spreads its wings.",
+            stageModifier = StageModifierType.StormSurge,
+            stageModifierDescription = "Every 3 turns, residual lightning strikes.",
             enemy = new EnemyData(
                 "Thunder Phoenix",
                 250,
@@ -211,6 +242,8 @@ public class StageData
             stageName = "Stage 5-1",
             encounterName = "Shadow Wraith",
             encounterDescription = "A shadowy wraith drifts through the darkness.\nThe chill of void emanates from its form.",
+            stageModifier = StageModifierType.VoidDrain,
+            stageModifierDescription = "Shadow energy drains AP over time.",
             enemy = new EnemyData(
                 "Shadow Wraith",
                 160,
@@ -234,6 +267,8 @@ public class StageData
             stageName = "Stage 5-2",
             encounterName = "Shadow Lord",
             encounterDescription = "The Shadow Lord descends from the void!\nDarkness pulses with malevolent intent.",
+            stageModifier = StageModifierType.VoidDrain,
+            stageModifierDescription = "Shadow energy drains AP over time.",
             enemy = new EnemyData(
                 "Shadow Lord",
                 280,
@@ -257,6 +292,8 @@ public class StageData
             stageName = "Stage 6-1",
             encounterName = "Light Warden",
             encounterDescription = "A radiant warden stands guard.\nLight pulses with protective energy.",
+            stageModifier = StageModifierType.RadiantTrial,
+            stageModifierDescription = "The ultimate trial. Enemies are relentless.",
             enemy = new EnemyData(
                 "Light Warden",
                 180,
@@ -280,6 +317,8 @@ public class StageData
             stageName = "Stage 6-2",
             encounterName = "Holy Sentinel",
             encounterDescription = "The Holy Sentinel descends in a pillar of light!\nIts divine power is unmatched.",
+            stageModifier = StageModifierType.RadiantTrial,
+            stageModifierDescription = "The ultimate trial. Enemies are relentless.",
             enemy = new EnemyData(
                 "Holy Sentinel",
                 320,

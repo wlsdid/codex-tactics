@@ -677,7 +677,7 @@ public class BattleUI : MonoBehaviour
         return line;
     }
 
-    private void AddBattleLogEntry(string message, int maxEntries)
+    public void AddBattleLogEntry(string message, int maxEntries)
     {
         if (string.IsNullOrWhiteSpace(message) || message == "Battle Start!") return;
         battleLogSequence++;
