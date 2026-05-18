@@ -699,6 +699,9 @@ public class BattleUI : MonoBehaviour
             return message;
         if (lower.Contains("skipped the turn"))
             return message;
+        // Keep stage modifier activation messages intact
+        if (lower.Contains("stage modifier"))
+            return message;
 
         // Keep enemy attack messages intact for battle log readability
         if (lower.Contains("hero guards"))

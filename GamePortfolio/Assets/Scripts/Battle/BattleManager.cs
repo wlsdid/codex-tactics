@@ -203,7 +203,6 @@ public class BattleManager : MonoBehaviour
         if (!loadedProgressState) LoadProgressFromState();
         EnsureStageEncounters();
         ApplyCurrentStageData();
-        ApplyStageModifier();
         EnsureEnemyPattern();
 
         player = new CharacterData(playerName, CfgPlayerMaxHp, 20, ElementType.None, CfgPlayerMaxAp);
@@ -253,6 +252,9 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetImpactText("Impact: Ready");
         battleUI?.SetPlayerShieldText(0);
 
+        // Apply stage modifier after UI is ready (enemy/player already created)
+        ApplyStageModifier();
+
         // Screen fade in
         if (screenFade == null) screenFade = FindObjectOfType<ScreenFade>();
         if (screenFade != null) screenFade.FadeIn(0.3f, null);
@@ -264,6 +266,8 @@ public class BattleManager : MonoBehaviour
         string startMsg = stageData != null && !string.IsNullOrEmpty(stageData.encounterDescription)
             ? $"Battle Start!\n{stageData.encounterDescription}"
             : "Battle Start!";
+        if (!string.IsNullOrEmpty(stageModifierActivationMessage))
+            startMsg += $"\n\n⚠ {stageModifierActivationMessage}";
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
@@ -1102,10 +1106,9 @@ public class BattleManager : MonoBehaviour
                 return;
         }
 
-        // Add modifier activation message to battle log
-        battleUI?.AddBattleLogEntry(modifierMsg, CfgMaxBattleLogEntries);
         // Store message for display on first UI update
         stageModifierActivationMessage = modifierMsg;
+        // Note: modifier message is displayed via startMsg in StartBattle(), not as a separate log entry
     }
 
     private string stageModifierActivationMessage = "";
