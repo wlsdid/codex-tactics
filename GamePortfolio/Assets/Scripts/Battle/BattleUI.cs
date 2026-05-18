@@ -310,7 +310,8 @@ public class BattleUI : MonoBehaviour
         SetStageObjectiveText(currentState, currentStageIndex, stageEncounters);
         SetStageProgressText(currentState, currentStageIndex, stageEncounters);
         SetMessageText(message);
-        UpdateSkillHelpText(basicSkill, fireSkill, iceSkill, lightningSkill, earthSkill, guardReductionPercent, enemyPattern);
+        var currentStageData = GetStageData(currentStageIndex, stageEncounters);
+        UpdateSkillHelpText(basicSkill, fireSkill, iceSkill, lightningSkill, earthSkill, guardReductionPercent, enemyPattern, currentStageData);
         AddBattleLogEntry(message, maxBattleLogEntries);
     }
 
@@ -756,7 +757,7 @@ public class BattleUI : MonoBehaviour
         overlay.color = Color.clear;
     }
 
-    private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, int guardReduction, EnemyPatternData pattern)
+    private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, int guardReduction, EnemyPatternData pattern, StageData stageData)
     {
         if (skillHelpText == null || basicSkill == null || fireSkill == null || iceSkill == null || lightningSkill == null || earthSkill == null) return;
         string attackHelp = BuildSkillHelpLine(basicSkill);
@@ -766,7 +767,18 @@ public class BattleUI : MonoBehaviour
         string earthHelp = BuildSkillHelpLine(earthSkill);
         string guardHelp = $"Guard: reduce next enemy attack by {guardReduction}%.";
         string turnHint = pattern?.BuildPatternHelpText() ?? "";
-        skillHelpText.text = $"{attackHelp}\n{fireHelp}\n{iceHelp}\n{lightningHelp}\n{earthHelp}\n{guardHelp}\n{turnHint}";
+        string modifierHelp = BuildStageModifierHelpLine(stageData);
+        skillHelpText.text = $"{attackHelp}\n{fireHelp}\n{iceHelp}\n{lightningHelp}\n{earthHelp}\n{guardHelp}\n{turnHint}\n{modifierHelp}";
+    }
+
+    private string BuildStageModifierHelpLine(StageData stageData)
+    {
+        if (stageData == null || stageData.stageModifier == StageModifierType.None)
+            return "Stage Modifier: None";
+        string modifierName = StageData.GetModifierDisplayName(stageData.stageModifier);
+        return string.IsNullOrWhiteSpace(stageData.stageModifierDescription)
+            ? $"Stage Modifier: {modifierName}"
+            : $"Stage Modifier: {modifierName} — {stageData.stageModifierDescription}";
     }
 
     private string BuildSkillHelpLine(SkillData skill)

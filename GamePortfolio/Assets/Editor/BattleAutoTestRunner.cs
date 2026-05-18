@@ -311,6 +311,8 @@ public static class BattleAutoTestRunner
             battleManager.DebugBattleLogText.Contains("Pack Pressure"));
         AppendCheck(ref passed, ref report, "Stage 2 PackPressure reduces strong attack period to 2 turns",
             battleManager.DebugSkillHelpText.Contains("every 2"));
+        AppendCheck(ref passed, ref report, "Stage 2 skill help shows Pack Pressure modifier guidance",
+            battleManager.DebugSkillHelpText.Contains("Stage Modifier: Pack Pressure") && battleManager.DebugSkillHelpText.Contains("Enemy strong attacks come more frequently"));
         // Stage 3 Stoneguard: verify modifier message and break gauge increase
         battleManager.DebugLoadEncountersForStage(2);
         battleManager.DebugStartBattleForTest();
