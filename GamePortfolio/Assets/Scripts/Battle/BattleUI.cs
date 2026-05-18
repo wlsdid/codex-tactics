@@ -723,6 +723,14 @@ public class BattleUI : MonoBehaviour
         if (lower.Contains("no items"))
             return "⚠️ No items available";
 
+        // Item effects: must come before generic "uses" check
+        if (lower.Contains("restores hp") || lower.Contains("restores hp."))
+            return "❤️ +" + ExtractFirstNumber(message) + " HP";
+        if (lower.Contains("restores ap") || lower.Contains("restores ap."))
+            return "💧 +" + ExtractFirstNumber(message) + " AP";
+        if (lower.Contains("uses shield") || lower.Contains("shield active"))
+            return "🛡️ Shield Active!";
+
         // Generic skill use: "Hero uses Slash! Slime takes 22 damage."
         // Format as "⚔ 22 dmg" for physical, "🔥 30 dmg" for elemental
         if (lower.Contains(" uses "))

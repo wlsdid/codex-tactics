@@ -515,7 +515,7 @@ public class BattleManager : MonoBehaviour
                 msg = $"{player.characterName} uses {item.itemName}! Restores {apGain} AP.";
                 // AP restore buff popup on player
                 if (battleUI != null)
-                    battleUI.ShowStatusNumber($"+{apGain} AP", new Color(0.3f, 0.6f, 1f));
+                    battleUI.ShowBuffOnPlayer($"+{apGain} AP", new Color(0.3f, 0.6f, 1f));
                 break;
             default:
                 msg = $"{player.characterName} uses {item.itemName}.";
