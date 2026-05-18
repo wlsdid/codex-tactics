@@ -81,6 +81,9 @@ public class BattleUI : MonoBehaviour
     private Canvas cachedCanvas;
     private Transform cachedCanvasTransform;
 
+    [Header("Result Panel Styling")]
+    [SerializeField] private Image resultPanelBackground;
+
     public string DebugPlayerHpText => playerHpText != null ? playerHpText.text : "";
     public string DebugPlayerApText => playerApText != null ? playerApText.text : "";
     public string DebugEnemyHpText => enemyHpText != null ? enemyHpText.text : "";
@@ -344,6 +347,25 @@ public class BattleUI : MonoBehaviour
         }
         if (resultSummaryPanel != null)
             resultSummaryPanel.SetActive(isVisible);
+        // Style the result panel background
+        if (resultPanelBackground != null)
+        {
+            resultPanelBackground.gameObject.SetActive(isVisible);
+            bool isVictory = summary != null && summary.Contains("VICTORY");
+            resultPanelBackground.color = isVictory
+                ? new Color(0.05f, 0.08f, 0.15f, 0.92f)  // dark blue-ish for victory
+                : new Color(0.15f, 0.05f, 0.05f, 0.92f);  // dark red-ish for defeat
+        }
+        // Style the result text
+        if (resultSummaryText != null && isVisible)
+        {
+            bool isVictory = summary != null && summary.Contains("VICTORY");
+            resultSummaryText.color = isVictory
+                ? new Color(1f, 0.85f, 0.4f)   // gold for victory
+                : new Color(1f, 0.3f, 0.3f);    // red for defeat
+            resultSummaryText.fontSize = 24;
+            resultSummaryText.alignment = TMPro.TextAlignmentOptions.Center;
+        }
     }
 
     public void SetRetryButtonVisible(bool isVisible)
@@ -659,10 +681,116 @@ public class BattleUI : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(message) || message == "Battle Start!") return;
         battleLogSequence++;
-        battleLogEntries.Add($"{battleLogSequence}. {message}");
+        string formatted = FormatLogMessage(message);
+        battleLogEntries.Add($"{battleLogSequence}. {formatted}");
         while (battleLogEntries.Count > maxEntries)
             battleLogEntries.RemoveAt(0);
         RefreshBattleLogText();
+    }
+
+    /// <summary>Formats a message for the battle log with special prefixes for important events.</summary>
+    private string FormatLogMessage(string message)
+    {
+        // Detect important events and prepend short, styled prefixes
+        string lower = message.ToLowerInvariant();
+
+        if (lower.Contains("guarded") || lower.Contains("guards"))
+            return "🛡 Guarded!";
+        if (lower.Contains("break!"))
+            return "💥 BREAK!";
+        if (lower.Contains("weakness"))
+            return "⚡ Weakness Hit!";
+        if (lower.Contains("victory") || lower.Contains("victory!"))
+            return "🏆 Victory!";
+        if (lower.Contains("defeat") || lower.Contains("defeated"))
+            return "💀 Defeated!";
+        if (lower.Contains("guards. next enemy attack damage is reduced"))
+            return "🛡 Guarded! Damage reduced.";
+        if (lower.Contains("is stunn"))
+            return "⏳ Enemy STUNNED! Skips turn.";
+        if (lower.Contains("burn damage"))
+            return "🔥 Burn: " + ExtractFirstNumber(message) + " dmg";
+        if (lower.Contains("shield") && lower.Contains("active"))
+            return "🛡️ Shield Active!";
+        if (lower.Contains("enraged"))
+            return "⚠️ ENRAGED!";
+        if (lower.Contains("level up"))
+            return "⬆ Level Up!";
+        if (lower.Contains("is locked"))
+            return "🔒 " + message;
+        if (lower.Contains("not enough ap"))
+            return "⚠️ Not enough AP";
+        if (lower.Contains("no items"))
+            return "⚠️ No items available";
+
+        // Generic skill use: "Hero uses Slash! Slime takes 22 damage."
+        // Format as "⚔ 22 dmg" for physical, "🔥 30 dmg" for elemental
+        if (lower.Contains(" uses "))
+        {
+            string formatted = ShortenSkillMessage(message);
+            if (!string.IsNullOrEmpty(formatted)) return formatted;
+        }
+
+        // Enemy attack messages
+        if (lower.Contains("takes") && lower.Contains("damage") && !lower.Contains("uses"))
+        {
+            int dmg = ExtractFirstNumber(message);
+            if (dmg > 0) return $"💥 {dmg} dmg";
+        }
+
+        // Item usage
+        if (lower.Contains("restores") && lower.Contains("hp"))
+            return "❤️ +" + ExtractFirstNumber(message) + " HP";
+        if (lower.Contains("restores") && lower.Contains("ap"))
+            return "💎 +" + ExtractFirstNumber(message) + " AP";
+
+        // Fallback: shorten to just the number
+        return ShortenPlainMessage(message);
+    }
+
+    private string ShortenSkillMessage(string message)
+    {
+        // Pattern: "Hero uses Slash! Slime takes 22 damage. (Physical | Physical)"
+        // We want: "⚔ 22 dmg"
+        int dmg = ExtractLastNumber(message);
+        if (dmg <= 0) return null;
+
+        string lower = message.ToLowerInvariant();
+        if (lower.Contains("physical"))
+            return $"⚔ {dmg} dmg";
+        if (lower.Contains("fire"))
+            return $"🔥 {dmg} dmg";
+        if (lower.Contains("ice"))
+            return $"❄ {dmg} dmg";
+        if (lower.Contains("lightning"))
+            return $"⚡ {dmg} dmg";
+        if (lower.Contains("earth"))
+            return $"🪨 {dmg} dmg";
+        return $"• {dmg} dmg";
+    }
+
+    private string ShortenPlainMessage(string message)
+    {
+        // Just take the first meaningful part, strip long explanations
+        int dmg = ExtractFirstNumber(message);
+        if (dmg > 0) return $"💥 {dmg} dmg";
+        if (message.Length > 50) return message.Substring(0, 47) + "...";
+        return message;
+    }
+
+    private static int ExtractFirstNumber(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return 0;
+        var match = System.Text.RegularExpressions.Regex.Match(text, @"(\d+)");
+        return match.Success ? int.Parse(match.Groups[1].Value) : 0;
+    }
+
+    private static int ExtractLastNumber(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return 0;
+        var matches = System.Text.RegularExpressions.Regex.Matches(text, @"(\d+)");
+        if (matches.Count == 0) return 0;
+        return int.Parse(matches[matches.Count - 1].Value);
     }
 
     private void RefreshBattleLogText()
@@ -724,6 +852,13 @@ public class BattleUI : MonoBehaviour
             DamagePopup.ShowDamage(damage, pos, canvasTf);
     }
 
+    /// <summary>Shows a floating damage number near the player (for enemy attacks).</summary>
+    public void ShowDamageNumberOnPlayer(int damage)
+    {
+        Vector3 pos = GetPlayerSpriteWorldPosition();
+        DamagePopup.ShowDamage(damage, pos, GetDamagePopupParent());
+    }
+
     /// <summary>Shows a floating heal number near the player.</summary>
     public void ShowHealNumber(int heal)
     {
@@ -735,6 +870,13 @@ public class BattleUI : MonoBehaviour
     public void ShowStatusNumber(string text, Color color)
     {
         Vector3 pos = GetEnemySpriteWorldPosition();
+        DamagePopup.ShowBuff(text, pos, color, GetDamagePopupParent());
+    }
+
+    /// <summary>Shows a floating status/buff indicator near the player.</summary>
+    public void ShowBuffOnPlayer(string text, Color color)
+    {
+        Vector3 pos = GetPlayerSpriteWorldPosition();
         DamagePopup.ShowBuff(text, pos, color, GetDamagePopupParent());
     }
 

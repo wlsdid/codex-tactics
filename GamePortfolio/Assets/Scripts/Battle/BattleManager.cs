@@ -506,11 +506,16 @@ public class BattleManager : MonoBehaviour
                 int heal = Mathf.Min(item.effectValue, player.maxHp - player.currentHp);
                 player.currentHp += heal;
                 msg = $"{player.characterName} uses {item.itemName}! Restores {heal} HP.";
+                // Heal popup on player
+                battleUI?.ShowHealNumber(heal);
                 break;
             case ItemEffectType.RestoreAp:
                 int apGain = Mathf.Min(item.effectValue, player.maxAp - player.currentAp);
                 player.currentAp += apGain;
                 msg = $"{player.characterName} uses {item.itemName}! Restores {apGain} AP.";
+                // AP restore buff popup on player
+                if (battleUI != null)
+                    battleUI.ShowStatusNumber($"+{apGain} AP", new Color(0.3f, 0.6f, 1f));
                 break;
             default:
                 msg = $"{player.characterName} uses {item.itemName}.";
@@ -533,10 +538,13 @@ public class BattleManager : MonoBehaviour
         playerIsGuarding = true;
         guardUseCount++;
         battleUI?.SetActionButtonsInteractable(false);
+        // Guard visual feedback: screen flash + guard icon flash
+        battleUI?.ScreenFlash(0.08f);
+        battleUI?.FlashPlayerDamage(); // reuse flash routine to give a blue/white shimmer
+        string guardMsg = $"{player?.characterName} guards. Next enemy attack damage is reduced.";
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-            $"{player?.characterName} guards. Next enemy attack damage is reduced.",
+            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, guardMsg,
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
         if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
     }
@@ -599,6 +607,9 @@ public class BattleManager : MonoBehaviour
         if (skill == earthSkill)
         {
             playerShieldAmount = CfgEarthSkillShieldAmount;
+            // Show shield buff popup on player
+            if (battleUI != null)
+                battleUI.ShowBuffOnPlayer($"Shield +{CfgEarthSkillShieldAmount}", new Color(0.3f, 0.7f, 1f));
         }
 
         // Check enrage: enemy enrages when HP drops below 30%
@@ -768,15 +779,23 @@ public class BattleManager : MonoBehaviour
         battleUI?.FlashPlayerDamage();
         AudioManager.Instance?.PlayDamageSfx();
         if (wasGuarding) AudioManager.Instance?.PlayGuardSfx();
+
+        // Screen flash on all enemy attacks
+        battleUI?.ScreenFlash(wasGuarding ? 0.06f : isStrong ? 0.15f : 0.10f);
+
         if (isStrong)
         {
             var shake = Camera.main != null ? Camera.main.GetComponent<ScreenShake>() : null;
             if (shake != null) shake.Shake();
-            // Screen flash on strong hits
-            battleUI?.ScreenFlash(0.15f);
         }
-        // Damage popup on player
-        battleUI?.ShowDamageNumber(damage);
+        // Damage popup on player (not enemy)
+        battleUI?.ShowDamageNumberOnPlayer(damage);
+
+        // Guard visual feedback in impact text
+        if (wasGuarding)
+        {
+            battleUI?.ShowBuffOnPlayer("🛡 Guarded!", new Color(0.3f, 0.7f, 1f));
+        }
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
@@ -822,7 +841,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && hasNext);
         if (resultState == BattleState.Victory && hasNext)
         {
-            battleUI?.SetContinueButtonLabel("Next Encounter");
+            battleUI?.SetContinueButtonLabel("▶ Continue to Next Encounter");
         }
         battleUI?.SetStageSelectButtonVisible(true);
 
