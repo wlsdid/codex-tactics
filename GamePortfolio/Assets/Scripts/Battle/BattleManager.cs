@@ -184,6 +184,15 @@ public class BattleManager : MonoBehaviour
     public void DebugStartBattleForTest() => StartBattle();
     public void DebugEndBattleForTest(BattleState resultState) => EndBattle(resultState);
     public void DebugResolveEnemyAttackForTest() => ResolveEnemyAttack();
+    public void DebugSetPlayerApForTest(int value)
+    {
+        if (player == null) return;
+        player.currentAp = Mathf.Clamp(value, 0, player.maxAp);
+        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
+            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
+            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Debug: AP adjusted",
+            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+    }
     public void DebugForceEnemyBrokenForTest()
     {
         if (enemy == null) return;

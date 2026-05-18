@@ -352,6 +352,15 @@ public static class BattleAutoTestRunner
             battleManager.DebugImpactText.Contains("reduced AP"));
         AppendCheck(ref passed, ref report, "Stage 5 Void Drain reduces player AP after 2 turns",
             battleManager.DebugPlayerApText.Contains("2/3") || battleManager.DebugPlayerApText.Contains("1/3"));
+        battleManager.DebugStartBattleForTest();
+        battleManager.DebugSetPlayerApForTest(0);
+        battleManager.DebugResolveEnemyAttackForTest();
+        int damageBeforeVoidDrainHp = battleManager.DebugTotalDamageTaken;
+        battleManager.DebugResolveEnemyAttackForTest();
+        AppendCheck(ref passed, ref report, "Stage 5 Void Drain lashes HP when AP is empty",
+            battleManager.DebugMessageText.Contains("Void Drain lashes out") && battleManager.DebugPlayerApText.Contains("0/3"));
+        AppendCheck(ref passed, ref report, "Stage 5 Void Drain AP-empty branch deals 5 hazard damage",
+            battleManager.DebugImpactText.Contains("5 hazard damage") && battleManager.DebugTotalDamageTaken >= damageBeforeVoidDrainHp + 5);
 
         // Stage 6 RadiantTrial: strong attack period reduced + break gauge increased
         battleManager.DebugLoadEncountersForStage(5);
