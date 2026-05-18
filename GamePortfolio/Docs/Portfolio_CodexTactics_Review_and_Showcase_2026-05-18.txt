@@ -1,0 +1,417 @@
+Codex Tactics 포트폴리오 정리 및 코드 리뷰
+작성일: 2026-05-18
+프로젝트: Unity 2D 턴제 RPG 포트폴리오 / Codex Tactics
+검토 범위: Batch 47 이후 최신 main HEAD(14ebcd2)까지, 특히 Batch 48~55
+
+============================================================
+1. 한 줄 소개
+============================================================
+Codex Tactics는 Unity 2D로 제작한 턴제 RPG 전투 포트폴리오입니다. 타이틀 화면, 스테이지 선택, 전투, 결과 화면, 저장/진행도, 스킬/속성/상태이상/브레이크/스테이지 기믹/자동 전투/검증 자동화까지 포함한 플레이 가능한 수직 슬라이스(vertical slice)입니다.
+
+포트폴리오에서 강조할 핵심은 단순 전투 구현이 아니라, 데이터 기반 전투 설계와 자동 검증, 단계별 UI/UX 개선, 스테이지별 전장 기믹을 실제 전투 로직에 연결한 점입니다.
+
+============================================================
+2. 현재 플레이 흐름
+============================================================
+Title Scene
+→ Stage Select Scene
+→ Battle Scene
+→ Result / Continue / Retry / Stage Select
+→ 다음 encounter 또는 다음 stage unlock
+
+현재 구성:
+- 6개 스테이지
+- 각 스테이지 2개 encounter: 일반전 + 보스전
+- 총 12개 전투 encounter
+- 스테이지 클리어 시 다음 스테이지 및 스킬 진행도 해금
+- JSON 저장을 통한 진행도 유지
+
+============================================================
+3. 주요 게임 시스템
+============================================================
+
+3-1. 턴제 전투 상태 머신
+- 핵심 파일: Assets/Scripts/Battle/BattleManager.cs
+- 상태: Start / PlayerTurn / EnemyTurn / Victory / Defeat
+- 플레이어 행동:
+  - 기본 공격 Slash
+  - Fire Bolt
+  - Ice Lance
+  - Lightning Strike
+  - Earth Wall
+  - Guard
+  - Item 사용
+  - End Turn
+- 적 행동:
+  - 일반 공격
+  - 주기적 강공격
+  - Stun 시 턴 스킵
+  - HP 30% 이하 Enrage
+
+포트폴리오 설명 포인트:
+- 플레이어와 적 행동을 턴 단위로 분리하여 전투 흐름을 명확히 구성했다.
+- 결과 화면과 진행도 저장까지 이어지는 완성된 전투 루프를 구현했다.
+
+3-2. AP 기반 스킬 시스템
+- AP 최대치: 3
+- 최신 밸런스: 플레이어 턴 시작 시 AP 2 회복
+- 스킬별 AP 비용:
+  - Slash: 0 AP
+  - Ice Lance: 1 AP
+  - Fire Bolt: 2 AP
+  - Earth Wall: 2 AP
+  - Lightning Strike: 3 AP
+
+포트폴리오 설명 포인트:
+- 무료 기본 공격과 고비용 고효율 스킬을 나누어 선택지를 만들었다.
+- Void Drain 같은 스테이지 기믹이 AP 자원 관리와 직접 연결된다.
+
+3-3. 속성/약점 시스템
+- 주요 파일: SkillData.cs, EnemyData.cs, BattleManager.cs
+- 원소: Physical, Fire, Ice, Lightning, Nature, Earth, Dark, Light
+- 약점 공격 시 데미지 증가 및 Break gauge 감소
+- UI에 적 원소/약점 정보와 impact text 표시
+
+포트폴리오 설명 포인트:
+- 단순 공격 반복이 아니라, 적 약점을 보고 스킬을 선택하는 전투 판단 구조를 만들었다.
+
+3-4. 상태이상 시스템
+- Burn: 턴마다 지속 피해. 최신 밸런스 기준 5 피해.
+- Stun: 적 턴 스킵.
+- Shield: Earth Wall 사용 시 보호막 20.
+- Guard: 다음 적 공격 피해 감소.
+- Break: 약점 공격으로 gauge를 깎고, Break 상태에서 추가 피해 보너스.
+
+포트폴리오 설명 포인트:
+- 상태이상이 단순 텍스트가 아니라 실제 전투 흐름, 데미지, UI 피드백에 영향을 준다.
+
+3-5. 스테이지별 전장 기믹
+핵심 파일:
+- Assets/Scripts/Data/StageData.cs
+- Assets/Scripts/Battle/BattleManager.cs
+- Assets/Editor/BattleAutoTestRunner.cs
+
+현재 Stage Modifier 구성:
+1. Stage 1 — Tutorial Field
+   - 안전한 튜토리얼 전장.
+   - 특별한 위험 없이 기본 전투 학습.
+
+2. Stage 2 — Pack Pressure
+   - 적 강공격 주기 단축.
+   - strong attack every 3 → every 2.
+   - 검증: skill help와 battle log에 반영.
+
+3. Stage 3 — Stoneguard
+   - 적 Break gauge 증가.
+   - Break: 2/2 → 3/3.
+   - 검증: Break UI와 BattleAutoTestRunner에서 확인.
+
+4. Stage 4 — Storm Surge
+   - 3번째 enemy turn마다 전장 번개 피해.
+   - 플레이어에게 고정 8 hazard damage.
+   - battle log, message, impact text, totalDamageTaken에 반영.
+
+5. Stage 5 — Void Drain
+   - 2번째 enemy turn마다 AP 압박.
+   - AP가 있으면 AP 1 감소.
+   - AP가 0이면 HP 5 hazard damage.
+   - AP 0 분기까지 자동 테스트 보강 완료.
+
+6. Stage 6 — Radiant Trial
+   - 최종 시험형 복합 기믹.
+   - 강공격 주기 단축 + Break gauge 증가.
+   - Stage 6 battle log, skill help, Break UI에서 확인 가능.
+
+포트폴리오 설명 포인트:
+- StageData의 modifier metadata를 Stage Select UI와 BattleManager가 함께 사용한다.
+- “설명만 있는 기믹”이 아니라 실제 전투 룰과 자동 테스트에 연결된 시스템이다.
+
+3-6. 아이템 시스템
+최신 구성:
+- Potion: HP 30 회복
+- Hi-Potion: HP 60 회복
+- Ether: AP 2 회복
+- Full Ether: AP 전체 회복 성격(effectValue 99로 max AP까지 회복)
+
+기능:
+- 아이템 수량 관리
+- 사용 시 HP/AP 반영
+- 회복 popup, battle log, SFX 연결
+- Auto Battle AI가 상황에 따라 Potion/Ether 사용
+
+포트폴리오 설명 포인트:
+- 전투 중 자원 회복 선택지를 추가해 전략성을 확장했다.
+
+3-7. Auto Battle AI
+- Guard / Item / Weakness / Lightning / Ice / Earth / Fire / Basic 우선순위 기반.
+- HP/AP 상황에 따라 아이템 사용.
+- 적 약점과 보유 AP를 고려해 스킬 선택.
+
+포트폴리오 설명 포인트:
+- 간단한 규칙 기반 AI로도 전투 시스템 테스트와 시연 편의성을 높였다.
+
+3-8. 결과/보상 시스템
+핵심 파일:
+- BattleResultData.cs
+- BattleResultEvaluator.cs
+- BattleResultPresenter.cs
+
+표시 요소:
+- Victory/Defeat
+- Rank
+- Pace
+- Damage Dealt / Damage Taken
+- Guard Uses / Skills Used / Items Used
+- Reward Gold
+- XP
+- 다음 진행 안내
+
+포트폴리오 설명 포인트:
+- 전투 종료 후 단순 승패가 아니라, 플레이 성과를 정리하는 포트폴리오용 결과 화면을 구현했다.
+
+3-9. 저장/진행도 시스템
+핵심 파일:
+- ProgressState.cs
+- SaveManager.cs
+
+기능:
+- 완료한 스테이지 저장
+- 플레이어 레벨/XP/Gold 저장
+- 난이도 상태 관리
+- Stage Select 잠금/해금 상태 반영
+
+포트폴리오 설명 포인트:
+- 단일 전투 데모를 넘어, 진행도와 성장 상태가 유지되는 게임 루프를 구성했다.
+
+============================================================
+4. UI/UX 및 연출 개선 사항
+============================================================
+
+4-1. Battle HUD
+- HP/AP 바
+- 플레이어/적 상태 텍스트
+- 적 의도 표시
+- Break gauge 표시
+- Stage objective / Stage progress / Run status
+- Recent Actions battle log
+- Impact text 색상 분리
+- Guard overlay
+- Enemy element badge
+
+4-2. Stage Select
+- 6개 스테이지 카드
+- 잠금/해금/클리어/다음 추천 상태 표시
+- StageData 기반 modifier 설명 표시
+- 첫 추천 스테이지 자동 선택
+- 카드 클릭 pulse animation
+- Reward Preview와 실제 보상 로직 정합성 개선
+
+4-3. Title Screen
+- 별 particle 배경
+- fade-in
+- title floating animation
+- start button glow
+- 난이도 표시/변경
+- save load/reset 진입점
+
+4-4. VFX
+- 속성별 projectile
+- hit spark
+- screen shake
+- damage/heal/buff popup
+- burn/stun/broken overlay
+- screen flash
+- fade transition
+
+4-5. Audio
+- AudioManager singleton
+- 전투/승리 BGM hook
+- 공격/스킬/가드/피격/승리/패배 SFX
+- 아이템/Break/LevelUp/Heal/Shield/Stun/Burn SFX
+- 오디오 파일이 없어도 procedural fallback tone 생성
+
+포트폴리오 설명 포인트:
+- 상용 게임 수준까지는 아니지만, 기능 시연용 프로토타입에서 중요한 “즉각적인 피드백” 요소를 다층적으로 넣었다.
+
+============================================================
+5. 자동화/검증 체계
+============================================================
+
+핵심 Editor 도구:
+- Tools > Codex Tactics > Create Battle Test Scene
+- Tools > Codex Tactics > Validate Battle Test Scene
+- Tools > Codex Tactics > Run Battle Logic Auto Test
+- Tools > Codex Tactics > CreateGameFlowScenes
+- Tools > Codex Tactics > ValidateGameFlowScenes
+
+이번 리뷰에서 직접 실행한 검증:
+- git diff --check 9da4ab5..HEAD: PASS
+- BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
+- GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
+- BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
+
+검증에서 확인된 대표 항목:
+- Stage 2~6 modifier metadata
+- Pack Pressure strong attack 주기 감소
+- Stoneguard Break gauge 증가
+- Storm Surge 3턴 주기 hazard damage
+- Void Drain AP 감소 및 AP 0 HP 피해 분기
+- Radiant Trial 강공격 주기 감소 + Break 증가
+- Stage Select / Battle / Result 기본 흐름
+- 진행도 unlock/complete 처리
+
+주의:
+- Unity batchmode 로그에 “This should not be called in batch mode.” 경고가 나오지만, 현재 테스트 종료 코드는 0이고 RESULT: PASS다. 원인은 EditorUtility.DisplayDialog 계열 호출로 보이며 기능 실패는 아니다.
+
+============================================================
+6. 코드 리뷰 결과
+============================================================
+
+6-1. Critical
+- 현재 자동 테스트 기준으로 막는 치명적 문제는 발견하지 못했다.
+- working tree는 깨끗하고 origin/main과 동기화되어 있다.
+
+6-2. Warnings / 추후 개선 권장
+1) BattleUI의 overlay pulse coroutine 중복 가능성
+   - Guard/Burn/Stun overlay가 UpdateAllUI 호출 중 반복적으로 StartCoroutine될 수 있다.
+   - 즉시 테스트 실패는 없지만, 장시간 플레이 시 중복 coroutine이 쌓일 수 있다.
+   - 개선안: overlay별 Coroutine handle을 저장하고, 이미 실행 중이면 새로 시작하지 않도록 방지.
+
+2) SkillProjectile의 FindObjectOfType 사용
+   - hit spark 생성 시 Canvas를 FindObjectOfType으로 찾는다.
+   - 현재 규모에서는 문제 없지만, UI가 커지면 비용/불확실성이 생길 수 있다.
+   - 개선안: projectile parent canvas를 Spawn 시 전달하거나 cached canvas를 사용.
+
+3) README가 최신 배치 상태와 다름
+   - README에는 “37개 배치”와 4 stage 기준 내용이 남아 있다.
+   - 현재는 Batch 55까지 진행되었고 6 stage / 12 encounters / Stage 2~6 modifier가 구현되어 있다.
+   - 개선안: README를 최신 상태로 갱신.
+
+4) Batch 번호 중복
+   - git log에 Batch 49/50/51 명칭이 일부 중복되어 있다.
+   - 기능에는 영향 없지만, 포트폴리오 기록용으로는 “기능 단위” 타임라인으로 재정리하는 것이 좋다.
+
+6-3. Looks Good
+- StageData가 스테이지/적/기믹 데이터의 원천 역할을 하도록 정리되어 있다.
+- Stage Select 표시와 실제 Battle modifier 로직이 같은 데이터를 바라보는 방향으로 개선되었다.
+- 스테이지별 기믹이 단순 문구가 아니라 전투 수치와 UI에 연결되어 있다.
+- BattleAutoTestRunner가 실제 적용 여부를 검증한다.
+- BattleResultEvaluator/Presenter 분리로 결과 계산과 표시 책임이 분리되어 있다.
+- BattleBalanceConfig로 주요 밸런스 값을 조정 가능하게 한 점은 포트폴리오 설명 가치가 크다.
+
+============================================================
+7. 포트폴리오용 기술 어필 문장
+============================================================
+
+짧은 소개:
+“Codex Tactics는 Unity 2D 기반 턴제 RPG 전투 수직 슬라이스입니다. 6개 스테이지, 12개 encounter, AP 기반 스킬, 속성 약점, 상태이상, Break, 아이템, 자동 전투, 결과 보상, 진행도 저장, 스테이지별 전장 기믹을 구현했습니다. 특히 StageData 기반 데이터 구조와 Unity Editor 자동 검증 도구를 통해 기능 추가 시 UI/전투 로직 정합성을 확인할 수 있도록 만들었습니다.”
+
+기술 중심 소개:
+“전투 로직은 BattleManager의 상태 머신으로 관리하고, UI는 BattleUI, 결과 계산은 BattleResultEvaluator/Presenter, 스테이지/적 정보는 StageData/EnemyData로 분리했습니다. 이 구조를 통해 전투 규칙, 표시, 데이터 정의가 서로 독립적으로 확장될 수 있게 설계했습니다.”
+
+문제 해결 중심 소개:
+“초기에는 스테이지 선택 화면의 표시 데이터와 실제 전투 보상/기믹 데이터가 어긋날 위험이 있었습니다. 이를 해결하기 위해 StageData를 단일 데이터 원천으로 사용하도록 개선했고, Stage Select와 BattleManager 양쪽에서 같은 modifier metadata를 참조하게 만들었습니다. 이후 자동 테스트에서 UI 표시와 전투 실제 적용을 함께 검증하도록 보강했습니다.”
+
+검증 중심 소개:
+“Unity Editor 메뉴 기반 자동 테스트와 batchmode 검증을 만들어, 기능 추가 후 Battle logic, scene wiring, game flow를 반복 검증했습니다. 단순히 플레이해 보는 수준이 아니라 Stage 2~6 기믹의 실제 수치 변화와 UI 로그까지 자동으로 확인하도록 테스트를 확장했습니다.”
+
+============================================================
+8. 포트폴리오 문서 구성 추천
+============================================================
+
+제출용 포트폴리오 페이지 구성:
+1. 프로젝트 개요
+   - 게임 제목: Codex Tactics
+   - 장르: 2D 턴제 RPG / tactical battle prototype
+   - 개발 환경: Unity 6000.4.6f1, C#, TextMeshPro, Git/GitHub
+
+2. 핵심 플레이 루프
+   - Title → Stage Select → Battle → Result → Unlock
+   - 6 stages × 2 encounters
+
+3. 핵심 시스템
+   - AP 기반 스킬
+   - 속성/약점
+   - 상태이상/Burn/Stun/Shield/Guard
+   - Break gauge
+   - Stage Modifier
+   - 아이템
+   - Auto Battle
+   - Save/Progress
+
+4. 기술 구조
+   - BattleManager
+   - BattleUI
+   - StageData / EnemyData
+   - BattleBalanceConfig
+   - BattleResultEvaluator / BattleResultPresenter
+   - Editor Auto Builders / Validators
+
+5. 문제 해결 사례
+   - Stage Select와 Battle 실제 데이터 정합성 문제 해결
+   - 전장 기믹을 설명형에서 실전 적용형으로 확장
+   - AP 0 Void Drain 분기 테스트 보강
+   - 자동 검증으로 회귀 방지
+
+6. 시연 이미지/GIF
+   - Title 화면
+   - Stage Select 화면
+   - Battle HUD 전체
+   - Fire/Burn 또는 Ice/Stun 사용 장면
+   - Break 발동 장면
+   - Stage 4 Storm Surge 발동 장면
+   - Stage 5 Void Drain 발동 장면
+   - Stage 6 Radiant Trial 시작 장면
+   - Result summary 화면
+
+7. 회고
+   - C#과 Unity를 실제 프로젝트에 적용하며 배운 점
+   - 데이터 구조 분리의 필요성
+   - 자동 검증의 중요성
+   - UI/UX 피드백이 전투 이해도에 미치는 영향
+
+============================================================
+9. 다음 작업 우선순위
+============================================================
+
+1순위: README 최신화
+- 37 batches / 4 stages라고 적힌 내용을 55 batches / 6 stages로 갱신.
+- Stage Modifier, SFX, UI polish, item expansion 반영.
+
+2순위: 포트폴리오 캡처 갱신
+- Docs/Captures 아래 기존 캡처가 오래되었을 수 있음.
+- Stage Select, Stage 4~6 기믹, Result summary 캡처 필요.
+
+3순위: Coroutine 중복 방지 리팩터
+- BattleUI overlay pulse coroutine 중복 방지.
+- 기능보다 안정성/완성도 측면에서 좋음.
+
+4순위: Manual validation guide 갱신
+- 최신 stage modifier와 아이템/SFX 체크리스트 추가.
+
+5순위: 포트폴리오 제출용 요약본 작성
+- 1페이지 요약본
+- 3분 발표 대본
+- GitHub README 소개문
+
+============================================================
+10. 현재 상태 결론
+============================================================
+
+현재 Codex Tactics는 포트폴리오용으로 설명할 수 있는 핵심 요소를 상당히 갖춘 상태다.
+
+강점:
+- 완성된 게임 루프
+- 6개 스테이지와 12개 encounter
+- AP/Skill/Element/Status/Break/Item/Stage Modifier 등 전투 시스템 다층화
+- 자동 검증 체계
+- 데이터 기반 구조
+- UI/VFX/SFX 피드백 확장
+
+남은 포트폴리오 작업:
+- README/Showcase 문서 최신화
+- 최신 스크린샷/GIF 확보
+- 코드 안정성 polish 몇 가지
+- 제출용 짧은 설명/발표 자료 정리
+
+이 문서는 현재 기능 리뷰와 포트폴리오 작성의 기준본으로 사용하면 된다.
