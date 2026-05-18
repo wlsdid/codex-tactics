@@ -73,70 +73,131 @@ public static class GameFlowSceneAutoBuilder
         Image bgPanel = CreatePanel(canvas.transform, "Background Panel", Vector2.zero, new Vector2(1200, 800), new Color(0.05f, 0.05f, 0.08f, 1f));
         bgPanel.raycastTarget = false;
 
-        TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 260), new Vector2(600, 60), TextAlignmentOptions.Center);
+        TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 280), new Vector2(600, 60), TextAlignmentOptions.Center);
         headerText.fontSize = 40;
         headerText.color = new Color(0.92f, 0.78f, 0.38f);
 
-        // Stage Card 1 — Available (clickable Button)
-        Button stage1CardBtn = CreateCardButton(canvas.transform, "Stage Card 1", new Vector2(-200, 80), new Vector2(300, 200),
-            new Color(0.07f, 0.07f, 0.12f, 0.92f), new Color(0.15f, 0.20f, 0.35f, 0.95f));
-        TMP_Text stage1Text = CreateText(stage1CardBtn.transform, "Stage 1 Name Text", "Slime Scout Route", new Vector2(0, 55), new Vector2(260, 40), TextAlignmentOptions.Center);
-        stage1Text.fontSize = 24;
-        stage1Text.color = new Color(1f, 1f, 1f);
-        TMP_Text stage1Desc = CreateText(stage1CardBtn.transform, "Stage 1 Desc Text", "Basic encounter. Slimes patrol\nthe forest path.", new Vector2(0, 0), new Vector2(260, 60), TextAlignmentOptions.Top);
-        stage1Desc.fontSize = 18;
-        stage1Desc.color = new Color(0.72f, 0.72f, 0.72f);
-        TMP_Text stage1Status = CreateText(stage1CardBtn.transform, "Stage 1 Status Text", "Available", new Vector2(0, -55), new Vector2(260, 40), TextAlignmentOptions.Center);
-        stage1Status.fontSize = 20;
-        stage1Status.color = new Color(0.38f, 1f, 0.42f);
+        // Stage cards — 6 cards in 2 rows of 3
+        int cardCount = 6;
+        float cardStartX = -260f;
+        float cardY = 180f;
+        float cardSpacingX = 260f;
+        float cardSpacingY = -170f;
+        Vector2 cardSize = new Vector2(230, 160);
 
-        // Stage Card 2 — Locked (Button with interactable=false for future unlock)
-        Button stage2CardBtn = CreateCardButton(canvas.transform, "Stage Card 2", new Vector2(200, 80), new Vector2(300, 200),
-            new Color(0.04f, 0.04f, 0.07f, 0.92f), new Color(0.04f, 0.04f, 0.07f, 0.92f));
-        stage2CardBtn.interactable = false;
-        TMP_Text stage2Text = CreateText(stage2CardBtn.transform, "Stage 2 Name Text", "Wolf Ambush", new Vector2(0, 55), new Vector2(260, 40), TextAlignmentOptions.Center);
-        stage2Text.fontSize = 24;
-        stage2Text.color = new Color(0.5f, 0.5f, 0.5f);
-        TMP_Text stage2Desc = CreateText(stage2CardBtn.transform, "Stage 2 Desc Text", "Wolf packs hunt in the\nmoonlit clearing.", new Vector2(0, 0), new Vector2(260, 60), TextAlignmentOptions.Top);
-        stage2Desc.fontSize = 18;
-        stage2Desc.color = new Color(0.5f, 0.5f, 0.5f);
-        TMP_Text stage2Status = CreateText(stage2CardBtn.transform, "Stage 2 Status Text", "Locked", new Vector2(0, -55), new Vector2(260, 40), TextAlignmentOptions.Center);
-        stage2Status.fontSize = 20;
-        stage2Status.color = new Color(1f, 0.5f, 0.5f);
+        string[] cardNames = {
+            "Slime Scout Route",
+            "Wolf Ambush",
+            "Golem Depths",
+            "Storm Peaks",
+            "Shadow Realm",
+            "Sanctuary of Radiance"
+        };
 
-        // Description panel — expanded for stage name + description
-        Image descPanel = CreatePanel(canvas.transform, "Description Panel", new Vector2(0, -120), new Vector2(700, 100), new Color(0.06f, 0.06f, 0.10f, 0.88f));
-        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Stage 1-1: Slime Scout", new Vector2(0, -100), new Vector2(660, 30), TextAlignmentOptions.Center);
+        string[] cardDescs = {
+            "Basic slime encounter",
+            "Wolf pack ambush",
+            "Ancient golem depths",
+            "Lightning storm peaks",
+            "Shadow realm void",
+            "Sanctuary of light"
+        };
+
+        string[] cardElements = { "🔥", "🌿", "🌍", "⚡", "🌑", "✨" };
+        string[] cardDifficulties = { "★", "★", "★★", "★★", "★★★", "★★★" };
+
+        Button[] cardButtons = new Button[cardCount];
+        Image[] cardBgs = new Image[cardCount];
+        TMP_Text[] statusTexts = new TMP_Text[cardCount];
+
+        for (int i = 0; i < cardCount; i++)
+        {
+            int row = i / 3;
+            int col = i % 3;
+            float x = cardStartX + col * cardSpacingX;
+            float y = cardY + row * cardSpacingY;
+
+            // Card background + button
+            Button cardBtn = CreateCardButton(canvas.transform, $"Stage Card {i + 1}", new Vector2(x, y), cardSize,
+                new Color(0.07f, 0.07f, 0.12f, 0.92f), new Color(0.15f, 0.20f, 0.35f, 0.95f));
+            cardBtn.interactable = i == 0; // Only Stage 1 interactive by default
+            cardButtons[i] = cardBtn;
+            cardBgs[i] = cardBtn.GetComponent<Image>();
+
+            // Stage name text
+            TMP_Text nameText = CreateText(cardBtn.transform, $"Stage {i + 1} Name Text", cardNames[i], new Vector2(0, 45), new Vector2(200, 30), TextAlignmentOptions.Center);
+            nameText.fontSize = 20;
+            nameText.color = i == 0 ? Color.white : new Color(0.5f, 0.5f, 0.5f);
+
+            // Element icon + difficulty text (single line)
+            string eleDiffStr = $"{cardElements[i]} {cardDifficulties[i]}";
+            TMP_Text eleDiffText = CreateText(cardBtn.transform, $"Stage {i + 1} EleDiff Text", eleDiffStr, new Vector2(0, 15), new Vector2(200, 24), TextAlignmentOptions.Center);
+            eleDiffText.fontSize = 18;
+            eleDiffText.color = i == 0 ? new Color(0.82f, 0.86f, 0.95f) : new Color(0.5f, 0.5f, 0.5f);
+
+            // Description text (short for card preview)
+            TMP_Text shortDescText = CreateText(cardBtn.transform, $"Stage {i + 1} Desc Text", cardDescs[i], new Vector2(0, -10), new Vector2(200, 24), TextAlignmentOptions.Top);
+            shortDescText.fontSize = 14;
+            shortDescText.color = i == 0 ? new Color(0.72f, 0.72f, 0.72f) : new Color(0.4f, 0.4f, 0.4f);
+
+            // Status text
+            string statusLabel = i == 0 ? "▶ Available" : "🔒 Locked";
+            Color statusColor = i == 0 ? new Color(0.38f, 1f, 0.42f) : new Color(1f, 0.5f, 0.5f);
+            TMP_Text statusText = CreateText(cardBtn.transform, $"Stage {i + 1} Status Text", statusLabel, new Vector2(0, -50), new Vector2(200, 28), TextAlignmentOptions.Center);
+            statusText.fontSize = 18;
+            statusText.color = statusColor;
+            statusTexts[i] = statusText;
+        }
+
+        // Description panel — expanded for rich info
+        Image descPanel = CreatePanel(canvas.transform, "Description Panel", new Vector2(0, -140), new Vector2(700, 120), new Color(0.06f, 0.06f, 0.10f, 0.88f));
+        descPanel.raycastTarget = false;
+        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Stage 1-1: Slime Scout", new Vector2(0, -110), new Vector2(660, 28), TextAlignmentOptions.Center);
         stageNameText.fontSize = 22;
         stageNameText.color = new Color(0.92f, 0.78f, 0.38f);
-        TMP_Text descText = CreateText(canvas.transform, "Stage Description Text", "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.", new Vector2(0, -130), new Vector2(660, 60), TextAlignmentOptions.Top);
-        descText.fontSize = 18;
+        TMP_Text descText = CreateText(canvas.transform, "Stage Description Text",
+            "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.\n\nEncounters: Slime → Slime King\nElement: 🔥 Fire | Difficulty: ★\nReward: 50 Gold / 30 XP\nStatus: ▶ Available — Click Start Battle",
+            new Vector2(0, -155), new Vector2(660, 80), TextAlignmentOptions.TopLeft);
+        descText.fontSize = 16;
         descText.color = new Color(0.82f, 0.82f, 0.92f);
 
-        Button startBattleButton = CreateButton(canvas.transform, "Start Battle Button", "Start Battle", new Vector2(-120, -250), new Vector2(260, 65));
-        Button backButton = CreateButton(canvas.transform, "Back Button", "Back", new Vector2(120, -250), new Vector2(260, 65));
+        Button startBattleButton = CreateButton(canvas.transform, "Start Battle Button", "Start Battle", new Vector2(-120, -280), new Vector2(260, 65));
+        Button backButton = CreateButton(canvas.transform, "Back Button", "Back", new Vector2(120, -280), new Vector2(260, 65));
 
         // Create StageSelectController and wire everything
         GameObject controllerObj = new GameObject("StageSelectController");
         StageSelectController controller = controllerObj.AddComponent<StageSelectController>();
 
         SerializedObject serializedController = new SerializedObject(controller);
-        SetObjectReference(serializedController, "stage1CardButton", stage1CardBtn);
-        SetObjectReference(serializedController, "stage1CardBg", stage1CardBtn.GetComponent<Image>());
-        SetObjectReference(serializedController, "stage2CardButton", stage2CardBtn);
-        SetObjectReference(serializedController, "stage2CardBg", stage2CardBtn.GetComponent<Image>());
-        SetObjectReference(serializedController, "stage2StatusText", stage2Status);
+        SetObjectReference(serializedController, "stage1CardButton", cardButtons[0]);
+        SetObjectReference(serializedController, "stage2CardButton", cardButtons[1]);
+        SetObjectReference(serializedController, "stage3CardButton", cardButtons[2]);
+        SetObjectReference(serializedController, "stage4CardButton", cardButtons[3]);
+        SetObjectReference(serializedController, "stage5CardButton", cardButtons[4]);
+        SetObjectReference(serializedController, "stage6CardButton", cardButtons[5]);
+        SetObjectReference(serializedController, "stage1CardBg", cardBgs[0]);
+        SetObjectReference(serializedController, "stage2CardBg", cardBgs[1]);
+        SetObjectReference(serializedController, "stage3CardBg", cardBgs[2]);
+        SetObjectReference(serializedController, "stage4CardBg", cardBgs[3]);
+        SetObjectReference(serializedController, "stage5CardBg", cardBgs[4]);
+        SetObjectReference(serializedController, "stage6CardBg", cardBgs[5]);
+        SetObjectReference(serializedController, "stage1StatusText", statusTexts[0]);
+        SetObjectReference(serializedController, "stage2StatusText", statusTexts[1]);
+        SetObjectReference(serializedController, "stage3StatusText", statusTexts[2]);
+        SetObjectReference(serializedController, "stage4StatusText", statusTexts[3]);
+        SetObjectReference(serializedController, "stage5StatusText", statusTexts[4]);
+        SetObjectReference(serializedController, "stage6StatusText", statusTexts[5]);
         SetObjectReference(serializedController, "stageNameText", stageNameText);
         SetObjectReference(serializedController, "stageDescriptionText", descText);
         SetObjectReference(serializedController, "startBattleButton", startBattleButton);
         SetObjectReference(serializedController, "backButton", backButton);
         serializedController.ApplyModifiedPropertiesWithoutUndo();
 
-        // Init button states (controller.Start sets these, but ensure initial state in builder too)
+        // Init button states
         startBattleButton.interactable = false;
-        stage1CardBtn.interactable = true;
+        cardButtons[0].interactable = true;
 
-        // Create GameSceneFlow (kept for scene name constants)
+        // Create GameSceneFlow
         GameObject flowObject = new GameObject("GameSceneFlow");
         flowObject.AddComponent<GameSceneFlow>();
 
@@ -184,9 +245,15 @@ public static class GameFlowSceneAutoBuilder
             {
                 AppendCheck(ref passed, ref report, "Stage 1 Card button exists", controller.DebugStage1CardButtonExists);
                 AppendCheck(ref passed, ref report, "Stage 1 Card is interactable (unlocked)", controller.DebugStage1CardInteractable);
-                AppendCheck(ref passed, ref report, "Stage 2 Card button is non-interactive (locked)", !controller.DebugStage2CardInteractable);
+                AppendCheck(ref passed, ref report, "Stage 1 status text exists", !string.IsNullOrEmpty(controller.DebugStage1StatusText));
+                AppendCheck(ref passed, ref report, "Stage 1 status shows ▶ Available", controller.DebugStage1StatusText == "▶ Available");
                 AppendCheck(ref passed, ref report, "Stage 2 Card button exists (unlock-ready)", controller.DebugStage2CardButtonExists);
-                AppendCheck(ref passed, ref report, "Stage 2 status shows Locked", controller.DebugStage2StatusText == "Locked");
+                AppendCheck(ref passed, ref report, "Stage 2 Card button is non-interactive (locked)", !controller.DebugStage2CardInteractable);
+                AppendCheck(ref passed, ref report, "Stage 2 status shows 🔒 Locked", controller.DebugStage2StatusText == "🔒 Locked");
+                AppendCheck(ref passed, ref report, "Stage 3 Card button exists", controller.DebugStage3CardButtonExists);
+                AppendCheck(ref passed, ref report, "Stage 4 Card button exists", controller.DebugStage4CardButtonExists);
+                AppendCheck(ref passed, ref report, "Stage 5 Card button exists", controller.DebugStage5CardButtonExists);
+                AppendCheck(ref passed, ref report, "Stage 6 Card button exists", controller.DebugStage6CardButtonExists);
                 AppendCheck(ref passed, ref report, "Stage Name text exists", controller.DebugStageNameTextExists);
                 AppendCheck(ref passed, ref report, "Stage Description text exists", controller.DebugStageDescriptionTextExists);
                 AppendCheck(ref passed, ref report, "Start Battle button exists", controller.DebugStartBattleButtonExists);

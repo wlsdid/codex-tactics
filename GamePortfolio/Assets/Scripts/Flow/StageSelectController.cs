@@ -21,6 +21,7 @@ public class StageSelectController : MonoBehaviour
     [SerializeField] private Image stage4CardBg;
     [SerializeField] private Image stage5CardBg;
     [SerializeField] private Image stage6CardBg;
+    [SerializeField] private TMP_Text stage1StatusText;
     [SerializeField] private TMP_Text stage2StatusText;
     [SerializeField] private TMP_Text stage3StatusText;
     [SerializeField] private TMP_Text stage4StatusText;
@@ -77,6 +78,33 @@ public class StageSelectController : MonoBehaviour
         "Stage 2-2: Storm Peaks",
         "Stage 3-1: Shadow Realm",
         "Stage 3-2: Sanctuary of Radiance"
+    };
+
+    private static readonly string[] StageDifficulty = {
+        "★",      // Stage 1
+        "★",      // Stage 2
+        "★★",     // Stage 3
+        "★★",     // Stage 4
+        "★★★",    // Stage 5
+        "★★★"     // Stage 6
+    };
+
+    private static readonly string[] StageRewardGold = {
+        "50 Gold",    // Stage 1
+        "100 Gold",   // Stage 2
+        "150 Gold",   // Stage 3
+        "200 Gold",   // Stage 4
+        "250 Gold",   // Stage 5
+        "300 Gold"    // Stage 6
+    };
+
+    private static readonly string[] StageRewardXP = {
+        "30 XP",    // Stage 1
+        "60 XP",    // Stage 2
+        "90 XP",    // Stage 3
+        "120 XP",   // Stage 4
+        "150 XP",   // Stage 5
+        "180 XP"    // Stage 6
     };
 
     /// <summary>Selected stage index (0-based) for BattleScene to read.</summary>
@@ -137,7 +165,7 @@ public class StageSelectController : MonoBehaviour
 
     private void UpdateCardVisuals()
     {
-        UpdateSingleCardVisual(0, stage1CardButton, stage1CardBg, null);
+        UpdateSingleCardVisual(0, stage1CardButton, stage1CardBg, stage1StatusText);
         UpdateSingleCardVisual(1, stage2CardButton, stage2CardBg, stage2StatusText);
         UpdateSingleCardVisual(2, stage3CardButton, stage3CardBg, stage3StatusText);
         UpdateSingleCardVisual(3, stage4CardButton, stage4CardBg, stage4StatusText);
@@ -149,17 +177,20 @@ public class StageSelectController : MonoBehaviour
     {
         if (cardButton == null) return;
         bool unlocked = ProgressState.IsStageUnlocked(stageIndex);
+        bool completed = ProgressState.IsStageCompleted(stageIndex);
         cardButton.interactable = unlocked;
-        SetCardState(cardBg, cardButton.interactable, unlocked, stageIndex);
+        SetCardState(cardBg, cardButton.interactable, unlocked, stageIndex, completed);
         if (statusText != null)
         {
-            statusText.text = unlocked ? "Available" : "🔒 Locked";
-            if (unlocked && stageIndex >= 0 && stageIndex < StageElements.Length)
+            statusText.text = GetStageStatusText(stageIndex, unlocked, completed);
+            if (unlocked)
                 statusText.color = PlaceholderSpriteGenerator.GetElementTextColor(StageElements[stageIndex]);
+            else
+                statusText.color = new Color(0.5f, 0.5f, 0.5f);
         }
     }
 
-    private void SetCardState(Image bg, bool canInteract, bool isUnlocked, int stageIndex)
+    private void SetCardState(Image bg, bool canInteract, bool isUnlocked, int stageIndex, bool isCompleted)
     {
         if (bg == null) return;
 
@@ -169,19 +200,24 @@ public class StageSelectController : MonoBehaviour
         }
         else if (canInteract && selectedStageIndex >= 0 && IsCardForStage(bg, selectedStageIndex))
         {
-            // Selected: use element color with full alpha
+            // Selected: bright element color
             var elem = stageIndex >= 0 && stageIndex < StageElements.Length
                 ? PlaceholderSpriteGenerator.GetElementColor(StageElements[stageIndex])
                 : normalColor;
-            bg.color = new Color(elem.r * 0.8f, elem.g * 0.8f, elem.b * 0.8f, 0.9f);
+            bg.color = new Color(elem.r, elem.g, elem.b, 0.95f);
+        }
+        else if (isCompleted)
+        {
+            // Completed: gold-tinted to differentiate from available
+            bg.color = new Color(0.35f, 0.28f, 0.12f, 0.85f);
         }
         else
         {
-            // Unlocked but not selected: use element color with reduced alpha
+            // Unlocked but not selected: muted element color
             if (stageIndex >= 0 && stageIndex < StageElements.Length)
             {
                 var elemColor = PlaceholderSpriteGenerator.GetElementColor(StageElements[stageIndex]);
-                bg.color = new Color(elemColor.r * 0.25f, elemColor.g * 0.25f, elemColor.b * 0.25f, 0.8f);
+                bg.color = new Color(elemColor.r * 0.3f, elemColor.g * 0.3f, elemColor.b * 0.3f, 0.8f);
             }
             else
             {
@@ -209,7 +245,27 @@ public class StageSelectController : MonoBehaviour
         if (stageNameText != null)
             stageNameText.text = StageStageNames[index];
         if (stageDescriptionText != null)
-            stageDescriptionText.text = StageDescriptions[index];
+        {
+            bool unlocked = ProgressState.IsStageUnlocked(index);
+            bool completed = ProgressState.IsStageCompleted(index);
+            string elementIcon = GetElementIcon(StageElements[index]);
+            string difficulty = index >= 0 && index < StageDifficulty.Length ? StageDifficulty[index] : "★";
+            string rewardGold = index >= 0 && index < StageRewardGold.Length ? StageRewardGold[index] : "";
+            string rewardXP = index >= 0 && index < StageRewardXP.Length ? StageRewardXP[index] : "";
+
+            string encounters = $"Encounters: {PlaceholderSpriteGenerator.StageEnemyNames[index]} → {PlaceholderSpriteGenerator.StageBossNames[index]}";
+            string element = $"Element: {elementIcon} {StageElements[index]} | Difficulty: {difficulty}";
+            string reward = $"Reward: {rewardGold} / {rewardXP}";
+
+            string unlockCondition;
+            if (completed) unlockCondition = "Status: ✅ Cleared";
+            else if (unlocked) unlockCondition = "Status: ▶ Available — Click Start Battle";
+            else if (index == 0) unlockCondition = "Status: ▶ Available (Start)";
+            else unlockCondition = $"🔒 Locked — Clear \"{StageNames[index - 1]}\" to unlock";
+
+            string description = StageDescriptions[index];
+            stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{unlockCondition}";
+        }
     }
 
     private void UpdateStartBattleButton()
@@ -220,10 +276,40 @@ public class StageSelectController : MonoBehaviour
         startBattleButton.interactable = canStart;
     }
 
+    /// <summary>Get status text for a stage card based on progress.</summary>
+    private static string GetStageStatusText(int index, bool unlocked, bool completed)
+    {
+        if (completed) return "✅ Cleared";
+        if (!unlocked) return "🔒 Locked";
+        if (index == 0) return "▶ Available";
+        if (ProgressState.IsStageCompleted(index - 1)) return "▶ Available";
+        return "⭐ Next";
+    }
+
+    /// <summary>Get an emoji icon representing the given element type.</summary>
+    private static string GetElementIcon(ElementType element)
+    {
+        return element switch
+        {
+            ElementType.Fire => "🔥",
+            ElementType.Ice => "❄",
+            ElementType.Lightning => "⚡",
+            ElementType.Nature => "🌿",
+            ElementType.Earth => "🌍",
+            ElementType.Dark => "🌑",
+            ElementType.Light => "✨",
+            _ => "❓"
+        };
+    }
+
     // ── Public debug accessors (for auto-test) ──
 
     public bool DebugStage1CardButtonExists => stage1CardButton != null;
     public bool DebugStage2CardButtonExists => stage2CardButton != null;
+    public bool DebugStage3CardButtonExists => stage3CardButton != null;
+    public bool DebugStage4CardButtonExists => stage4CardButton != null;
+    public bool DebugStage5CardButtonExists => stage5CardButton != null;
+    public bool DebugStage6CardButtonExists => stage6CardButton != null;
     public bool DebugStage1CardInteractable => stage1CardButton != null && stage1CardButton.interactable;
     public bool DebugStage2CardInteractable => stage2CardButton != null && stage2CardButton.interactable;
     public bool DebugStartBattleButtonExists => startBattleButton != null;
@@ -231,7 +317,12 @@ public class StageSelectController : MonoBehaviour
     public bool DebugBackButtonExists => backButton != null;
     public bool DebugStageNameTextExists => stageNameText != null;
     public bool DebugStageDescriptionTextExists => stageDescriptionText != null;
+    public string DebugStage1StatusText => stage1StatusText != null ? stage1StatusText.text : "";
     public string DebugStage2StatusText => stage2StatusText != null ? stage2StatusText.text : "";
+    public string DebugStage3StatusText => stage3StatusText != null ? stage3StatusText.text : "";
+    public string DebugStage4StatusText => stage4StatusText != null ? stage4StatusText.text : "";
+    public string DebugStage5StatusText => stage5StatusText != null ? stage5StatusText.text : "";
+    public string DebugStage6StatusText => stage6StatusText != null ? stage6StatusText.text : "";
     public int DebugSelectedStageIndex => selectedStageIndex;
 
     public void DebugSelectStage(int index)
