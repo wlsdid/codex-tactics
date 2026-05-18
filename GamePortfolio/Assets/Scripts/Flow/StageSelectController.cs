@@ -127,6 +127,11 @@ public class StageSelectController : MonoBehaviour
 
         // Initialize UI state
         UpdateCardVisuals();
+
+        // Auto-select first unlocked stage
+        int recommended = GetNextRecommendedStageIndex();
+        if (recommended >= 0)
+            OnStageCardClicked(recommended);
     }
 
     private void WireStageCard(int index, Button cardButton)
@@ -146,7 +151,54 @@ public class StageSelectController : MonoBehaviour
         UpdateCardVisuals();
         UpdateDescription(index);
         UpdateStartBattleButton();
+
+        // Brief scale pulse animation on selected card
+        StartCoroutine(PulseCardAnimation(index));
     }
+
+    private IEnumerator PulseCardAnimation(int index)
+    {
+        Button btn = GetStageButton(index);
+        if (btn == null) yield break;
+        RectTransform rt = btn.GetComponent<RectTransform>();
+        if (rt == null) yield break;
+
+        float duration = 0.15f;
+        float elapsed = 0f;
+        Vector3 original = Vector3.one;
+
+        // Scale up
+        while (elapsed < duration * 0.5f)
+        {
+            float t = elapsed / (duration * 0.5f);
+            rt.localScale = Vector3.Lerp(original, new Vector3(1.05f, 1.05f, 1f), t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        rt.localScale = new Vector3(1.05f, 1.05f, 1f);
+
+        elapsed = 0f;
+        // Scale back
+        while (elapsed < duration * 0.5f)
+        {
+            float t = elapsed / (duration * 0.5f);
+            rt.localScale = Vector3.Lerp(new Vector3(1.05f, 1.05f, 1f), original, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        rt.localScale = original;
+    }
+
+    private Button GetStageButton(int index) => index switch
+    {
+        0 => stage1CardButton,
+        1 => stage2CardButton,
+        2 => stage3CardButton,
+        3 => stage4CardButton,
+        4 => stage5CardButton,
+        5 => stage6CardButton,
+        _ => null
+    };
 
     private void OnStartBattleClicked()
     {
