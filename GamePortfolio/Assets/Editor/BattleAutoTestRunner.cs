@@ -254,6 +254,8 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Stage 4 Boss metadata has StormSurge modifier", StageData.CreateStage4Boss().stageModifier == StageModifierType.StormSurge);
         AppendCheck(ref passed, ref report, "Stage 5 Normal metadata has VoidDrain modifier", StageData.CreateStage5Normal().stageModifier == StageModifierType.VoidDrain);
         AppendCheck(ref passed, ref report, "Stage 5 Boss metadata has VoidDrain modifier", StageData.CreateStage5Boss().stageModifier == StageModifierType.VoidDrain);
+        AppendCheck(ref passed, ref report, "Stage 6 Normal metadata has RadiantTrial modifier", StageData.CreateStage6Normal().stageModifier == StageModifierType.RadiantTrial);
+        AppendCheck(ref passed, ref report, "Stage 6 Boss metadata has RadiantTrial modifier", StageData.CreateStage6Boss().stageModifier == StageModifierType.RadiantTrial);
         AppendCheck(ref passed, ref report, "Stage 3 Normal creates Golem Sentry", StageData.CreateStage3Normal().enemy.enemyName == "Golem Sentry" && StageData.CreateStage3Normal().enemy.maxHp == 120);
         AppendCheck(ref passed, ref report, "Stage 3 Boss creates Ancient Golem", StageData.CreateStage3Boss().enemy.enemyName == "Ancient Golem" && StageData.CreateStage3Boss().enemy.maxHp == 220);
         AppendCheck(ref passed, ref report, "Stage 3 encounters loaded from GetEncountersForStage", StageData.GetEncountersForStage(2).Count == 2 && StageData.GetEncountersForStage(2)[0].encounterName == "Golem Sentry");
@@ -350,6 +352,16 @@ public static class BattleAutoTestRunner
             battleManager.DebugImpactText.Contains("reduced AP"));
         AppendCheck(ref passed, ref report, "Stage 5 Void Drain reduces player AP after 2 turns",
             battleManager.DebugPlayerApText.Contains("2/3") || battleManager.DebugPlayerApText.Contains("1/3"));
+
+        // Stage 6 RadiantTrial: strong attack period reduced + break gauge increased
+        battleManager.DebugLoadEncountersForStage(5);
+        battleManager.DebugStartBattleForTest();
+        AppendCheck(ref passed, ref report, "Stage 6 battle log shows Radiant Trial modifier",
+            battleManager.DebugBattleLogText.Contains("Radiant Trial"));
+        AppendCheck(ref passed, ref report, "Stage 6 RadiantTrial reduces strong attack period in skill help",
+            battleManager.DebugSkillHelpText.Contains("every 2"));
+        AppendCheck(ref passed, ref report, "Stage 6 RadiantTrial increases break gauge to 3",
+            battleManager.DebugEnemyBreakText == "Break: 3/3");
 
         // --- Stage Selection Tests ---
         Object.DestroyImmediate(root);

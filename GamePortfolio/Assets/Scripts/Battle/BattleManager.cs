@@ -1164,8 +1164,14 @@ public class BattleManager : MonoBehaviour
                 break;
 
             case StageModifierType.RadiantTrial:
+                if (enemyPattern != null)
+                    enemyPattern.strongAttackEveryTurns = Mathf.Max(2, enemyPattern.strongAttackEveryTurns - 1);
+                if (enemy != null)
+                {
+                    enemy.maxBreakGauge += 1;
+                    enemy.currentBreakGauge = enemy.maxBreakGauge;
+                }
                 modifierMsg = "⚠ Stage Modifier: Radiant Trial — The ultimate trial. Enemies are relentless.";
-                // Full implementation in next batch
                 break;
 
             default:
