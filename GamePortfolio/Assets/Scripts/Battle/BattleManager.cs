@@ -512,6 +512,7 @@ public class BattleManager : MonoBehaviour
         if (currentState != BattleState.PlayerTurn || player == null || item == null) return;
         item.quantity--;
         usedItems = true;
+        AudioManager.Instance?.PlayItemSfx();
 
         string msg;
         switch (item.effectType)
@@ -522,6 +523,7 @@ public class BattleManager : MonoBehaviour
                 msg = $"{player.characterName} uses {item.itemName}! Restores {heal} HP.";
                 // Heal popup on player
                 battleUI?.ShowHealNumber(heal);
+                AudioManager.Instance?.PlayHealSfx();
                 break;
             case ItemEffectType.RestoreAp:
                 int apGain = Mathf.Min(item.effectValue, player.maxAp - player.currentAp);
@@ -601,9 +603,15 @@ public class BattleManager : MonoBehaviour
         TrackDamageDealt(before);
 
         if (skill.statusEffectType == StatusEffectType.Burn)
+        {
             enemy.ApplyStatusEffect(StatusEffectType.Burn, CfgBurnTurnDuration);
+            AudioManager.Instance?.PlayBurnSfx();
+        }
         else if (skill.statusEffectType == StatusEffectType.Stun)
+        {
             enemy.ApplyStatusEffect(StatusEffectType.Stun, CfgStunTurnDuration);
+            AudioManager.Instance?.PlayStunSfx();
+        }
 
         // Break gauge: reduce on weakness hit
         if (!wasBroken && skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
@@ -621,6 +629,7 @@ public class BattleManager : MonoBehaviour
         if (skill == earthSkill)
         {
             playerShieldAmount = CfgEarthSkillShieldAmount;
+            AudioManager.Instance?.PlayShieldSfx();
             // Show shield buff popup on player
             if (battleUI != null)
                 battleUI.ShowBuffOnPlayer($"Shield +{CfgEarthSkillShieldAmount}", new Color(0.3f, 0.7f, 1f));
@@ -676,6 +685,7 @@ public class BattleManager : MonoBehaviour
         if (wasBroken)
         {
             battleUI?.ShowBreakPopup();
+            AudioManager.Instance?.PlayBreakSfx();
         }
 
         // Skill projectile
@@ -938,6 +948,7 @@ public class BattleManager : MonoBehaviour
             {
                 playerXp -= xpToNextLevel;
                 playerLevel++;
+                AudioManager.Instance?.PlayLevelUpSfx();
                 xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * 1.5f);
                 if (player != null) player.maxHp += 20;
                 string lvlMsg = $"Level Up! Now Level {playerLevel}. Max HP increased to {player?.maxHp}.";

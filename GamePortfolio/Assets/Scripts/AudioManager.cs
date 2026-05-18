@@ -2,8 +2,8 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Manages BGM and SFX playback. Uses Resources/Audio/ folder for clips.
-/// Falls back to procedural tones if no audio files found.
+/// Manages BGM and SFX playback.
+/// Generates procedural audio tones if no Resources/Audio/ clips found.
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
@@ -22,6 +22,13 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip damageSfx;
     [SerializeField] private AudioClip victorySfx;
     [SerializeField] private AudioClip defeatSfx;
+    [SerializeField] private AudioClip itemSfx;
+    [SerializeField] private AudioClip breakSfx;
+    [SerializeField] private AudioClip levelUpSfx;
+    [SerializeField] private AudioClip healSfx;
+    [SerializeField] private AudioClip shieldSfx;
+    [SerializeField] private AudioClip stunSfx;
+    [SerializeField] private AudioClip burnSfx;
 
     private static AudioManager instance;
     public static AudioManager Instance => instance;
@@ -36,7 +43,6 @@ public class AudioManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Create audio sources if not assigned
         if (bgmSource == null)
         {
             bgmSource = gameObject.AddComponent<AudioSource>();
@@ -50,20 +56,26 @@ public class AudioManager : MonoBehaviour
             sfxSource.volume = 0.5f;
         }
 
-        // Try to load from Resources, fall back to procedural
         LoadOrGenerateAudio();
     }
 
     private void LoadOrGenerateAudio()
     {
-        battleBgm = Resources.Load<AudioClip>("Audio/BattleBGM");
-        victoryBgm = Resources.Load<AudioClip>("Audio/VictoryBGM");
-        attackSfx = Resources.Load<AudioClip>("Audio/AttackSFX");
-        skillSfx = Resources.Load<AudioClip>("Audio/SkillSFX");
-        guardSfx = Resources.Load<AudioClip>("Audio/GuardSFX");
-        damageSfx = Resources.Load<AudioClip>("Audio/DamageSFX");
-        victorySfx = Resources.Load<AudioClip>("Audio/VictorySFX");
-        defeatSfx = Resources.Load<AudioClip>("Audio/DefeatSFX");
+        battleBgm = Resources.Load<AudioClip>("Audio/BattleBGM") ?? GenerateProceduralBgm(0.3f);
+        victoryBgm = Resources.Load<AudioClip>("Audio/VictoryBGM") ?? GenerateVictoryTone();
+        attackSfx = Resources.Load<AudioClip>("Audio/AttackSFX") ?? GenerateTone(220f, 0.12f, 0.3f);
+        skillSfx = Resources.Load<AudioClip>("Audio/SkillSFX") ?? GenerateTone(440f, 0.18f, 0.4f);
+        guardSfx = Resources.Load<AudioClip>("Audio/GuardSFX") ?? GenerateTone(180f, 0.15f, 0.25f);
+        damageSfx = Resources.Load<AudioClip>("Audio/DamageSFX") ?? GenerateTone(120f, 0.12f, 0.35f);
+        victorySfx = Resources.Load<AudioClip>("Audio/VictorySFX") ?? GenerateVictoryChime();
+        defeatSfx = Resources.Load<AudioClip>("Audio/DefeatSFX") ?? GenerateTone(80f, 0.3f, 0.3f);
+        itemSfx = Resources.Load<AudioClip>("Audio/ItemSFX") ?? GenerateTone(520f, 0.15f, 0.2f);
+        breakSfx = Resources.Load<AudioClip>("Audio/BreakSFX") ?? GenerateBreakTone();
+        levelUpSfx = Resources.Load<AudioClip>("Audio/LevelUpSFX") ?? GenerateLevelUpChime();
+        healSfx = Resources.Load<AudioClip>("Audio/HealSFX") ?? GenerateTone(660f, 0.2f, 0.25f);
+        shieldSfx = Resources.Load<AudioClip>("Audio/ShieldSFX") ?? GenerateTone(350f, 0.18f, 0.2f);
+        stunSfx = Resources.Load<AudioClip>("Audio/StunSFX") ?? GenerateTone(100f, 0.2f, 0.15f);
+        burnSfx = Resources.Load<AudioClip>("Audio/BurnSFX") ?? GenerateTone(200f, 0.25f, 0.15f);
     }
 
     public void PlayBattleBgm()
@@ -95,10 +107,157 @@ public class AudioManager : MonoBehaviour
     public void PlayDamageSfx() => PlaySfx(damageSfx);
     public void PlayVictorySfx() => PlaySfx(victorySfx);
     public void PlayDefeatSfx() => PlaySfx(defeatSfx);
+    public void PlayItemSfx() => PlaySfx(itemSfx);
+    public void PlayBreakSfx() => PlaySfx(breakSfx);
+    public void PlayLevelUpSfx() => PlaySfx(levelUpSfx);
+    public void PlayHealSfx() => PlaySfx(healSfx);
+    public void PlayShieldSfx() => PlaySfx(shieldSfx);
+    public void PlayStunSfx() => PlaySfx(stunSfx);
+    public void PlayBurnSfx() => PlaySfx(burnSfx);
 
     private void PlaySfx(AudioClip clip)
     {
         if (sfxSource != null && clip != null)
             sfxSource.PlayOneShot(clip);
+    }
+
+    // ── Procedural audio generation ──
+
+    private static AudioClip GenerateTone(float freq, float duration, float volume)
+    {
+        int sampleRate = 44100;
+        int samples = Mathf.Max(1, Mathf.RoundToInt(sampleRate * duration));
+        float[] data = new float[samples];
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float envelope = Mathf.Exp(-t * 8f / Mathf.Max(0.01f, duration));
+            data[i] = Mathf.Sin(2f * Mathf.PI * freq * t) * volume * envelope;
+        }
+        AudioClip clip = AudioClip.Create("ProceduralTone", samples, 1, sampleRate, false);
+        clip.SetData(data, 0);
+        return clip;
+    }
+
+    private static AudioClip GenerateVictoryChime()
+    {
+        int sampleRate = 44100;
+        float duration = 0.5f;
+        int samples = Mathf.RoundToInt(sampleRate * duration);
+        float[] data = new float[samples];
+        float[] freqs = { 523f, 659f, 784f, 1047f }; // C5, E5, G5, C6
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float env = Mathf.Exp(-t * 3f);
+            float val = 0f;
+            for (int j = 0; j < freqs.Length; j++)
+            {
+                float noteStart = j * 0.08f;
+                float localT = t - noteStart;
+                if (localT > 0f && localT < 0.3f)
+                {
+                    float noteEnv = Mathf.Exp(-localT * 6f);
+                    val += Mathf.Sin(2f * Mathf.PI * freqs[j] * t) * noteEnv;
+                }
+            }
+            data[i] = val * 0.3f * env;
+        }
+        AudioClip clip = AudioClip.Create("VictoryChime", samples, 1, sampleRate, false);
+        clip.SetData(data, 0);
+        return clip;
+    }
+
+    private static AudioClip GenerateBreakTone()
+    {
+        int sampleRate = 44100;
+        float duration = 0.3f;
+        int samples = Mathf.RoundToInt(sampleRate * duration);
+        float[] data = new float[samples];
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float freq = Mathf.Lerp(800f, 200f, t / duration);
+            float envelope = Mathf.Exp(-t * 4f);
+            data[i] = (Mathf.Sin(2f * Mathf.PI * freq * t) + Mathf.Sin(2f * Mathf.PI * freq * 1.5f * t) * 0.5f) * 0.3f * envelope;
+        }
+        AudioClip clip = AudioClip.Create("BreakTone", samples, 1, sampleRate, false);
+        clip.SetData(data, 0);
+        return clip;
+    }
+
+    private static AudioClip GenerateLevelUpChime()
+    {
+        int sampleRate = 44100;
+        float duration = 0.6f;
+        int samples = Mathf.RoundToInt(sampleRate * duration);
+        float[] data = new float[samples];
+        float[] freqs = { 392f, 523f, 659f, 784f };
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float env = Mathf.Exp(-t * 2f);
+            float val = 0f;
+            for (int j = 0; j < freqs.Length; j++)
+            {
+                float noteStart = j * 0.06f;
+                float localT = t - noteStart;
+                if (localT > 0f && localT < 0.5f)
+                {
+                    float noteEnv = Mathf.Exp(-localT * 3f);
+                    val += Mathf.Sin(2f * Mathf.PI * freqs[j] * t) * noteEnv * 0.6f;
+                }
+            }
+            data[i] = val * env * 0.3f;
+        }
+        AudioClip clip = AudioClip.Create("LevelUpChime", samples, 1, sampleRate, false);
+        clip.SetData(data, 0);
+        return clip;
+    }
+
+    private static AudioClip GenerateVictoryTone()
+    {
+        int sampleRate = 44100;
+        float duration = 2f;
+        int samples = Mathf.RoundToInt(sampleRate * duration);
+        float[] data = new float[samples];
+        float[] melody = { 262f, 294f, 330f, 349f, 392f, 440f, 494f, 523f };
+        float beatDuration = duration / melody.Length;
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            int noteIndex = Mathf.Min(Mathf.FloorToInt(t / beatDuration), melody.Length - 1);
+            float noteT = (t - noteIndex * beatDuration) / beatDuration;
+            float env = Mathf.Exp(-noteT * 3f) * 0.5f;
+            data[i] = Mathf.Sin(2f * Mathf.PI * melody[noteIndex] * t) * env;
+        }
+        AudioClip clip = AudioClip.Create("VictoryMelody", samples, 1, sampleRate, false);
+        clip.SetData(data, 0);
+        return clip;
+    }
+
+    private static AudioClip GenerateProceduralBgm(float volume)
+    {
+        int sampleRate = 44100;
+        float duration = 4f;
+        int samples = Mathf.RoundToInt(sampleRate * duration);
+        float[] data = new float[samples];
+        float bpm = 120f;
+        float beat = 60f / bpm;
+        float[] notes = { 130.81f, 146.83f, 164.81f, 174.61f, 196f, 220f, 246.94f, 261.63f };
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            int noteIndex = Mathf.FloorToInt(t / beat) % notes.Length;
+            float noteT = (t - Mathf.FloorToInt(t / beat) * beat) / beat;
+            float env = Mathf.Exp(-noteT * 3f) * 0.4f;
+            float val = Mathf.Sin(2f * Mathf.PI * notes[noteIndex] * t) * env;
+            // Add subtle harmony
+            val += Mathf.Sin(2f * Mathf.PI * notes[noteIndex] * 1.5f * t) * env * 0.2f;
+            data[i] = val * volume;
+        }
+        AudioClip clip = AudioClip.Create("ProceduralBGM", samples, 1, sampleRate, true);
+        clip.SetData(data, 0);
+        return clip;
     }
 }
