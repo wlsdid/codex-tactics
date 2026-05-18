@@ -120,7 +120,7 @@ public class BattleManager : MonoBehaviour
     // --- Config helpers ---
     private int CfgPlayerMaxHp => balanceConfig != null ? balanceConfig.playerMaxHp : 100;
     private int CfgPlayerMaxAp => balanceConfig != null ? balanceConfig.playerMaxAp : 3;
-    private int CfgPlayerApRecovery => balanceConfig != null ? balanceConfig.playerApRecoveryPerTurn : 1;
+    private int CfgPlayerApRecovery => balanceConfig != null ? balanceConfig.playerApRecoveryPerTurn : 2;
     private int CfgBasicSkillPower => balanceConfig != null ? balanceConfig.basicSkillPower : 20;
     private int CfgBasicSkillApCost => balanceConfig != null ? balanceConfig.basicSkillApCost : 0;
     private int CfgFireSkillPower => balanceConfig != null ? balanceConfig.fireSkillPower : 30;
@@ -132,8 +132,8 @@ public class BattleManager : MonoBehaviour
     private int CfgLightningSkillApCost => balanceConfig != null ? balanceConfig.lightningSkillApCost : 3;
     private int CfgEarthSkillPower => balanceConfig != null ? balanceConfig.earthSkillPower : 22;
     private int CfgEarthSkillApCost => balanceConfig != null ? balanceConfig.earthSkillApCost : 2;
-    private int CfgEarthSkillShieldAmount => balanceConfig != null ? balanceConfig.earthSkillShieldAmount : 15;
-    private int CfgBurnDamagePerTurn => balanceConfig != null ? balanceConfig.burnDamagePerTurn : 3;
+    private int CfgEarthSkillShieldAmount => balanceConfig != null ? balanceConfig.earthSkillShieldAmount : 20;
+    private int CfgBurnDamagePerTurn => balanceConfig != null ? balanceConfig.burnDamagePerTurn : 5;
     private int CfgBurnTurnDuration => balanceConfig != null ? balanceConfig.burnTurnDuration : 2;
     private int CfgGuardReductionPercent => balanceConfig != null ? balanceConfig.guardDamageReductionPercent : 50;
     private int CfgSRankRewardGold => balanceConfig != null ? balanceConfig.sRankRewardGold : 150;
