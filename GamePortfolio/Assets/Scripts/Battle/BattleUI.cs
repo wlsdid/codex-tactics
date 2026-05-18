@@ -694,6 +694,22 @@ public class BattleUI : MonoBehaviour
         // Detect important events and prepend short, styled prefixes
         string lower = message.ToLowerInvariant();
 
+        // Keep player turn prompts and generic game flow messages intact
+        if (lower.Contains("player turn"))
+            return message;
+        if (lower.Contains("skipped the turn"))
+            return message;
+
+        // Keep enemy attack messages intact for battle log readability
+        if (lower.Contains("hero guards"))
+            return message;
+        if (lower.Contains("attacks") && lower.Contains("guards"))
+            return message;
+        if (lower.Contains("attacks") && lower.Contains("takes"))
+            return message;
+
+        if (lower.Contains("guards. next enemy attack damage is reduced"))
+            return "🛡 Guarded! Damage reduced.";
         if (lower.Contains("guarded") || lower.Contains("guards"))
             return "🛡 Guarded!";
         if (lower.Contains("break!"))
@@ -704,8 +720,6 @@ public class BattleUI : MonoBehaviour
             return "🏆 Victory!";
         if (lower.Contains("defeat") || lower.Contains("defeated"))
             return "💀 Defeated!";
-        if (lower.Contains("guards. next enemy attack damage is reduced"))
-            return "🛡 Guarded! Damage reduced.";
         if (lower.Contains("is stunn"))
             return "⏳ Enemy STUNNED! Skips turn.";
         if (lower.Contains("burn damage"))
@@ -724,10 +738,10 @@ public class BattleUI : MonoBehaviour
             return "⚠️ No items available";
 
         // Item effects: must come before generic "uses" check
-        if (lower.Contains("restores hp") || lower.Contains("restores hp."))
+        if (lower.Contains("restores") && lower.Contains("hp"))
             return "❤️ +" + ExtractFirstNumber(message) + " HP";
-        if (lower.Contains("restores ap") || lower.Contains("restores ap."))
-            return "💧 +" + ExtractFirstNumber(message) + " AP";
+        if (lower.Contains("restores") && lower.Contains("ap"))
+            return "💎 +" + ExtractFirstNumber(message) + " AP";
         if (lower.Contains("uses shield") || lower.Contains("shield active"))
             return "🛡️ Shield Active!";
 
