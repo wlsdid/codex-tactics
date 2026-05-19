@@ -24,11 +24,12 @@ public static class BattleSceneAutoBuilder
         Canvas canvas = CreateCanvas(camera);
         CreateEventSystem();
 
-        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 205), new Vector2(1160, 150), new Color(0.055f, 0.050f, 0.075f, 0.92f));
-        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-410, 65), new Vector2(340, 285), new Color(0.060f, 0.055f, 0.085f, 0.90f));
-        Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(410, 65), new Vector2(340, 285), new Color(0.075f, 0.050f, 0.070f, 0.90f));
-        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, -65), new Vector2(520, 245), new Color(0.045f, 0.052f, 0.078f, 0.88f));
-        Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -275), new Vector2(1020, 112), new Color(0.050f, 0.045f, 0.065f, 0.94f));
+        // Premium dark panels — deep navy/indigo tones
+        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 205), new Vector2(1200, 155), new Color(0.036f, 0.040f, 0.075f, 0.96f));
+        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-410, 65), new Vector2(350, 295), new Color(0.040f, 0.038f, 0.070f, 0.94f));
+        Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(410, 65), new Vector2(350, 295), new Color(0.055f, 0.035f, 0.060f, 0.94f));
+        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, -70), new Vector2(540, 250), new Color(0.030f, 0.038f, 0.065f, 0.92f));
+        Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -280), new Vector2(1060, 120), new Color(0.035f, 0.032f, 0.055f, 0.96f));
         topStatusPanel.raycastTarget = false;
         playerCardPanel.raycastTarget = false;
         enemyCardPanel.raycastTarget = false;
@@ -42,8 +43,8 @@ public static class BattleSceneAutoBuilder
         runStatusText.fontSize = 20;
         runStatusText.color = new Color(0.76f, 1.0f, 0.82f);
 
-        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Battle Guide: Attack to deal damage | Fire Skill applies Burn | Guard before Heavy Slam | Watch Enemy Intent | Continue after Victory | Final Clear completes Stage 1 | Retry current fight", new Vector2(0, 190), new Vector2(1120, 40), TextAlignmentOptions.Center);
-        battleGuideText.fontSize = 18;
+        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Battle Guide: Attack to deal damage | Fire Skill applies Burn | Guard before Heavy Slam | Watch Enemy Intent | Continue after Victory | Final Clear completes Stage 1 | Retry current fight", new Vector2(0, 192), new Vector2(1140, 38), TextAlignmentOptions.Center);
+        battleGuideText.fontSize = 17;
         battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
 
         TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "Stage 1-1: Slime Scout", new Vector2(0, 165), new Vector2(800, 40), TextAlignmentOptions.Center);
@@ -56,34 +57,38 @@ public static class BattleSceneAutoBuilder
         stageProgressText.fontSize = 17;
         stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
 
-        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 95), new Vector2(420, 50), TextAlignmentOptions.Left);
-        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-360, 200), new Vector2(100, 100));
-        Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 80), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
-        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-360, 55), new Vector2(420, 45), TextAlignmentOptions.Left);
-        Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-360, 30), new Vector2(420, 18), new Color(0.26f, 0.56f, 1.0f));
-        TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-360, 5), new Vector2(420, 40), TextAlignmentOptions.Left);
+        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 105), new Vector2(420, 50), TextAlignmentOptions.Left);
+        // Portrait border frames — subtle dark outline
+        CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-410, 195), new Vector2(120, 120));
+        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-410, 195), new Vector2(100, 100));
+        Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 85), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
+        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-360, 60), new Vector2(420, 45), TextAlignmentOptions.Left);
+        Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-360, 35), new Vector2(420, 18), new Color(0.26f, 0.56f, 1.0f));
+        TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-360, 10), new Vector2(420, 40), TextAlignmentOptions.Left);
         playerStatusText.fontSize = 22;
         playerStatusText.color = new Color(0.78f, 1.0f, 0.76f);
-        TMP_Text playerShieldText = CreateText(canvas.transform, "Player Shield Text", "", new Vector2(-360, -25), new Vector2(420, 35), TextAlignmentOptions.Left);
+        TMP_Text playerShieldText = CreateText(canvas.transform, "Player Shield Text", "", new Vector2(-360, -20), new Vector2(420, 35), TextAlignmentOptions.Left);
         playerShieldText.fontSize = 20;
         playerShieldText.color = new Color(0.45f, 0.78f, 1.0f);
-        TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(360, 110), new Vector2(420, 50), TextAlignmentOptions.Right);
-        Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(360, 200), new Vector2(100, 100));
-        Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(360, 200), new Vector2(100, 100));
-        Image stunOverlay = CreateStatusOverlay(canvas.transform, "Stun Overlay", new Vector2(360, 200), new Vector2(100, 100));
-        Image brokenOverlay = CreateStatusOverlay(canvas.transform, "Broken Overlay", new Vector2(360, 200), new Vector2(100, 100));
+        TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(360, 105), new Vector2(420, 50), TextAlignmentOptions.Right);
+        // Portrait border frames — subtle dark outline
+        CreatePortraitFrame(canvas.transform, "Enemy Portrait Frame", new Vector2(410, 195), new Vector2(120, 120));
+        Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(410, 195), new Vector2(100, 100));
+        Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(410, 195), new Vector2(100, 100));
+        Image stunOverlay = CreateStatusOverlay(canvas.transform, "Stun Overlay", new Vector2(410, 195), new Vector2(100, 100));
+        Image brokenOverlay = CreateStatusOverlay(canvas.transform, "Broken Overlay", new Vector2(410, 195), new Vector2(100, 100));
         burnOverlay.gameObject.SetActive(false);
         stunOverlay.gameObject.SetActive(false);
         brokenOverlay.gameObject.SetActive(false);
-        Slider enemyHpSlider = CreateHpSlider(canvas.transform, "Enemy HP Slider", new Vector2(360, 80), new Vector2(420, 22), new Color(0.82f, 0.22f, 0.24f));
-        TMP_Text enemyStatusText = CreateText(canvas.transform, "Enemy Status Text", "Status: None", new Vector2(360, 55), new Vector2(420, 45), TextAlignmentOptions.Right);
-        TMP_Text enemyIntentText = CreateText(canvas.transform, "Enemy Intent Text", "Next Enemy: Normal Attack (15)", new Vector2(360, 25), new Vector2(420, 45), TextAlignmentOptions.Right);
+        Slider enemyHpSlider = CreateHpSlider(canvas.transform, "Enemy HP Slider", new Vector2(360, 85), new Vector2(420, 22), new Color(0.82f, 0.22f, 0.24f));
+        TMP_Text enemyStatusText = CreateText(canvas.transform, "Enemy Status Text", "Status: None", new Vector2(360, 60), new Vector2(420, 45), TextAlignmentOptions.Right);
+        TMP_Text enemyIntentText = CreateText(canvas.transform, "Enemy Intent Text", "Next Enemy: Normal Attack (15)", new Vector2(360, 30), new Vector2(420, 45), TextAlignmentOptions.Right);
         enemyIntentText.fontSize = 22;
         enemyIntentText.color = new Color(1.0f, 0.78f, 0.42f);
-        TMP_Text enemyBreakText = CreateText(canvas.transform, "Enemy Break Text", "Break: 2/2", new Vector2(360, 0), new Vector2(420, 40), TextAlignmentOptions.Right);
+        TMP_Text enemyBreakText = CreateText(canvas.transform, "Enemy Break Text", "Break: 2/2", new Vector2(360, 5), new Vector2(420, 40), TextAlignmentOptions.Right);
         enemyBreakText.fontSize = 22;
         enemyBreakText.color = new Color(1.0f, 0.58f, 0.82f);
-        Slider enemyBreakSlider = CreateHpSlider(canvas.transform, "Enemy Break Slider", new Vector2(360, -20), new Vector2(420, 18), new Color(0.92f, 0.36f, 0.72f));
+        Slider enemyBreakSlider = CreateHpSlider(canvas.transform, "Enemy Break Slider", new Vector2(360, -15), new Vector2(420, 18), new Color(0.92f, 0.36f, 0.72f));
         TMP_Text messageText = CreateText(canvas.transform, "Message Text", "Battle Start!", new Vector2(0, -75), new Vector2(900, 100), TextAlignmentOptions.Center);
         TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "Impact: Ready", new Vector2(0, -25), new Vector2(900, 45), TextAlignmentOptions.Center);
         impactText.fontSize = 22;
@@ -113,14 +118,14 @@ public static class BattleSceneAutoBuilder
         Button earthSkillButton = CreateButton(canvas.transform, "Earth Wall Button", "Earth Wall", new Vector2(110, 15), new Vector2(180, 55));
         Button guardButton = CreateButton(canvas.transform, "Guard Button", "Guard", new Vector2(110, 85), new Vector2(180, 65));
         Button endTurnButton = CreateButton(canvas.transform, "End Turn Button", "End Turn", new Vector2(330, 85), new Vector2(180, 65));
-        Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(-130, -325), new Vector2(220, 70));
+        Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(-130, -335), new Vector2(220, 70));
         retryButton.gameObject.SetActive(false);
-        Button continueButton = CreateButton(canvas.transform, "Continue Button", "Continue", new Vector2(130, -325), new Vector2(220, 70));
+        Button continueButton = CreateButton(canvas.transform, "Continue Button", "Continue", new Vector2(130, -335), new Vector2(220, 70));
         continueButton.gameObject.SetActive(false);
         // Create the label child that shows "Continue" by default, will be changed to "Next Encounter" at runtime
         TMP_Text continueButtonLabel = continueButton.GetComponentInChildren<TMP_Text>();
-        Button stageSelectButton = CreateButton(canvas.transform, "Stage Select Button", "Stage Select", new Vector2(-410, -325), new Vector2(220, 70));
-        Button speedToggleButton = CreateButton(canvas.transform, "Speed Toggle Button", "1x", new Vector2(410, -325), new Vector2(140, 70));
+        Button stageSelectButton = CreateButton(canvas.transform, "Stage Select Button", "Stage Select", new Vector2(-410, -335), new Vector2(220, 70));
+        Button speedToggleButton = CreateButton(canvas.transform, "Speed Toggle Button", "1x", new Vector2(410, -335), new Vector2(140, 70));
         Button autoBattleButton = CreateButton(canvas.transform, "Auto Battle Button", "Auto: OFF", new Vector2(410, -245), new Vector2(140, 50));
         Button itemButton = CreateButton(canvas.transform, "Item Button", "Items", new Vector2(330, 15), new Vector2(180, 55));
         Button pauseButton = CreateButton(canvas.transform, "Pause Button", "Pause", new Vector2(-410, 85), new Vector2(140, 50));
@@ -129,8 +134,8 @@ public static class BattleSceneAutoBuilder
         // Screen flash image (hidden by default, used by BattleUI for impact feedback)
         Image screenFlashImage = CreateScreenFlashImage(canvas.transform, "Screen Flash Image");
 
-        // Pause overlay panel
-        Image pausePanel = CreatePanel(canvas.transform, "Pause Panel", new Vector2(0, 0), new Vector2(600, 400), new Color(0.05f, 0.06f, 0.10f, 0.92f));
+        // Pause overlay panel — premium dark
+        Image pausePanel = CreatePanel(canvas.transform, "Pause Panel", new Vector2(0, 0), new Vector2(600, 400), new Color(0.03f, 0.04f, 0.08f, 0.95f));
         pausePanel.gameObject.SetActive(false);
         Button resumeButton = CreateButton(canvas.transform, "Resume Button", "Resume", new Vector2(0, 40), new Vector2(260, 60));
         resumeButton.gameObject.SetActive(false);
@@ -286,15 +291,15 @@ public static class BattleSceneAutoBuilder
         TMP_Text impactText = FindText("Impact Text");
 
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
-        AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1100f, 120f));
+        AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 140f));
         AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
-        AppendCheck(ref passed, ref report, "Player Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 300f, 250f));
+        AppendCheck(ref passed, ref report, "Player Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 320f, 260f));
         AppendCheck(ref passed, ref report, "Enemy Card panel exists", enemyCardPanel != null);
-        AppendCheck(ref passed, ref report, "Enemy Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 300f, 250f));
+        AppendCheck(ref passed, ref report, "Enemy Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 320f, 260f));
         AppendCheck(ref passed, ref report, "Battle Center panel exists", battleCenterPanel != null);
-        AppendCheck(ref passed, ref report, "Battle Center panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(battleCenterPanel, 480f, 230f));
+        AppendCheck(ref passed, ref report, "Battle Center panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(battleCenterPanel, 500f, 230f));
         AppendCheck(ref passed, ref report, "Command Bar panel exists", commandBarPanel != null);
-        AppendCheck(ref passed, ref report, "Command Bar panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(commandBarPanel, 980f, 110f));
+        AppendCheck(ref passed, ref report, "Command Bar panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(commandBarPanel, 1000f, 110f));
         AppendCheck(ref passed, ref report, "Battle Guide text exists", battleGuideText != null);
         AppendCheck(ref passed, ref report, "Battle Guide text explains main controls", IsBattleGuideTextLikelyConfigured(battleGuideText));
         AppendCheck(ref passed, ref report, "Run Status text exists", runStatusText != null);
@@ -533,10 +538,10 @@ public static class BattleSceneAutoBuilder
         return rectTransform != null
             && rectTransform.sizeDelta.x >= minimumWidth
             && rectTransform.sizeDelta.y >= minimumHeight
-            && color.a >= 0.70f
-            && color.r <= 0.16f
-            && color.g <= 0.16f
-            && color.b <= 0.22f;
+            && color.a >= 0.75f
+            && color.r <= 0.14f
+            && color.g <= 0.14f
+            && color.b <= 0.20f;
     }
 
     private static bool IsBattleGuideTextLikelyConfigured(TMP_Text guideText)
@@ -751,7 +756,7 @@ public static class BattleSceneAutoBuilder
         rectTransform.sizeDelta = size;
 
         Image image = portraitObject.AddComponent<Image>();
-        image.color = new Color(0.15f, 0.15f, 0.20f, 0.6f);
+        image.color = new Color(0.10f, 0.11f, 0.16f, 0.7f);
         image.raycastTarget = false;
         return image;
     }
@@ -770,6 +775,24 @@ public static class BattleSceneAutoBuilder
 
         Image image = overlayObj.AddComponent<Image>();
         image.color = Color.clear;
+        image.raycastTarget = false;
+        return image;
+    }
+
+    private static Image CreatePortraitFrame(Transform parent, string name, Vector2 anchoredPosition, Vector2 size)
+    {
+        GameObject frameObject = new GameObject(name);
+        frameObject.transform.SetParent(parent, false);
+
+        RectTransform rectTransform = frameObject.AddComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = anchoredPosition;
+        rectTransform.sizeDelta = size;
+
+        Image image = frameObject.AddComponent<Image>();
+        image.color = new Color(0.10f, 0.12f, 0.20f, 0.85f);
         image.raycastTarget = false;
         return image;
     }
@@ -802,7 +825,7 @@ public static class BattleSceneAutoBuilder
         sliderRect.sizeDelta = size;
 
         Image backgroundImage = sliderObject.AddComponent<Image>();
-        backgroundImage.color = new Color(0.10f, 0.11f, 0.14f);
+        backgroundImage.color = new Color(0.06f, 0.07f, 0.10f);
 
         GameObject fillObject = new GameObject("Fill");
         fillObject.transform.SetParent(sliderObject.transform, false);
@@ -840,14 +863,14 @@ public static class BattleSceneAutoBuilder
         rectTransform.sizeDelta = size;
 
         Image image = buttonObject.AddComponent<Image>();
-        image.color = new Color(0.18f, 0.22f, 0.32f);
+        image.color = new Color(0.14f, 0.17f, 0.28f);
 
         Button button = buttonObject.AddComponent<Button>();
         ColorBlock colors = button.colors;
-        colors.normalColor = new Color(0.18f, 0.22f, 0.32f);
-        colors.highlightedColor = new Color(0.28f, 0.34f, 0.48f);
-        colors.pressedColor = new Color(0.12f, 0.14f, 0.20f);
-        colors.disabledColor = new Color(0.08f, 0.08f, 0.10f, 0.5f);
+        colors.normalColor = new Color(0.14f, 0.17f, 0.28f);
+        colors.highlightedColor = new Color(0.22f, 0.28f, 0.42f);
+        colors.pressedColor = new Color(0.08f, 0.10f, 0.16f);
+        colors.disabledColor = new Color(0.06f, 0.07f, 0.10f, 0.45f);
         button.colors = colors;
         button.targetGraphic = image;
 

@@ -224,7 +224,7 @@ public class BattleUI : MonoBehaviour
         if (itemButton != null)
         {
             Image img = itemButton.GetComponent<Image>();
-            if (img != null) img.color = new Color(0.15f, 0.30f, 0.22f, 0.90f);
+            if (img != null) img.color = new Color(0.10f, 0.22f, 0.16f, 0.92f);
             TMP_Text lbl = itemButton.GetComponentInChildren<TMP_Text>();
             if (lbl != null) lbl.text = "🧪 Items";
         }
@@ -364,8 +364,8 @@ public class BattleUI : MonoBehaviour
             resultPanelBackground.gameObject.SetActive(isVisible);
             bool isVictory = summary != null && summary.Contains("VICTORY");
             resultPanelBackground.color = isVictory
-                ? new Color(0.05f, 0.08f, 0.15f, 0.92f)  // dark blue-ish for victory
-                : new Color(0.15f, 0.05f, 0.05f, 0.92f);  // dark red-ish for defeat
+                ? new Color(0.03f, 0.06f, 0.12f, 0.94f)  // deep navy for victory
+                : new Color(0.12f, 0.03f, 0.03f, 0.94f);  // deep burgundy for defeat
         }
         // Style the result text
         if (resultSummaryText != null && isVisible)
@@ -400,13 +400,13 @@ public class BattleUI : MonoBehaviour
         stageSelectButton.gameObject.SetActive(isVisible);
     }
 
-    private static readonly Color ElementPhysicalColor = new Color(0.70f, 0.70f, 0.75f);
-    private static readonly Color ElementFireColor = new Color(0.85f, 0.25f, 0.10f);
-    private static readonly Color ElementIceColor = new Color(0.20f, 0.55f, 0.95f);
-    private static readonly Color ElementLightningColor = new Color(0.95f, 0.80f, 0.15f);
-    private static readonly Color ElementEarthColor = new Color(0.35f, 0.70f, 0.25f);
-    private static readonly Color ElementGuardColor = new Color(0.30f, 0.60f, 0.85f);
-    private static readonly Color ElementEndTurnColor = new Color(0.75f, 0.30f, 0.30f);
+    private static readonly Color ElementPhysicalColor = new Color(0.65f, 0.68f, 0.75f);
+    private static readonly Color ElementFireColor = new Color(0.95f, 0.30f, 0.08f);
+    private static readonly Color ElementIceColor = new Color(0.15f, 0.55f, 0.98f);
+    private static readonly Color ElementLightningColor = new Color(1.0f, 0.82f, 0.10f);
+    private static readonly Color ElementEarthColor = new Color(0.30f, 0.72f, 0.22f);
+    private static readonly Color ElementGuardColor = new Color(0.25f, 0.60f, 0.95f);
+    private static readonly Color ElementEndTurnColor = new Color(0.85f, 0.25f, 0.25f);
 
     public static Color GetElementButtonColor(ElementType element)
     {
@@ -1141,9 +1141,9 @@ public class BattleUI : MonoBehaviour
     {
         if (fill == null) return;
         float ratio = max > 0 ? (float)current / max : 0f;
-        if (ratio > 0.60f)
+        if (ratio > 0.55f)
             fill.color = highColor;
-        else if (ratio > 0.30f)
+        else if (ratio > 0.25f)
             fill.color = midColor;
         else
             fill.color = lowColor;
