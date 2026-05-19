@@ -11,6 +11,7 @@ public static class PlaceholderSpriteGenerator
     // ── Sprite cache ──
     private static Sprite cachedHeroSprite;
     private static readonly System.Collections.Generic.Dictionary<(ElementType, bool), Sprite> cachedEnemySprites = new();
+    private static readonly System.Collections.Generic.Dictionary<(ElementType, int), Sprite> cachedElementIcons = new();
 
     // ── Hero identity ──
     public static string HeroName => "Kaelen";
@@ -163,6 +164,9 @@ public static class PlaceholderSpriteGenerator
     /// <summary>Create a small element icon sprite for UI buttons.</summary>
     public static Sprite CreateElementIcon(ElementType element, int size = 32)
     {
+        var key = (element, size);
+        if (cachedElementIcons.TryGetValue(key, out Sprite cached)) return cached;
+
         Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         Color clear = Color.clear;
 
@@ -222,7 +226,9 @@ public static class PlaceholderSpriteGenerator
         }
 
         tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+        var result = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+        cachedElementIcons[key] = result;
+        return result;
     }
 
     // ── Color palettes ──

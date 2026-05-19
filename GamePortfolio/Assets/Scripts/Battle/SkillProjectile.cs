@@ -11,12 +11,23 @@ public class SkillProjectile : MonoBehaviour
     private ElementType element;
     private static ScreenShake cachedShake;
     private static Canvas cachedCanvas;
+    private static Transform cachedCanvasTransform;
 
     private static Canvas GetOrCacheCanvas()
     {
         if (cachedCanvas == null)
+        {
             cachedCanvas = FindObjectOfType<Canvas>();
+            cachedCanvasTransform = cachedCanvas != null ? cachedCanvas.transform : null;
+        }
         return cachedCanvas;
+    }
+
+    private static ScreenShake GetOrCacheShake()
+    {
+        if (cachedShake == null && Camera.main != null)
+            cachedShake = Camera.main.GetComponent<ScreenShake>();
+        return cachedShake;
     }
 
     public static void Spawn(ElementType element, Vector3 start, Vector3 end, Transform parent)
@@ -105,12 +116,11 @@ public class SkillProjectile : MonoBehaviour
         SpawnHitSpark(end, element);
 
         // Small screen shake on impact
-        if (cachedShake == null)
-            cachedShake = Camera.main != null ? Camera.main.GetComponent<ScreenShake>() : null;
-        if (cachedShake != null)
+        ScreenShake shake = GetOrCacheShake();
+        if (shake != null)
         {
             float shMag = element == ElementType.Lightning ? 0.10f : element == ElementType.Fire ? 0.08f : 0.05f;
-            cachedShake.Shake(0.08f, shMag);
+            shake.Shake(0.08f, shMag);
         }
 
         Destroy(gameObject, 0.05f);
@@ -118,11 +128,11 @@ public class SkillProjectile : MonoBehaviour
 
     private static void SpawnHitSpark(Vector3 position, ElementType element)
     {
-        Canvas canvas = GetOrCacheCanvas();
-        if (canvas == null) return;
+        GetOrCacheCanvas();
+        if (cachedCanvasTransform == null) return;
 
         GameObject spark = new GameObject("Hit Spark", typeof(RectTransform), typeof(Image));
-        spark.transform.SetParent(canvas.transform, false);
+        spark.transform.SetParent(cachedCanvasTransform, false);
         spark.transform.position = position;
 
         Image sparkImg = spark.GetComponent<Image>();
@@ -165,11 +175,11 @@ public class SkillProjectile : MonoBehaviour
 
     private static void SpawnSubSpark(Vector3 origin, ElementType element, int index, int count)
     {
-        Canvas canvas = GetOrCacheCanvas();
-        if (canvas == null) return;
+        GetOrCacheCanvas();
+        if (cachedCanvasTransform == null) return;
 
         GameObject sub = new GameObject("Sub Spark", typeof(RectTransform), typeof(Image));
-        sub.transform.SetParent(canvas.transform, false);
+        sub.transform.SetParent(cachedCanvasTransform, false);
         sub.transform.position = origin;
 
         Image subImg = sub.GetComponent<Image>();

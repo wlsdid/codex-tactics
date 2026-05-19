@@ -83,6 +83,10 @@ public class BattleUI : MonoBehaviour
     private Coroutine guardPulseRoutine;
     private Coroutine burnPulseRoutine;
     private Coroutine stunPulseRoutine;
+    private TMP_Text speedToggleLabel;
+    private Image playerHpFillImage;
+    private Image playerApFillImage;
+    private Image enemyHpFillImage;
 
     [Header("Result Panel Styling")]
     [SerializeField] private Image resultPanelBackground;
@@ -185,14 +189,16 @@ public class BattleUI : MonoBehaviour
     public void UpdateSpeedLabel(int speedState)
     {
         if (speedToggleButton == null) return;
-        TMP_Text label = speedToggleButton.GetComponentInChildren<TMP_Text>();
-        if (label != null) label.text = speedState >= 2 ? "2x" : "1x";
+        if (speedToggleLabel == null)
+            speedToggleLabel = speedToggleButton.GetComponentInChildren<TMP_Text>();
+        if (speedToggleLabel != null) speedToggleLabel.text = speedState >= 2 ? "2x" : "1x";
     }
 
     public void StartNewBattle()
     {
         battleLogEntries.Clear();
         battleLogSequence = 0;
+        CacheResourceSliderFills();
         RefreshBattleLogText();
         SetRetryButtonVisible(false);
         SetContinueButtonVisible(false);
@@ -300,6 +306,7 @@ public class BattleUI : MonoBehaviour
         SkillData earthSkill,
         int maxBattleLogEntries)
     {
+        CacheResourceSliderFills();
         SetPlayerHp(player.currentHp, player.maxHp, playerName);
         SetPlayerAp(player.currentAp, player.maxAp);
         SetPlayerStatusText(currentState, playerIsGuarding);
@@ -426,7 +433,7 @@ public class BattleUI : MonoBehaviour
         if (playerHpText != null)
             playerHpText.text = BuildResourceText($"{name} HP", current, max);
         UpdateResourceSlider(playerHpSlider, current, max);
-        SetSliderColorByRatio(playerHpSlider, current, max, new Color(0.22f, 0.72f, 0.38f), new Color(0.85f, 0.72f, 0.18f), new Color(0.82f, 0.22f, 0.24f));
+        SetSliderColorByRatio(playerHpFillImage, current, max, new Color(0.22f, 0.72f, 0.38f), new Color(0.85f, 0.72f, 0.18f), new Color(0.82f, 0.22f, 0.24f));
     }
 
     private void SetPlayerAp(int current, int max)
@@ -434,7 +441,7 @@ public class BattleUI : MonoBehaviour
         if (playerApText != null)
             playerApText.text = BuildResourceText("AP", current, max);
         UpdateResourceSlider(playerApSlider, current, max);
-        SetSliderColorByRatio(playerApSlider, current, max, new Color(0.26f, 0.56f, 1.0f), new Color(0.26f, 0.86f, 0.76f), new Color(0.92f, 0.56f, 0.18f));
+        SetSliderColorByRatio(playerApFillImage, current, max, new Color(0.26f, 0.56f, 1.0f), new Color(0.26f, 0.86f, 0.76f), new Color(0.92f, 0.56f, 0.18f));
     }
 
     private void SetEnemyHp(int current, int max, string name)
@@ -442,7 +449,7 @@ public class BattleUI : MonoBehaviour
         if (enemyHpText != null)
             enemyHpText.text = BuildResourceText($"{name} HP", current, max);
         UpdateResourceSlider(enemyHpSlider, current, max);
-        SetSliderColorByRatio(enemyHpSlider, current, max, new Color(0.22f, 0.72f, 0.38f), new Color(0.85f, 0.72f, 0.18f), new Color(0.82f, 0.22f, 0.24f));
+        SetSliderColorByRatio(enemyHpFillImage, current, max, new Color(0.22f, 0.72f, 0.38f), new Color(0.85f, 0.72f, 0.18f), new Color(0.82f, 0.22f, 0.24f));
     }
 
     private void SetPlayerStatusText(BattleState state, bool isGuarding)
@@ -483,10 +490,9 @@ public class BattleUI : MonoBehaviour
         }
         playerGuardOverlay.gameObject.SetActive(show);
         if (show && playerGuardOverlay.gameObject.activeInHierarchy)
-        {
-            if (guardPulseRoutine != null) StopCoroutine(guardPulseRoutine);
-            guardPulseRoutine = StartCoroutine(PulseOverlay(playerGuardOverlay, 0.5f, new Color(0.3f, 0.7f, 1.0f, 0.3f)));
-        }
+            EnsurePulseRunning(ref guardPulseRoutine, playerGuardOverlay, 0.5f, new Color(0.3f, 0.7f, 1.0f, 0.3f));
+        else
+            StopPulse(ref guardPulseRoutine, playerGuardOverlay);
     }
 
     public void SetEnemyStatusText(CharacterData enemy)
@@ -503,19 +509,17 @@ public class BattleUI : MonoBehaviour
         {
             burnOverlay.gameObject.SetActive(hasBurn);
             if (hasBurn)
-            {
-                if (burnPulseRoutine != null) StopCoroutine(burnPulseRoutine);
-                burnPulseRoutine = StartCoroutine(PulseOverlay(burnOverlay, 0.5f, new Color(1f, 0.3f, 0.1f, 0.3f)));
-            }
+                EnsurePulseRunning(ref burnPulseRoutine, burnOverlay, 0.5f, new Color(1f, 0.3f, 0.1f, 0.3f));
+            else
+                StopPulse(ref burnPulseRoutine, burnOverlay);
         }
         if (stunOverlay != null)
         {
             stunOverlay.gameObject.SetActive(hasStun);
             if (hasStun)
-            {
-                if (stunPulseRoutine != null) StopCoroutine(stunPulseRoutine);
-                stunPulseRoutine = StartCoroutine(PulseOverlay(stunOverlay, 0.3f, new Color(0.3f, 0.5f, 1f, 0.3f)));
-            }
+                EnsurePulseRunning(ref stunPulseRoutine, stunOverlay, 0.3f, new Color(0.3f, 0.5f, 1f, 0.3f));
+            else
+                StopPulse(ref stunPulseRoutine, stunOverlay);
         }
     }
 
@@ -725,8 +729,7 @@ public class BattleUI : MonoBehaviour
 
     public Transform GetProjectileParent()
     {
-        Canvas canvas = playerSpriteImage != null ? playerSpriteImage.GetComponentInParent<Canvas>() : GetComponentInParent<Canvas>();
-        return canvas != null ? canvas.transform : transform;
+        return GetDamagePopupParent() ?? transform;
     }
 
     public void SetPauseVisible(bool visible)
@@ -769,6 +772,23 @@ public class BattleUI : MonoBehaviour
             yield return null;
         }
         overlay.color = Color.clear;
+    }
+
+    private void EnsurePulseRunning(ref Coroutine routine, Image overlay, float speed, Color tint)
+    {
+        if (routine == null && overlay != null && overlay.gameObject.activeInHierarchy)
+            routine = StartCoroutine(PulseOverlay(overlay, speed, tint));
+    }
+
+    private void StopPulse(ref Coroutine routine, Image overlay)
+    {
+        if (routine != null)
+        {
+            StopCoroutine(routine);
+            routine = null;
+        }
+        if (overlay != null)
+            overlay.color = Color.clear;
     }
 
     private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, int guardReduction, EnemyPatternData pattern, StageData stageData)
@@ -1055,12 +1075,7 @@ public class BattleUI : MonoBehaviour
     private void EnsureScreenFlashImage()
     {
         if (screenFlashImage != null) return;
-        if (cachedCanvas == null)
-        {
-            Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas == null) canvas = FindObjectOfType<Canvas>();
-            cachedCanvas = canvas;
-        }
+        EnsureCanvasCached();
         if (cachedCanvas == null) return;
 
         GameObject flashObj = new GameObject("Screen Flash Image", typeof(RectTransform), typeof(Image));
@@ -1093,13 +1108,27 @@ public class BattleUI : MonoBehaviour
 
     private Transform GetDamagePopupParent()
     {
-        if (cachedCanvasTransform == null)
-        {
-            Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas == null) canvas = FindObjectOfType<Canvas>();
-            if (canvas != null) cachedCanvasTransform = canvas.transform;
-        }
+        EnsureCanvasCached();
         return cachedCanvasTransform;
+    }
+
+    private void EnsureCanvasCached()
+    {
+        if (cachedCanvas != null && cachedCanvasTransform != null) return;
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null) canvas = FindObjectOfType<Canvas>();
+        cachedCanvas = canvas;
+        cachedCanvasTransform = canvas != null ? canvas.transform : null;
+    }
+
+    private void CacheResourceSliderFills()
+    {
+        if (playerHpFillImage == null)
+            playerHpFillImage = playerHpSlider != null ? playerHpSlider.fillRect?.GetComponent<Image>() : null;
+        if (playerApFillImage == null)
+            playerApFillImage = playerApSlider != null ? playerApSlider.fillRect?.GetComponent<Image>() : null;
+        if (enemyHpFillImage == null)
+            enemyHpFillImage = enemyHpSlider != null ? enemyHpSlider.fillRect?.GetComponent<Image>() : null;
     }
 
     private static string BuildResourceText(string label, int currentValue, int maxValue)
@@ -1108,10 +1137,8 @@ public class BattleUI : MonoBehaviour
         return $"{label}: {currentValue}/{maxValue} ({pct}%)";
     }
 
-    private static void SetSliderColorByRatio(Slider slider, int current, int max, Color highColor, Color midColor, Color lowColor)
+    private static void SetSliderColorByRatio(Image fill, int current, int max, Color highColor, Color midColor, Color lowColor)
     {
-        if (slider == null) return;
-        Image fill = slider.fillRect?.GetComponent<Image>();
         if (fill == null) return;
         float ratio = max > 0 ? (float)current / max : 0f;
         if (ratio > 0.60f)
