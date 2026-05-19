@@ -10,6 +10,14 @@ public class SkillProjectile : MonoBehaviour
     [SerializeField] private float duration = 0.3f;
     private ElementType element;
     private static ScreenShake cachedShake;
+    private static Canvas cachedCanvas;
+
+    private static Canvas GetOrCacheCanvas()
+    {
+        if (cachedCanvas == null)
+            cachedCanvas = FindObjectOfType<Canvas>();
+        return cachedCanvas;
+    }
 
     public static void Spawn(ElementType element, Vector3 start, Vector3 end, Transform parent)
     {
@@ -110,7 +118,7 @@ public class SkillProjectile : MonoBehaviour
 
     private static void SpawnHitSpark(Vector3 position, ElementType element)
     {
-        Canvas canvas = FindObjectOfType<Canvas>();
+        Canvas canvas = GetOrCacheCanvas();
         if (canvas == null) return;
 
         GameObject spark = new GameObject("Hit Spark", typeof(RectTransform), typeof(Image));
@@ -157,7 +165,7 @@ public class SkillProjectile : MonoBehaviour
 
     private static void SpawnSubSpark(Vector3 origin, ElementType element, int index, int count)
     {
-        Canvas canvas = FindObjectOfType<Canvas>();
+        Canvas canvas = GetOrCacheCanvas();
         if (canvas == null) return;
 
         GameObject sub = new GameObject("Sub Spark", typeof(RectTransform), typeof(Image));

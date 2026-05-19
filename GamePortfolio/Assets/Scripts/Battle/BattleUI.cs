@@ -80,6 +80,9 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Image screenFlashImage;
     private Canvas cachedCanvas;
     private Transform cachedCanvasTransform;
+    private Coroutine guardPulseRoutine;
+    private Coroutine burnPulseRoutine;
+    private Coroutine stunPulseRoutine;
 
     [Header("Result Panel Styling")]
     [SerializeField] private Image resultPanelBackground;
@@ -480,7 +483,10 @@ public class BattleUI : MonoBehaviour
         }
         playerGuardOverlay.gameObject.SetActive(show);
         if (show && playerGuardOverlay.gameObject.activeInHierarchy)
-            StartCoroutine(PulseOverlay(playerGuardOverlay, 0.5f, new Color(0.3f, 0.7f, 1.0f, 0.3f)));
+        {
+            if (guardPulseRoutine != null) StopCoroutine(guardPulseRoutine);
+            guardPulseRoutine = StartCoroutine(PulseOverlay(playerGuardOverlay, 0.5f, new Color(0.3f, 0.7f, 1.0f, 0.3f)));
+        }
     }
 
     public void SetEnemyStatusText(CharacterData enemy)
@@ -496,12 +502,20 @@ public class BattleUI : MonoBehaviour
         if (burnOverlay != null)
         {
             burnOverlay.gameObject.SetActive(hasBurn);
-            if (hasBurn) StartCoroutine(PulseOverlay(burnOverlay, 0.5f, new Color(1f, 0.3f, 0.1f, 0.3f)));
+            if (hasBurn)
+            {
+                if (burnPulseRoutine != null) StopCoroutine(burnPulseRoutine);
+                burnPulseRoutine = StartCoroutine(PulseOverlay(burnOverlay, 0.5f, new Color(1f, 0.3f, 0.1f, 0.3f)));
+            }
         }
         if (stunOverlay != null)
         {
             stunOverlay.gameObject.SetActive(hasStun);
-            if (hasStun) StartCoroutine(PulseOverlay(stunOverlay, 0.3f, new Color(0.3f, 0.5f, 1f, 0.3f)));
+            if (hasStun)
+            {
+                if (stunPulseRoutine != null) StopCoroutine(stunPulseRoutine);
+                stunPulseRoutine = StartCoroutine(PulseOverlay(stunOverlay, 0.3f, new Color(0.3f, 0.5f, 1f, 0.3f)));
+            }
         }
     }
 
@@ -1041,12 +1055,16 @@ public class BattleUI : MonoBehaviour
     private void EnsureScreenFlashImage()
     {
         if (screenFlashImage != null) return;
-        Canvas canvas = GetComponentInParent<Canvas>();
-        if (canvas == null) canvas = FindObjectOfType<Canvas>();
-        if (canvas == null) return;
+        if (cachedCanvas == null)
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) canvas = FindObjectOfType<Canvas>();
+            cachedCanvas = canvas;
+        }
+        if (cachedCanvas == null) return;
 
         GameObject flashObj = new GameObject("Screen Flash Image", typeof(RectTransform), typeof(Image));
-        flashObj.transform.SetParent(canvas.transform, false);
+        flashObj.transform.SetParent(cachedCanvas.transform, false);
         RectTransform rt = flashObj.GetComponent<RectTransform>();
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;

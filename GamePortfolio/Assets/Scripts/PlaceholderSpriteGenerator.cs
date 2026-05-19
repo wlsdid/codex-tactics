@@ -8,6 +8,10 @@ public static class PlaceholderSpriteGenerator
 {
     private const int SpriteSize = 128;
 
+    // ── Sprite cache ──
+    private static Sprite cachedHeroSprite;
+    private static readonly System.Collections.Generic.Dictionary<(ElementType, bool), Sprite> cachedEnemySprites = new();
+
     // ── Hero identity ──
     public static string HeroName => "Kaelen";
     public static string HeroTitle => "Crystal Tactician";
@@ -59,6 +63,7 @@ public static class PlaceholderSpriteGenerator
     /// <summary>Create a hero sprite with crystalline armor + sword motif.</summary>
     public static Sprite CreateHeroSprite()
     {
+        if (cachedHeroSprite != null) return cachedHeroSprite;
         Texture2D tex = new Texture2D(SpriteSize, SpriteSize, TextureFormat.RGBA32, false);
         Color clear = Color.clear;
 
@@ -98,12 +103,15 @@ public static class PlaceholderSpriteGenerator
         DrawRect(tex, 58, 114, 74, 126, new Color(0.25f, 0.15f, 0.10f));
 
         tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, SpriteSize, SpriteSize), new Vector2(0.5f, 0.5f), 100f);
+        cachedHeroSprite = Sprite.Create(tex, new Rect(0, 0, SpriteSize, SpriteSize), new Vector2(0.5f, 0.5f), 100f);
+        return cachedHeroSprite;
     }
 
     /// <summary>Create an enemy sprite based on element type and boss flag.</summary>
     public static Sprite CreateEnemySprite(ElementType element, bool isBoss = false)
     {
+        var key = (element, isBoss);
+        if (cachedEnemySprites.TryGetValue(key, out Sprite cached)) return cached;
         Texture2D tex = new Texture2D(SpriteSize, SpriteSize, TextureFormat.RGBA32, false);
         Color clear = Color.clear;
         for (int y = 0; y < SpriteSize; y++)
@@ -141,7 +149,9 @@ public static class PlaceholderSpriteGenerator
         }
 
         tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, SpriteSize, SpriteSize), new Vector2(0.5f, 0.5f), 100f);
+        var result = Sprite.Create(tex, new Rect(0, 0, SpriteSize, SpriteSize), new Vector2(0.5f, 0.5f), 100f);
+        cachedEnemySprites[key] = result;
+        return result;
     }
 
     /// <summary>Overload for backward compatibility (defaults to Fire slime).</summary>

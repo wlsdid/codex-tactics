@@ -51,6 +51,7 @@ public class BattleManager : MonoBehaviour
     private int speedState = 1;
     private bool autoBattleEnabled;
     private ScreenFade screenFade;
+    private ScreenShake cachedShake;
     public bool DebugAutoBattleEnabled => autoBattleEnabled;
     public int DebugPlayerLevel => playerLevel;
     public int DebugPlayerXp => playerXp; // 1=1x, 2=2x
@@ -118,6 +119,13 @@ public class BattleManager : MonoBehaviour
     public string DebugItemsText => playerItems != null ? string.Join(" | ", playerItems.ConvertAll(i => $"{i.itemName}x{i.quantity}")) : "";
 
     // --- Config helpers ---
+    private ScreenShake GetOrCacheShake()
+    {
+        if (cachedShake == null && Camera.main != null)
+            cachedShake = Camera.main.GetComponent<ScreenShake>();
+        return cachedShake;
+    }
+
     private int CfgPlayerMaxHp => balanceConfig != null ? balanceConfig.playerMaxHp : 100;
     private int CfgPlayerAttack => balanceConfig != null ? balanceConfig.playerAttack : 20;
     private int CfgPlayerMaxAp => balanceConfig != null ? balanceConfig.playerMaxAp : 3;
@@ -673,7 +681,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.ShowDamageNumber(damage, isWeaknessHit);
 
         // VFX: screen shake on skill use (stronger for lightning/high-damage)
-        var shake = Camera.main != null ? Camera.main.GetComponent<ScreenShake>() : null;
+        var shake = GetOrCacheShake();
         if (shake != null)
         {
             float shMag = skill == lightningSkill ? 0.12f : 0.06f;
@@ -812,7 +820,7 @@ public class BattleManager : MonoBehaviour
 
         if (isStrong)
         {
-            var shake = Camera.main != null ? Camera.main.GetComponent<ScreenShake>() : null;
+            var shake = GetOrCacheShake();
             if (shake != null) shake.Shake();
         }
         // Damage popup on player (not enemy)
