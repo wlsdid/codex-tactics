@@ -14,6 +14,8 @@ public class AudioManager : MonoBehaviour
     [Header("BGM")]
     [SerializeField] private AudioClip battleBgm;
     [SerializeField] private AudioClip victoryBgm;
+    [SerializeField] private AudioClip titleBgm;
+    [SerializeField] private AudioClip stageSelectBgm;
 
     [Header("SFX")]
     [SerializeField] private AudioClip attackSfx;
@@ -63,6 +65,8 @@ public class AudioManager : MonoBehaviour
     {
         battleBgm = Resources.Load<AudioClip>("Audio/BattleBGM") ?? GenerateProceduralBgm(0.3f);
         victoryBgm = Resources.Load<AudioClip>("Audio/VictoryBGM") ?? GenerateVictoryTone();
+        titleBgm = Resources.Load<AudioClip>("Audio/TitleBGM") ?? GenerateTitleBgm(0.25f);
+        stageSelectBgm = Resources.Load<AudioClip>("Audio/StageSelectBGM") ?? GenerateStageSelectBgm(0.25f);
         attackSfx = Resources.Load<AudioClip>("Audio/AttackSFX") ?? GenerateTone(220f, 0.12f, 0.3f);
         skillSfx = Resources.Load<AudioClip>("Audio/SkillSFX") ?? GenerateTone(440f, 0.18f, 0.4f);
         guardSfx = Resources.Load<AudioClip>("Audio/GuardSFX") ?? GenerateTone(180f, 0.15f, 0.25f);
@@ -96,9 +100,67 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void StopBgm()
+    public void PlayTitleBgm()
     {
-        if (bgmSource != null) bgmSource.Stop();
+        if (bgmSource != null && titleBgm != null)
+        {
+            bgmSource.clip = titleBgm;
+            bgmSource.Play();
+        }
+    }
+
+    public void PlayStageSelectBgm()
+    {
+        if (bgmSource != null && stageSelectBgm != null)
+        {
+            bgmSource.clip = stageSelectBgm;
+            bgmSource.Play();
+        }
+    }
+
+    public void StopBgm() { if (bgmSource != null) bgmSource.Stop(); }
+
+    /// <summary>Crossfade to a new BGM over the specified duration.</summary>
+    public void CrossfadeTo(AudioClip newClip, float fadeDuration = 1.0f)
+    {
+        if (newClip == null) return;
+        StopAllCoroutines();
+        StartCoroutine(CrossfadeRoutine(newClip, fadeDuration));
+    }
+
+    public void CrossfadeBattle() { if (battleBgm != null) CrossfadeTo(battleBgm); }
+    public void CrossfadeVictory() { if (victoryBgm != null) CrossfadeTo(victoryBgm); }
+    public void CrossfadeTitle() { if (titleBgm != null) CrossfadeTo(titleBgm); }
+    public void CrossfadeStageSelect() { if (stageSelectBgm != null) CrossfadeTo(stageSelectBgm); }
+
+    private IEnumerator CrossfadeRoutine(AudioClip newClip, float duration)
+    {
+        if (bgmSource == null) yield break;
+
+        // Fade out current
+        float startVolume = bgmSource.volume;
+        float elapsed = 0f;
+        while (elapsed < duration * 0.5f)
+        {
+            elapsed += Time.deltaTime;
+            bgmSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / (duration * 0.5f));
+            yield return null;
+        }
+        bgmSource.Stop();
+
+        // Switch clip
+        bgmSource.clip = newClip;
+        bgmSource.Play();
+
+        // Fade in
+        elapsed = 0f;
+        while (elapsed < duration * 0.5f)
+        {
+            elapsed += Time.deltaTime;
+            bgmSource.volume = Mathf.Lerp(0f, startVolume, elapsed / (duration * 0.5f));
+            yield return null;
+        }
+        bgmSource.volume = startVolume;
     }
 
     public void PlayAttackSfx() => PlaySfx(attackSfx);
@@ -257,6 +319,58 @@ public class AudioManager : MonoBehaviour
             data[i] = val * volume;
         }
         AudioClip clip = AudioClip.Create("ProceduralBGM", samples, 1, sampleRate, true);
+        clip.SetData(data, 0);
+        return clip;
+    }
+
+    private static AudioClip GenerateTitleBgm(float volume)
+    {
+        int sampleRate = 44100;
+        float duration = 6f;
+        int samples = Mathf.RoundToInt(sampleRate * duration);
+        float[] data = new float[samples];
+        // Ambient, slow arpeggio — Cmaj7 feel: C3, E3, G3, B3, C4
+        float[] chord = { 130.81f, 164.81f, 196f, 246.94f, 261.63f };
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float val = 0f;
+            for (int j = 0; j < chord.Length; j++)
+            {
+                float phaseOffset = (float)j / chord.Length * 2f;
+                float arp = Mathf.Sin(2f * Mathf.PI * chord[j] * (t + phaseOffset));
+                val += arp * (0.12f + 0.08f * Mathf.Sin(t * 0.5f));
+            }
+            // Soft pad with subtle vibrato
+            float pad = Mathf.Sin(2f * Mathf.PI * 65.41f * t + Mathf.Sin(t * 3f) * 0.02f) * 0.15f;
+            data[i] = (val * 0.20f + pad) * volume;
+        }
+        AudioClip clip = AudioClip.Create("TitleBGM", samples, 1, sampleRate, true);
+        clip.SetData(data, 0);
+        return clip;
+    }
+
+    private static AudioClip GenerateStageSelectBgm(float volume)
+    {
+        int sampleRate = 44100;
+        float duration = 5f;
+        int samples = Mathf.RoundToInt(sampleRate * duration);
+        float[] data = new float[samples];
+        // Determined, march-like progression
+        float[] melody = { 196f, 220f, 261.63f, 293.66f, 329.63f, 392f, 329.63f, 293.66f };
+        float beat = 60f / 100f;
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            int noteIndex = Mathf.FloorToInt(t / beat) % melody.Length;
+            float noteT = (t - Mathf.FloorToInt(t / beat) * beat) / beat;
+            float env = Mathf.Exp(-noteT * 2.5f) * 0.35f;
+            float val = Mathf.Sin(2f * Mathf.PI * melody[noteIndex] * t) * env;
+            // Bass pedal tone
+            val += Mathf.Sin(2f * Mathf.PI * 98f * t) * 0.12f;
+            data[i] = val * volume;
+        }
+        AudioClip clip = AudioClip.Create("StageSelectBGM", samples, 1, sampleRate, true);
         clip.SetData(data, 0);
         return clip;
     }

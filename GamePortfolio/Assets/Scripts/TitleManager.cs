@@ -14,6 +14,8 @@ public class TitleManager : MonoBehaviour
     private void Awake()
     {
         CreateTitleUI();
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.CrossfadeTitle();
     }
 
     private void CreateTitleUI()

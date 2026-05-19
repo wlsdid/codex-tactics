@@ -113,6 +113,10 @@ public class StageSelectController : MonoBehaviour
 
     private void Start()
     {
+        // Play stage select BGM
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.CrossfadeStageSelect();
+
         // Ensure starter equipment for new/fresh saves
         ProgressState.EnsureStarterEquipment();
 
