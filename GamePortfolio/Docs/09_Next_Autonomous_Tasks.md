@@ -1,5 +1,37 @@
 # Next Autonomous Tasks
 
+## Latest autonomous run — 2026-05-19 Batch 61: Scene Transition Animations
+
+Completed:
+- ScreenFade singleton pattern (DontDestroyOnLoad) for persistent access
+- TransitionToScene(): fade-to-black → load scene → fade-in for all scene switches
+- GameSceneFlow: all Load* methods use ScreenFade transitions (fallback to direct)
+- BattleUI: result panel slide-in animation (60px offset, 0.25s ease)
+- All 3 scene transitions (Title, Stage Select, Battle) now smooth
+
+Verification:
+- Unity batch compile: no CS errors
+- Scene validation: RESULT: PASS
+- Battle logic auto test: RESULT: PASS
+- Committed as 0bdffd9, pushed to main
+
+## Latest autonomous run — 2026-05-19 Batch 60: Background Music System
+
+Completed:
+- Title BGM (ambient Cmaj7 arpeggio pad, procedural generation)
+- Stage Select BGM (determined march progression with bass pedal)
+- Crossfade support: CrossfadeTo() with fade-out/in transition
+- Convenience methods: CrossfadeBattle/Victory/Title/StageSelect
+- TitleManager: plays title BGM on Awake via CrossfadeTitle()
+- StageSelectController: plays stage select BGM on Start
+- Battle/victory BGM now uses crossfade for smooth transitions
+
+Verification:
+- Unity batch compile: no CS errors
+- Scene validation: RESULT: PASS
+- Battle logic auto test: RESULT: PASS
+- Committed as 61f1516, pushed to main
+
 ## Latest autonomous run — 2026-05-19 Batch 59: Premium Battle UI Visual Polish
 
 Completed:
@@ -7,11 +39,10 @@ Completed:
 - Portrait border frames (subtle 120x120 dark outline) behind player/enemy sprites
 - Darker button colors (0.14/0.17/0.28) with richer highlight/pressed states
 - Darker slider backgrounds (0.06/0.07/0.10) for better contrast
-- Richer element button colors (Fire 0.95/0.30/0.08, Ice 0.15/0.55/0.98, Lightning 1.0/0.82/0.10, Earth 0.30/0.72/0.22)
+- Richer element button colors (Fire 0.95/0.30/0.08, Ice 0.15/0.55/0.98, etc.)
 - Premium result panel backgrounds (deep navy for victory, deep burgundy for defeat)
 - Smooth slider color thresholds (55%/25% by ratio)
-- Tighter panel validation thresholds (a>=0.75, r/g<=0.14, b<=0.20)
-- All panels enlarged for better proportional spacing (1200px top, 350px cards, 540px center, 1060px command bar)
+- All panels enlarged for better proportional spacing
 
 Verification:
 - Unity batch compile: no CS errors
