@@ -119,6 +119,7 @@ public class BattleManager : MonoBehaviour
 
     // --- Config helpers ---
     private int CfgPlayerMaxHp => balanceConfig != null ? balanceConfig.playerMaxHp : 100;
+    private int CfgPlayerAttack => balanceConfig != null ? balanceConfig.playerAttack : 20;
     private int CfgPlayerMaxAp => balanceConfig != null ? balanceConfig.playerMaxAp : 3;
     private int CfgPlayerApRecovery => balanceConfig != null ? balanceConfig.playerApRecoveryPerTurn : 2;
     private int CfgBasicSkillPower => balanceConfig != null ? balanceConfig.basicSkillPower : 20;
@@ -214,7 +215,7 @@ public class BattleManager : MonoBehaviour
         ApplyCurrentStageData();
         EnsureEnemyPattern();
 
-        player = new CharacterData(playerName, CfgPlayerMaxHp, 20, ElementType.None, CfgPlayerMaxAp);
+        player = new CharacterData(playerName, CfgPlayerMaxHp + EquipmentManager.TotalHpBonus, CfgPlayerAttack + EquipmentManager.TotalAttackBonus, ElementType.None, CfgPlayerMaxAp + EquipmentManager.TotalApBonus);
         int diffHp = Mathf.RoundToInt(enemyMaxHp * ProgressState.DifficultyHpMultiplier);
         int diffAtk = Mathf.RoundToInt(enemyPattern.normalAttackDamage * ProgressState.DifficultyDamageMultiplier);
         enemy = new CharacterData(enemyName, diffHp, diffAtk, enemyWeakness);

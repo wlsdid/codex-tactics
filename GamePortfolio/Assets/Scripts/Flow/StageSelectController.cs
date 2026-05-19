@@ -113,6 +113,9 @@ public class StageSelectController : MonoBehaviour
 
     private void Start()
     {
+        // Ensure starter equipment for new/fresh saves
+        ProgressState.EnsureStarterEquipment();
+
         // Wire stage card buttons
         WireStageCard(0, stage1CardButton);
         WireStageCard(1, stage2CardButton);
@@ -328,7 +331,11 @@ public class StageSelectController : MonoBehaviour
             {
                 modifierLine = stageEncounters[0].BuildModifierSummaryText();
             }
-            stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{modifierLine}\n{unlockCondition}";
+
+            // Equipment summary
+            string equipmentLine = EquipmentManager.BuildStatSummary();
+
+            stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{modifierLine}\n\n⚔ Gear: {equipmentLine}\n{unlockCondition}";
         }
     }
 

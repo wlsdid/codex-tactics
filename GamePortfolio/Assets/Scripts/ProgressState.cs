@@ -87,6 +87,16 @@ public static class ProgressState
         PlayerLevel = 1;
         PlayerXp = 0;
         TotalGold = 0;
+        EquipmentManager.Reset();
+    }
+
+    /// <summary>Ensure starter gear exists. Call once after Reset or when equipment is empty.</summary>
+    public static void EnsureStarterEquipment()
+    {
+        if (EquipmentManager.Inventory.Count > 0) return;
+        var weapon = EquipmentManager.GetEquipped(EquipmentSlot.Weapon);
+        if (weapon != null && weapon.itemName.StartsWith("Training")) return;
+        EquipmentManager.GiveStarterGear();
     }
 
     // --- Debug accessors (for auto-test) ---

@@ -17,6 +17,7 @@ public static class SaveManager
         public int playerLevel;
         public int playerXp;
         public int totalGold;
+        public EquipmentManager.SerializedState equipmentState;
     }
 
     public static void Save()
@@ -26,7 +27,8 @@ public static class SaveManager
             completedStages = ProgressState.GetCompletedStages(),
             playerLevel = ProgressState.PlayerLevel,
             playerXp = ProgressState.PlayerXp,
-            totalGold = ProgressState.TotalGold
+            totalGold = ProgressState.TotalGold,
+            equipmentState = EquipmentManager.CaptureState()
         };
 
         string json = JsonUtility.ToJson(data, prettyPrint: true);
@@ -59,6 +61,10 @@ public static class SaveManager
         ProgressState.PlayerLevel = data.playerLevel <= 0 ? 1 : data.playerLevel;
         ProgressState.PlayerXp = data.playerXp < 0 ? 0 : data.playerXp;
         ProgressState.TotalGold = data.totalGold < 0 ? 0 : data.totalGold;
+
+        // Restore equipment
+        EquipmentManager.RestoreState(data.equipmentState);
+        ProgressState.EnsureStarterEquipment();
 
         int completedCount = data.completedStages != null ? data.completedStages.Count : 0;
         Debug.Log($"Save loaded from {SavePath}: {completedCount} stages completed, Lv.{ProgressState.PlayerLevel}, {ProgressState.TotalGold}G.");
