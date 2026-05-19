@@ -161,6 +161,32 @@ public class TitleManager : MonoBehaviour
         diffTextRt.offsetMin = Vector2.zero;
         diffTextRt.offsetMax = Vector2.zero;
 
+        // Settings button
+        GameObject settingsObj = new GameObject("Settings Button");
+        settingsObj.transform.SetParent(canvasObj.transform, false);
+        Image settingsImage = settingsObj.AddComponent<Image>();
+        settingsImage.color = new Color(0.10f, 0.15f, 0.25f);
+        Button settingsBtn = settingsObj.AddComponent<Button>();
+        settingsBtn.targetGraphic = settingsImage;
+        settingsBtn.onClick.AddListener(OnSettingsClicked);
+
+        RectTransform settingsRt = settingsObj.GetComponent<RectTransform>();
+        settingsRt.sizeDelta = new Vector2(200, 40);
+        settingsRt.anchoredPosition = new Vector2(0, -215);
+
+        GameObject settingsTextObj = new GameObject("Settings Text");
+        settingsTextObj.transform.SetParent(settingsObj.transform, false);
+        TMP_Text settingsText = settingsTextObj.AddComponent<TextMeshProUGUI>();
+        settingsText.text = "⚙ Settings";
+        settingsText.fontSize = 18;
+        settingsText.alignment = TextAlignmentOptions.Center;
+        settingsText.color = new Color(0.72f, 0.90f, 1.0f);
+        RectTransform settingsTextRt = settingsTextObj.GetComponent<RectTransform>();
+        settingsTextRt.anchorMin = Vector2.zero;
+        settingsTextRt.anchorMax = Vector2.one;
+        settingsTextRt.offsetMin = Vector2.zero;
+        settingsTextRt.offsetMax = Vector2.zero;
+
         // Version text
         GameObject verObj = new GameObject("Version Text");
         verObj.transform.SetParent(canvasObj.transform, false);
@@ -171,7 +197,7 @@ public class TitleManager : MonoBehaviour
         version.color = new Color(0.45f, 0.50f, 0.60f);
         RectTransform verRt = verObj.GetComponent<RectTransform>();
         verRt.sizeDelta = new Vector2(400, 30);
-        verRt.anchoredPosition = new Vector2(0, -200);
+        verRt.anchoredPosition = new Vector2(0, -260);
     }
 
     private void OnStartGame()
@@ -191,6 +217,15 @@ public class TitleManager : MonoBehaviour
         // Update the button label
         var label = GameObject.Find("Difficulty Label")?.GetComponent<TMPro.TMP_Text>();
         if (label != null) label.text = $"Mode: {ProgressState.DifficultyLabel}";
+    }
+
+    private void OnSettingsClicked()
+    {
+        var flow = FindFirstObjectByType<GameSceneFlow>();
+        if (flow != null)
+            flow.LoadSettings();
+        else
+            SceneManager.LoadScene("SettingsScene");
     }
 
     // ── Visual polish ──

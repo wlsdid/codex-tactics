@@ -59,6 +59,13 @@ public class AudioManager : MonoBehaviour
         }
 
         LoadOrGenerateAudio();
+
+        // Apply any persisted settings volume after loading
+        if (SettingsManager.Instance != null)
+        {
+            SetBgmVolume(SettingsManager.Instance.BgmVolume);
+            SetSfxVolume(SettingsManager.Instance.SfxVolume);
+        }
     }
 
     private void LoadOrGenerateAudio()
@@ -119,6 +126,18 @@ public class AudioManager : MonoBehaviour
     }
 
     public void StopBgm() { if (bgmSource != null) bgmSource.Stop(); }
+
+    public void SetBgmVolume(float volume)
+    {
+        if (bgmSource != null)
+            bgmSource.volume = Mathf.Clamp01(volume);
+    }
+
+    public void SetSfxVolume(float volume)
+    {
+        if (sfxSource != null)
+            sfxSource.volume = Mathf.Clamp01(volume);
+    }
 
     /// <summary>Crossfade to a new BGM over the specified duration.</summary>
     public void CrossfadeTo(AudioClip newClip, float fadeDuration = 1.0f)

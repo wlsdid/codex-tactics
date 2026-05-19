@@ -78,6 +78,11 @@ public static class SaveManager
         Debug.Log("Save reset to default.");
     }
 
+    public static void DeleteSave()
+    {
+        ResetSave();
+    }
+
     public static bool HasSaveFile()
     {
         return File.Exists(SavePath);

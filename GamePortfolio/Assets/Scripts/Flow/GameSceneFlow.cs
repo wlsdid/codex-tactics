@@ -10,6 +10,7 @@ public class GameSceneFlow : MonoBehaviour
     public const string TitleSceneName = "TitleScene";
     public const string StageSelectSceneName = "StageSelectScene";
     public const string BattleSceneName = "BattleScene";
+    public const string SettingsSceneName = "SettingsScene";
 
     private void Awake()
     {
@@ -22,6 +23,14 @@ public class GameSceneFlow : MonoBehaviour
             ScreenFade.Instance.TransitionToScene(TitleSceneName);
         else
             SceneManager.LoadScene(TitleSceneName);
+    }
+
+    public void LoadSettings()
+    {
+        if (ScreenFade.Instance != null)
+            ScreenFade.Instance.TransitionToScene(SettingsSceneName);
+        else
+            SceneManager.LoadScene(SettingsSceneName);
     }
 
     public void LoadStageSelect()
