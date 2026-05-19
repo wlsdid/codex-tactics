@@ -357,7 +357,15 @@ public class BattleUI : MonoBehaviour
             resultSummaryText.gameObject.SetActive(isVisible);
         }
         if (resultSummaryPanel != null)
+        {
             resultSummaryPanel.SetActive(isVisible);
+            if (isVisible)
+            {
+                // Animate slide-in from bottom
+                RectTransform rt = resultSummaryPanel.GetComponent<RectTransform>();
+                if (rt != null) StartCoroutine(SlideInResultPanel(rt));
+            }
+        }
         // Style the result panel background
         if (resultPanelBackground != null)
         {
@@ -1104,6 +1112,24 @@ public class BattleUI : MonoBehaviour
             yield return null;
         }
         flashImg.color = Color.clear;
+    }
+
+    /// <summary>Animates the result panel sliding in from below.</summary>
+    private IEnumerator SlideInResultPanel(RectTransform panelRt)
+    {
+        if (panelRt == null) yield break;
+        Vector2 startPos = panelRt.anchoredPosition;
+        Vector2 offScreen = new Vector2(startPos.x, startPos.y - 60f);
+        panelRt.anchoredPosition = offScreen;
+        float duration = 0.25f;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            panelRt.anchoredPosition = Vector2.Lerp(offScreen, startPos, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        panelRt.anchoredPosition = startPos;
     }
 
     private Transform GetDamagePopupParent()

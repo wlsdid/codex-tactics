@@ -1,17 +1,28 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Manages screen fade transitions (black fade in/out) between scenes or encounters.
-/// Attach to a persistent GameObject or create on demand.
+/// Singleton pattern for easy access. Attach to a persistent GameObject.
 /// </summary>
 public class ScreenFade : MonoBehaviour
 {
     private Image fadeImage;
+    private static ScreenFade instance;
+    public static ScreenFade Instance => instance;
 
     private void Awake()
     {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
         // Create full-screen black overlay
         GameObject canvasObj = new GameObject("Fade Canvas");
         canvasObj.transform.SetParent(transform);
@@ -43,6 +54,42 @@ public class ScreenFade : MonoBehaviour
     public void FadeIn(float duration, System.Action onComplete)
     {
         StartCoroutine(FadeRoutine(1f, 0f, duration, onComplete));
+    }
+
+    /// <summary>Fade to black, load a scene, then fade back in.</summary>
+    public void TransitionToScene(string sceneName, float fadeDuration = 0.5f)
+    {
+        StartCoroutine(TransitionRoutine(sceneName, fadeDuration));
+    }
+
+    private IEnumerator TransitionRoutine(string sceneName, float duration)
+    {
+        fadeImage.gameObject.SetActive(true);
+        // Fade to black
+        float elapsed = 0f;
+        while (elapsed < duration * 0.5f)
+        {
+            float alpha = Mathf.Lerp(0f, 1f, elapsed / (duration * 0.5f));
+            fadeImage.color = new Color(0f, 0f, 0f, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        fadeImage.color = new Color(0f, 0f, 0f, 1f);
+
+        // Load scene
+        SceneManager.LoadScene(sceneName);
+
+        // Fade back in
+        elapsed = 0f;
+        while (elapsed < duration * 0.5f)
+        {
+            float alpha = Mathf.Lerp(1f, 0f, elapsed / (duration * 0.5f));
+            fadeImage.color = new Color(0f, 0f, 0f, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        fadeImage.color = new Color(0f, 0f, 0f, 0f);
+        fadeImage.gameObject.SetActive(false);
     }
 
     private IEnumerator FadeRoutine(float from, float to, float duration, System.Action onComplete)

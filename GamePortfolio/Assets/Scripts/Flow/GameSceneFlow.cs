@@ -18,17 +18,26 @@ public class GameSceneFlow : MonoBehaviour
 
     public void LoadTitle()
     {
-        SceneManager.LoadScene(TitleSceneName);
+        if (ScreenFade.Instance != null)
+            ScreenFade.Instance.TransitionToScene(TitleSceneName);
+        else
+            SceneManager.LoadScene(TitleSceneName);
     }
 
     public void LoadStageSelect()
     {
-        SceneManager.LoadScene(StageSelectSceneName);
+        if (ScreenFade.Instance != null)
+            ScreenFade.Instance.TransitionToScene(StageSelectSceneName);
+        else
+            SceneManager.LoadScene(StageSelectSceneName);
     }
 
     public void LoadBattle()
     {
-        SceneManager.LoadScene(BattleSceneName);
+        if (ScreenFade.Instance != null)
+            ScreenFade.Instance.TransitionToScene(BattleSceneName);
+        else
+            SceneManager.LoadScene(BattleSceneName);
     }
 
     public void QuitGame()
