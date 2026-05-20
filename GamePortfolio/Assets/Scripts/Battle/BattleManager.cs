@@ -329,26 +329,31 @@ public class BattleManager : MonoBehaviour
 
     public void OnClickAttackButton()
     {
+        UpdateCommandPreviewForSkill(basicAttackSkill);
         AudioManager.Instance?.PlayButtonClick();
         UsePlayerSkill(basicAttackSkill);
     }
     public void OnClickFireSkillButton()
     {
+        UpdateCommandPreviewForSkill(fireSkill);
         AudioManager.Instance?.PlayButtonClick();
         UsePlayerSkill(fireSkill);
     }
     public void OnClickIceSkillButton()
     {
+        UpdateCommandPreviewForSkill(iceSkill);
         AudioManager.Instance?.PlayButtonClick();
         UsePlayerSkill(iceSkill);
     }
     public void OnClickLightningSkillButton()
     {
+        UpdateCommandPreviewForSkill(lightningSkill);
         AudioManager.Instance?.PlayButtonClick();
         UsePlayerSkill(lightningSkill);
     }
     public void OnClickEarthSkillButton()
     {
+        UpdateCommandPreviewForSkill(earthSkill);
         AudioManager.Instance?.PlayButtonClick();
         UsePlayerSkill(earthSkill);
     }
@@ -359,6 +364,7 @@ public class BattleManager : MonoBehaviour
     }
     public void OnClickGuardButton()
     {
+        UpdateCommandPreviewForGuard();
         AudioManager.Instance?.PlayButtonClick();
         GuardAndEndPlayerTurn();
     }
@@ -540,6 +546,58 @@ public class BattleManager : MonoBehaviour
         StopAllCoroutines();
         battleUI?.SetPauseVisible(false);
         UnityEngine.SceneManagement.SceneManager.LoadScene("StageSelectScene");
+    }
+
+    // ── Command Preview ──
+
+    /// <summary>Shows a detailed command preview for a skill in the preview panel.</summary>
+    private void UpdateCommandPreviewForSkill(SkillData skill)
+    {
+        if (skill == null || battleUI == null) return;
+
+        bool isUnlocked = ProgressState.IsSkillUnlocked(skill.skillName);
+        bool canAfford = player != null && player.HasEnoughAp(skill.apCost);
+        bool isWeakness = enemy != null && enemy.weaknessElement == skill.elementType && skill.elementType != ElementType.Physical && skill.elementType != ElementType.None;
+        int estimatedDamage = isWeakness ? Mathf.RoundToInt(skill.power * 1.5f) : skill.power;
+
+        string preview = $"<b>{skill.skillName}</b>\n";
+        preview += $"AP Cost: {skill.apCost}  |  Power: {skill.power}";
+        if (isWeakness)
+            preview += $"  |  ⚡ Weakness! (~{estimatedDamage})";
+        else
+            preview += $"  |  ~{estimatedDamage} dmg";
+
+        if (skill.HasStatusEffect())
+            preview += $"\nEffect: {skill.statusEffectType}";
+
+        if (!isUnlocked)
+            preview += "\n<color=#ff6666>🔒 Locked</color>";
+        else if (!canAfford)
+            preview += "\n<color=#ff8844>⚠ Not enough AP</color>";
+
+        Color previewColor = isWeakness ? new Color(1f, 0.85f, 0.3f) :
+                             !canAfford ? new Color(1f, 0.53f, 0.27f) :
+                             new Color(0.92f, 0.88f, 0.82f);
+        battleUI.UpdateCommandPreview(preview, previewColor);
+    }
+
+    /// <summary>Shows a guard preview in the command preview panel.</summary>
+    private void UpdateCommandPreviewForGuard()
+    {
+        if (battleUI == null || enemyPattern == null) return;
+        int nextTurn = enemyTurnCount + 1;
+        bool isStrongTurn = enemyPattern.IsStrongAttackTurn(nextTurn);
+        string incomingName = isStrongTurn ? enemyPattern.strongAttackName : "Normal Attack";
+        int incomingDmg = isStrongTurn ? enemyPattern.strongAttackDamage : enemyPattern.normalAttackDamage;
+        int reducedDmg = Mathf.RoundToInt(incomingDmg * (100 - CfgGuardReductionPercent) / 100f);
+
+        string preview = "<b>🛡 Guard</b>\n";
+        preview += $"Next attack: {incomingDmg} dmg → Reduced to {reducedDmg} dmg\n";
+        preview += $"({CfgGuardReductionPercent}% reduction)";
+        if (isStrongTurn)
+            preview += "\n<color=#ff8844>⚠ Strong attack incoming!</color>";
+
+        battleUI.UpdateCommandPreview(preview, new Color(0.3f, 0.7f, 1f));
     }
 
     private void EndPlayerTurn()

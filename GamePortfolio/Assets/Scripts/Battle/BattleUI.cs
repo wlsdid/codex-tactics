@@ -42,6 +42,10 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text impactText;
     [SerializeField] private TMP_Text skillHelpText;
 
+    [Header("Command Preview")]
+    [SerializeField] private GameObject commandPreviewPanel;
+    [SerializeField] private TMP_Text commandPreviewText;
+
     [Header("Battle Log")]
     [SerializeField] private TMP_Text battleLogText;
 
@@ -122,6 +126,8 @@ public class BattleUI : MonoBehaviour
     public bool DebugStageSelectButtonVisible => stageSelectButton != null && stageSelectButton.gameObject.activeSelf;
     public bool DebugStageSelectButtonInteractable => stageSelectButton != null && stageSelectButton.interactable;
     public bool DebugResultSummaryPanelVisible => resultSummaryPanel != null && resultSummaryPanel.activeSelf;
+    public string DebugCommandPreviewText => commandPreviewText != null ? commandPreviewText.text : "";
+    public bool DebugCommandPreviewPanelExists => commandPreviewPanel != null;
 
     // --- Lifecycle ---
 
@@ -204,6 +210,7 @@ public class BattleUI : MonoBehaviour
         SetContinueButtonVisible(false);
         SetStageSelectButtonVisible(false);
         SetResultSummaryVisible(false, "");
+        ClearCommandPreview();
         // Cache continue button's child text component if not yet set
         if (continueButtonText == null && continueButton != null)
             continueButtonText = continueButton.GetComponentInChildren<TMP_Text>();
@@ -706,6 +713,31 @@ public class BattleUI : MonoBehaviour
             else
                 impactText.color = Color.white;
         }
+    }
+
+    /// <summary>Updates the Command Preview panel with skill info.</summary>
+    public void UpdateCommandPreview(string text, Color? textColor = null)
+    {
+        if (commandPreviewPanel != null)
+            commandPreviewPanel.SetActive(true);
+        if (commandPreviewText != null)
+        {
+            commandPreviewText.gameObject.SetActive(true);
+            commandPreviewText.text = text;
+            if (textColor.HasValue)
+                commandPreviewText.color = textColor.Value;
+            else
+                commandPreviewText.color = new Color(0.92f, 0.88f, 0.82f);
+        }
+    }
+
+    /// <summary>Hides the Command Preview panel.</summary>
+    public void ClearCommandPreview()
+    {
+        if (commandPreviewPanel != null)
+            commandPreviewPanel.SetActive(false);
+        if (commandPreviewText != null)
+            commandPreviewText.gameObject.SetActive(false);
     }
 
     public void SetPlayerShieldText(int shieldAmount)
