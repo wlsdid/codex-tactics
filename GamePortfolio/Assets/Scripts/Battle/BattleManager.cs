@@ -294,6 +294,7 @@ public class BattleManager : MonoBehaviour
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, startMsg,
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
 
+        battleUI?.ShowTurnBanner("BATTLE START", new Color(0.92f, 0.78f, 0.38f), 1.0f);
         StartPlayerTurn();
     }
 
@@ -307,6 +308,7 @@ public class BattleManager : MonoBehaviour
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"Player Turn: recovered {CfgPlayerApRecovery} AP. Choose an action.",
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
+        battleUI?.ShowTurnBanner("▶ PLAYER TURN", new Color(0.30f, 0.70f, 1.0f), 0.9f);
         if (autoBattleEnabled) ExecuteAutoAction();
     }
 
@@ -823,6 +825,8 @@ public class BattleManager : MonoBehaviour
     private IEnumerator EnemyTurnRoutine()
     {
         currentState = BattleState.EnemyTurn;
+        battleUI?.ShowTurnBanner("⏳ ENEMY TURN", new Color(1.0f, 0.50f, 0.20f), 0.7f);
+        yield return WaitForBattleTick();
 
         // Check Stun first - if stunned, enemy skips this turn
         if (enemy != null && enemy.HasStatusEffect(StatusEffectType.Stun))
@@ -1028,11 +1032,13 @@ public class BattleManager : MonoBehaviour
         {
             AudioManager.Instance?.PlayVictoryBgm();
             AudioManager.Instance?.PlayVictorySfx();
+            battleUI?.ShowTurnBanner("🏆 VICTORY!", new Color(1.0f, 0.85f, 0.30f), 1.5f);
         }
         else
         {
             AudioManager.Instance?.StopBgm();
             AudioManager.Instance?.PlayDefeatSfx();
+            battleUI?.ShowTurnBanner("💀 DEFEAT", new Color(1.0f, 0.30f, 0.30f), 1.5f);
         }
         bool hasNext = HasNextStage();
         battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && hasNext);

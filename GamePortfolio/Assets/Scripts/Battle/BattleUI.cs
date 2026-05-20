@@ -82,6 +82,8 @@ public class BattleUI : MonoBehaviour
 
     [Header("VFX")]
     [SerializeField] private Image screenFlashImage;
+    [SerializeField] private GameObject turnBannerPanel;
+    [SerializeField] private TMP_Text turnBannerText;
     private Canvas cachedCanvas;
     private Transform cachedCanvasTransform;
     private Coroutine guardPulseRoutine;
@@ -128,6 +130,8 @@ public class BattleUI : MonoBehaviour
     public bool DebugResultSummaryPanelVisible => resultSummaryPanel != null && resultSummaryPanel.activeSelf;
     public string DebugCommandPreviewText => commandPreviewText != null ? commandPreviewText.text : "";
     public bool DebugCommandPreviewPanelExists => commandPreviewPanel != null;
+    public string DebugTurnBannerText => turnBannerText != null ? turnBannerText.text : "";
+    public bool DebugTurnBannerPanelExists => turnBannerPanel != null;
 
     // --- Lifecycle ---
 
@@ -1110,6 +1114,61 @@ public class BattleUI : MonoBehaviour
         }
         if (screenFlashImage != null)
             StartCoroutine(ScreenFlashRoutine(screenFlashImage, duration));
+    }
+
+    /// <summary>Shows a large turn banner (e.g. PLAYER TURN, ENEMY TURN, VICTORY) with fade animation.</summary>
+    public void ShowTurnBanner(string text, Color? textColor = null, float holdDuration = 1.2f)
+    {
+        if (turnBannerPanel == null || turnBannerText == null) return;
+        turnBannerText.text = text;
+        turnBannerText.color = textColor ?? Color.white;
+        turnBannerPanel.SetActive(true);
+        // Scale/bounce animation
+        RectTransform rt = turnBannerPanel.GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.localScale = Vector3.one * 1.3f;
+            StartCoroutine(TurnBannerRoutine(rt, turnBannerPanel, holdDuration));
+        }
+    }
+
+    private IEnumerator TurnBannerRoutine(RectTransform rt, GameObject panel, float holdDuration)
+    {
+        // Scale in (bounce)
+        float elapsed = 0f;
+        float scaleIn = 0.15f;
+        while (elapsed < scaleIn)
+        {
+            float t = elapsed / scaleIn;
+            rt.localScale = Vector3.Lerp(Vector3.one * 1.3f, Vector3.one, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        rt.localScale = Vector3.one;
+
+        // Hold
+        yield return new WaitForSeconds(holdDuration);
+
+        // Fade out
+        elapsed = 0f;
+        float fadeOut = 0.25f;
+        CanvasGroup cg = panel.GetComponent<CanvasGroup>();
+        if (cg == null) cg = panel.AddComponent<CanvasGroup>();
+        while (elapsed < fadeOut)
+        {
+            cg.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeOut);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        panel.SetActive(false);
+        cg.alpha = 1f;
+    }
+
+    /// <summary>Immediately hides the turn banner.</summary>
+    public void HideTurnBanner()
+    {
+        if (turnBannerPanel != null)
+            turnBannerPanel.SetActive(false);
     }
 
     private void EnsureScreenFlashImage()

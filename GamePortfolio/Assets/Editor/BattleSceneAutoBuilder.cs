@@ -141,6 +141,22 @@ public static class BattleSceneAutoBuilder
         // Screen flash image (hidden by default, used by BattleUI for impact feedback)
         Image screenFlashImage = CreateScreenFlashImage(canvas.transform, "Screen Flash Image");
 
+        // ── Turn Banner ──
+        GameObject turnBannerObj = new GameObject("Turn Banner Panel", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+        turnBannerObj.transform.SetParent(canvas.transform, false);
+        Image turnBannerBg = turnBannerObj.GetComponent<Image>();
+        turnBannerBg.color = new Color(0.03f, 0.04f, 0.08f, 0.90f);
+        turnBannerBg.raycastTarget = false;
+        RectTransform turnBannerRt = turnBannerObj.GetComponent<RectTransform>();
+        turnBannerRt.sizeDelta = new Vector2(500, 80);
+        turnBannerRt.anchoredPosition = new Vector2(0, 0);
+        turnBannerObj.SetActive(false);
+
+        TMP_Text turnBannerText = CreateText(turnBannerObj.transform, "Turn Banner Text", "", new Vector2(0, 0), new Vector2(480, 70), TextAlignmentOptions.Center);
+        turnBannerText.fontSize = 36;
+        turnBannerText.fontStyle = FontStyles.Bold;
+        turnBannerText.color = Color.white;
+
         // Pause overlay panel — premium dark
         Image pausePanel = CreatePanel(canvas.transform, "Pause Panel", new Vector2(0, 0), new Vector2(600, 400), new Color(0.03f, 0.04f, 0.08f, 0.95f));
         pausePanel.gameObject.SetActive(false);
@@ -195,6 +211,8 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "resultSummaryPanel", resultSummaryPanel.gameObject);
         SetObjectReference(serializedBattleUI, "commandPreviewPanel", commandPreviewPanel.gameObject);
         SetObjectReference(serializedBattleUI, "commandPreviewText", commandPreviewText);
+        SetObjectReference(serializedBattleUI, "turnBannerPanel", turnBannerObj);
+        SetObjectReference(serializedBattleUI, "turnBannerText", turnBannerText);
         SetObjectReference(serializedBattleUI, "attackButton", attackButton);
         SetObjectReference(serializedBattleUI, "fireSkillButton", fireSkillButton);
         SetObjectReference(serializedBattleUI, "iceSkillButton", iceSkillButton);
@@ -299,6 +317,8 @@ public static class BattleSceneAutoBuilder
         Image resultSummaryPanel = FindImageIncludingInactive("Result Summary Panel");
         Image commandPreviewPanel = FindImageIncludingInactive("Command Preview Panel");
         TMP_Text commandPreviewText = FindTextIncludingInactive("Command Preview Text");
+        Image turnBannerPanel = FindImageIncludingInactive("Turn Banner Panel");
+        TMP_Text turnBannerText = FindTextIncludingInactive("Turn Banner Text");
         TMP_Text impactText = FindText("Impact Text");
 
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
@@ -339,6 +359,9 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Command Preview panel exists", commandPreviewPanel != null);
         AppendCheck(ref passed, ref report, "Command Preview panel starts hidden", commandPreviewPanel != null && !commandPreviewPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Command Preview text exists", commandPreviewText != null);
+        AppendCheck(ref passed, ref report, "Turn Banner panel exists", turnBannerPanel != null);
+        AppendCheck(ref passed, ref report, "Turn Banner panel starts hidden", turnBannerPanel != null && !turnBannerPanel.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Turn Banner text exists", turnBannerText != null);
         AppendCheck(ref passed, ref report, "Attack button exists", attackButton != null);
         AppendCheck(ref passed, ref report, "Fire Skill button exists", fireSkillButton != null);
         AppendCheck(ref passed, ref report, "Ice Lance button exists", iceSkillButton != null);
@@ -396,6 +419,8 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Result Summary panel linked", HasObjectReference(serializedBattleUI, "resultSummaryPanel"));
             AppendCheck(ref passed, ref report, "Command Preview panel linked", HasObjectReference(serializedBattleUI, "commandPreviewPanel"));
             AppendCheck(ref passed, ref report, "Command Preview text linked", HasObjectReference(serializedBattleUI, "commandPreviewText"));
+            AppendCheck(ref passed, ref report, "Turn Banner panel linked", HasObjectReference(serializedBattleUI, "turnBannerPanel"));
+            AppendCheck(ref passed, ref report, "Turn Banner text linked", HasObjectReference(serializedBattleUI, "turnBannerText"));
             AppendCheck(ref passed, ref report, "Attack button linked", HasObjectReference(serializedBattleUI, "attackButton"));
             AppendCheck(ref passed, ref report, "Fire Skill button linked", HasObjectReference(serializedBattleUI, "fireSkillButton"));
             AppendCheck(ref passed, ref report, "Guard button linked", HasObjectReference(serializedBattleUI, "guardButton"));
