@@ -1,0 +1,44 @@
+새 스레드용 핸드오프 — Batch 63 UI SFX Feedback
+
+현재 상태
+- Repo: /mnt/c/Users/jywls/Desktop/game_portfolio
+- Unity project: /mnt/c/Users/jywls/Desktop/game_portfolio/GamePortfolio
+- 최신 확인 커밋: d25a525 Batch 62: Settings/Options screen — persistent BGM/SFX volume sliders
+- 확인 시점 working tree: clean
+- 다음 계획 파일: GamePortfolio/Docs/Batch63_UI_SFX_Feedback_Plan.md
+
+이번 목표
+- Settings/Options 화면의 BGM/SFX 볼륨 슬라이더가 실제로 체감되도록 UI 클릭/테스트 SFX를 추가.
+- Title / Stage Select / Battle / Settings 버튼에 작은 클릭/취소/확인 SFX 연결.
+- 외부 오디오 에셋 추가 없이 AudioManager 쪽에서 간단한 generated UI SFX 또는 기존 생성 패턴 재사용.
+
+역할
+- Codex/codex5.5: 계획, 리뷰, 검증 기준, 최종 승인.
+- hemes-deep/Deep: Unity 구현, scene/builder/validator 수정, 테스트 실행, 구현 보고.
+
+Deep 시작 명령
+cd /mnt/c/Users/jywls/Desktop/game_portfolio
+git pull --ff-only
+git status --short --branch
+git log --oneline -5
+git diff --stat
+
+Deep에게 요청할 메시지
+<@1504808571068743741> Batch 63 진행해줘.
+계획 파일은 `GamePortfolio/Docs/Batch63_UI_SFX_Feedback_Plan.md`야.
+목표는 Settings/Options 다음 단계로 UI SFX feedback 추가야.
+구현 전 preflight 하고, AudioManager/TitleManager/StageSelectController/BattleUI/SettingsController 및 필요한 Editor builder/validator만 범위로 봐줘.
+검증은 plan 파일의 Unity batchmode 3개 + `git diff --check`까지 실행하고, 커밋/푸시는 Codex 리뷰 후 진행해줘.
+
+Codex 리뷰 기준
+- SFX 볼륨 0일 때 무해/무음.
+- 버튼 클릭에서 null-reference 없음.
+- Settings 화면에 SFX 테스트 방법이 있음.
+- 기존 BGM 볼륨/전환/전투 로직 회귀 없음.
+- 외부 에셋/불필요한 대형 scene YAML 변경 없음.
+
+다음 Codex가 리뷰할 때 볼 것
+- `git status --short --branch`
+- `git diff --stat`
+- 수정 파일 목록
+- batch63 로그에서 `RESULT: PASS`, `error CS`, `Exception` grep 결과
