@@ -32,6 +32,10 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip stunSfx;
     [SerializeField] private AudioClip burnSfx;
 
+    [Header("UI SFX")]
+    [SerializeField] private AudioClip clickSfx;
+    [SerializeField] private AudioClip backSfx;
+
     private static AudioManager instance;
     public static AudioManager Instance => instance;
 
@@ -87,6 +91,8 @@ public class AudioManager : MonoBehaviour
         shieldSfx = Resources.Load<AudioClip>("Audio/ShieldSFX") ?? GenerateTone(350f, 0.18f, 0.2f);
         stunSfx = Resources.Load<AudioClip>("Audio/StunSFX") ?? GenerateTone(100f, 0.2f, 0.15f);
         burnSfx = Resources.Load<AudioClip>("Audio/BurnSFX") ?? GenerateTone(200f, 0.25f, 0.15f);
+        clickSfx = Resources.Load<AudioClip>("Audio/ClickSFX") ?? GenerateTone(660f, 0.08f, 0.25f);
+        backSfx = Resources.Load<AudioClip>("Audio/BackSFX") ?? GenerateTone(440f, 0.12f, 0.2f);
     }
 
     public void PlayBattleBgm()
@@ -195,6 +201,9 @@ public class AudioManager : MonoBehaviour
     public void PlayShieldSfx() => PlaySfx(shieldSfx);
     public void PlayStunSfx() => PlaySfx(stunSfx);
     public void PlayBurnSfx() => PlaySfx(burnSfx);
+
+    public void PlayButtonClick() => PlaySfx(clickSfx);
+    public void PlayBack() => PlaySfx(backSfx);
 
     private void PlaySfx(AudioClip clip)
     {

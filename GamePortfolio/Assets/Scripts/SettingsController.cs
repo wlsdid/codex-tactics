@@ -15,6 +15,7 @@ public class SettingsController : MonoBehaviour
     [Header("Buttons")]
     public Button backButton;
     public Button resetDataButton;
+    public Button testSfxButton;
 
     [Header("Labels")]
     [SerializeField] private TMP_Text bgmValueLabel;
@@ -47,6 +48,9 @@ public class SettingsController : MonoBehaviour
         if (resetDataButton != null)
             resetDataButton.onClick.AddListener(OnResetDataClicked);
 
+        if (testSfxButton != null)
+            testSfxButton.onClick.AddListener(OnTestSfxClicked);
+
         // Init value labels
         if (bgmValueLabel != null)
             bgmValueLabel.text = Mathf.RoundToInt((bgmSlider?.value ?? 0.3f) * 100) + "%";
@@ -75,14 +79,17 @@ public class SettingsController : MonoBehaviour
 
         if (sfxValueLabel != null)
             sfxValueLabel.text = Mathf.RoundToInt(value * 100) + "%";
+    }
 
-        // Play a preview SFX so user can hear the change
+    private void OnTestSfxClicked()
+    {
         if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayItemSfx();
+            AudioManager.Instance.PlayButtonClick();
     }
 
     private void OnBackClicked()
     {
+        AudioManager.Instance?.PlayBack();
         // Return to title screen
         var flow = FindFirstObjectByType<GameSceneFlow>();
         if (flow != null)
@@ -93,6 +100,7 @@ public class SettingsController : MonoBehaviour
 
     private void OnResetDataClicked()
     {
+        AudioManager.Instance?.PlayButtonClick();
         // Reset save data
         SaveManager.DeleteSave();
 

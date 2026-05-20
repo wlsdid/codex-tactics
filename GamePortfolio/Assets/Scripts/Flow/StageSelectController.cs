@@ -155,6 +155,7 @@ public class StageSelectController : MonoBehaviour
     {
         if (!ProgressState.IsStageUnlocked(index)) return;
 
+        AudioManager.Instance?.PlayButtonClick();
         selectedStageIndex = index;
         UpdateCardVisuals();
         UpdateDescription(index);
@@ -213,6 +214,7 @@ public class StageSelectController : MonoBehaviour
         if (selectedStageIndex < 0) return;
         if (!ProgressState.IsStageUnlocked(selectedStageIndex)) return;
 
+        AudioManager.Instance?.PlayButtonClick();
         // Store selected stage for BattleScene
         SelectedStageIndex = selectedStageIndex;
         UnityEngine.SceneManagement.SceneManager.LoadScene(GameSceneFlow.BattleSceneName);
@@ -220,6 +222,7 @@ public class StageSelectController : MonoBehaviour
 
     private void OnBackClicked()
     {
+        AudioManager.Instance?.PlayBack();
         UnityEngine.SceneManagement.SceneManager.LoadScene(GameSceneFlow.TitleSceneName);
     }
 

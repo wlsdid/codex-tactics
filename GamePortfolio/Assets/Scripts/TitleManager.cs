@@ -202,17 +202,20 @@ public class TitleManager : MonoBehaviour
 
     private void OnStartGame()
     {
+        AudioManager.Instance?.PlayButtonClick();
         SaveManager.Load();
         SceneManager.LoadScene("StageSelectScene");
     }
 
     private void OnResetProgress()
     {
+        AudioManager.Instance?.PlayBack();
         SaveManager.ResetSave();
     }
 
     private void OnToggleDifficulty()
     {
+        AudioManager.Instance?.PlayButtonClick();
         ProgressState.DifficultyMode = ProgressState.DifficultyMode == 0 ? 1 : 0;
         // Update the button label
         var label = GameObject.Find("Difficulty Label")?.GetComponent<TMPro.TMP_Text>();
@@ -221,6 +224,7 @@ public class TitleManager : MonoBehaviour
 
     private void OnSettingsClicked()
     {
+        AudioManager.Instance?.PlayButtonClick();
         var flow = FindFirstObjectByType<GameSceneFlow>();
         if (flow != null)
             flow.LoadSettings();

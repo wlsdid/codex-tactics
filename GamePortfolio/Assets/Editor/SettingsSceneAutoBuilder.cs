@@ -85,6 +85,35 @@ public class SettingsSceneAutoBuilder
         resetBtnRt.sizeDelta = new Vector2(340, 50);
         resetBtnRt.anchoredPosition = new Vector2(0, -200);
 
+        // ── Test SFX Button ──
+        GameObject testSfxBtnObj = new GameObject("Test SFX Button");
+        testSfxBtnObj.transform.SetParent(panelObj.transform, false);
+        Image testSfxBtnImage = testSfxBtnObj.AddComponent<Image>();
+        testSfxBtnImage.color = new Color(0.12f, 0.25f, 0.18f, 0.90f);
+        Button testSfxBtn = testSfxBtnObj.AddComponent<Button>();
+        testSfxBtn.targetGraphic = testSfxBtnImage;
+        ColorBlock testColors = testSfxBtn.colors;
+        testColors.normalColor = new Color(0.12f, 0.25f, 0.18f, 0.90f);
+        testColors.highlightedColor = new Color(0.18f, 0.35f, 0.25f, 0.90f);
+        testColors.pressedColor = new Color(0.08f, 0.18f, 0.12f, 0.95f);
+        testSfxBtn.colors = testColors;
+        RectTransform testSfxBtnRt = testSfxBtnObj.GetComponent<RectTransform>();
+        testSfxBtnRt.sizeDelta = new Vector2(340, 44);
+        testSfxBtnRt.anchoredPosition = new Vector2(0, -155);
+
+        GameObject testSfxBtnTextObj = new GameObject("Test SFX Button Text");
+        testSfxBtnTextObj.transform.SetParent(testSfxBtnObj.transform, false);
+        TMP_Text testSfxBtnText = testSfxBtnTextObj.AddComponent<TextMeshProUGUI>();
+        testSfxBtnText.text = "🔊 Test SFX";
+        testSfxBtnText.fontSize = 18;
+        testSfxBtnText.fontStyle = FontStyles.Bold;
+        testSfxBtnText.alignment = TextAlignmentOptions.Center;
+        testSfxBtnText.color = new Color(0.72f, 0.90f, 1.0f);
+        RectTransform testSfxBtnTextRt = testSfxBtnTextObj.GetComponent<RectTransform>();
+        testSfxBtnTextRt.sizeDelta = new Vector2(340, 44);
+        testSfxBtnTextRt.anchoredPosition = Vector2.zero;
+
+        // ── Reset Save Data Button Text ──
         GameObject resetBtnTextObj = new GameObject("Reset Button Text");
         resetBtnTextObj.transform.SetParent(resetBtnObj.transform, false);
         TMP_Text resetBtnText = resetBtnTextObj.AddComponent<TextMeshProUGUI>();
@@ -125,6 +154,7 @@ public class SettingsSceneAutoBuilder
         SettingsController controller = settingsControllerObj.AddComponent<SettingsController>();
         controller.backButton = backBtn;
         controller.resetDataButton = resetBtn;
+        controller.testSfxButton = testSfxBtn;
 
         // Find sliders by name and assign
         foreach (Transform child in panelObj.transform)

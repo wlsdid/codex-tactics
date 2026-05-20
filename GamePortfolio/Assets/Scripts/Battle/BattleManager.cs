@@ -327,23 +327,53 @@ public class BattleManager : MonoBehaviour
 
     // --- Player actions (public for button binding & testing) ---
 
-    public void OnClickAttackButton() => UsePlayerSkill(basicAttackSkill);
-    public void OnClickFireSkillButton() => UsePlayerSkill(fireSkill);
-    public void OnClickIceSkillButton() => UsePlayerSkill(iceSkill);
-    public void OnClickLightningSkillButton() => UsePlayerSkill(lightningSkill);
-    public void OnClickEarthSkillButton() => UsePlayerSkill(earthSkill);
-    public void OnClickEndTurnButton() => EndPlayerTurn();
-    public void OnClickGuardButton() => GuardAndEndPlayerTurn();
+    public void OnClickAttackButton()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        UsePlayerSkill(basicAttackSkill);
+    }
+    public void OnClickFireSkillButton()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        UsePlayerSkill(fireSkill);
+    }
+    public void OnClickIceSkillButton()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        UsePlayerSkill(iceSkill);
+    }
+    public void OnClickLightningSkillButton()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        UsePlayerSkill(lightningSkill);
+    }
+    public void OnClickEarthSkillButton()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        UsePlayerSkill(earthSkill);
+    }
+    public void OnClickEndTurnButton()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        EndPlayerTurn();
+    }
+    public void OnClickGuardButton()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        GuardAndEndPlayerTurn();
+    }
 
     public void OnClickRetryButton()
     {
         if (currentState != BattleState.Victory && currentState != BattleState.Defeat) return;
+        AudioManager.Instance?.PlayButtonClick();
         StopAllCoroutines();
         StartBattle();
     }
 
     public void OnClickAutoBattleToggle()
     {
+        AudioManager.Instance?.PlayButtonClick();
         autoBattleEnabled = !autoBattleEnabled;
         battleUI?.SetAutoBattleIndicator(autoBattleEnabled);
         if (autoBattleEnabled && currentState == BattleState.PlayerTurn)
@@ -434,6 +464,7 @@ public class BattleManager : MonoBehaviour
 
     public void OnClickSpeedToggle()
     {
+        AudioManager.Instance?.PlayButtonClick();
         speedState = speedState >= 2 ? 1 : 2;
         battleUI?.UpdateSpeedLabel(speedState);
     }
@@ -446,6 +477,7 @@ public class BattleManager : MonoBehaviour
     public void OnClickItemButton()
     {
         if (currentState != BattleState.PlayerTurn || player == null) return;
+        AudioManager.Instance?.PlayButtonClick();
         if (playerItems == null || playerItems.Count == 0 || playerItems.TrueForAll(i => i.quantity <= 0))
         {
             battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
@@ -474,12 +506,14 @@ public class BattleManager : MonoBehaviour
     public void OnClickPauseButton()
     {
         if (currentState == BattleState.Victory || currentState == BattleState.Defeat) return;
+        AudioManager.Instance?.PlayButtonClick();
         battleUI?.SetPauseVisible(true);
         battleUI?.SetActionButtonsInteractable(false);
     }
 
     public void OnResumeGame()
     {
+        AudioManager.Instance?.PlayButtonClick();
         battleUI?.SetPauseVisible(false);
         if (currentState == BattleState.PlayerTurn)
             battleUI?.SetActionButtonsInteractable(true);
@@ -488,6 +522,7 @@ public class BattleManager : MonoBehaviour
     public void OnClickContinueButton()
     {
         if (currentState != BattleState.Victory || !HasNextStage()) return;
+        AudioManager.Instance?.PlayButtonClick();
         StopAllCoroutines();
         if (screenFade == null) screenFade = FindObjectOfType<ScreenFade>();
         if (screenFade != null)
@@ -501,6 +536,7 @@ public class BattleManager : MonoBehaviour
 
     public void OnClickStageSelectButton()
     {
+        AudioManager.Instance?.PlayBack();
         StopAllCoroutines();
         battleUI?.SetPauseVisible(false);
         UnityEngine.SceneManagement.SceneManager.LoadScene("StageSelectScene");
