@@ -234,19 +234,19 @@ public class BattleUI : MonoBehaviour
     /// <summary>Applies element-appropriate colors to skill buttons for visual hierarchy.</summary>
     public void StyleSkillButtons()
     {
-        StyleButtonWithElement(attackButton, ElementType.Physical, "⚔");
-        StyleButtonWithElement(fireSkillButton, ElementType.Fire, "🔥");
-        StyleButtonWithElement(iceSkillButton, ElementType.Ice, "❄");
-        StyleButtonWithElement(lightningSkillButton, ElementType.Lightning, "⚡");
-        StyleButtonWithElement(earthSkillButton, ElementType.Earth, "\U0001F33F");
-        StyleButtonWithTint(guardButton, ElementGuardColor, "🛡");
-        StyleButtonWithTint(endTurnButton, ElementEndTurnColor, "⏭");
+        StyleButtonWithElement(attackButton, ElementType.Physical, "PHY");
+        StyleButtonWithElement(fireSkillButton, ElementType.Fire, "FIRE");
+        StyleButtonWithElement(iceSkillButton, ElementType.Ice, "ICE");
+        StyleButtonWithElement(lightningSkillButton, ElementType.Lightning, "LIT");
+        StyleButtonWithElement(earthSkillButton, ElementType.Earth, "EARTH");
+        StyleButtonWithTint(guardButton, ElementGuardColor, "GUARD");
+        StyleButtonWithTint(endTurnButton, ElementEndTurnColor, "GO");
         if (itemButton != null)
         {
             Image img = itemButton.GetComponent<Image>();
             if (img != null) img.color = new Color(0.10f, 0.22f, 0.16f, 0.92f);
             TMP_Text lbl = itemButton.GetComponentInChildren<TMP_Text>();
-            if (lbl != null) lbl.text = "🧪 Items";
+            if (lbl != null) lbl.text = "ITEMS";
         }
     }
 
@@ -264,7 +264,10 @@ public class BattleUI : MonoBehaviour
         {
             Color elemColor = GetElementButtonColor(element);
             label.color = new Color(elemColor.r * 0.9f + 0.3f, elemColor.g * 0.9f + 0.3f, elemColor.b * 0.9f + 0.3f);
-            label.text = $"{symbol} {label.text.Replace("⚔", "").Replace("🔥", "").Replace("❄", "").Replace("⚡", "").Replace("\U0001F33F", "").Replace("🛡", "").Replace("⏭", "").Replace("🧪", "").Trim()}";
+            label.fontSize = 17;
+            label.enableWordWrapping = false;
+            label.overflowMode = TextOverflowModes.Ellipsis;
+            label.text = $"{symbol} {StripButtonPrefix(label.text)}";
         }
     }
 
@@ -278,8 +281,29 @@ public class BattleUI : MonoBehaviour
         if (label != null)
         {
             label.color = new Color(tint.r * 0.9f + 0.3f, tint.g * 0.9f + 0.3f, tint.b * 0.9f + 0.3f);
-            label.text = $"{symbol} {label.text.Replace("⚔", "").Replace("🔥", "").Replace("❄", "").Replace("⚡", "").Replace("\U0001F33F", "").Replace("🛡", "").Replace("⏭", "").Replace("🧪", "").Trim()}";
+            label.fontSize = 17;
+            label.enableWordWrapping = false;
+            label.overflowMode = TextOverflowModes.Ellipsis;
+            label.text = $"{symbol} {StripButtonPrefix(label.text)}";
         }
+    }
+
+    private static string StripButtonPrefix(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+        string[] prefixes = { "PHY", "FIRE", "ICE", "LIT", "EARTH", "GUARD", "GO" };
+        string cleaned = text.Trim();
+        foreach (string prefix in prefixes)
+        {
+            if (cleaned.StartsWith(prefix + " "))
+            {
+                cleaned = cleaned.Substring(prefix.Length).Trim();
+                break;
+            }
+        }
+
+        return cleaned;
     }
 
     public void SetContinueButtonLabel(string label)
@@ -847,15 +871,14 @@ public class BattleUI : MonoBehaviour
     private void UpdateSkillHelpText(SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, int guardReduction, EnemyPatternData pattern, StageData stageData)
     {
         if (skillHelpText == null || basicSkill == null || fireSkill == null || iceSkill == null || lightningSkill == null || earthSkill == null) return;
-        string attackHelp = BuildSkillHelpLine(basicSkill);
-        string fireHelp = BuildSkillHelpLine(fireSkill);
-        string iceHelp = BuildSkillHelpLine(iceSkill);
-        string lightningHelp = BuildSkillHelpLine(lightningSkill);
-        string earthHelp = BuildSkillHelpLine(earthSkill);
-        string guardHelp = $"Guard: reduce next enemy attack by {guardReduction}%.";
-        string turnHint = pattern?.BuildPatternHelpText() ?? "";
+        string attackHelp = BuildCompactSkillHelpLine(basicSkill);
+        string fireHelp = BuildCompactSkillHelpLine(fireSkill);
+        string iceHelp = BuildCompactSkillHelpLine(iceSkill);
+        string lightningHelp = BuildCompactSkillHelpLine(lightningSkill);
+        string earthHelp = BuildCompactSkillHelpLine(earthSkill);
+        string turnHint = pattern?.BuildPatternHelpText() ?? "Read enemy intent, then spend AP.";
         string modifierHelp = BuildStageModifierHelpLine(stageData);
-        skillHelpText.text = $"{attackHelp}\n{fireHelp}\n{iceHelp}\n{lightningHelp}\n{earthHelp}\n{guardHelp}\n{turnHint}\n{modifierHelp}";
+        skillHelpText.text = $"Commands: {attackHelp} | {fireHelp} | {iceHelp}\nMore: {lightningHelp} | {earthHelp} | Guard -{guardReduction}% damage\n{turnHint} / {modifierHelp}";
     }
 
     private string BuildStageModifierHelpLine(StageData stageData)
@@ -866,6 +889,14 @@ public class BattleUI : MonoBehaviour
         return string.IsNullOrWhiteSpace(stageData.stageModifierDescription)
             ? $"Stage Modifier: {modifierName}"
             : $"Stage Modifier: {modifierName} — {stageData.stageModifierDescription}";
+    }
+
+    private string BuildCompactSkillHelpLine(SkillData skill)
+    {
+        if (!ProgressState.IsSkillUnlocked(skill.skillName))
+            return $"{skill.skillName}: locked";
+        string effect = skill.HasStatusEffect() ? $", {skill.statusEffectType}" : "";
+        return $"{skill.skillName}: {skill.power}p/{skill.apCost}AP{effect}";
     }
 
     private string BuildSkillHelpLine(SkillData skill)

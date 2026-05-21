@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-21 Batch 69: Procedural Portrait Polish
+## Latest autonomous run — 2026-05-21 Batch 70: Reference-Style Battle Layout Pass
+
+Completed:
+- Reworked the generated BattleScene toward the user's reference image: slim top HUD, left party stack, open center field, right enemy stack, and bottom command cluster.
+- Added procedural tactical grid tiles, field shadow/glow accents, enemy/party roster slots, and a skill action arc without importing external assets.
+- Reduced text/panel sizes and moved status/help/log/result surfaces to avoid the previous screenshot's dense overlap.
+- Updated `BattleSceneAutoBuilder.ValidateBattleTestScene` with checks for the new roster/grid/action-arc layout elements.
+- Replaced emoji button prefixes with ASCII labels in `BattleUI` to reduce TMP missing-glyph warnings in capture runs.
+- Added `Docs/Devlog/2026-05-21_reference-style-battle-layout.md`.
+
+Verification planned:
+- Static whitespace/brace checks.
+- `git diff --check`.
+- Unity batch compile.
+- Regenerate BattleScene via `CreateBattleTestScene`.
+- `ValidateBattleTestScene` and `BattleAutoTestRunner.RunBattleLogicAutoTest`.
+- Standalone screenshot capture and visual inspection.
+
+Recommended next tasks:
+1. If the screenshot reads well, produce README-ready capture/GIF material.
+2. If the center field still feels too placeholder-like, add more procedural character silhouettes/VFX arcs before adding new systems.
+3. Later replace placeholder sprites with final art, but keep the procedural generator as fallback.
+
+## Previous autonomous run — 2026-05-21 Batch 69: Procedural Portrait Polish
 
 Completed:
 - Strengthened the generated hero placeholder sprite with SD/pixel-style outline, shadow, and crystal-armored silhouette support.

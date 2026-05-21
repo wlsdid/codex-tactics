@@ -24,146 +24,158 @@ public static class BattleSceneAutoBuilder
         Canvas canvas = CreateCanvas(camera);
         CreateEventSystem();
 
-        // Layered stage backdrop — keeps the battle scene feeling like a polished 2D RPG instead of a blank test canvas.
-        Image battleStageBackdropPanel = CreatePanel(canvas.transform, "Battle Stage Backdrop Panel", new Vector2(0, 35), new Vector2(1160, 345), new Color(0.018f, 0.022f, 0.045f, 0.78f));
-        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -115), new Vector2(980, 62), new Color(0.12f, 0.10f, 0.18f, 0.42f));
-        Image topGoldDividerPanel = CreatePanel(canvas.transform, "Top Gold Divider Panel", new Vector2(0, 104), new Vector2(1120, 4), new Color(0.95f, 0.72f, 0.34f, 0.72f));
-        Image commandGoldDividerPanel = CreatePanel(canvas.transform, "Command Gold Divider Panel", new Vector2(0, -218), new Vector2(1020, 4), new Color(0.95f, 0.72f, 0.34f, 0.72f));
+        // Reference-inspired tactical RPG layout: left party stack, open center stage, right enemy stack, compact bottom commands.
+        Image battleStageBackdropPanel = CreatePanel(canvas.transform, "Battle Stage Backdrop Panel", new Vector2(0, 12), new Vector2(900, 520), new Color(0.018f, 0.030f, 0.026f, 0.88f));
+        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -112), new Vector2(720, 170), new Color(0.075f, 0.115f, 0.090f, 0.52f));
+        Image topGoldDividerPanel = CreatePanel(canvas.transform, "Top Gold Divider Panel", new Vector2(0, 274), new Vector2(1220, 3), new Color(0.95f, 0.72f, 0.34f, 0.68f));
+        Image commandGoldDividerPanel = CreatePanel(canvas.transform, "Command Gold Divider Panel", new Vector2(330, -232), new Vector2(560, 3), new Color(0.95f, 0.72f, 0.34f, 0.72f));
         battleStageBackdropPanel.raycastTarget = false;
         battleStageFloorPanel.raycastTarget = false;
         topGoldDividerPanel.raycastTarget = false;
         commandGoldDividerPanel.raycastTarget = false;
+        CreateTacticalGrid(canvas.transform);
+        CreateFieldVignette(canvas.transform);
 
-        // Premium dark panels — deep navy/indigo tones
-        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 205), new Vector2(1200, 155), new Color(0.036f, 0.040f, 0.075f, 0.96f));
-        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-410, 65), new Vector2(350, 295), new Color(0.040f, 0.038f, 0.070f, 0.94f));
-        Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(410, 65), new Vector2(350, 295), new Color(0.055f, 0.035f, 0.060f, 0.94f));
-        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, -70), new Vector2(540, 250), new Color(0.030f, 0.038f, 0.065f, 0.92f));
-        Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -280), new Vector2(1060, 120), new Color(0.035f, 0.032f, 0.055f, 0.96f));
+        // Premium dark panels — slim overlay style, leaving the battlefield visible.
+        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 320), new Vector2(1220, 72), new Color(0.018f, 0.025f, 0.040f, 0.92f));
+        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-530, 22), new Vector2(250, 560), new Color(0.026f, 0.030f, 0.048f, 0.92f));
+        Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(548, 25), new Vector2(185, 455), new Color(0.040f, 0.025f, 0.045f, 0.90f));
+        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, 236), new Vector2(690, 74), new Color(0.020f, 0.028f, 0.045f, 0.76f));
+        Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(362, -303), new Vector2(520, 98), new Color(0.032f, 0.032f, 0.045f, 0.94f));
+        Image partyRosterPanel = CreatePanel(canvas.transform, "Party Roster Panel", new Vector2(-530, -28), new Vector2(224, 350), new Color(0.014f, 0.018f, 0.030f, 0.72f));
+        partyRosterPanel.raycastTarget = false;
+        CreatePartyRosterSlots(canvas.transform);
+        CreateEnemyRosterSlots(canvas.transform);
         topStatusPanel.raycastTarget = false;
         playerCardPanel.raycastTarget = false;
         enemyCardPanel.raycastTarget = false;
         battleCenterPanel.raycastTarget = false;
         commandBarPanel.raycastTarget = false;
 
-        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Codex Tactics", new Vector2(0, 255), new Vector2(800, 50), TextAlignmentOptions.Center);
-        titleText.fontSize = 34;
+        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "* Codex Tactics  x34", new Vector2(-470, 326), new Vector2(330, 42), TextAlignmentOptions.Left);
+        titleText.fontSize = 21;
+        titleText.fontStyle = FontStyles.Bold;
 
-        TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "Run Status: Stage 1 In Progress", new Vector2(0, 220), new Vector2(800, 34), TextAlignmentOptions.Center);
-        runStatusText.fontSize = 20;
+        TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "Run Status: Stage 1 In Progress", new Vector2(140, 332), new Vector2(620, 28), TextAlignmentOptions.Left);
+        runStatusText.fontSize = 15;
         runStatusText.color = new Color(0.76f, 1.0f, 0.82f);
 
-        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Battle Guide: Attack to deal damage | Fire Skill applies Burn | Guard before Heavy Slam | Watch Enemy Intent | Continue after Victory | Final Clear completes Stage 1 | Retry current fight", new Vector2(0, 192), new Vector2(1140, 38), TextAlignmentOptions.Center);
-        battleGuideText.fontSize = 17;
+        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Mission: read enemy intent, spend AP, guard heavy attacks, then chain skills for clear.", new Vector2(140, 304), new Vector2(720, 28), TextAlignmentOptions.Left);
+        battleGuideText.fontSize = 15;
         battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
 
-        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "Stage 1-1: Slime Scout", new Vector2(0, 165), new Vector2(800, 40), TextAlignmentOptions.Center);
-        stageText.fontSize = 24;
+        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "Stage 1-1  /  Slime Scout", new Vector2(-268, 236), new Vector2(300, 36), TextAlignmentOptions.Left);
+        stageText.fontSize = 20;
         stageText.color = new Color(0.92f, 0.86f, 0.55f);
-        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Objective: Defeat Slime Scout", new Vector2(0, 135), new Vector2(900, 32), TextAlignmentOptions.Center);
-        stageObjectiveText.fontSize = 18;
+        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Objective: Defeat Slime Scout", new Vector2(45, 242), new Vector2(390, 28), TextAlignmentOptions.Left);
+        stageObjectiveText.fontSize = 16;
         stageObjectiveText.color = new Color(1.0f, 0.94f, 0.72f);
-        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Progress: Encounter 1/2 | Active", new Vector2(0, 112), new Vector2(900, 28), TextAlignmentOptions.Center);
-        stageProgressText.fontSize = 17;
+        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Progress: Encounter 1/2 | Active", new Vector2(275, 218), new Vector2(330, 26), TextAlignmentOptions.Right);
+        stageProgressText.fontSize = 15;
         stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
 
-        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 105), new Vector2(420, 50), TextAlignmentOptions.Left);
-        TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "ALLY UNIT  /  HERO", new Vector2(-410, 145), new Vector2(300, 28), TextAlignmentOptions.Center);
-        playerCardTitleText.fontSize = 18;
+        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-486, 178), new Vector2(170, 26), TextAlignmentOptions.Left);
+        playerHpText.fontSize = 15;
+        TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "ALLY UNIT  /  HERO", new Vector2(-530, 250), new Vector2(210, 24), TextAlignmentOptions.Center);
+        playerCardTitleText.fontSize = 16;
         playerCardTitleText.fontStyle = FontStyles.Bold;
         playerCardTitleText.color = new Color(0.92f, 0.86f, 0.55f);
         // Portrait border frames — subtle dark outline
-        CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-410, 195), new Vector2(120, 120));
-        CreatePortraitPixelAccent(canvas.transform, "Player", new Vector2(-410, 195), new Color(0.38f, 0.78f, 1.0f, 0.88f));
-        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-410, 195), new Vector2(100, 100));
-        Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 85), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
-        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-360, 60), new Vector2(420, 45), TextAlignmentOptions.Left);
-        Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-360, 35), new Vector2(420, 18), new Color(0.26f, 0.56f, 1.0f));
-        TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-360, 10), new Vector2(420, 40), TextAlignmentOptions.Left);
-        playerStatusText.fontSize = 22;
+        CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-592, 200), new Vector2(72, 72));
+        CreatePortraitPixelAccent(canvas.transform, "Player", new Vector2(-592, 200), new Color(0.38f, 0.78f, 1.0f, 0.88f));
+        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-592, 200), new Vector2(58, 58));
+        Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-486, 157), new Vector2(170, 14), new Color(0.22f, 0.72f, 0.38f));
+        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-486, 136), new Vector2(170, 24), TextAlignmentOptions.Left);
+        playerApText.fontSize = 15;
+        Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-486, 118), new Vector2(170, 12), new Color(0.26f, 0.56f, 1.0f));
+        TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-486, 96), new Vector2(170, 24), TextAlignmentOptions.Left);
+        playerStatusText.fontSize = 15;
         playerStatusText.color = new Color(0.78f, 1.0f, 0.76f);
-        TMP_Text playerShieldText = CreateText(canvas.transform, "Player Shield Text", "", new Vector2(-360, -20), new Vector2(420, 35), TextAlignmentOptions.Left);
-        playerShieldText.fontSize = 20;
+        TMP_Text playerShieldText = CreateText(canvas.transform, "Player Shield Text", "", new Vector2(-486, 76), new Vector2(170, 24), TextAlignmentOptions.Left);
+        playerShieldText.fontSize = 14;
         playerShieldText.color = new Color(0.45f, 0.78f, 1.0f);
-        TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(360, 105), new Vector2(420, 50), TextAlignmentOptions.Right);
-        TMP_Text enemyCardTitleText = CreateText(canvas.transform, "Enemy Card Title Text", "ENEMY UNIT  /  SLIME", new Vector2(410, 145), new Vector2(300, 28), TextAlignmentOptions.Center);
-        enemyCardTitleText.fontSize = 18;
+        TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(545, 175), new Vector2(150, 26), TextAlignmentOptions.Right);
+        enemyHpText.fontSize = 14;
+        TMP_Text enemyCardTitleText = CreateText(canvas.transform, "Enemy Card Title Text", "ENEMY", new Vector2(548, 235), new Vector2(150, 24), TextAlignmentOptions.Center);
+        enemyCardTitleText.fontSize = 15;
         enemyCardTitleText.fontStyle = FontStyles.Bold;
         enemyCardTitleText.color = new Color(1.0f, 0.64f, 0.48f);
-        TMP_Text versusDividerText = CreateText(canvas.transform, "Versus Divider Text", "VS", new Vector2(0, 72), new Vector2(120, 70), TextAlignmentOptions.Center);
-        versusDividerText.fontSize = 34;
+        TMP_Text versusDividerText = CreateText(canvas.transform, "Versus Divider Text", "BATTLE LINE", new Vector2(0, 150), new Vector2(220, 34), TextAlignmentOptions.Center);
+        versusDividerText.fontSize = 18;
         versusDividerText.fontStyle = FontStyles.Bold;
         versusDividerText.color = new Color(0.96f, 0.78f, 0.36f);
         // Portrait border frames — subtle dark outline
-        CreatePortraitFrame(canvas.transform, "Enemy Portrait Frame", new Vector2(410, 195), new Vector2(120, 120));
-        CreatePortraitPixelAccent(canvas.transform, "Enemy", new Vector2(410, 195), new Color(1.0f, 0.45f, 0.24f, 0.88f));
-        Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(410, 195), new Vector2(100, 100));
-        Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(410, 195), new Vector2(100, 100));
-        Image stunOverlay = CreateStatusOverlay(canvas.transform, "Stun Overlay", new Vector2(410, 195), new Vector2(100, 100));
-        Image brokenOverlay = CreateStatusOverlay(canvas.transform, "Broken Overlay", new Vector2(410, 195), new Vector2(100, 100));
+        CreatePortraitFrame(canvas.transform, "Enemy Portrait Frame", new Vector2(505, 198), new Vector2(70, 70));
+        CreatePortraitPixelAccent(canvas.transform, "Enemy", new Vector2(505, 198), new Color(1.0f, 0.45f, 0.24f, 0.88f));
+        Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(505, 198), new Vector2(56, 56));
+        Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(505, 198), new Vector2(56, 56));
+        Image stunOverlay = CreateStatusOverlay(canvas.transform, "Stun Overlay", new Vector2(505, 198), new Vector2(56, 56));
+        Image brokenOverlay = CreateStatusOverlay(canvas.transform, "Broken Overlay", new Vector2(505, 198), new Vector2(56, 56));
         burnOverlay.gameObject.SetActive(false);
         stunOverlay.gameObject.SetActive(false);
         brokenOverlay.gameObject.SetActive(false);
-        Slider enemyHpSlider = CreateHpSlider(canvas.transform, "Enemy HP Slider", new Vector2(360, 85), new Vector2(420, 22), new Color(0.82f, 0.22f, 0.24f));
-        TMP_Text enemyStatusText = CreateText(canvas.transform, "Enemy Status Text", "Status: None", new Vector2(360, 60), new Vector2(420, 45), TextAlignmentOptions.Right);
-        TMP_Text enemyIntentText = CreateText(canvas.transform, "Enemy Intent Text", "Next Enemy: Normal Attack (15)", new Vector2(360, 30), new Vector2(420, 45), TextAlignmentOptions.Right);
-        enemyIntentText.fontSize = 22;
+        Slider enemyHpSlider = CreateHpSlider(canvas.transform, "Enemy HP Slider", new Vector2(545, 154), new Vector2(150, 14), new Color(0.82f, 0.22f, 0.24f));
+        TMP_Text enemyStatusText = CreateText(canvas.transform, "Enemy Status Text", "Status: None", new Vector2(545, 132), new Vector2(150, 24), TextAlignmentOptions.Right);
+        enemyStatusText.fontSize = 14;
+        TMP_Text enemyIntentText = CreateText(canvas.transform, "Enemy Intent Text", "Next: Normal Attack (15)", new Vector2(545, 108), new Vector2(150, 36), TextAlignmentOptions.Right);
+        enemyIntentText.fontSize = 14;
         enemyIntentText.color = new Color(1.0f, 0.78f, 0.42f);
-        TMP_Text enemyBreakText = CreateText(canvas.transform, "Enemy Break Text", "Break: 2/2", new Vector2(360, 5), new Vector2(420, 40), TextAlignmentOptions.Right);
-        enemyBreakText.fontSize = 22;
+        TMP_Text enemyBreakText = CreateText(canvas.transform, "Enemy Break Text", "Break: 2/2", new Vector2(545, 80), new Vector2(150, 24), TextAlignmentOptions.Right);
+        enemyBreakText.fontSize = 14;
         enemyBreakText.color = new Color(1.0f, 0.58f, 0.82f);
-        Slider enemyBreakSlider = CreateHpSlider(canvas.transform, "Enemy Break Slider", new Vector2(360, -15), new Vector2(420, 18), new Color(0.92f, 0.36f, 0.72f));
-        TMP_Text messageText = CreateText(canvas.transform, "Message Text", "Battle Start!", new Vector2(0, -75), new Vector2(900, 100), TextAlignmentOptions.Center);
-        TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "Impact: Ready", new Vector2(0, -25), new Vector2(900, 45), TextAlignmentOptions.Center);
-        impactText.fontSize = 22;
+        Slider enemyBreakSlider = CreateHpSlider(canvas.transform, "Enemy Break Slider", new Vector2(545, 62), new Vector2(150, 12), new Color(0.92f, 0.36f, 0.72f));
+        TMP_Text messageText = CreateText(canvas.transform, "Message Text", "Battle Start!", new Vector2(80, 258), new Vector2(390, 28), TextAlignmentOptions.Center);
+        messageText.fontSize = 16;
+        TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "Impact: Ready", new Vector2(0, 218), new Vector2(420, 28), TextAlignmentOptions.Center);
+        impactText.fontSize = 16;
         impactText.color = new Color(1.0f, 0.84f, 0.36f);
-        TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(0, 15), new Vector2(900, 95), TextAlignmentOptions.TopLeft);
-        skillHelpText.fontSize = 18;
+        TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(-220, -308), new Vector2(320, 52), TextAlignmentOptions.TopLeft);
+        skillHelpText.fontSize = 9;
         skillHelpText.color = new Color(0.72f, 0.90f, 1.0f);
-        Image resultSummaryPanel = CreatePanel(canvas.transform, "Result Summary Panel", new Vector2(0, -145), new Vector2(940, 130), new Color(0.06f, 0.07f, 0.10f, 0.86f));
+        Image resultSummaryPanel = CreatePanel(canvas.transform, "Result Summary Panel", new Vector2(0, -42), new Vector2(620, 230), new Color(0.03f, 0.04f, 0.06f, 0.92f));
         resultSummaryPanel.gameObject.SetActive(false);
-        TMP_Text resultSummaryText = CreateText(canvas.transform, "Result Summary Text", "Result Summary", new Vector2(0, -145), new Vector2(900, 105), TextAlignmentOptions.TopLeft);
-        resultSummaryText.fontSize = 20;
+        TMP_Text resultSummaryText = CreateText(canvas.transform, "Result Summary Text", "Result Summary", new Vector2(0, -42), new Vector2(580, 195), TextAlignmentOptions.TopLeft);
+        resultSummaryText.fontSize = 18;
         resultSummaryText.color = new Color(1.0f, 0.92f, 0.58f);
         resultSummaryText.gameObject.SetActive(false);
         // ── Command Preview Panel ──
-        Image commandPreviewPanel = CreatePanel(canvas.transform, "Command Preview Panel", new Vector2(0, -200), new Vector2(940, 60), new Color(0.04f, 0.06f, 0.12f, 0.92f));
+        Image commandPreviewPanel = CreatePanel(canvas.transform, "Command Preview Panel", new Vector2(10, -244), new Vector2(500, 48), new Color(0.04f, 0.06f, 0.12f, 0.92f));
         commandPreviewPanel.gameObject.SetActive(false);
-        TMP_Text commandPreviewText = CreateText(canvas.transform, "Command Preview Text", "Select a skill to preview", new Vector2(0, -200), new Vector2(920, 50), TextAlignmentOptions.MidlineLeft);
-        commandPreviewText.fontSize = 20;
+        TMP_Text commandPreviewText = CreateText(canvas.transform, "Command Preview Text", "Select a skill to preview", new Vector2(10, -244), new Vector2(475, 42), TextAlignmentOptions.MidlineLeft);
+        commandPreviewText.fontSize = 15;
         commandPreviewText.color = new Color(0.92f, 0.88f, 0.82f);
         commandPreviewText.gameObject.SetActive(false);
-        Image battleLogPanel = CreatePanel(canvas.transform, "Battle Log Panel", new Vector2(0, -160), new Vector2(940, 145), new Color(0.05f, 0.06f, 0.09f, 0.88f));
-        TMP_Text battleLogTitleText = CreateText(canvas.transform, "Battle Log Title Text", "Recent Actions", new Vector2(0, -105), new Vector2(900, 30), TextAlignmentOptions.Left);
+        Image battleLogPanel = CreatePanel(canvas.transform, "Battle Log Panel", new Vector2(-95, -80), new Vector2(520, 150), new Color(0.05f, 0.06f, 0.09f, 0.88f));
+        TMP_Text battleLogTitleText = CreateText(canvas.transform, "Battle Log Title Text", "Recent Actions", new Vector2(-95, -24), new Vector2(480, 30), TextAlignmentOptions.Left);
         battleLogTitleText.fontSize = 20;
         battleLogTitleText.color = new Color(0.96f, 0.92f, 0.68f);
-        TMP_Text battleLogText = CreateText(canvas.transform, "Battle Log Text", "Recent Actions\nNo actions yet.", new Vector2(0, -175), new Vector2(900, 100), TextAlignmentOptions.TopLeft);
-        battleLogText.fontSize = 20;
+        TMP_Text battleLogText = CreateText(canvas.transform, "Battle Log Text", "Recent Actions\nNo actions yet.", new Vector2(-95, -92), new Vector2(480, 95), TextAlignmentOptions.TopLeft);
+        battleLogText.fontSize = 16;
         battleLogText.color = new Color(0.82f, 0.86f, 0.95f);
         battleLogPanel.raycastTarget = false;
         battleLogPanel.gameObject.SetActive(false);
         battleLogTitleText.gameObject.SetActive(false);
         battleLogText.gameObject.SetActive(false);
 
-        Button attackButton = CreateButton(canvas.transform, "Attack Button", "Attack", new Vector2(-330, 85), new Vector2(180, 65));
-        Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire Skill", new Vector2(-110, 85), new Vector2(180, 65));
-        Button iceSkillButton = CreateButton(canvas.transform, "Ice Lance Button", "Ice Lance", new Vector2(-330, 15), new Vector2(180, 55));
-        Button lightningSkillButton = CreateButton(canvas.transform, "Lightning Strike Button", "Lightning Strike", new Vector2(-110, 15), new Vector2(180, 55));
-        Button earthSkillButton = CreateButton(canvas.transform, "Earth Wall Button", "Earth Wall", new Vector2(110, 15), new Vector2(180, 55));
-        Button guardButton = CreateButton(canvas.transform, "Guard Button", "Guard", new Vector2(110, 85), new Vector2(180, 65));
-        Button endTurnButton = CreateButton(canvas.transform, "End Turn Button", "End Turn", new Vector2(330, 85), new Vector2(180, 65));
-        Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(-130, -335), new Vector2(220, 70));
+        Button attackButton = CreateButton(canvas.transform, "Attack Button", "Attack", new Vector2(130, 82), new Vector2(125, 48));
+        Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire", new Vector2(265, 82), new Vector2(125, 48));
+        Button iceSkillButton = CreateButton(canvas.transform, "Ice Lance Button", "Ice", new Vector2(400, 82), new Vector2(125, 48));
+        Button lightningSkillButton = CreateButton(canvas.transform, "Lightning Strike Button", "Lightning", new Vector2(130, 28), new Vector2(125, 42));
+        Button earthSkillButton = CreateButton(canvas.transform, "Earth Wall Button", "Wall", new Vector2(265, 28), new Vector2(125, 42));
+        Button guardButton = CreateButton(canvas.transform, "Guard Button", "Guard", new Vector2(400, 28), new Vector2(125, 42));
+        Button endTurnButton = CreateButton(canvas.transform, "End Turn Button", "BATTLE START >>", new Vector2(350, 148), new Vector2(220, 52));
+        Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(170, 145), new Vector2(140, 48));
         retryButton.gameObject.SetActive(false);
-        Button continueButton = CreateButton(canvas.transform, "Continue Button", "Continue", new Vector2(130, -335), new Vector2(220, 70));
+        Button continueButton = CreateButton(canvas.transform, "Continue Button", "Continue", new Vector2(320, 145), new Vector2(150, 48));
         continueButton.gameObject.SetActive(false);
         // Create the label child that shows "Continue" by default, will be changed to "Next Encounter" at runtime
         TMP_Text continueButtonLabel = continueButton.GetComponentInChildren<TMP_Text>();
-        Button stageSelectButton = CreateButton(canvas.transform, "Stage Select Button", "Stage Select", new Vector2(-410, -335), new Vector2(220, 70));
-        Button speedToggleButton = CreateButton(canvas.transform, "Speed Toggle Button", "1x", new Vector2(410, -335), new Vector2(140, 70));
-        Button autoBattleButton = CreateButton(canvas.transform, "Auto Battle Button", "Auto: OFF", new Vector2(410, -245), new Vector2(140, 50));
-        Button itemButton = CreateButton(canvas.transform, "Item Button", "Items", new Vector2(330, 15), new Vector2(180, 55));
-        Button pauseButton = CreateButton(canvas.transform, "Pause Button", "Pause", new Vector2(-410, 85), new Vector2(140, 50));
-        Button battleLogToggleButton = CreateButton(canvas.transform, "Battle Log Toggle Button", "Log", new Vector2(520, -245), new Vector2(120, 50));
+        Button stageSelectButton = CreateButton(canvas.transform, "Stage Select Button", "Stage Select", new Vector2(-505, 28), new Vector2(120, 40));
+        Button speedToggleButton = CreateButton(canvas.transform, "Speed Toggle Button", "1x", new Vector2(520, 672), new Vector2(52, 30));
+        Button autoBattleButton = CreateButton(canvas.transform, "Auto Battle Button", "Auto", new Vector2(458, 672), new Vector2(58, 30));
+        Button itemButton = CreateButton(canvas.transform, "Item Button", "Items", new Vector2(555, 24), new Vector2(100, 40));
+        Button pauseButton = CreateButton(canvas.transform, "Pause Button", "II", new Vector2(582, 672), new Vector2(52, 30));
+        Button battleLogToggleButton = CreateButton(canvas.transform, "Battle Log Toggle Button", "Log", new Vector2(555, 72), new Vector2(100, 38));
         TMP_Text battleLogToggleLabel = battleLogToggleButton.GetComponentInChildren<TMP_Text>();
         stageSelectButton.gameObject.SetActive(false);
 
@@ -358,6 +370,11 @@ public static class BattleSceneAutoBuilder
         Image enemyCardPanel = FindImage("Enemy Card Panel");
         Image battleCenterPanel = FindImage("Battle Center Panel");
         Image commandBarPanel = FindImage("Command Bar Panel");
+        Image partyRosterPanel = FindImage("Party Roster Panel");
+        Image partyRosterSlot1 = FindImage("Party Roster Slot 1");
+        Image enemyRosterSlot1 = FindImage("Enemy Roster Slot 1");
+        Image tacticalGridTile = FindImage("Tactical Grid Tile 1-1");
+        Image skillActionArc = FindImage("Skill Action Arc");
         TMP_Text resultSummaryText = FindTextIncludingInactive("Result Summary Text");
         Image resultSummaryPanel = FindImageIncludingInactive("Result Summary Panel");
         Image commandPreviewPanel = FindImageIncludingInactive("Command Preview Panel");
@@ -367,26 +384,31 @@ public static class BattleSceneAutoBuilder
         TMP_Text impactText = FindText("Impact Text");
 
         AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
-        AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 1100f, 320f));
+        AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 850f, 500f));
         AppendCheck(ref passed, ref report, "Battle stage floor glow exists", battleStageFloorPanel != null);
-        AppendCheck(ref passed, ref report, "Battle stage floor glow is readable", IsDecorativePanelLikelyConfigured(battleStageFloorPanel, 900f, 45f));
+        AppendCheck(ref passed, ref report, "Battle stage floor glow is readable", IsDecorativePanelLikelyConfigured(battleStageFloorPanel, 680f, 150f));
         AppendCheck(ref passed, ref report, "Top gold divider exists", topGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(topGoldDividerPanel, 1000f, 3f));
-        AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 900f, 3f));
+        AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 520f, 3f));
+        AppendCheck(ref passed, ref report, "Tactical grid tile exists", IsDecorativePanelLikelyConfigured(tacticalGridTile, 80f, 35f));
+        AppendCheck(ref passed, ref report, "Skill action arc exists", IsDecorativePanelLikelyConfigured(skillActionArc, 450f, 4f));
+        AppendCheck(ref passed, ref report, "Party roster panel exists", partyRosterPanel != null && IsDecorativePanelLikelyConfigured(partyRosterPanel, 210f, 330f));
+        AppendCheck(ref passed, ref report, "Party roster slots exist", IsDecorativePanelLikelyConfigured(partyRosterSlot1, 200f, 50f));
+        AppendCheck(ref passed, ref report, "Enemy roster slots exist", IsDecorativePanelLikelyConfigured(enemyRosterSlot1, 150f, 50f));
         AppendCheck(ref passed, ref report, "Player card title exists", IsNameplateTextLikelyConfigured(playerCardTitleText, "ALLY", "HERO"));
-        AppendCheck(ref passed, ref report, "Enemy card title exists", IsNameplateTextLikelyConfigured(enemyCardTitleText, "ENEMY", "SLIME"));
-        AppendCheck(ref passed, ref report, "Versus divider text exists", IsNameplateTextLikelyConfigured(versusDividerText, "VS", "VS"));
+        AppendCheck(ref passed, ref report, "Enemy card title exists", IsNameplateTextLikelyConfigured(enemyCardTitleText, "ENEMY", "ENEMY"));
+        AppendCheck(ref passed, ref report, "Battle line divider text exists", IsNameplateTextLikelyConfigured(versusDividerText, "BATTLE", "LINE"));
         AppendCheck(ref passed, ref report, "Player portrait pixel accents exist", IsPortraitAccentLikelyConfigured(playerPortraitPixelAccent1) && IsPortraitAccentLikelyConfigured(playerPortraitPixelAccent4));
         AppendCheck(ref passed, ref report, "Enemy portrait pixel accents exist", IsPortraitAccentLikelyConfigured(enemyPortraitPixelAccent1) && IsPortraitAccentLikelyConfigured(enemyPortraitPixelAccent4));
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
-        AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 140f));
+        AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 65f));
         AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
-        AppendCheck(ref passed, ref report, "Player Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 320f, 260f));
+        AppendCheck(ref passed, ref report, "Player Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 240f, 540f));
         AppendCheck(ref passed, ref report, "Enemy Card panel exists", enemyCardPanel != null);
-        AppendCheck(ref passed, ref report, "Enemy Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 320f, 260f));
+        AppendCheck(ref passed, ref report, "Enemy Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 175f, 430f));
         AppendCheck(ref passed, ref report, "Battle Center panel exists", battleCenterPanel != null);
-        AppendCheck(ref passed, ref report, "Battle Center panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(battleCenterPanel, 500f, 230f));
+        AppendCheck(ref passed, ref report, "Battle Center panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(battleCenterPanel, 650f, 70f));
         AppendCheck(ref passed, ref report, "Command Bar panel exists", commandBarPanel != null);
-        AppendCheck(ref passed, ref report, "Command Bar panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(commandBarPanel, 1000f, 110f));
+        AppendCheck(ref passed, ref report, "Command Bar panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(commandBarPanel, 500f, 90f));
         AppendCheck(ref passed, ref report, "Battle Guide text exists", battleGuideText != null);
         AppendCheck(ref passed, ref report, "Battle Guide text explains main controls", IsBattleGuideTextLikelyConfigured(battleGuideText));
         AppendCheck(ref passed, ref report, "Run Status text exists", runStatusText != null);
@@ -414,7 +436,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battle Log starts with recent-actions placeholder", IsBattleLogTextLikelyConfigured(battleLogText));
         AppendCheck(ref passed, ref report, "Result Summary text exists", resultSummaryText != null);
         AppendCheck(ref passed, ref report, "Result Summary panel exists", resultSummaryPanel != null);
-        AppendCheck(ref passed, ref report, "Result Summary panel is configured but initially hidden", IsPanelLikelyConfigured(resultSummaryPanel) && resultSummaryPanel != null && !resultSummaryPanel.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Result Summary panel is configured but initially hidden", IsOverlayPanelLikelyConfigured(resultSummaryPanel, 600f, 200f) && resultSummaryPanel != null && !resultSummaryPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Command Preview panel exists", commandPreviewPanel != null);
         AppendCheck(ref passed, ref report, "Command Preview panel starts hidden", commandPreviewPanel != null && !commandPreviewPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Command Preview text exists", commandPreviewText != null);
@@ -572,7 +594,7 @@ public static class BattleSceneAutoBuilder
         }
 
         RectTransform rectTransform = button.GetComponent<RectTransform>();
-        return button.gameObject.activeSelf && IsButtonLikelyConfigured(button) && rectTransform.anchoredPosition.y > 0;
+        return button.gameObject.activeSelf && IsButtonLikelyConfigured(button) && rectTransform.anchoredPosition.y >= 20f;
     }
 
     private static bool IsButtonLikelyConfigured(Button button)
@@ -621,6 +643,20 @@ public static class BattleSceneAutoBuilder
         return rectTransform != null && rectTransform.sizeDelta.x >= 900f && rectTransform.sizeDelta.y >= 100f && panelImage.color.a > 0.5f;
     }
 
+    private static bool IsOverlayPanelLikelyConfigured(Image panelImage, float minimumWidth, float minimumHeight)
+    {
+        if (panelImage == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = panelImage.GetComponent<RectTransform>();
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= minimumWidth
+            && rectTransform.sizeDelta.y >= minimumHeight
+            && panelImage.color.a > 0.5f;
+    }
+
     private static bool IsBattleLogPanelLikelyConfigured(Image panelImage)
     {
         if (panelImage == null)
@@ -629,7 +665,7 @@ public static class BattleSceneAutoBuilder
         }
 
         RectTransform rectTransform = panelImage.GetComponent<RectTransform>();
-        return rectTransform != null && rectTransform.sizeDelta.x >= 900f && rectTransform.sizeDelta.y >= 140f && panelImage.color.a > 0.5f;
+        return rectTransform != null && rectTransform.sizeDelta.x >= 500f && rectTransform.sizeDelta.y >= 140f && panelImage.color.a > 0.5f;
     }
 
     private static bool IsProfessionalPanelLikelyConfigured(Image panelImage, float minimumWidth, float minimumHeight)
@@ -704,15 +740,12 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = guideText.GetComponent<RectTransform>();
         string text = guideText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 1000f
-            && text.Contains("Attack")
-            && text.Contains("Fire Skill")
-            && text.Contains("Burn")
-            && text.Contains("Guard")
-            && text.Contains("Enemy Intent")
-            && text.Contains("Continue")
-            && text.Contains("Final Clear")
-            && text.Contains("Retry");
+            && rectTransform.sizeDelta.x >= 700f
+            && text.Contains("Mission")
+            && text.Contains("enemy intent")
+            && text.Contains("AP")
+            && text.Contains("guard")
+            && text.Contains("skills");
     }
 
     private static bool IsStageTextLikelyConfigured(TMP_Text stageText)
@@ -724,7 +757,7 @@ public static class BattleSceneAutoBuilder
 
         RectTransform rectTransform = stageText.GetComponent<RectTransform>();
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 700f
+            && rectTransform.sizeDelta.x >= 280f
             && stageText.text.Contains("Stage 1-1")
             && stageText.text.Contains("Slime Scout");
     }
@@ -739,7 +772,7 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = runStatusText.GetComponent<RectTransform>();
         string text = runStatusText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 700f
+            && rectTransform.sizeDelta.x >= 600f
             && text.Contains("Run Status")
             && text.Contains("Stage 1 In Progress");
     }
@@ -754,7 +787,7 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = objectiveText.GetComponent<RectTransform>();
         string text = objectiveText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 850f
+            && rectTransform.sizeDelta.x >= 380f
             && text.Contains("Objective")
             && text.Contains("Defeat")
             && text.Contains("Slime Scout");
@@ -770,7 +803,7 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = progressText.GetComponent<RectTransform>();
         string text = progressText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 850f
+            && rectTransform.sizeDelta.x >= 320f
             && text.Contains("Progress")
             && text.Contains("Encounter 1/2")
             && text.Contains("Active");
@@ -785,8 +818,8 @@ public static class BattleSceneAutoBuilder
 
         RectTransform rectTransform = logText.GetComponent<RectTransform>();
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 850f
-            && rectTransform.sizeDelta.y >= 100f
+            && rectTransform.sizeDelta.x >= 470f
+            && rectTransform.sizeDelta.y >= 90f
             && logText.text.Contains("Recent Actions")
             && logText.text.Contains("No actions yet.");
     }
@@ -971,6 +1004,76 @@ public static class BattleSceneAutoBuilder
         }
     }
 
+
+    private static void CreateTacticalGrid(Transform parent)
+    {
+        Color lineColor = new Color(0.35f, 0.80f, 0.55f, 0.18f);
+        for (int row = 0; row < 4; row++)
+        {
+            for (int col = 0; col < 6; col++)
+            {
+                Vector2 pos = new Vector2(-260 + col * 92, -118 + row * 46);
+                Image tile = CreatePanel(parent, $"Tactical Grid Tile {row + 1}-{col + 1}", pos, new Vector2(84, 38), new Color(0.06f, 0.13f, 0.09f, 0.38f));
+                tile.raycastTarget = false;
+            }
+        }
+
+        Image allyMarker = CreatePanel(parent, "Ally Formation Marker", new Vector2(-286, -42), new Vector2(34, 72), new Color(0.28f, 1.0f, 0.48f, 0.38f));
+        Image enemyMarker = CreatePanel(parent, "Enemy Formation Marker", new Vector2(238, 52), new Vector2(34, 72), new Color(1.0f, 0.12f, 0.65f, 0.42f));
+        Image actionArc = CreatePanel(parent, "Skill Action Arc", new Vector2(-6, 112), new Vector2(470, 5), new Color(1.0f, 0.78f, 0.50f, 0.58f));
+        allyMarker.raycastTarget = false;
+        enemyMarker.raycastTarget = false;
+        actionArc.raycastTarget = false;
+        actionArc.rectTransform.localRotation = Quaternion.Euler(0, 0, -12f);
+        _ = lineColor;
+    }
+
+    private static void CreateFieldVignette(Transform parent)
+    {
+        CreatePanel(parent, "Forest Shadow Left", new Vector2(-300, -10), new Vector2(170, 470), new Color(0.010f, 0.030f, 0.020f, 0.34f));
+        CreatePanel(parent, "Forest Shadow Right", new Vector2(310, -20), new Vector2(190, 440), new Color(0.010f, 0.025f, 0.020f, 0.38f));
+        CreatePanel(parent, "Stage Glow Firefly 1", new Vector2(-210, 150), new Vector2(8, 8), new Color(0.72f, 1.0f, 0.42f, 0.70f));
+        CreatePanel(parent, "Stage Glow Firefly 2", new Vector2(188, 118), new Vector2(7, 7), new Color(0.72f, 1.0f, 0.42f, 0.65f));
+        CreatePanel(parent, "Stage Glow Firefly 3", new Vector2(-18, -184), new Vector2(6, 6), new Color(0.72f, 1.0f, 0.42f, 0.55f));
+    }
+
+    private static void CreatePartyRosterSlots(Transform parent)
+    {
+        Color[] slotColors =
+        {
+            new Color(0.14f, 0.36f, 0.25f, 0.82f),
+            new Color(0.16f, 0.18f, 0.25f, 0.78f),
+            new Color(0.12f, 0.17f, 0.24f, 0.76f),
+            new Color(0.11f, 0.18f, 0.15f, 0.76f),
+            new Color(0.16f, 0.30f, 0.20f, 0.84f)
+        };
+
+        for (int i = 0; i < slotColors.Length; i++)
+        {
+            float y = 40 - i * 64;
+            Image slot = CreatePanel(parent, $"Party Roster Slot {i + 1}", new Vector2(-530, y), new Vector2(212, 54), slotColors[i]);
+            slot.raycastTarget = false;
+            CreatePanel(parent, $"Party Roster Portrait Chip {i + 1}", new Vector2(-610, y), new Vector2(42, 42), new Color(0.06f, 0.08f, 0.11f, 0.90f));
+            TMP_Text label = CreateText(parent, $"Party Roster Label {i + 1}", i == 0 ? "Hero  100" : $"Ally {i + 1}  {100 - i * 8}", new Vector2(-500, y + 4), new Vector2(126, 20), TextAlignmentOptions.Left);
+            label.fontSize = 12;
+            label.color = i == 0 ? new Color(0.78f, 1.0f, 0.68f) : new Color(0.82f, 0.86f, 0.94f);
+        }
+    }
+
+    private static void CreateEnemyRosterSlots(Transform parent)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            float y = -4 - i * 58;
+            Color color = i == 4 ? new Color(0.72f, 0.05f, 0.12f, 0.86f) : new Color(0.07f, 0.075f, 0.10f, 0.76f);
+            Image slot = CreatePanel(parent, $"Enemy Roster Slot {i + 1}", new Vector2(548, y), new Vector2(160, 50), color);
+            slot.raycastTarget = false;
+            TMP_Text label = CreateText(parent, $"Enemy Roster Label {i + 1}", i == 0 ? "Slime 80" : $"Enemy {i + 1}", new Vector2(548, y), new Vector2(138, 20), TextAlignmentOptions.Right);
+            label.fontSize = 12;
+            label.color = i == 4 ? new Color(1.0f, 0.78f, 0.78f) : new Color(0.82f, 0.86f, 0.94f);
+        }
+    }
+
     private static Image CreateScreenFlashImage(Transform parent, string name)
     {
         GameObject flashObj = new GameObject(name, typeof(RectTransform), typeof(Image));
@@ -1049,7 +1152,9 @@ public static class BattleSceneAutoBuilder
         button.targetGraphic = image;
 
         TMP_Text label = CreateText(buttonObject.transform, "Label", labelText, Vector2.zero, size, TextAlignmentOptions.Center);
-        label.fontSize = 24;
+        label.fontSize = size.y <= 32f ? 16 : 20;
+        label.enableWordWrapping = false;
+        label.overflowMode = TextOverflowModes.Ellipsis;
         label.raycastTarget = false;
 
         return button;
