@@ -1,6 +1,28 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-21 Batch 68: Battle Stage Presentation Pass
+## Latest autonomous run — 2026-05-21 Batch 69: Procedural Portrait Polish
+
+Completed:
+- Strengthened the generated hero placeholder sprite with SD/pixel-style outline, shadow, and crystal-armored silhouette support.
+- Added shared enemy portrait shadow/aura generation, including a brighter boss aura.
+- Added small pixel-accent blocks around player/enemy portrait frames in the generated BattleScene.
+- Updated `BattleSceneAutoBuilder.ValidateBattleTestScene` to check the new portrait pixel accents.
+- Updated `BattleAutoTestRunner` to verify procedural hero/enemy/boss sprites are generated without external assets.
+- Added `Docs/Devlog/2026-05-21_procedural-portrait-polish.md` with manual test steps.
+
+Verification planned:
+- Static whitespace/brace checks.
+- `git diff --check`.
+- Unity batch compile.
+- Regenerate BattleScene via `CreateBattleTestScene`.
+- `ValidateBattleTestScene` and `BattleAutoTestRunner.RunBattleLogicAutoTest`.
+
+Recommended next tasks:
+1. Capture updated battle screenshots/GIFs for README/showcase draft.
+2. If visuals are acceptable, start a small content pass such as Stage 7 or one additional tactical enemy pattern.
+3. Later replace placeholder sprites with final art, but keep the procedural generator as fallback.
+
+## Previous autonomous run — 2026-05-21 Batch 68: Battle Stage Presentation Pass
 
 Completed:
 - Continued the PDF UI feedback direction with a generated-scene presentation pass.

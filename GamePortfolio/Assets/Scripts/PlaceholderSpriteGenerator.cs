@@ -76,6 +76,14 @@ public static class PlaceholderSpriteGenerator
         Color primary = new Color(0.15f, 0.55f, 0.85f);   // Blue crystal
         Color accent = new Color(0.60f, 0.85f, 1.0f);     // Light blue glow
         Color crystal = new Color(0.35f, 0.70f, 1.0f);     // Crystal highlight
+        Color outline = new Color(0.04f, 0.05f, 0.09f, 1.0f);
+
+        // SD/pixel portrait silhouette support: shadow, outline, then readable colored shapes.
+        DrawCircle(tex, 64, 108, 32, new Color(0.0f, 0.0f, 0.0f, 0.28f));
+        DrawRect(tex, 34, 31, 92, 104, outline);
+        DrawCircle(tex, 64, 22, 19, outline);
+        DrawTriangle(tex, 28, 38, 38, 58, 20, 38, outline);
+        DrawTriangle(tex, 92, 38, 100, 58, 110, 38, outline);
 
         // Body (armored torso)
         DrawRect(tex, 38, 35, 52, 65, primary);
@@ -123,6 +131,10 @@ public static class PlaceholderSpriteGenerator
         if (isBoss) bodyColor = Color.Lerp(bodyColor, Color.white, 0.2f);
         Color accentColor = GetElementAccent(element);
         int sizeMod = isBoss ? 2 : 0; // Bosses are slightly bigger
+
+        // Shared SD/pixel portrait support: readable drop shadow, element aura, and boss glow.
+        DrawCircle(tex, 64, 102, isBoss ? 38 : 34, new Color(0.0f, 0.0f, 0.0f, 0.24f));
+        DrawCircle(tex, 64, 66, isBoss ? 42 : 36, new Color(bodyColor.r, bodyColor.g, bodyColor.b, isBoss ? 0.20f : 0.12f));
 
         switch (element)
         {

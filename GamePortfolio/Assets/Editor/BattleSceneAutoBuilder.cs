@@ -74,6 +74,7 @@ public static class BattleSceneAutoBuilder
         playerCardTitleText.color = new Color(0.92f, 0.86f, 0.55f);
         // Portrait border frames — subtle dark outline
         CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-410, 195), new Vector2(120, 120));
+        CreatePortraitPixelAccent(canvas.transform, "Player", new Vector2(-410, 195), new Color(0.38f, 0.78f, 1.0f, 0.88f));
         Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-410, 195), new Vector2(100, 100));
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-360, 85), new Vector2(420, 22), new Color(0.22f, 0.72f, 0.38f));
         TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-360, 60), new Vector2(420, 45), TextAlignmentOptions.Left);
@@ -95,6 +96,7 @@ public static class BattleSceneAutoBuilder
         versusDividerText.color = new Color(0.96f, 0.78f, 0.36f);
         // Portrait border frames — subtle dark outline
         CreatePortraitFrame(canvas.transform, "Enemy Portrait Frame", new Vector2(410, 195), new Vector2(120, 120));
+        CreatePortraitPixelAccent(canvas.transform, "Enemy", new Vector2(410, 195), new Color(1.0f, 0.45f, 0.24f, 0.88f));
         Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(410, 195), new Vector2(100, 100));
         Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(410, 195), new Vector2(100, 100));
         Image stunOverlay = CreateStatusOverlay(canvas.transform, "Stun Overlay", new Vector2(410, 195), new Vector2(100, 100));
@@ -347,6 +349,10 @@ public static class BattleSceneAutoBuilder
         TMP_Text playerCardTitleText = FindText("Player Card Title Text");
         TMP_Text enemyCardTitleText = FindText("Enemy Card Title Text");
         TMP_Text versusDividerText = FindText("Versus Divider Text");
+        Image playerPortraitPixelAccent1 = FindImage("Player Portrait Pixel Accent 1");
+        Image playerPortraitPixelAccent4 = FindImage("Player Portrait Pixel Accent 4");
+        Image enemyPortraitPixelAccent1 = FindImage("Enemy Portrait Pixel Accent 1");
+        Image enemyPortraitPixelAccent4 = FindImage("Enemy Portrait Pixel Accent 4");
         Image topStatusPanel = FindImage("Top Status Panel");
         Image playerCardPanel = FindImage("Player Card Panel");
         Image enemyCardPanel = FindImage("Enemy Card Panel");
@@ -369,6 +375,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Player card title exists", IsNameplateTextLikelyConfigured(playerCardTitleText, "ALLY", "HERO"));
         AppendCheck(ref passed, ref report, "Enemy card title exists", IsNameplateTextLikelyConfigured(enemyCardTitleText, "ENEMY", "SLIME"));
         AppendCheck(ref passed, ref report, "Versus divider text exists", IsNameplateTextLikelyConfigured(versusDividerText, "VS", "VS"));
+        AppendCheck(ref passed, ref report, "Player portrait pixel accents exist", IsPortraitAccentLikelyConfigured(playerPortraitPixelAccent1) && IsPortraitAccentLikelyConfigured(playerPortraitPixelAccent4));
+        AppendCheck(ref passed, ref report, "Enemy portrait pixel accents exist", IsPortraitAccentLikelyConfigured(enemyPortraitPixelAccent1) && IsPortraitAccentLikelyConfigured(enemyPortraitPixelAccent4));
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
         AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 140f));
         AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
@@ -672,6 +680,20 @@ public static class BattleSceneAutoBuilder
             && value.Contains(secondToken);
     }
 
+    private static bool IsPortraitAccentLikelyConfigured(Image accentImage)
+    {
+        if (accentImage == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = accentImage.GetComponent<RectTransform>();
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= 8f
+            && rectTransform.sizeDelta.y >= 8f
+            && accentImage.color.a >= 0.4f;
+    }
+
     private static bool IsBattleGuideTextLikelyConfigured(TMP_Text guideText)
     {
         if (guideText == null)
@@ -923,6 +945,30 @@ public static class BattleSceneAutoBuilder
         image.color = new Color(0.10f, 0.12f, 0.20f, 0.85f);
         image.raycastTarget = false;
         return image;
+    }
+
+    private static void CreatePortraitPixelAccent(Transform parent, string prefix, Vector2 center, Color color)
+    {
+        Vector2[] offsets =
+        {
+            new Vector2(-68, 50),
+            new Vector2(-52, 66),
+            new Vector2(-68, -50),
+            new Vector2(68, 50),
+            new Vector2(52, -66),
+            new Vector2(68, -50)
+        };
+
+        for (int i = 0; i < offsets.Length; i++)
+        {
+            Image accent = CreatePanel(
+                parent,
+                $"{prefix} Portrait Pixel Accent {i + 1}",
+                center + offsets[i],
+                i % 2 == 0 ? new Vector2(12, 12) : new Vector2(8, 8),
+                color);
+            accent.raycastTarget = false;
+        }
     }
 
     private static Image CreateScreenFlashImage(Transform parent, string name)
