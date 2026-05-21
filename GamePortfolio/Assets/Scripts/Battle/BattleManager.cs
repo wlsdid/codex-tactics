@@ -287,7 +287,7 @@ public class BattleManager : MonoBehaviour
             ? $"Battle Start!\n{stageData.encounterDescription}"
             : "Battle Start!";
         if (!string.IsNullOrEmpty(stageModifierActivationMessage))
-            startMsg += $"\n\n⚠ {stageModifierActivationMessage}";
+            startMsg += $"\n\nWARN: {stageModifierActivationMessage}";
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
@@ -308,7 +308,7 @@ public class BattleManager : MonoBehaviour
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
             $"Player Turn: recovered {CfgPlayerApRecovery} AP. Choose an action.",
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-        battleUI?.ShowTurnBanner("▶ PLAYER TURN", new Color(0.30f, 0.70f, 1.0f), 0.9f);
+        battleUI?.ShowTurnBanner("PLAYER TURN", new Color(0.30f, 0.70f, 1.0f), 0.9f);
         if (autoBattleEnabled) ExecuteAutoAction();
     }
 
@@ -565,7 +565,7 @@ public class BattleManager : MonoBehaviour
         string preview = $"<b>{skill.skillName}</b>\n";
         preview += $"AP Cost: {skill.apCost}  |  Power: {skill.power}";
         if (isWeakness)
-            preview += $"  |  ⚡ Weakness! (~{estimatedDamage})";
+            preview += $"  |  WEAKNESS (~{estimatedDamage})";
         else
             preview += $"  |  ~{estimatedDamage} dmg";
 
@@ -573,9 +573,9 @@ public class BattleManager : MonoBehaviour
             preview += $"\nEffect: {skill.statusEffectType}";
 
         if (!isUnlocked)
-            preview += "\n<color=#ff6666>🔒 Locked</color>";
+            preview += "\n<color=#ff6666>LOCKED</color>";
         else if (!canAfford)
-            preview += "\n<color=#ff8844>⚠ Not enough AP</color>";
+            preview += "\n<color=#ff8844>WARN: Not enough AP</color>";
 
         Color previewColor = isWeakness ? new Color(1f, 0.85f, 0.3f) :
                              !canAfford ? new Color(1f, 0.53f, 0.27f) :
@@ -593,11 +593,11 @@ public class BattleManager : MonoBehaviour
         int incomingDmg = isStrongTurn ? enemyPattern.strongAttackDamage : enemyPattern.normalAttackDamage;
         int reducedDmg = Mathf.RoundToInt(incomingDmg * (100 - CfgGuardReductionPercent) / 100f);
 
-        string preview = "<b>🛡 Guard</b>\n";
+        string preview = "<b>GUARD</b>\n";
         preview += $"Next attack: {incomingDmg} dmg → Reduced to {reducedDmg} dmg\n";
         preview += $"({CfgGuardReductionPercent}% reduction)";
         if (isStrongTurn)
-            preview += "\n<color=#ff8844>⚠ Strong attack incoming!</color>";
+            preview += "\n<color=#ff8844>WARN: Strong attack incoming!</color>";
 
         battleUI.UpdateCommandPreview(preview, new Color(0.3f, 0.7f, 1f));
     }
@@ -825,7 +825,7 @@ public class BattleManager : MonoBehaviour
     private IEnumerator EnemyTurnRoutine()
     {
         currentState = BattleState.EnemyTurn;
-        battleUI?.ShowTurnBanner("⏳ ENEMY TURN", new Color(1.0f, 0.50f, 0.20f), 0.7f);
+        battleUI?.ShowTurnBanner("ENEMY TURN", new Color(1.0f, 0.50f, 0.20f), 0.7f);
         yield return WaitForBattleTick();
 
         // Check Stun first - if stunned, enemy skips this turn
@@ -927,7 +927,7 @@ public class BattleManager : MonoBehaviour
         // Guard visual feedback in impact text
         if (wasGuarding)
         {
-            battleUI?.ShowBuffOnPlayer("🛡 Guarded!", new Color(0.3f, 0.7f, 1f));
+            battleUI?.ShowBuffOnPlayer("GUARDED", new Color(0.3f, 0.7f, 1f));
         }
 
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
@@ -946,7 +946,7 @@ public class BattleManager : MonoBehaviour
                 player.TakeDamage(surgeDamage);
                 totalDamageTaken += Mathf.Min(surgeDamage, beforeSurge > 0 ? beforeSurge : surgeDamage);
 
-                string surgeMsg = $"⚡ Storm Surge strikes! Player takes {surgeDamage} lightning damage.";
+                string surgeMsg = $"Storm Surge strikes! Player takes {surgeDamage} lightning damage.";
                 battleUI?.SetImpactText($"Impact: Storm Surge dealt {surgeDamage} hazard damage");
                 battleUI?.ScreenFlash(0.12f);
                 battleUI?.ShowDamageNumberOnPlayer(surgeDamage);
@@ -975,7 +975,7 @@ public class BattleManager : MonoBehaviour
                 if (player.currentAp >= 1)
                 {
                     player.currentAp -= 1;
-                    drainMsg = $"🌑 Void Drain saps 1 AP from {playerName}.";
+                    drainMsg = $"Void Drain saps 1 AP from {playerName}.";
                     drainImpact = "Impact: Void Drain reduced AP";
                 }
                 else
@@ -983,7 +983,7 @@ public class BattleManager : MonoBehaviour
                     int beforeDrain = player.currentHp;
                     player.TakeDamage(5);
                     totalDamageTaken += Mathf.Min(5, beforeDrain > 0 ? beforeDrain : 5);
-                    drainMsg = $"🌑 Void Drain lashes out! {playerName} takes 5 shadow damage.";
+                    drainMsg = $"Void Drain lashes out! {playerName} takes 5 shadow damage.";
                     drainImpact = "Impact: Void Drain dealt 5 hazard damage";
                     battleUI?.ShowDamageNumberOnPlayer(5);
                 }
@@ -1032,19 +1032,19 @@ public class BattleManager : MonoBehaviour
         {
             AudioManager.Instance?.PlayVictoryBgm();
             AudioManager.Instance?.PlayVictorySfx();
-            battleUI?.ShowTurnBanner("🏆 VICTORY!", new Color(1.0f, 0.85f, 0.30f), 1.5f);
+            battleUI?.ShowTurnBanner("VICTORY!", new Color(1.0f, 0.85f, 0.30f), 1.5f);
         }
         else
         {
             AudioManager.Instance?.StopBgm();
             AudioManager.Instance?.PlayDefeatSfx();
-            battleUI?.ShowTurnBanner("💀 DEFEAT", new Color(1.0f, 0.30f, 0.30f), 1.5f);
+            battleUI?.ShowTurnBanner("DEFEAT", new Color(1.0f, 0.30f, 0.30f), 1.5f);
         }
         bool hasNext = HasNextStage();
         battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && hasNext);
         if (resultState == BattleState.Victory && hasNext)
         {
-            battleUI?.SetContinueButtonLabel("▶ Continue to Next Encounter");
+            battleUI?.SetContinueButtonLabel("Continue to Next Encounter");
         }
         battleUI?.SetStageSelectButtonVisible(true);
 
@@ -1270,7 +1270,7 @@ public class BattleManager : MonoBehaviour
                 {
                     enemyPattern.strongAttackEveryTurns = Mathf.Max(2, enemyPattern.strongAttackEveryTurns - 1);
                 }
-                modifierMsg = "⚠ Stage Modifier: Pack Pressure — Enemy uses strong attacks more frequently!";
+                modifierMsg = "WARN: Stage Modifier: Pack Pressure — Enemy uses strong attacks more frequently!";
                 break;
 
             case StageModifierType.Stoneguard:
@@ -1279,7 +1279,7 @@ public class BattleManager : MonoBehaviour
                     enemy.maxBreakGauge += 1;
                     enemy.currentBreakGauge = enemy.maxBreakGauge;
                 }
-                modifierMsg = "⚠ Stage Modifier: Stoneguard — Enemy starts with reinforced break defense!";
+                modifierMsg = "WARN: Stage Modifier: Stoneguard — Enemy starts with reinforced break defense!";
                 break;
 
             case StageModifierType.TutorialField:
@@ -1287,11 +1287,11 @@ public class BattleManager : MonoBehaviour
                 break;
 
             case StageModifierType.StormSurge:
-                modifierMsg = "⚠ Stage Modifier: Storm Surge — Residual lightning strikes every 3 turns.";
+                modifierMsg = "WARN: Stage Modifier: Storm Surge — Residual lightning strikes every 3 turns.";
                 break;
 
             case StageModifierType.VoidDrain:
-                modifierMsg = "⚠ Stage Modifier: Void Drain — Shadow energy drains AP over time.";
+                modifierMsg = "WARN: Stage Modifier: Void Drain — Shadow energy drains AP over time.";
                 break;
 
             case StageModifierType.RadiantTrial:
@@ -1302,7 +1302,7 @@ public class BattleManager : MonoBehaviour
                     enemy.maxBreakGauge += 1;
                     enemy.currentBreakGauge = enemy.maxBreakGauge;
                 }
-                modifierMsg = "⚠ Stage Modifier: Radiant Trial — The ultimate trial. Enemies are relentless.";
+                modifierMsg = "WARN: Stage Modifier: Radiant Trial — The ultimate trial. Enemies are relentless.";
                 break;
 
             default:

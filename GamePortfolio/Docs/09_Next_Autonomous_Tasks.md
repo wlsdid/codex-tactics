@@ -1,6 +1,30 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-21 Batch 70: Reference-Style Battle Layout Pass
+## Latest autonomous run — 2026-05-21 Batch 71: UI Readability and Optimization Pass
+
+Completed:
+- Replaced remaining battle-runtime emoji/status strings with ASCII-safe labels to prevent TMP missing-glyph boxes in screenshots.
+- Converted battle element badges to compact text tags (`PHY`, `FIRE`, `ICE`, `LIT`, `NAT`, `EARTH`, `DARK`, `LIGHT`).
+- Disabled raycast targets on generated runtime/static TMP labels and added validator coverage for key labels.
+- Reduced redundant runtime UI churn by only updating text, active state, slider values, and fill colors when values actually change.
+- Tightened top objective/progress positioning after capture review so the stage title, objective, progress, and turn message read more cleanly.
+- Added `Docs/Devlog/2026-05-21_ui-readability-optimization.md`.
+
+Verification completed:
+- Unity batch compile: PASS, no C# compiler errors.
+- Regenerated BattleScene via `CreateBattleTestScene`: PASS.
+- `ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- Standalone screenshot capture: PASS.
+- `git diff --check`: PASS.
+- Visual inspection of `01_battle_start.png`: no obvious broken emoji/missing-glyph boxes; command buttons readable; top objective/progress line separated better.
+
+Recommended next tasks:
+1. Improve center battlefield character silhouettes and hit/VFX shapes so the scene feels less placeholder-like.
+2. Produce README-ready capture/GIF material once the central combat visuals are stronger.
+3. Later replace placeholder sprites with final art, but keep the procedural generator as fallback.
+
+## Previous autonomous run — 2026-05-21 Batch 70: Reference-Style Battle Layout Pass
 
 Completed:
 - Reworked the generated BattleScene toward the user's reference image: slim top HUD, left party stack, open center field, right enemy stack, and bottom command cluster.
@@ -10,7 +34,7 @@ Completed:
 - Replaced emoji button prefixes with ASCII labels in `BattleUI` to reduce TMP missing-glyph warnings in capture runs.
 - Added `Docs/Devlog/2026-05-21_reference-style-battle-layout.md`.
 
-Verification planned:
+Verification completed:
 - Static whitespace/brace checks.
 - `git diff --check`.
 - Unity batch compile.

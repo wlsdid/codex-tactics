@@ -435,21 +435,21 @@ public class BattleUI : MonoBehaviour
     {
         if (retryButton == null) return;
         retryButton.interactable = isVisible;
-        retryButton.gameObject.SetActive(isVisible);
+        SetGameObjectActiveIfChanged(retryButton.gameObject, isVisible);
     }
 
     public void SetContinueButtonVisible(bool isVisible)
     {
         if (continueButton == null) return;
         continueButton.interactable = isVisible;
-        continueButton.gameObject.SetActive(isVisible);
+        SetGameObjectActiveIfChanged(continueButton.gameObject, isVisible);
     }
 
     public void SetStageSelectButtonVisible(bool isVisible)
     {
         if (stageSelectButton == null) return;
         stageSelectButton.interactable = isVisible;
-        stageSelectButton.gameObject.SetActive(isVisible);
+        SetGameObjectActiveIfChanged(stageSelectButton.gameObject, isVisible);
     }
 
     private static readonly Color ElementPhysicalColor = new Color(0.65f, 0.68f, 0.75f);
@@ -472,8 +472,8 @@ public class BattleUI : MonoBehaviour
         };
     }
 
-    // Element badge icons as simple text symbols
-    private static readonly string[] ElementSymbols = { "", "⚔", "🔥", "❄", "⚡", "\U0001F33F", "🌑", "✨" };
+    // Element badge tags use ASCII so the default TMP font never renders missing-glyph boxes.
+    private static readonly string[] ElementSymbols = { "", "PHY", "FIRE", "ICE", "LIT", "NAT", "DARK", "LIGHT" };
     public static string GetElementSymbol(ElementType element)
     {
         int idx = (int)element;
@@ -482,24 +482,21 @@ public class BattleUI : MonoBehaviour
 
     private void SetPlayerHp(int current, int max, string name)
     {
-        if (playerHpText != null)
-            playerHpText.text = BuildResourceText($"{name} HP", current, max);
+        SetTextIfChanged(playerHpText, BuildResourceText($"{name} HP", current, max));
         UpdateResourceSlider(playerHpSlider, current, max);
         SetSliderColorByRatio(playerHpFillImage, current, max, new Color(0.22f, 0.72f, 0.38f), new Color(0.85f, 0.72f, 0.18f), new Color(0.82f, 0.22f, 0.24f));
     }
 
     private void SetPlayerAp(int current, int max)
     {
-        if (playerApText != null)
-            playerApText.text = BuildResourceText("AP", current, max);
+        SetTextIfChanged(playerApText, BuildResourceText("AP", current, max));
         UpdateResourceSlider(playerApSlider, current, max);
         SetSliderColorByRatio(playerApFillImage, current, max, new Color(0.26f, 0.56f, 1.0f), new Color(0.26f, 0.86f, 0.76f), new Color(0.92f, 0.56f, 0.18f));
     }
 
     private void SetEnemyHp(int current, int max, string name)
     {
-        if (enemyHpText != null)
-            enemyHpText.text = BuildResourceText($"{name} HP", current, max);
+        SetTextIfChanged(enemyHpText, BuildResourceText($"{name} HP", current, max));
         UpdateResourceSlider(enemyHpSlider, current, max);
         SetSliderColorByRatio(enemyHpFillImage, current, max, new Color(0.22f, 0.72f, 0.38f), new Color(0.85f, 0.72f, 0.18f), new Color(0.82f, 0.22f, 0.24f));
     }
@@ -508,11 +505,11 @@ public class BattleUI : MonoBehaviour
     {
         if (playerStatusText == null) return;
         if (state == BattleState.Victory || state == BattleState.Defeat)
-            playerStatusText.text = "Status: Battle ended";
+            SetTextIfChanged(playerStatusText, "Status: Battle ended");
         else if (isGuarding)
-            playerStatusText.text = "Status: Guarding";
+            SetTextIfChanged(playerStatusText, "Status: Guarding");
         else
-            playerStatusText.text = "Status: Ready";
+            SetTextIfChanged(playerStatusText, "Status: Ready");
 
         // Guard overlay on player sprite
         UpdatePlayerGuardOverlay(isGuarding && state != BattleState.Victory && state != BattleState.Defeat);
@@ -524,13 +521,12 @@ public class BattleUI : MonoBehaviour
         if (playerSpriteImage == null) return;
         if (playerGuardOverlay == null)
         {
-            Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas == null) return;
+            Transform canvasTransform = GetDamagePopupParent();
+            if (canvasTransform == null) return;
             GameObject overlayObj = new GameObject("Player Guard Overlay", typeof(RectTransform), typeof(Image));
-            overlayObj.transform.SetParent(canvas.transform, false);
+            overlayObj.transform.SetParent(canvasTransform, false);
             RectTransform rt = overlayObj.GetComponent<RectTransform>();
             // Position near player sprite
-            Vector3 spritePos = playerSpriteImage.rectTransform.position;
             rt.anchorMin = new Vector2(0.0f, 0.85f);
             rt.anchorMax = new Vector2(0.0f, 0.85f);
             rt.pivot = new Vector2(0.5f, 0.5f);
@@ -540,7 +536,7 @@ public class BattleUI : MonoBehaviour
             playerGuardOverlay.sprite = null;
             playerGuardOverlay.color = new Color(0.3f, 0.7f, 1.0f, 0.7f);
         }
-        playerGuardOverlay.gameObject.SetActive(show);
+        SetGameObjectActiveIfChanged(playerGuardOverlay.gameObject, show);
         if (show && playerGuardOverlay.gameObject.activeInHierarchy)
             EnsurePulseRunning(ref guardPulseRoutine, playerGuardOverlay, 0.5f, new Color(0.3f, 0.7f, 1.0f, 0.3f));
         else
@@ -550,16 +546,16 @@ public class BattleUI : MonoBehaviour
     public void SetEnemyStatusText(CharacterData enemy)
     {
         if (enemyStatusText == null) return;
-        enemyStatusText.text = enemy.currentStatusEffect == StatusEffectType.None
+        SetTextIfChanged(enemyStatusText, enemy.currentStatusEffect == StatusEffectType.None
             ? "Status: None"
-            : $"Status: {enemy.currentStatusEffect} ({enemy.statusTurnsRemaining} turns)";
+            : $"Status: {enemy.currentStatusEffect} ({enemy.statusTurnsRemaining} turns)");
 
         // Update status overlays
         bool hasBurn = enemy.currentStatusEffect == StatusEffectType.Burn;
         bool hasStun = enemy.currentStatusEffect == StatusEffectType.Stun;
         if (burnOverlay != null)
         {
-            burnOverlay.gameObject.SetActive(hasBurn);
+            SetGameObjectActiveIfChanged(burnOverlay.gameObject, hasBurn);
             if (hasBurn)
                 EnsurePulseRunning(ref burnPulseRoutine, burnOverlay, 0.5f, new Color(1f, 0.3f, 0.1f, 0.3f));
             else
@@ -567,7 +563,7 @@ public class BattleUI : MonoBehaviour
         }
         if (stunOverlay != null)
         {
-            stunOverlay.gameObject.SetActive(hasStun);
+            SetGameObjectActiveIfChanged(stunOverlay.gameObject, hasStun);
             if (hasStun)
                 EnsurePulseRunning(ref stunPulseRoutine, stunOverlay, 0.3f, new Color(0.3f, 0.5f, 1f, 0.3f));
             else
@@ -577,8 +573,7 @@ public class BattleUI : MonoBehaviour
 
     private void SetEnemyBreakText(CharacterData enemy)
     {
-        if (enemyBreakText != null)
-            enemyBreakText.text = enemy.DebugBuildBreakText();
+        SetTextIfChanged(enemyBreakText, enemy.DebugBuildBreakText());
         if (enemyBreakSlider != null)
         {
             enemyBreakSlider.minValue = 0f;
@@ -586,7 +581,7 @@ public class BattleUI : MonoBehaviour
             enemyBreakSlider.value = enemy.isBroken ? 0f : enemy.currentBreakGauge;
         }
         if (brokenOverlay != null)
-            brokenOverlay.gameObject.SetActive(enemy.isBroken);
+            SetGameObjectActiveIfChanged(brokenOverlay.gameObject, enemy.isBroken);
     }
 
     private string enemyElementLabel = "";
@@ -606,10 +601,10 @@ public class BattleUI : MonoBehaviour
     {
         if (enemyElementBadge == null)
         {
-            Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas == null) return;
+            Transform canvasTransform = GetDamagePopupParent();
+            if (canvasTransform == null) return;
             GameObject badgeObj = new GameObject("Enemy Element Badge", typeof(RectTransform), typeof(TextMeshProUGUI));
-            badgeObj.transform.SetParent(canvas.transform, false);
+            badgeObj.transform.SetParent(canvasTransform, false);
             RectTransform rt = badgeObj.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0.5f, 0.85f);
             rt.anchorMax = new Vector2(0.5f, 0.85f);
@@ -617,14 +612,17 @@ public class BattleUI : MonoBehaviour
             rt.anchoredPosition = new Vector2(260, -10);
             rt.sizeDelta = new Vector2(100, 30);
             enemyElementBadge = badgeObj.GetComponent<TextMeshProUGUI>();
-            enemyElementBadge.fontSize = 20;
+            enemyElementBadge.fontSize = 18;
             enemyElementBadge.alignment = TextAlignmentOptions.Center;
             enemyElementBadge.fontStyle = FontStyles.Bold;
+            enemyElementBadge.raycastTarget = false;
+            enemyElementBadge.enableWordWrapping = false;
+            enemyElementBadge.overflowMode = TextOverflowModes.Ellipsis;
         }
 
         if (element == ElementType.None || element == ElementType.Physical)
         {
-            enemyElementBadge.gameObject.SetActive(false);
+            SetGameObjectActiveIfChanged(enemyElementBadge.gameObject, false);
             return;
         }
 
@@ -632,19 +630,19 @@ public class BattleUI : MonoBehaviour
         Color color = PlaceholderSpriteGenerator.GetElementColor(element);
         enemyElementBadge.text = $"{icon} {element}";
         enemyElementBadge.color = new Color(color.r * 0.9f + 0.3f, color.g * 0.9f + 0.3f, color.b * 0.9f + 0.3f);
-        enemyElementBadge.gameObject.SetActive(true);
+        SetGameObjectActiveIfChanged(enemyElementBadge.gameObject, true);
     }
 
     private static string GetElementBadgeIcon(ElementType element) => element switch
     {
-        ElementType.Fire => "🔥",
-        ElementType.Ice => "❄",
-        ElementType.Lightning => "⚡",
-        ElementType.Nature => "🌿",
-        ElementType.Earth => "🌍",
-        ElementType.Dark => "🌑",
-        ElementType.Light => "✨",
-        _ => "❓"
+        ElementType.Fire => "FIRE",
+        ElementType.Ice => "ICE",
+        ElementType.Lightning => "LIT",
+        ElementType.Nature => "NAT",
+        ElementType.Earth => "EARTH",
+        ElementType.Dark => "DARK",
+        ElementType.Light => "LIGHT",
+        _ => "ELEM"
     };
 
     private void SetEnemyIntentText(BattleState state, EnemyPatternData pattern, int turnCount)
@@ -652,13 +650,13 @@ public class BattleUI : MonoBehaviour
         if (enemyIntentText == null) return;
         if (state == BattleState.Victory || state == BattleState.Defeat)
         {
-            enemyIntentText.text = "Next Enemy: Battle ended";
+            SetTextIfChanged(enemyIntentText, "Next Enemy: Battle ended");
             return;
         }
         int nextTurn = turnCount + 1;
-        enemyIntentText.text = pattern.IsStrongAttackTurn(nextTurn)
+        SetTextIfChanged(enemyIntentText, pattern.IsStrongAttackTurn(nextTurn)
             ? $"Next Enemy: {enemyElementLabel}{pattern.strongAttackName} ({pattern.strongAttackDamage})"
-            : $"Next Enemy: {enemyElementLabel}Normal Attack ({pattern.normalAttackDamage})";
+            : $"Next Enemy: {enemyElementLabel}Normal Attack ({pattern.normalAttackDamage})");
     }
 
     private void SetRunStatusText(BattleState state, int stageIndex, List<StageData> encounters)
@@ -719,8 +717,7 @@ public class BattleUI : MonoBehaviour
 
     private void SetMessageText(string message)
     {
-        if (messageText != null)
-            messageText.text = message;
+        SetTextIfChanged(messageText, message);
     }
 
     public void SetImpactText(string text)
@@ -733,11 +730,11 @@ public class BattleUI : MonoBehaviour
                 impactText.color = new Color(0.90f, 0.55f, 0.10f); // Orange for hazards
             else if (text.Contains("Guard") || text.Contains("guarded") || text.Contains("reduced"))
                 impactText.color = new Color(0.30f, 0.70f, 1.0f);  // Blue for defense
-            else if (text.Contains("🔥") || text.Contains("Fire") || text.Contains("Burn"))
+            else if (text.Contains("FIRE") || text.Contains("Fire") || text.Contains("Burn"))
                 impactText.color = new Color(1.0f, 0.35f, 0.15f);  // Red-orange for fire
-            else if (text.Contains("❄") || text.Contains("Ice") || text.Contains("Stun"))
+            else if (text.Contains("ICE") || text.Contains("Ice") || text.Contains("Stun"))
                 impactText.color = new Color(0.30f, 0.60f, 1.0f);  // Ice blue
-            else if (text.Contains("⚡") || text.Contains("Lightning"))
+            else if (text.Contains("LIT") || text.Contains("Lightning"))
                 impactText.color = new Color(1.0f, 0.85f, 0.15f);  // Yellow-gold
             else if (text.Contains("Heal") || text.Contains("restore"))
                 impactText.color = new Color(0.22f, 0.85f, 0.40f); // Green for healing
@@ -755,12 +752,11 @@ public class BattleUI : MonoBehaviour
     /// <summary>Updates the Command Preview panel with skill info.</summary>
     public void UpdateCommandPreview(string text, Color? textColor = null)
     {
-        if (commandPreviewPanel != null)
-            commandPreviewPanel.SetActive(true);
+        SetGameObjectActiveIfChanged(commandPreviewPanel, true);
         if (commandPreviewText != null)
         {
-            commandPreviewText.gameObject.SetActive(true);
-            commandPreviewText.text = text;
+            SetGameObjectActiveIfChanged(commandPreviewText.gameObject, true);
+            SetTextIfChanged(commandPreviewText, text);
             if (textColor.HasValue)
                 commandPreviewText.color = textColor.Value;
             else
@@ -771,16 +767,14 @@ public class BattleUI : MonoBehaviour
     /// <summary>Hides the Command Preview panel.</summary>
     public void ClearCommandPreview()
     {
-        if (commandPreviewPanel != null)
-            commandPreviewPanel.SetActive(false);
+        SetGameObjectActiveIfChanged(commandPreviewPanel, false);
         if (commandPreviewText != null)
-            commandPreviewText.gameObject.SetActive(false);
+            SetGameObjectActiveIfChanged(commandPreviewText.gameObject, false);
     }
 
     public void SetPlayerShieldText(int shieldAmount)
     {
-        if (playerShieldText != null)
-            playerShieldText.text = shieldAmount > 0 ? $"Shield: {shieldAmount}" : "";
+        SetTextIfChanged(playerShieldText, shieldAmount > 0 ? $"Shield: {shieldAmount}" : "");
     }
 
     /// <summary>Brief flash effect on enemy sprite when damage is dealt.</summary>
@@ -878,7 +872,7 @@ public class BattleUI : MonoBehaviour
         string earthHelp = BuildCompactSkillHelpLine(earthSkill);
         string turnHint = pattern?.BuildPatternHelpText() ?? "Read enemy intent, then spend AP.";
         string modifierHelp = BuildStageModifierHelpLine(stageData);
-        skillHelpText.text = $"Commands: {attackHelp} | {fireHelp} | {iceHelp}\nMore: {lightningHelp} | {earthHelp} | Guard -{guardReduction}% damage\n{turnHint} / {modifierHelp}";
+        SetTextIfChanged(skillHelpText, $"Commands: {attackHelp} | {fireHelp} | {iceHelp}\nMore: {lightningHelp} | {earthHelp} | Guard -{guardReduction}% damage\n{turnHint} / {modifierHelp}");
     }
 
     private string BuildStageModifierHelpLine(StageData stageData)
@@ -944,44 +938,44 @@ public class BattleUI : MonoBehaviour
             return message;
 
         if (lower.Contains("guards. next enemy attack damage is reduced"))
-            return "🛡 Guarded! Damage reduced.";
+            return "GUARD: Damage reduced.";
         if (lower.Contains("guarded") || lower.Contains("guards"))
-            return "🛡 Guarded!";
+            return "GUARD: Guarded!";
         if (lower.Contains("break!"))
-            return "💥 BREAK!";
+            return "BREAK!";
         if (lower.Contains("weakness"))
-            return "⚡ Weakness Hit!";
+            return "WEAK: Weakness Hit!";
         if (lower.Contains("victory") || lower.Contains("victory!"))
-            return "🏆 Victory!";
+            return "WIN: Victory!";
         if (lower.Contains("defeat") || lower.Contains("defeated"))
-            return "💀 Defeated!";
+            return "LOSE: Defeated!";
         if (lower.Contains("is stunn"))
-            return "⏳ Enemy STUNNED! Skips turn.";
+            return "STUN: Enemy skips turn.";
         if (lower.Contains("burn damage"))
-            return "🔥 Burn: " + ExtractFirstNumber(message) + " dmg";
+            return "BURN: " + ExtractFirstNumber(message) + " dmg";
         if (lower.Contains("shield") && lower.Contains("active"))
-            return "🛡️ Shield Active!";
+            return "SHIELD: Active!";
         if (lower.Contains("enraged"))
-            return "⚠️ ENRAGED!";
+            return "ENRAGE!";
         if (lower.Contains("level up"))
-            return "⬆ Level Up!";
+            return "LEVEL UP!";
         if (lower.Contains("is locked"))
-            return "🔒 " + message;
+            return "LOCKED: " + message;
         if (lower.Contains("not enough ap"))
-            return "⚠️ Not enough AP";
+            return "WARN: Not enough AP";
         if (lower.Contains("no items"))
-            return "⚠️ No items available";
+            return "WARN: No items available";
 
         // Item effects: must come before generic "uses" check
         if (lower.Contains("restores") && lower.Contains("hp"))
-            return "❤️ +" + ExtractFirstNumber(message) + " HP";
+            return "HP +" + ExtractFirstNumber(message);
         if (lower.Contains("restores") && lower.Contains("ap"))
-            return "💎 +" + ExtractFirstNumber(message) + " AP";
+            return "AP +" + ExtractFirstNumber(message);
         if (lower.Contains("uses shield") || lower.Contains("shield active"))
-            return "🛡️ Shield Active!";
+            return "SHIELD: Active!";
 
         // Generic skill use: "Hero uses Slash! Slime takes 22 damage."
-        // Format as "⚔ 22 dmg" for physical, "🔥 30 dmg" for elemental
+        // Format as ASCII tags ("PHY 22 dmg", "FIRE 30 dmg") to avoid TMP missing-glyph boxes.
         if (lower.Contains(" uses "))
         {
             string formatted = ShortenSkillMessage(message);
@@ -992,14 +986,14 @@ public class BattleUI : MonoBehaviour
         if (lower.Contains("takes") && lower.Contains("damage") && !lower.Contains("uses"))
         {
             int dmg = ExtractFirstNumber(message);
-            if (dmg > 0) return $"💥 {dmg} dmg";
+            if (dmg > 0) return $"DMG {dmg}";
         }
 
         // Item usage
         if (lower.Contains("restores") && lower.Contains("hp"))
-            return "❤️ +" + ExtractFirstNumber(message) + " HP";
+            return "HP +" + ExtractFirstNumber(message);
         if (lower.Contains("restores") && lower.Contains("ap"))
-            return "💎 +" + ExtractFirstNumber(message) + " AP";
+            return "AP +" + ExtractFirstNumber(message);
 
         // Fallback: shorten to just the number
         return ShortenPlainMessage(message);
@@ -1008,21 +1002,21 @@ public class BattleUI : MonoBehaviour
     private string ShortenSkillMessage(string message)
     {
         // Pattern: "Hero uses Slash! Slime takes 22 damage. (Physical | Physical)"
-        // We want: "⚔ 22 dmg"
+        // We want: "PHY 22 dmg"
         int dmg = ExtractLastNumber(message);
         if (dmg <= 0) return null;
 
         string lower = message.ToLowerInvariant();
         if (lower.Contains("physical"))
-            return $"⚔ {dmg} dmg";
+            return $"PHY {dmg} dmg";
         if (lower.Contains("fire"))
-            return $"🔥 {dmg} dmg";
+            return $"FIRE {dmg} dmg";
         if (lower.Contains("ice"))
-            return $"❄ {dmg} dmg";
+            return $"ICE {dmg} dmg";
         if (lower.Contains("lightning"))
-            return $"⚡ {dmg} dmg";
+            return $"LIT {dmg} dmg";
         if (lower.Contains("earth"))
-            return $"🪨 {dmg} dmg";
+            return $"EARTH {dmg} dmg";
         return $"• {dmg} dmg";
     }
 
@@ -1030,7 +1024,7 @@ public class BattleUI : MonoBehaviour
     {
         // Just take the first meaningful part, strip long explanations
         int dmg = ExtractFirstNumber(message);
-        if (dmg > 0) return $"💥 {dmg} dmg";
+        if (dmg > 0) return $"DMG {dmg}";
         if (message.Length > 50) return message.Substring(0, 47) + "...";
         return message;
     }
@@ -1053,9 +1047,9 @@ public class BattleUI : MonoBehaviour
     private void RefreshBattleLogText()
     {
         if (battleLogText == null) return;
-        battleLogText.text = battleLogEntries.Count == 0
+        SetTextIfChanged(battleLogText, battleLogEntries.Count == 0
             ? "Recent Actions\nNo actions yet."
-            : "Recent Actions\n" + string.Join("\n", battleLogEntries);
+            : "Recent Actions\n" + string.Join("\n", battleLogEntries));
     }
 
     public void ToggleBattleLogVisibility()
@@ -1066,18 +1060,17 @@ public class BattleUI : MonoBehaviour
     public void SetBattleLogVisible(bool isVisible)
     {
         isBattleLogVisible = isVisible;
-        if (battleLogPanel != null)
-            battleLogPanel.SetActive(isVisible);
+        SetGameObjectActiveIfChanged(battleLogPanel, isVisible);
         if (battleLogTitleText != null)
-            battleLogTitleText.gameObject.SetActive(isVisible);
+            SetGameObjectActiveIfChanged(battleLogTitleText.gameObject, isVisible);
         if (battleLogText != null)
-            battleLogText.gameObject.SetActive(isVisible);
+            SetGameObjectActiveIfChanged(battleLogText.gameObject, isVisible);
         if (battleLogToggleButton != null)
             battleLogToggleButton.interactable = true;
         if (battleLogToggleLabel == null && battleLogToggleButton != null)
             battleLogToggleLabel = battleLogToggleButton.GetComponentInChildren<TMP_Text>();
         if (battleLogToggleLabel != null)
-            battleLogToggleLabel.text = isVisible ? "Hide Log" : "Log";
+            SetTextIfChanged(battleLogToggleLabel, isVisible ? "Hide Log" : "Log");
     }
 
     // --- Utility ---
@@ -1316,24 +1309,50 @@ public class BattleUI : MonoBehaviour
         return $"{label}: {currentValue}/{maxValue} ({pct}%)";
     }
 
+    private static void SetTextIfChanged(TMP_Text target, string value)
+    {
+        if (target != null && target.text != value)
+        {
+            target.text = value;
+        }
+    }
+
+    private static void SetGameObjectActiveIfChanged(GameObject target, bool isActive)
+    {
+        if (target != null && target.activeSelf != isActive)
+        {
+            target.SetActive(isActive);
+        }
+    }
+
     private static void SetSliderColorByRatio(Image fill, int current, int max, Color highColor, Color midColor, Color lowColor)
     {
         if (fill == null) return;
         float ratio = max > 0 ? (float)current / max : 0f;
+        Color nextColor;
         if (ratio > 0.55f)
-            fill.color = highColor;
+            nextColor = highColor;
         else if (ratio > 0.25f)
-            fill.color = midColor;
+            nextColor = midColor;
         else
-            fill.color = lowColor;
+            nextColor = lowColor;
+
+        if (fill.color != nextColor)
+        {
+            fill.color = nextColor;
+        }
     }
 
     private static void UpdateResourceSlider(Slider slider, int currentValue, int maxValue)
     {
         if (slider == null) return;
-        slider.minValue = 0f;
-        slider.maxValue = maxValue;
-        slider.value = Mathf.Clamp(currentValue, 0, maxValue);
+        float nextValue = Mathf.Clamp(currentValue, 0, maxValue);
+        if (slider.minValue != 0f)
+            slider.minValue = 0f;
+        if (slider.maxValue != maxValue)
+            slider.maxValue = maxValue;
+        if (slider.value != nextValue)
+            slider.value = nextValue;
     }
 
     private static void SetButtonInteractable(Button btn, bool interactable)

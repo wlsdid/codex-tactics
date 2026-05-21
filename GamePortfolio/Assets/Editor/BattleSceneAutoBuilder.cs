@@ -67,11 +67,11 @@ public static class BattleSceneAutoBuilder
         TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "Stage 1-1  /  Slime Scout", new Vector2(-268, 236), new Vector2(300, 36), TextAlignmentOptions.Left);
         stageText.fontSize = 20;
         stageText.color = new Color(0.92f, 0.86f, 0.55f);
-        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Objective: Defeat Slime Scout", new Vector2(45, 242), new Vector2(390, 28), TextAlignmentOptions.Left);
-        stageObjectiveText.fontSize = 16;
+        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Objective: Defeat Slime Scout", new Vector2(38, 236), new Vector2(390, 26), TextAlignmentOptions.Left);
+        stageObjectiveText.fontSize = 15;
         stageObjectiveText.color = new Color(1.0f, 0.94f, 0.72f);
-        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Progress: Encounter 1/2 | Active", new Vector2(275, 218), new Vector2(330, 26), TextAlignmentOptions.Right);
-        stageProgressText.fontSize = 15;
+        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Progress: Encounter 1/2 | Active", new Vector2(270, 214), new Vector2(330, 24), TextAlignmentOptions.Right);
+        stageProgressText.fontSize = 14;
         stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
 
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-486, 178), new Vector2(170, 26), TextAlignmentOptions.Left);
@@ -351,6 +351,7 @@ public static class BattleSceneAutoBuilder
         TMP_Text enemyIntentText = FindText("Enemy Intent Text");
         TMP_Text enemyBreakText = FindText("Enemy Break Text");
         Slider enemyBreakSlider = FindSlider("Enemy Break Slider");
+        TMP_Text messageText = FindText("Message Text");
         TMP_Text battleLogTitleText = FindTextIncludingInactive("Battle Log Title Text");
         TMP_Text battleLogText = FindTextIncludingInactive("Battle Log Text");
         Image battleLogPanel = FindImageIncludingInactive("Battle Log Panel");
@@ -422,6 +423,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
         AppendCheck(ref passed, ref report, "Impact text exists", impactText != null);
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
+        AppendCheck(ref passed, ref report, "Runtime labels skip raycast for UI performance", IsTextRaycastOptimized(runStatusText, battleGuideText, stageText, stageObjectiveText, stageProgressText, playerHpText, playerApText, enemyHpText, skillHelpText, messageText, impactText));
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
         AppendCheck(ref passed, ref report, "Enemy Intent text exists", enemyIntentText != null);
         AppendCheck(ref passed, ref report, "Enemy Break text exists", enemyBreakText != null);
@@ -824,6 +826,24 @@ public static class BattleSceneAutoBuilder
             && logText.text.Contains("No actions yet.");
     }
 
+    private static bool IsTextRaycastOptimized(params TMP_Text[] texts)
+    {
+        if (texts == null || texts.Length == 0)
+        {
+            return false;
+        }
+
+        foreach (TMP_Text text in texts)
+        {
+            if (text == null || text.raycastTarget)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static bool HasObjectReference(SerializedObject serializedObject, string propertyName)
     {
         if (serializedObject == null)
@@ -905,6 +925,9 @@ public static class BattleSceneAutoBuilder
         label.color = Color.white;
         label.alignment = alignment;
         label.enableWordWrapping = true;
+        // Static and runtime-updated labels should not participate in pointer hit tests.
+        // This keeps the GraphicRaycaster focused on actual Buttons and reduces UI event overhead.
+        label.raycastTarget = false;
         return label;
     }
 
