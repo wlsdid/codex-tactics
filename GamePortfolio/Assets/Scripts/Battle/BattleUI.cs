@@ -47,7 +47,11 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text commandPreviewText;
 
     [Header("Battle Log")]
+    [SerializeField] private GameObject battleLogPanel;
+    [SerializeField] private TMP_Text battleLogTitleText;
     [SerializeField] private TMP_Text battleLogText;
+    [SerializeField] private Button battleLogToggleButton;
+    [SerializeField] private TMP_Text battleLogToggleLabel;
 
     [Header("Result")]
     [SerializeField] private TMP_Text resultSummaryText;
@@ -74,6 +78,7 @@ public class BattleUI : MonoBehaviour
 
     private readonly List<string> battleLogEntries = new List<string>();
     private int battleLogSequence;
+    private bool isBattleLogVisible;
 
     [Header("Pause Menu")]
     [SerializeField] private GameObject pausePanel;
@@ -109,6 +114,7 @@ public class BattleUI : MonoBehaviour
     public string DebugMessageText => messageText != null ? messageText.text : "";
     public string DebugSkillHelpText => skillHelpText != null ? skillHelpText.text : "";
     public string DebugBattleLogText => battleLogText != null ? battleLogText.text : "";
+    public bool DebugBattleLogPanelVisible => battleLogPanel != null && battleLogPanel.activeSelf;
     public string DebugResultSummaryText => resultSummaryText != null ? resultSummaryText.text : "";
     public string DebugPlayerStatusText => playerStatusText != null ? playerStatusText.text : "";
     public string DebugEnemyStatusText => enemyStatusText != null ? enemyStatusText.text : "";
@@ -172,6 +178,8 @@ public class BattleUI : MonoBehaviour
         {
             WireButton(pauseButton, onPause);
         }
+
+        WireButton(battleLogToggleButton, ToggleBattleLogVisibility);
     }
 
     private static void WireButton(Button btn, UnityEngine.Events.UnityAction action)
@@ -210,6 +218,7 @@ public class BattleUI : MonoBehaviour
         battleLogSequence = 0;
         CacheResourceSliderFills();
         RefreshBattleLogText();
+        SetBattleLogVisible(false);
         SetRetryButtonVisible(false);
         SetContinueButtonVisible(false);
         SetStageSelectButtonVisible(false);
@@ -1016,6 +1025,28 @@ public class BattleUI : MonoBehaviour
         battleLogText.text = battleLogEntries.Count == 0
             ? "Recent Actions\nNo actions yet."
             : "Recent Actions\n" + string.Join("\n", battleLogEntries);
+    }
+
+    public void ToggleBattleLogVisibility()
+    {
+        SetBattleLogVisible(!isBattleLogVisible);
+    }
+
+    public void SetBattleLogVisible(bool isVisible)
+    {
+        isBattleLogVisible = isVisible;
+        if (battleLogPanel != null)
+            battleLogPanel.SetActive(isVisible);
+        if (battleLogTitleText != null)
+            battleLogTitleText.gameObject.SetActive(isVisible);
+        if (battleLogText != null)
+            battleLogText.gameObject.SetActive(isVisible);
+        if (battleLogToggleButton != null)
+            battleLogToggleButton.interactable = true;
+        if (battleLogToggleLabel == null && battleLogToggleButton != null)
+            battleLogToggleLabel = battleLogToggleButton.GetComponentInChildren<TMP_Text>();
+        if (battleLogToggleLabel != null)
+            battleLogToggleLabel.text = isVisible ? "Hide Log" : "Log";
     }
 
     // --- Utility ---

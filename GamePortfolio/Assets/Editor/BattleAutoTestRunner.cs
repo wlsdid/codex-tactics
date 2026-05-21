@@ -38,7 +38,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "messageText", CreateText("Message Text"));
         SetPrivateField(battleUI, "impactText", CreateText("Impact Text"));
         SetPrivateField(battleUI, "skillHelpText", CreateText("Skill Help Text"));
-        SetPrivateField(battleUI, "battleLogText", CreateText("Battle Log Text"));
+        ConfigureBattleLogFields(battleUI);
         SetPrivateField(battleUI, "resultSummaryText", CreateText("Result Summary Text"));
         SetPrivateField(battleUI, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
         SetPrivateField(battleUI, "attackButton", CreateButton("Attack Button"));
@@ -80,6 +80,11 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Enemy intent starts with normal attack preview", battleManager.DebugEnemyIntentText == "Next Enemy: [Fire] Normal Attack (15)");
         AppendCheck(ref passed, ref report, "Skill help explains all skills, Guard, and readable enemy pattern values", battleManager.DebugSkillHelpText.Contains("Slash: 20 power, 0 AP") && battleManager.DebugSkillHelpText.Contains("Fire Bolt: 30 power, 2 AP") && battleManager.DebugSkillHelpText.Contains("Ice Lance: 25 power, 1 AP") && battleManager.DebugSkillHelpText.Contains("Lightning Strike: 40 power, 3 AP") && battleManager.DebugSkillHelpText.Contains("Guard: reduce next enemy attack") && battleManager.DebugSkillHelpText.Contains("Normal attack: 15 damage") && battleManager.DebugSkillHelpText.Contains("Heavy Slam: 30 damage every 3rd enemy turn"));
         AppendCheck(ref passed, ref report, "Battle log has a readable Recent Actions heading", battleManager.DebugBattleLogText.StartsWith("Recent Actions"));
+        AppendCheck(ref passed, ref report, "Battle log starts collapsed to avoid covering the battle view", !battleUI.DebugBattleLogPanelVisible);
+        battleUI.ToggleBattleLogVisibility();
+        AppendCheck(ref passed, ref report, "Battle log toggle opens the recent-actions panel", battleUI.DebugBattleLogPanelVisible);
+        battleUI.ToggleBattleLogVisibility();
+        AppendCheck(ref passed, ref report, "Battle log toggle can collapse the panel again", !battleUI.DebugBattleLogPanelVisible);
         AppendCheck(ref passed, ref report, "Stage 1 starts with Tutorial Field modifier message", battleManager.DebugBattleLogText.Contains("Tutorial Field"));
         AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("Player Turn: recovered 2 AP. Choose an action."));
         AppendCheck(ref passed, ref report, "Impact text starts with ready feedback", battleManager.DebugImpactText == "Impact: Ready");
@@ -215,13 +220,13 @@ public static class BattleAutoTestRunner
             SetPrivateField(e2eUI, "messageText", CreateText("Message Text"));
             SetPrivateField(e2eUI, "impactText", CreateText("Impact Text"));
             SetPrivateField(e2eUI, "skillHelpText", CreateText("Skill Help Text"));
-            SetPrivateField(e2eUI, "battleLogText", CreateText("Battle Log Text"));
+            ConfigureBattleLogFields(e2eUI);
             SetPrivateField(e2eUI, "resultSummaryText", CreateText("Result Summary Text"));
             SetPrivateField(e2eUI, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
             SetPrivateField(e2eUI, "attackButton", CreateButton("Attack Button"));
             SetPrivateField(e2eUI, "fireSkillButton", CreateButton("Fire Skill Button"));
             SetPrivateField(e2eUI, "iceSkillButton", CreateButton("Ice Lance Button"));
-        SetPrivateField(e2eUI, "lightningSkillButton", CreateButton("Lightning Strike Button"));
+            SetPrivateField(e2eUI, "lightningSkillButton", CreateButton("Lightning Strike Button"));
             SetPrivateField(e2eUI, "guardButton", CreateButton("Guard Button"));
             SetPrivateField(e2eUI, "endTurnButton", CreateButton("End Turn Button"));
             SetPrivateField(e2eUI, "retryButton", CreateButton("Retry Button"));
@@ -444,7 +449,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(ui1, "messageText", CreateText("Message Text"));
         SetPrivateField(ui1, "impactText", CreateText("Impact Text"));
         SetPrivateField(ui1, "skillHelpText", CreateText("Skill Help Text"));
-        SetPrivateField(ui1, "battleLogText", CreateText("Battle Log Text"));
+        ConfigureBattleLogFields(ui1);
         SetPrivateField(ui1, "resultSummaryText", CreateText("Result Summary Text"));
         SetPrivateField(ui1, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
         SetPrivateField(ui1, "attackButton", CreateButton("Attack Button"));
@@ -456,8 +461,8 @@ public static class BattleAutoTestRunner
         SetPrivateField(ui1, "retryButton", CreateButton("Retry Button"));
         SetPrivateField(ui1, "continueButton", CreateButton("Continue Button"));
         SetPrivateField(ui1, "stageSelectButton", CreateButton("Stage Select Button"));
-            SetPrivateField(ui1, "speedToggleButton", CreateButton("Speed Toggle Button"));
-            SetPrivateField(ui1, "autoBattleButton", CreateButton("Auto Battle Button"));
+        SetPrivateField(ui1, "speedToggleButton", CreateButton("Speed Toggle Button"));
+        SetPrivateField(ui1, "autoBattleButton", CreateButton("Auto Battle Button"));
         SetPrivateField(manager1, "battleUI", ui1);
         manager1.DebugLoadEncountersForStage(0);
         manager1.DebugStartBattleForTest();
@@ -523,6 +528,15 @@ public static class BattleAutoTestRunner
         panelObject.AddComponent<Image>();
         panelObject.SetActive(false);
         return panelObject;
+    }
+
+    private static void ConfigureBattleLogFields(BattleUI battleUI)
+    {
+        SetPrivateField(battleUI, "battleLogPanel", CreatePanel("Battle Log Panel"));
+        SetPrivateField(battleUI, "battleLogTitleText", CreateText("Battle Log Title Text"));
+        SetPrivateField(battleUI, "battleLogText", CreateText("Battle Log Text"));
+        SetPrivateField(battleUI, "battleLogToggleButton", CreateButton("Battle Log Toggle Button"));
+        SetPrivateField(battleUI, "battleLogToggleLabel", CreateText("Battle Log Toggle Label"));
     }
 
     private static Slider CreateSlider(string name)

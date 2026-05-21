@@ -15,12 +15,21 @@ MonoBehaviour:
   playerMaxHp: 100
   playerAttack: 20
   playerMaxAp: 3
-  playerApRecoveryPerTurn: 1
+  playerApRecoveryPerTurn: 2
   basicSkillPower: 20
   basicSkillApCost: 0
   fireSkillPower: 30
   fireSkillApCost: 2
-  burnDamagePerTurn: 3
+  iceSkillPower: 25
+  iceSkillApCost: 1
+  stunTurnDuration: 1
+  lightningSkillPower: 40
+  lightningSkillApCost: 3
+  earthSkillPower: 22
+  earthSkillApCost: 2
+  earthSkillShieldAmount: 20
+  battleSpeedMultiplier: 1
+  burnDamagePerTurn: 5
   burnTurnDuration: 2
   guardDamageReductionPercent: 50
   sRankMaxTurns: 1
@@ -29,6 +38,8 @@ MonoBehaviour:
   aRankMaxDamageTaken: 30
   fastPaceMaxTurns: 1
   steadyPaceMaxTurns: 3
+  weaknessDamageMultiplier: 1.5
+  neutralDamageMultiplier: 1
   sRankRewardGold: 150
   aRankRewardGold: 120
   bRankRewardGold: 100

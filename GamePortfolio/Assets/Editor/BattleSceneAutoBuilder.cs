@@ -109,14 +109,17 @@ public static class BattleSceneAutoBuilder
         commandPreviewText.fontSize = 20;
         commandPreviewText.color = new Color(0.92f, 0.88f, 0.82f);
         commandPreviewText.gameObject.SetActive(false);
-        Image battleLogPanel = CreatePanel(canvas.transform, "Battle Log Panel", new Vector2(0, -245), new Vector2(940, 150), new Color(0.05f, 0.06f, 0.09f, 0.78f));
-        TMP_Text battleLogTitleText = CreateText(canvas.transform, "Battle Log Title Text", "Recent Actions", new Vector2(0, -185), new Vector2(900, 30), TextAlignmentOptions.Left);
+        Image battleLogPanel = CreatePanel(canvas.transform, "Battle Log Panel", new Vector2(0, -160), new Vector2(940, 145), new Color(0.05f, 0.06f, 0.09f, 0.88f));
+        TMP_Text battleLogTitleText = CreateText(canvas.transform, "Battle Log Title Text", "Recent Actions", new Vector2(0, -105), new Vector2(900, 30), TextAlignmentOptions.Left);
         battleLogTitleText.fontSize = 20;
         battleLogTitleText.color = new Color(0.96f, 0.92f, 0.68f);
-        TMP_Text battleLogText = CreateText(canvas.transform, "Battle Log Text", "Recent Actions\nNo actions yet.", new Vector2(0, -255), new Vector2(900, 105), TextAlignmentOptions.TopLeft);
+        TMP_Text battleLogText = CreateText(canvas.transform, "Battle Log Text", "Recent Actions\nNo actions yet.", new Vector2(0, -175), new Vector2(900, 100), TextAlignmentOptions.TopLeft);
         battleLogText.fontSize = 20;
         battleLogText.color = new Color(0.82f, 0.86f, 0.95f);
         battleLogPanel.raycastTarget = false;
+        battleLogPanel.gameObject.SetActive(false);
+        battleLogTitleText.gameObject.SetActive(false);
+        battleLogText.gameObject.SetActive(false);
 
         Button attackButton = CreateButton(canvas.transform, "Attack Button", "Attack", new Vector2(-330, 85), new Vector2(180, 65));
         Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire Skill", new Vector2(-110, 85), new Vector2(180, 65));
@@ -136,6 +139,8 @@ public static class BattleSceneAutoBuilder
         Button autoBattleButton = CreateButton(canvas.transform, "Auto Battle Button", "Auto: OFF", new Vector2(410, -245), new Vector2(140, 50));
         Button itemButton = CreateButton(canvas.transform, "Item Button", "Items", new Vector2(330, 15), new Vector2(180, 55));
         Button pauseButton = CreateButton(canvas.transform, "Pause Button", "Pause", new Vector2(-410, 85), new Vector2(140, 50));
+        Button battleLogToggleButton = CreateButton(canvas.transform, "Battle Log Toggle Button", "Log", new Vector2(520, -245), new Vector2(120, 50));
+        TMP_Text battleLogToggleLabel = battleLogToggleButton.GetComponentInChildren<TMP_Text>();
         stageSelectButton.gameObject.SetActive(false);
 
         // Screen flash image (hidden by default, used by BattleUI for impact feedback)
@@ -206,7 +211,11 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "messageText", messageText);
         SetObjectReference(serializedBattleUI, "impactText", impactText);
         SetObjectReference(serializedBattleUI, "skillHelpText", skillHelpText);
+        SetObjectReference(serializedBattleUI, "battleLogPanel", battleLogPanel.gameObject);
+        SetObjectReference(serializedBattleUI, "battleLogTitleText", battleLogTitleText);
         SetObjectReference(serializedBattleUI, "battleLogText", battleLogText);
+        SetObjectReference(serializedBattleUI, "battleLogToggleButton", battleLogToggleButton);
+        SetObjectReference(serializedBattleUI, "battleLogToggleLabel", battleLogToggleLabel);
         SetObjectReference(serializedBattleUI, "resultSummaryText", resultSummaryText);
         SetObjectReference(serializedBattleUI, "resultSummaryPanel", resultSummaryPanel.gameObject);
         SetObjectReference(serializedBattleUI, "commandPreviewPanel", commandPreviewPanel.gameObject);
@@ -288,6 +297,7 @@ public static class BattleSceneAutoBuilder
         Button speedToggleButton = FindButtonIncludingInactive("Speed Toggle Button");
         Button autoBattleButton = FindButtonIncludingInactive("Auto Battle Button");
         Button itemButton = FindButtonIncludingInactive("Item Button");
+        Button battleLogToggleButton = FindButtonIncludingInactive("Battle Log Toggle Button");
         TMP_Text playerHpText = FindText("Player HP Text");
         TMP_Text playerApText = FindText("Player AP Text");
         TMP_Text enemyHpText = FindText("Enemy HP Text");
@@ -305,9 +315,9 @@ public static class BattleSceneAutoBuilder
         TMP_Text enemyIntentText = FindText("Enemy Intent Text");
         TMP_Text enemyBreakText = FindText("Enemy Break Text");
         Slider enemyBreakSlider = FindSlider("Enemy Break Slider");
-        TMP_Text battleLogTitleText = FindText("Battle Log Title Text");
-        TMP_Text battleLogText = FindText("Battle Log Text");
-        Image battleLogPanel = FindImage("Battle Log Panel");
+        TMP_Text battleLogTitleText = FindTextIncludingInactive("Battle Log Title Text");
+        TMP_Text battleLogText = FindTextIncludingInactive("Battle Log Text");
+        Image battleLogPanel = FindImageIncludingInactive("Battle Log Panel");
         Image topStatusPanel = FindImage("Top Status Panel");
         Image playerCardPanel = FindImage("Player Card Panel");
         Image enemyCardPanel = FindImage("Enemy Card Panel");
@@ -352,6 +362,9 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battle Log text exists", battleLogText != null);
         AppendCheck(ref passed, ref report, "Battle Log panel exists", battleLogPanel != null);
         AppendCheck(ref passed, ref report, "Battle Log panel is readable", IsBattleLogPanelLikelyConfigured(battleLogPanel));
+        AppendCheck(ref passed, ref report, "Battle Log panel starts collapsed", battleLogPanel != null && !battleLogPanel.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Battle Log title starts collapsed", battleLogTitleText != null && !battleLogTitleText.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Battle Log text starts collapsed", battleLogText != null && !battleLogText.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Battle Log starts with recent-actions placeholder", IsBattleLogTextLikelyConfigured(battleLogText));
         AppendCheck(ref passed, ref report, "Result Summary text exists", resultSummaryText != null);
         AppendCheck(ref passed, ref report, "Result Summary panel exists", resultSummaryPanel != null);
@@ -375,6 +388,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Speed Toggle button exists", speedToggleButton != null);
         AppendCheck(ref passed, ref report, "Auto Battle button exists", autoBattleButton != null);
         AppendCheck(ref passed, ref report, "Item button exists", itemButton != null);
+        AppendCheck(ref passed, ref report, "Battle Log toggle button exists", battleLogToggleButton != null);
+        AppendCheck(ref passed, ref report, "Battle Log toggle button is configured", IsButtonLikelyConfigured(battleLogToggleButton));
         AppendCheck(ref passed, ref report, "Player HP text includes percentage", IsResourceTextLikelyConfigured(playerHpText, "Hero HP", "100%"));
         AppendCheck(ref passed, ref report, "Player AP text includes percentage", IsResourceTextLikelyConfigured(playerApText, "AP", "100%"));
         AppendCheck(ref passed, ref report, "Enemy HP text includes percentage", IsResourceTextLikelyConfigured(enemyHpText, "Slime HP", "100%"));
@@ -414,7 +429,11 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Message text linked", HasObjectReference(serializedBattleUI, "messageText"));
             AppendCheck(ref passed, ref report, "Impact text linked", HasObjectReference(serializedBattleUI, "impactText"));
             AppendCheck(ref passed, ref report, "Skill Help text linked", HasObjectReference(serializedBattleUI, "skillHelpText"));
+            AppendCheck(ref passed, ref report, "Battle Log panel linked", HasObjectReference(serializedBattleUI, "battleLogPanel"));
+            AppendCheck(ref passed, ref report, "Battle Log title linked", HasObjectReference(serializedBattleUI, "battleLogTitleText"));
             AppendCheck(ref passed, ref report, "Battle Log text linked", HasObjectReference(serializedBattleUI, "battleLogText"));
+            AppendCheck(ref passed, ref report, "Battle Log toggle button linked", HasObjectReference(serializedBattleUI, "battleLogToggleButton"));
+            AppendCheck(ref passed, ref report, "Battle Log toggle label linked", HasObjectReference(serializedBattleUI, "battleLogToggleLabel"));
             AppendCheck(ref passed, ref report, "Result Summary text linked", HasObjectReference(serializedBattleUI, "resultSummaryText"));
             AppendCheck(ref passed, ref report, "Result Summary panel linked", HasObjectReference(serializedBattleUI, "resultSummaryPanel"));
             AppendCheck(ref passed, ref report, "Command Preview panel linked", HasObjectReference(serializedBattleUI, "commandPreviewPanel"));

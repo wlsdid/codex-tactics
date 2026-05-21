@@ -1,5 +1,28 @@
 # Next Autonomous Tasks
 
+## Latest autonomous run — 2026-05-21 Batch 67: PDF UI Feedback Pass
+
+Completed:
+- Read the PDF feedback and focused the implementation on UI overlap, hidden battle logs, and 2D RPG presentation direction.
+- Added a collapsed-by-default `Battle Log Panel`, `Battle Log Title Text`, and `Battle Log Text` flow.
+- Added a dedicated `Battle Log Toggle Button` that switches between `Log` and `Hide Log`.
+- Updated `BattleUI` so new battles reset the log to hidden and keep log entries updating while collapsed.
+- Updated `BattleSceneAutoBuilder.ValidateBattleTestScene` to check collapsed log defaults and serialized BattleUI links.
+- Added `BattleAutoTestRunner` coverage for collapsed-by-default log state and Log/Hide Log toggling.
+- Added `Docs/Devlog/2026-05-21_pdf-ui-feedback.md` with manual test steps.
+
+Verification planned:
+- Static whitespace/brace checks.
+- `git diff --check`.
+- Unity batch compile.
+- Regenerate BattleScene via `CreateBattleTestScene`.
+- `ValidateBattleTestScene` and `BattleAutoTestRunner.RunBattleLogicAutoTest`.
+
+Recommended next tasks:
+1. Continue the visual pass toward the PDF direction: stronger 2D pixel/SD character cards and cleaner fantasy panel framing.
+2. Capture updated screenshots/GIFs after Unity validation passes.
+3. After UI is readable, resume content expansion only if the current battle screen feels presentable.
+
 ## Latest autonomous run — 2026-05-19 Batch 61: Scene Transition Animations
 
 Completed:
