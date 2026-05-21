@@ -24,6 +24,16 @@ public static class BattleSceneAutoBuilder
         Canvas canvas = CreateCanvas(camera);
         CreateEventSystem();
 
+        // Layered stage backdrop — keeps the battle scene feeling like a polished 2D RPG instead of a blank test canvas.
+        Image battleStageBackdropPanel = CreatePanel(canvas.transform, "Battle Stage Backdrop Panel", new Vector2(0, 35), new Vector2(1160, 345), new Color(0.018f, 0.022f, 0.045f, 0.78f));
+        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -115), new Vector2(980, 62), new Color(0.12f, 0.10f, 0.18f, 0.42f));
+        Image topGoldDividerPanel = CreatePanel(canvas.transform, "Top Gold Divider Panel", new Vector2(0, 104), new Vector2(1120, 4), new Color(0.95f, 0.72f, 0.34f, 0.72f));
+        Image commandGoldDividerPanel = CreatePanel(canvas.transform, "Command Gold Divider Panel", new Vector2(0, -218), new Vector2(1020, 4), new Color(0.95f, 0.72f, 0.34f, 0.72f));
+        battleStageBackdropPanel.raycastTarget = false;
+        battleStageFloorPanel.raycastTarget = false;
+        topGoldDividerPanel.raycastTarget = false;
+        commandGoldDividerPanel.raycastTarget = false;
+
         // Premium dark panels — deep navy/indigo tones
         Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 205), new Vector2(1200, 155), new Color(0.036f, 0.040f, 0.075f, 0.96f));
         Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-410, 65), new Vector2(350, 295), new Color(0.040f, 0.038f, 0.070f, 0.94f));
@@ -58,6 +68,10 @@ public static class BattleSceneAutoBuilder
         stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
 
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-360, 105), new Vector2(420, 50), TextAlignmentOptions.Left);
+        TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "ALLY UNIT  /  HERO", new Vector2(-410, 145), new Vector2(300, 28), TextAlignmentOptions.Center);
+        playerCardTitleText.fontSize = 18;
+        playerCardTitleText.fontStyle = FontStyles.Bold;
+        playerCardTitleText.color = new Color(0.92f, 0.86f, 0.55f);
         // Portrait border frames — subtle dark outline
         CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-410, 195), new Vector2(120, 120));
         Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-410, 195), new Vector2(100, 100));
@@ -71,6 +85,14 @@ public static class BattleSceneAutoBuilder
         playerShieldText.fontSize = 20;
         playerShieldText.color = new Color(0.45f, 0.78f, 1.0f);
         TMP_Text enemyHpText = CreateText(canvas.transform, "Enemy HP Text", "Slime HP: 80/80 (100%)", new Vector2(360, 105), new Vector2(420, 50), TextAlignmentOptions.Right);
+        TMP_Text enemyCardTitleText = CreateText(canvas.transform, "Enemy Card Title Text", "ENEMY UNIT  /  SLIME", new Vector2(410, 145), new Vector2(300, 28), TextAlignmentOptions.Center);
+        enemyCardTitleText.fontSize = 18;
+        enemyCardTitleText.fontStyle = FontStyles.Bold;
+        enemyCardTitleText.color = new Color(1.0f, 0.64f, 0.48f);
+        TMP_Text versusDividerText = CreateText(canvas.transform, "Versus Divider Text", "VS", new Vector2(0, 72), new Vector2(120, 70), TextAlignmentOptions.Center);
+        versusDividerText.fontSize = 34;
+        versusDividerText.fontStyle = FontStyles.Bold;
+        versusDividerText.color = new Color(0.96f, 0.78f, 0.36f);
         // Portrait border frames — subtle dark outline
         CreatePortraitFrame(canvas.transform, "Enemy Portrait Frame", new Vector2(410, 195), new Vector2(120, 120));
         Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(410, 195), new Vector2(100, 100));
@@ -318,6 +340,13 @@ public static class BattleSceneAutoBuilder
         TMP_Text battleLogTitleText = FindTextIncludingInactive("Battle Log Title Text");
         TMP_Text battleLogText = FindTextIncludingInactive("Battle Log Text");
         Image battleLogPanel = FindImageIncludingInactive("Battle Log Panel");
+        Image battleStageBackdropPanel = FindImage("Battle Stage Backdrop Panel");
+        Image battleStageFloorPanel = FindImage("Battle Stage Floor Panel");
+        Image topGoldDividerPanel = FindImage("Top Gold Divider Panel");
+        Image commandGoldDividerPanel = FindImage("Command Gold Divider Panel");
+        TMP_Text playerCardTitleText = FindText("Player Card Title Text");
+        TMP_Text enemyCardTitleText = FindText("Enemy Card Title Text");
+        TMP_Text versusDividerText = FindText("Versus Divider Text");
         Image topStatusPanel = FindImage("Top Status Panel");
         Image playerCardPanel = FindImage("Player Card Panel");
         Image enemyCardPanel = FindImage("Enemy Card Panel");
@@ -331,6 +360,15 @@ public static class BattleSceneAutoBuilder
         TMP_Text turnBannerText = FindTextIncludingInactive("Turn Banner Text");
         TMP_Text impactText = FindText("Impact Text");
 
+        AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
+        AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 1100f, 320f));
+        AppendCheck(ref passed, ref report, "Battle stage floor glow exists", battleStageFloorPanel != null);
+        AppendCheck(ref passed, ref report, "Battle stage floor glow is readable", IsDecorativePanelLikelyConfigured(battleStageFloorPanel, 900f, 45f));
+        AppendCheck(ref passed, ref report, "Top gold divider exists", topGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(topGoldDividerPanel, 1000f, 3f));
+        AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 900f, 3f));
+        AppendCheck(ref passed, ref report, "Player card title exists", IsNameplateTextLikelyConfigured(playerCardTitleText, "ALLY", "HERO"));
+        AppendCheck(ref passed, ref report, "Enemy card title exists", IsNameplateTextLikelyConfigured(enemyCardTitleText, "ENEMY", "SLIME"));
+        AppendCheck(ref passed, ref report, "Versus divider text exists", IsNameplateTextLikelyConfigured(versusDividerText, "VS", "VS"));
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
         AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 140f));
         AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
@@ -602,6 +640,36 @@ public static class BattleSceneAutoBuilder
             && color.r <= 0.14f
             && color.g <= 0.14f
             && color.b <= 0.20f;
+    }
+
+    private static bool IsDecorativePanelLikelyConfigured(Image panelImage, float minimumWidth, float minimumHeight)
+    {
+        if (panelImage == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = panelImage.GetComponent<RectTransform>();
+        Color color = panelImage.color;
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= minimumWidth
+            && rectTransform.sizeDelta.y >= minimumHeight
+            && color.a >= 0.35f;
+    }
+
+    private static bool IsNameplateTextLikelyConfigured(TMP_Text text, string firstToken, string secondToken)
+    {
+        if (text == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = text.GetComponent<RectTransform>();
+        string value = text.text;
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= 100f
+            && value.Contains(firstToken)
+            && value.Contains(secondToken);
     }
 
     private static bool IsBattleGuideTextLikelyConfigured(TMP_Text guideText)
