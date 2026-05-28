@@ -48,11 +48,15 @@ public static class CaptureScreenshots
 
         Debug.Log($"[Capture] Build succeeded: {buildPath}");
 
-        // Build succeeded — the build will be run externally (not from batchmode)
-        // Write the path so external script can find it
+        // Write helper files so external scripts can run the player with the correct output folder.
         string pathFile = Path.Combine(projectPath, "Builds", "_build_path.txt");
         File.WriteAllText(pathFile, buildPath);
         Debug.Log($"[Capture] Build path written to {pathFile}");
+
+        string argsFile = Path.Combine(projectPath, "Builds", "_capture_args.txt");
+        File.WriteAllText(argsFile,
+            $"-screen-width 1920 -screen-height 1080 -capture -captureOutputDir \"{capturesPath}\"");
+        Debug.Log($"[Capture] Capture args written to {argsFile}");
 
         // Save the build info
         EditorApplication.Exit(0);

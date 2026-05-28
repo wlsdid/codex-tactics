@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-28 Batch 75: Battle Commercial Presentation Pass
+## Latest autonomous run — 2026-05-28 Batch 77: Capture Runner Readability Pass
+
+Completed:
+- Fixed the standalone capture runner so portfolio screenshots are written back to `Docs/Captures/` instead of hidden build-data folders.
+- Added `-captureOutputDir` / `CODEX_TACTICS_CAPTURE_DIR` support to `ScreenshotCaptureJob`.
+- Moved `ReadPixels` behind `WaitForEndOfFrame` to avoid black-frame capture timing warnings.
+- Rebuilt and reran `CaptureRunner.exe` with graphics enabled, then regenerated `Docs/Captures/capture_contact_sheet.png`.
+- Updated README capture/verification notes and added `Docs/Devlog/2026-05-28_capture-runner-readability-pass.md`.
+
+Verification completed:
+- `CaptureScreenshots.Run`: PASS.
+- `CaptureRunner.exe -capture -captureOutputDir Docs/Captures`: PASS.
+- PNG non-black/stat check: PASS for all 7 screenshots.
+- Contact sheet visual QA: PASS; Title, Stage Select, battle start, Fire/Burn, Guard, Result, Retry are visible.
+- `ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- `ValidateGameFlowScenes`: PASS / `RESULT: PASS`.
+
+Recommended next tasks:
+1. Batch 78: add 2-3 additional chibi pixel party/enemy variants and expose them in roster/encounter presentation.
+2. Batch 79: strengthen Fire/Ice/Lightning/Guard hit feedback and screen shake for an 8-15 second GIF.
+3. Batch 80: generate README-ready gameplay GIF from the now-working capture pipeline.
+
+## Previous autonomous run — 2026-05-28 Batch 75: Battle Commercial Presentation Pass
 
 Completed:
 - Reframed the project target as a short, high-quality commercial-looking portfolio demo rather than a long game.

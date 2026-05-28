@@ -1,6 +1,6 @@
 # GamePortfolio — Codex Tactics
 
-Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 55 기준으로 타이틀 화면, 스테이지 선택, 6개 스테이지/12개 encounter, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증까지 포함합니다.
+Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 77 기준으로 타이틀 화면, 스테이지 선택, 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처까지 포함합니다.
 
 **최신 포트폴리오 정리:** [`Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt`](Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt)
 
@@ -55,6 +55,7 @@ Title Scene → Stage Select Scene → Battle Scene → Result / Continue / Retr
 - Title screen star particles, fade-in, title float, button glow
 - Stage Select auto-select, card pulse animation, modifier preview
 - Battle HUD: HP/AP bars, status, enemy intent, Break gauge, stage progress, recent actions
+- Original chibi pixel standees with forced Sprite import + point filtering for screenshot readability
 - Element badge, impact text color coding, guard/status overlays
 - Elemental projectile VFX, hit sparks, screen shake, damage/heal/buff popups
 - AudioManager singleton with procedural fallback BGM/SFX
@@ -97,13 +98,14 @@ Unity Editor 메뉴:
 - `Tools > Codex Tactics > Create Game Flow Scenes`
 - `Tools > Codex Tactics > Validate Game Flow Scenes`
 
-2026-05-18 검증 결과:
+2026-05-28 / Batch 77 검증 결과:
 
 ```text
-git diff --check 9da4ab5..HEAD: PASS
+git diff --check: PASS
 BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
 GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
 BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
+Standalone CaptureRunner + contact sheet visual QA: PASS
 ```
 
 Unity batchmode에서 `This should not be called in batch mode.` 경고가 출력될 수 있지만, 현재 테스트는 exit code 0 및 `RESULT: PASS`로 정상 완료됩니다.

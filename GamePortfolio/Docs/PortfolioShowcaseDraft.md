@@ -1,6 +1,6 @@
 # Codex Tactics — Portfolio Showcase Draft
 
-> Updated: 2026-05-28 — current target: short, high-quality commercial-looking portfolio demo. Covers Batch 76 scope: chibi pixel-art inspired battle standees, premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, and automated validation.
+> Updated: 2026-05-28 — current target: short, high-quality commercial-looking portfolio demo. Covers Batch 77 scope: working standalone capture pipeline, chibi pixel-art inspired battle standees, premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, and automated validation.
 
 ## 1. Game overview
 
@@ -151,7 +151,7 @@ Instead of relying only on manual Play Mode checks, the project includes Editor 
 
 ## 7. Validation status on 2026-05-28
 
-Reviewed after Batch 76 chibi pixel standee work.
+Reviewed after Batch 77 capture runner readability pass.
 
 Passed checks:
 
@@ -160,6 +160,7 @@ git diff --check: PASS
 BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
 GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
 BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
+Standalone CaptureRunner + contact sheet visual QA: PASS
 ```
 
 Note: Unity batchmode still prints a benign `This should not be called in batch mode.` warning from editor dialog usage, but the validation methods return exit code 0 and `RESULT: PASS`.
