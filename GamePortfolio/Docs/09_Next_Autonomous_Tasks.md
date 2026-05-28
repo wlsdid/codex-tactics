@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-28 Batch 77: Capture Runner Readability Pass
+## Latest autonomous run — 2026-05-28 Batch 78: Chibi Pixel Art Improvement
+
+Completed:
+- Regenerated the main hero/enemy chibi standees with clearer SNES-like outlines, faces, weapon/crown/wing silhouettes, and limited fantasy palettes.
+- Added two extra original pixel variants: `chibi_ally_guardian.png` and `chibi_enemy_raider.png`.
+- Added pixel mini sprites into party/enemy roster slots so the side UI has character identity instead of only text chips.
+- Extended BattleScene validation to require sprite-backed main standees and roster mini sprites.
+- Re-captured portfolio screenshots and fixed the Guard screenshot timing so it no longer catches the white flash frame.
+- Added `Docs/Devlog/2026-05-28_chibi-pixel-art-improvement.md`.
+
+Verification completed:
+- `CreateBattleTestScene`: PASS.
+- `ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- `CaptureScreenshots.Run`: PASS.
+- `CaptureRunner.exe -capture -captureOutputDir Docs/Captures`: PASS.
+- Contact sheet visual QA: PASS; improved hero/enemy sprites and roster mini sprites are visible, Guard capture is no longer washed out.
+
+Recommended next tasks:
+1. Batch 79: strengthen Fire/Ice/Lightning/Guard hit feedback and screen shake for an 8-15 second GIF.
+2. Batch 80: add simple idle bob / hit reaction movement to make sprites feel alive.
+3. Batch 81: generate README-ready gameplay GIF from the working capture pipeline.
+
+## Previous autonomous run — 2026-05-28 Batch 77: Capture Runner Readability Pass
 
 Completed:
 - Fixed the standalone capture runner so portfolio screenshots are written back to `Docs/Captures/` instead of hidden build-data folders.

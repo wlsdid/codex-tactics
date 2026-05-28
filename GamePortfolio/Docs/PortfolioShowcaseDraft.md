@@ -107,6 +107,7 @@ Current commercial-look improvements:
 - Dark tactical RPG panel hierarchy: top status, side unit cards, center battlefield, command bar.
 - Generated battle backdrop, tactical grid, formation markers, floor glow, gold dividers, and vignette shadows.
 - Original generated PNG hero/enemy chibi pixel standees in the battlefield so screenshots show characters, not only UI boxes.
+- Improved Batch 78 pixel-art pass: clearer hero face/armor/sword silhouette, boss horn/crown/wing identity, and roster mini sprites for party/enemy readability.
 - Reference-driven art direction: large heads, small bodies, crisp dark outlines, limited fantasy palettes, readable weapon/accessory silhouettes, and soft oval shadows. The implementation adapts the feel as original generated art instead of copying commercial/reference sprites.
 - Premium command header and AP badge to make the skill area feel like a designed game interface.
 - Stage Select showcase frame and fresh README capture contact sheet.

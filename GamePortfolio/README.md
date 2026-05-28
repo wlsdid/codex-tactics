@@ -55,7 +55,7 @@ Title Scene → Stage Select Scene → Battle Scene → Result / Continue / Retr
 - Title screen star particles, fade-in, title float, button glow
 - Stage Select auto-select, card pulse animation, modifier preview
 - Battle HUD: HP/AP bars, status, enemy intent, Break gauge, stage progress, recent actions
-- Original chibi pixel standees with forced Sprite import + point filtering for screenshot readability
+- Original chibi pixel standees + roster mini sprites with forced Sprite import + point filtering for screenshot readability
 - Element badge, impact text color coding, guard/status overlays
 - Elemental projectile VFX, hit sparks, screen shake, damage/heal/buff popups
 - AudioManager singleton with procedural fallback BGM/SFX
