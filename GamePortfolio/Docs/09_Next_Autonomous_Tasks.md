@@ -1,6 +1,30 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-28 Batch 73: Stage Select Showcase Frame
+## Latest autonomous run — 2026-05-28 Batch 74: Portfolio Screenshot Capture
+
+Completed:
+- Extended the capture runner to build the full flow scenes and capture Title, Stage Select, and Battle screenshots.
+- Ran the Windows standalone capture runner with graphics enabled from WSL.
+- Added fresh portfolio screenshots under `Docs/Captures/`, including a `capture_contact_sheet.png` for README review.
+- Visual QA found Stage Select description/button crowding; tightened the generated layout and re-captured.
+- Updated `README.md`, `Docs/Captures/README.md`, and added `Docs/Devlog/2026-05-28_portfolio-screenshot-capture.md`.
+
+Verification completed:
+- `CreateGameFlowScenes`: PASS.
+- `CreateBattleTestScene`: PASS.
+- `ValidateGameFlowScenes`: PASS / `RESULT: PASS`.
+- `ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- Standalone capture runner saved all expected PNGs.
+- Visual QA of contact sheet: usable for README/portfolio evidence.
+- `git diff --check`: PASS after Unity YAML cleanup.
+
+Recommended next tasks:
+1. Start a polished portfolio showcase page using the fresh screenshots.
+2. Add a short 8-15 second GIF later for motion evidence.
+3. If visual quality needs another pass, improve stage-card thumbnail art before adding new combat systems.
+
+## Previous autonomous run — 2026-05-28 Batch 73: Stage Select Showcase Frame
 
 Completed:
 - Added a generated premium-style showcase frame around the Stage Select screen.

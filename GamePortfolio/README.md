@@ -142,13 +142,18 @@ Tools > Codex Tactics > Validate Battle Test Scene
 
 ---
 
-## 캡처 필요 목록
+## 쇼케이스 캡처
 
-- Title screen
-- Stage Select with modifier preview
-- Battle HUD full view
-- Fire/Burn, Ice/Stun, Break 발동 장면
-- Stage 4 Storm Surge
-- Stage 5 Void Drain
-- Stage 6 Radiant Trial
-- Result summary with rank/reward
+최신 자동 캡처 결과는 `Docs/Captures/`에 정리되어 있습니다.
+
+![Codex Tactics capture sheet](Docs/Captures/capture_contact_sheet.png)
+
+개별 이미지:
+
+- [`00_title_scene.png`](Docs/Captures/00_title_scene.png) — Title screen
+- [`00_stage_select_scene.png`](Docs/Captures/00_stage_select_scene.png) — Stage Select with modifier preview
+- [`01_battle_start.png`](Docs/Captures/01_battle_start.png) — Battle HUD start state
+- [`02_fire_skill_burn.png`](Docs/Captures/02_fire_skill_burn.png) — Fire skill / Burn feedback
+- [`03_guard_status.png`](Docs/Captures/03_guard_status.png) — Guard status feedback
+- [`04_result_summary_rank.png`](Docs/Captures/04_result_summary_rank.png) — Result summary with rank/reward
+- [`05_retry_reset.png`](Docs/Captures/05_retry_reset.png) — Retry reset state

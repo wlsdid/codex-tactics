@@ -17,10 +17,12 @@ public static class CaptureScreenshots
         string capturesPath = Path.Combine(projectPath, "Docs/Captures");
         Directory.CreateDirectory(capturesPath);
 
-        // Set build settings: include the battle scene
-        string scenePath = "Assets/Scenes/BattleScene.unity";
-        EditorSceneManager.OpenScene(scenePath);
-        Debug.Log($"[Capture] Scene loaded: {scenePath}");
+        // Set build settings: include the portfolio flow scenes and start from Title.
+        string titleScenePath = "Assets/Scenes/TitleScene.unity";
+        string stageSelectScenePath = "Assets/Scenes/StageSelectScene.unity";
+        string battleScenePath = "Assets/Scenes/BattleScene.unity";
+        EditorSceneManager.OpenScene(titleScenePath);
+        Debug.Log($"[Capture] Scene loaded: {titleScenePath}");
 
         // Build standalone player
         string buildPath = Path.Combine(projectPath, BuildDir, "CaptureRunner.exe");
@@ -28,7 +30,7 @@ public static class CaptureScreenshots
 
         var buildOptions = new BuildPlayerOptions
         {
-            scenes = new[] { scenePath },
+            scenes = new[] { titleScenePath, stageSelectScenePath, battleScenePath },
             locationPathName = buildPath,
             target = BuildTarget.StandaloneWindows64,
             options = BuildOptions.None

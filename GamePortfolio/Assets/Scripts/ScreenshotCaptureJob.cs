@@ -2,6 +2,7 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ScreenshotCaptureJob : MonoBehaviour
 {
@@ -61,6 +62,17 @@ public class ScreenshotCaptureJob : MonoBehaviour
 
     private IEnumerator CaptureSequence()
     {
+        yield return new WaitForSeconds(1.5f);
+
+        Capture("00_title_scene.png");
+        yield return new WaitForSeconds(0.5f);
+
+        SceneManager.LoadScene(GameSceneFlow.StageSelectSceneName);
+        yield return new WaitForSeconds(1.5f);
+        Capture("00_stage_select_scene.png");
+        yield return new WaitForSeconds(0.5f);
+
+        SceneManager.LoadScene(GameSceneFlow.BattleSceneName);
         yield return new WaitForSeconds(2.0f);
 
         var manager = FindFirstObjectByType<BattleManager>();

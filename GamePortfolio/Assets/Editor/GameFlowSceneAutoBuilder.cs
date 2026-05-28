@@ -75,17 +75,17 @@ public static class GameFlowSceneAutoBuilder
 
         CreateStageSelectShowcaseFrame(canvas.transform);
 
-        TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 280), new Vector2(600, 60), TextAlignmentOptions.Center);
-        headerText.fontSize = 40;
+        TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 305), new Vector2(600, 54), TextAlignmentOptions.Center);
+        headerText.fontSize = 36;
         headerText.color = new Color(0.92f, 0.78f, 0.38f);
 
         // Stage cards — 6 cards in 2 rows of 3
         int cardCount = 6;
         float cardStartX = -260f;
-        float cardY = 180f;
+        float cardY = 150f;
         float cardSpacingX = 260f;
-        float cardSpacingY = -170f;
-        Vector2 cardSize = new Vector2(230, 160);
+        float cardSpacingY = -155f;
+        Vector2 cardSize = new Vector2(220, 135);
 
         string[] cardNames = {
             "Slime Scout Route",
@@ -127,44 +127,44 @@ public static class GameFlowSceneAutoBuilder
             cardBgs[i] = cardBtn.GetComponent<Image>();
 
             // Stage name text
-            TMP_Text nameText = CreateText(cardBtn.transform, $"Stage {i + 1} Name Text", cardNames[i], new Vector2(0, 45), new Vector2(200, 30), TextAlignmentOptions.Center);
-            nameText.fontSize = 20;
+            TMP_Text nameText = CreateText(cardBtn.transform, $"Stage {i + 1} Name Text", cardNames[i], new Vector2(0, 38), new Vector2(190, 28), TextAlignmentOptions.Center);
+            nameText.fontSize = 18;
             nameText.color = i == 0 ? Color.white : new Color(0.5f, 0.5f, 0.5f);
 
             // Element icon + difficulty text (single line)
             string eleDiffStr = $"{cardElements[i]} {cardDifficulties[i]}";
-            TMP_Text eleDiffText = CreateText(cardBtn.transform, $"Stage {i + 1} EleDiff Text", eleDiffStr, new Vector2(0, 15), new Vector2(200, 24), TextAlignmentOptions.Center);
-            eleDiffText.fontSize = 18;
+            TMP_Text eleDiffText = CreateText(cardBtn.transform, $"Stage {i + 1} EleDiff Text", eleDiffStr, new Vector2(0, 12), new Vector2(190, 22), TextAlignmentOptions.Center);
+            eleDiffText.fontSize = 16;
             eleDiffText.color = i == 0 ? new Color(0.82f, 0.86f, 0.95f) : new Color(0.5f, 0.5f, 0.5f);
 
             // Description text (short for card preview)
-            TMP_Text shortDescText = CreateText(cardBtn.transform, $"Stage {i + 1} Desc Text", cardDescs[i], new Vector2(0, -10), new Vector2(200, 24), TextAlignmentOptions.Top);
-            shortDescText.fontSize = 14;
+            TMP_Text shortDescText = CreateText(cardBtn.transform, $"Stage {i + 1} Desc Text", cardDescs[i], new Vector2(0, -10), new Vector2(190, 22), TextAlignmentOptions.Top);
+            shortDescText.fontSize = 13;
             shortDescText.color = i == 0 ? new Color(0.72f, 0.72f, 0.72f) : new Color(0.4f, 0.4f, 0.4f);
 
             // Status text
             string statusLabel = i == 0 ? "NEXT" : "LOCKED";
             Color statusColor = i == 0 ? new Color(0.38f, 1f, 0.42f) : new Color(1f, 0.5f, 0.5f);
-            TMP_Text statusText = CreateText(cardBtn.transform, $"Stage {i + 1} Status Text", statusLabel, new Vector2(0, -50), new Vector2(200, 28), TextAlignmentOptions.Center);
-            statusText.fontSize = 18;
+            TMP_Text statusText = CreateText(cardBtn.transform, $"Stage {i + 1} Status Text", statusLabel, new Vector2(0, -43), new Vector2(190, 24), TextAlignmentOptions.Center);
+            statusText.fontSize = 16;
             statusText.color = statusColor;
             statusTexts[i] = statusText;
         }
 
         // Description panel — expanded for rich info
-        Image descPanel = CreatePanel(canvas.transform, "Description Panel", new Vector2(0, -140), new Vector2(700, 120), new Color(0.06f, 0.06f, 0.10f, 0.88f));
+        Image descPanel = CreatePanel(canvas.transform, "Description Panel", new Vector2(0, -200), new Vector2(760, 135), new Color(0.06f, 0.06f, 0.10f, 0.88f));
         descPanel.raycastTarget = false;
-        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Stage 1-1: Slime Scout", new Vector2(0, -110), new Vector2(660, 28), TextAlignmentOptions.Center);
-        stageNameText.fontSize = 22;
+        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Stage 1-1: Slime Scout", new Vector2(0, -155), new Vector2(710, 26), TextAlignmentOptions.Center);
+        stageNameText.fontSize = 20;
         stageNameText.color = new Color(0.92f, 0.78f, 0.38f);
         TMP_Text descText = CreateText(canvas.transform, "Stage Description Text",
-            "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.\n\nEncounters: Slime -> Slime King\nElement: FIRE Fire | Difficulty: D1\nReward: Rank 100-150G / 80 XP\nStatus: NEXT - Click Start Battle",
-            new Vector2(0, -155), new Vector2(660, 80), TextAlignmentOptions.TopLeft);
-        descText.fontSize = 16;
+            "A basic encounter against slimes.\nEncounters: Slime -> Slime King\nElement: FIRE Fire | Difficulty: D1\nReward: Rank 100-150G / 80 XP\nModifier: Tutorial Field\nGear: ATK +15\nStatus: NEXT - Click Start Battle",
+            new Vector2(0, -212), new Vector2(710, 96), TextAlignmentOptions.TopLeft);
+        descText.fontSize = 13;
         descText.color = new Color(0.82f, 0.82f, 0.92f);
 
-        Button startBattleButton = CreateButton(canvas.transform, "Start Battle Button", "Start Battle", new Vector2(-120, -280), new Vector2(260, 65));
-        Button backButton = CreateButton(canvas.transform, "Back Button", "Back", new Vector2(120, -280), new Vector2(260, 65));
+        Button startBattleButton = CreateButton(canvas.transform, "Start Battle Button", "Start Battle", new Vector2(-120, -340), new Vector2(260, 54));
+        Button backButton = CreateButton(canvas.transform, "Back Button", "Back", new Vector2(120, -340), new Vector2(260, 54));
 
         // Create StageSelectController and wire everything
         GameObject controllerObj = new GameObject("StageSelectController");
@@ -392,22 +392,22 @@ public static class GameFlowSceneAutoBuilder
         Image frame = CreatePanel(parent, "Stage Select Showcase Frame Panel", new Vector2(0, 20), new Vector2(1080, 620), new Color(0.025f, 0.027f, 0.045f, 0.82f));
         frame.raycastTarget = false;
 
-        Image topGlow = CreatePanel(parent, "Stage Select Top Glow Panel", new Vector2(0, 320), new Vector2(920, 34), new Color(0.16f, 0.22f, 0.40f, 0.45f));
+        Image topGlow = CreatePanel(parent, "Stage Select Top Glow Panel", new Vector2(0, 330), new Vector2(920, 30), new Color(0.16f, 0.22f, 0.40f, 0.45f));
         topGlow.raycastTarget = false;
 
-        Image topDivider = CreatePanel(parent, "Stage Select Top Gold Divider Panel", new Vector2(0, 246), new Vector2(900, 4), new Color(0.82f, 0.62f, 0.24f, 0.95f));
+        Image topDivider = CreatePanel(parent, "Stage Select Top Gold Divider Panel", new Vector2(0, 238), new Vector2(900, 4), new Color(0.82f, 0.62f, 0.24f, 0.95f));
         topDivider.raycastTarget = false;
 
-        Image cardRail = CreatePanel(parent, "Stage Card Rail Panel", new Vector2(0, 95), new Vector2(880, 360), new Color(0.035f, 0.040f, 0.070f, 0.70f));
+        Image cardRail = CreatePanel(parent, "Stage Card Rail Panel", new Vector2(0, 72), new Vector2(880, 320), new Color(0.035f, 0.040f, 0.070f, 0.70f));
         cardRail.raycastTarget = false;
 
-        Image bottomDivider = CreatePanel(parent, "Stage Select Bottom Gold Divider Panel", new Vector2(0, -70), new Vector2(760, 3), new Color(0.72f, 0.48f, 0.18f, 0.88f));
+        Image bottomDivider = CreatePanel(parent, "Stage Select Bottom Gold Divider Panel", new Vector2(0, -92), new Vector2(760, 3), new Color(0.72f, 0.48f, 0.18f, 0.88f));
         bottomDivider.raycastTarget = false;
 
-        Image descDivider = CreatePanel(parent, "Description Gold Divider Panel", new Vector2(0, -80), new Vector2(620, 3), new Color(0.82f, 0.62f, 0.24f, 0.90f));
+        Image descDivider = CreatePanel(parent, "Description Gold Divider Panel", new Vector2(0, -122), new Vector2(620, 3), new Color(0.82f, 0.62f, 0.24f, 0.90f));
         descDivider.raycastTarget = false;
 
-        TMP_Text chapterText = CreateText(parent, "Stage Select Chapter Label Text", "CHAPTER 1 - TUTORIAL FRONT", new Vector2(0, 238), new Vector2(680, 28), TextAlignmentOptions.Center);
+        TMP_Text chapterText = CreateText(parent, "Stage Select Chapter Label Text", "CHAPTER 1 - TUTORIAL FRONT", new Vector2(0, 258), new Vector2(680, 24), TextAlignmentOptions.Center);
         chapterText.fontSize = 16;
         chapterText.color = new Color(0.70f, 0.82f, 1.0f, 0.92f);
         chapterText.raycastTarget = false;

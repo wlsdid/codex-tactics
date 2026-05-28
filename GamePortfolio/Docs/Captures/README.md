@@ -1,26 +1,32 @@
 # Captures
 
-Place Unity screenshots and GIFs for the portfolio README in this folder.
+Unity screenshots and contact sheet for the portfolio README.
 
-Recommended files:
+## Current captured files
 
 ```text
+00_title_scene.png
+00_stage_select_scene.png
 01_battle_start.png
 02_fire_skill_burn.png
 03_guard_status.png
 04_result_summary_rank.png
 05_retry_reset.png
-codex_tactics_battle_loop.gif
+capture_contact_sheet.png
 ```
 
-Do not add large raw video files here. Keep short converted GIFs or compressed images only.
+## README snippets
 
-Suggested README snippets after files exist:
+```md
+![Codex Tactics capture sheet](Docs/Captures/capture_contact_sheet.png)
+```
+
+```md
+![Stage Select](Docs/Captures/00_stage_select_scene.png)
+```
 
 ```md
 ![Battle result summary](Docs/Captures/04_result_summary_rank.png)
 ```
 
-```md
-![Codex Tactics battle loop](Docs/Captures/codex_tactics_battle_loop.gif)
-```
+Do not add large raw video files here. Keep short converted GIFs or compressed images only.

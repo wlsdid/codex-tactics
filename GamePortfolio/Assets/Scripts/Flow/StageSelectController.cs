@@ -331,7 +331,7 @@ public class StageSelectController : MonoBehaviour
             else
                 unlockCondition = $"Status: {statusText}";
 
-            string description = StageDescriptions[index];
+            string description = StageDescriptions[index].Split('\n')[0];
             string modifierLine = "Modifier: None";
             var stageEncounters = StageData.GetEncountersForStage(index);
             if (stageEncounters != null && stageEncounters.Count > 0)
@@ -342,7 +342,7 @@ public class StageSelectController : MonoBehaviour
             // Equipment summary
             string equipmentLine = EquipmentManager.BuildStatSummary();
 
-            stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{modifierLine}\n\nGear: {equipmentLine}\n{unlockCondition}";
+            stageDescriptionText.text = $"{description}\n{encounters}\n{element}\n{reward}\n{modifierLine}\nGear: {equipmentLine}\n{unlockCondition}";
         }
     }
 
