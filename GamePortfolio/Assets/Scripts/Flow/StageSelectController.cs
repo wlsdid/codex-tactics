@@ -82,12 +82,12 @@ public class StageSelectController : MonoBehaviour
     };
 
     private static readonly string[] StageDifficulty = {
-        "★",      // Stage 1
-        "★",      // Stage 2
-        "★★",     // Stage 3
-        "★★",     // Stage 4
-        "★★★",    // Stage 5
-        "★★★"     // Stage 6
+        "D1",     // Stage 1
+        "D1",     // Stage 2
+        "D2",     // Stage 3
+        "D2",     // Stage 4
+        "D3",     // Stage 5
+        "D3"      // Stage 6
     };
 
     private static readonly string[] StageRewardGold = {
@@ -312,11 +312,11 @@ public class StageSelectController : MonoBehaviour
             bool unlocked = ProgressState.IsStageUnlocked(index);
             bool completed = ProgressState.IsStageCompleted(index);
             string elementIcon = GetElementIcon(StageElements[index]);
-            string difficulty = index >= 0 && index < StageDifficulty.Length ? StageDifficulty[index] : "★";
+            string difficulty = index >= 0 && index < StageDifficulty.Length ? StageDifficulty[index] : "D1";
             string rewardGold = index >= 0 && index < StageRewardGold.Length ? StageRewardGold[index] : "";
             string rewardXP = index >= 0 && index < StageRewardXP.Length ? StageRewardXP[index] : "";
 
-            string encounters = $"Encounters: {PlaceholderSpriteGenerator.StageEnemyNames[index]} → {PlaceholderSpriteGenerator.StageBossNames[index]}";
+            string encounters = $"Encounters: {PlaceholderSpriteGenerator.StageEnemyNames[index]} -> {PlaceholderSpriteGenerator.StageBossNames[index]}";
             string element = $"Element: {elementIcon} {StageElements[index]} | Difficulty: {difficulty}";
             string reward = $"Reward: {rewardGold} + Bonuses / {rewardXP}";
 
@@ -325,9 +325,9 @@ public class StageSelectController : MonoBehaviour
             if (completed)
                 unlockCondition = $"Status: {statusText}";
             else if (unlocked)
-                unlockCondition = $"Status: {statusText} — Click Start Battle";
+                unlockCondition = $"Status: {statusText} - Click Start Battle";
             else if (index > 0)
-                unlockCondition = $"Status: {statusText} — Clear \"{StageNames[index - 1]}\" to unlock";
+                unlockCondition = $"Status: {statusText} - Clear \"{StageNames[index - 1]}\" to unlock";
             else
                 unlockCondition = $"Status: {statusText}";
 
@@ -342,7 +342,7 @@ public class StageSelectController : MonoBehaviour
             // Equipment summary
             string equipmentLine = EquipmentManager.BuildStatSummary();
 
-            stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{modifierLine}\n\n⚔ Gear: {equipmentLine}\n{unlockCondition}";
+            stageDescriptionText.text = $"{description}\n\n{encounters}\n{element}\n{reward}\n{modifierLine}\n\nGear: {equipmentLine}\n{unlockCondition}";
         }
     }
 
@@ -368,26 +368,26 @@ public class StageSelectController : MonoBehaviour
     /// <summary>Get status text for a stage card based on progress.</summary>
     private static string GetStageStatusText(int index, bool unlocked, bool completed)
     {
-        if (completed) return "✅ Cleared";
-        if (!unlocked) return "🔒 Locked";
+        if (completed) return "CLEARED";
+        if (!unlocked) return "LOCKED";
         int nextIndex = GetNextRecommendedStageIndex();
-        if (index == nextIndex) return "⭐ Next";
-        return "▶ Available";
+        if (index == nextIndex) return "NEXT";
+        return "AVAILABLE";
     }
 
-    /// <summary>Get an emoji icon representing the given element type.</summary>
+    /// <summary>Get an ASCII-safe element tag representing the given element type.</summary>
     private static string GetElementIcon(ElementType element)
     {
         return element switch
         {
-            ElementType.Fire => "🔥",
-            ElementType.Ice => "❄",
-            ElementType.Lightning => "⚡",
-            ElementType.Nature => "🌿",
-            ElementType.Earth => "🌍",
-            ElementType.Dark => "🌑",
-            ElementType.Light => "✨",
-            _ => "❓"
+            ElementType.Fire => "FIRE",
+            ElementType.Ice => "ICE",
+            ElementType.Lightning => "LIT",
+            ElementType.Nature => "NAT",
+            ElementType.Earth => "EARTH",
+            ElementType.Dark => "DARK",
+            ElementType.Light => "LIGHT",
+            _ => "UNK"
         };
     }
 

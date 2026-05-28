@@ -1,6 +1,30 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-21 Batch 71: UI Readability and Optimization Pass
+## Latest autonomous run — 2026-05-28 Batch 72: Stage Select ASCII Readability
+
+Completed:
+- Replaced Stage Select emoji/status glyphs with ASCII-safe labels (`NEXT`, `LOCKED`, `CLEARED`, `AVAILABLE`) for cleaner TMP captures.
+- Converted stage element markers to compact text tags (`FIRE`, `NAT`, `EARTH`, `LIT`, `DARK`, `LIGHT`).
+- Converted stage difficulty from star glyphs to `D1`/`D2`/`D3`.
+- Updated generated Stage Select scene defaults and `Validate Game Flow Scenes` expectations to match the runtime labels.
+- Added `Docs/Devlog/2026-05-28_stage-select-ascii-readability.md`.
+
+Verification completed:
+- Static emoji search in C# files: PASS.
+- C# brace/final-newline check: PASS.
+- Unity batch compile: PASS, no C# compiler errors.
+- Regenerated Game Flow scenes via `CreateGameFlowScenes`: PASS.
+- `ValidateGameFlowScenes`: PASS / `RESULT: PASS`.
+- `ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Capture Title/Stage Select/Battle screenshots for README/showcase material if validation stays clean.
+2. If Stage Select still looks too placeholder-like, add a small premium frame/background pass before more systems.
+3. Later add richer stage previews or unlock progression, but keep the current flow readable first.
+
+## Previous autonomous run — 2026-05-21 Batch 71: UI Readability and Optimization Pass
 
 Completed:
 - Replaced remaining battle-runtime emoji/status strings with ASCII-safe labels to prevent TMP missing-glyph boxes in screenshots.
