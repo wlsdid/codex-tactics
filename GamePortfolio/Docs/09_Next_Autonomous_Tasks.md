@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-28 Batch 72: Stage Select ASCII Readability
+## Latest autonomous run — 2026-05-28 Batch 73: Stage Select Showcase Frame
+
+Completed:
+- Added a generated premium-style showcase frame around the Stage Select screen.
+- Added a subtle blue top glow, gold dividers, dark card rail panel, and chapter label (`CHAPTER 1 - TUTORIAL FRONT`).
+- Updated `Validate Game Flow Scenes` to verify the new generated frame/glow/divider/label objects.
+- Regenerated flow scenes through `GameFlowSceneAutoBuilder` and cleaned Unity YAML whitespace.
+- Added `Docs/Devlog/2026-05-28_stage-select-showcase-frame.md`.
+
+Verification completed:
+- C# brace/final-newline check: PASS.
+- Unity batch compile: PASS, no C# compiler errors.
+- Regenerated Game Flow scenes via `CreateGameFlowScenes`: PASS.
+- `ValidateGameFlowScenes`: PASS / `RESULT: PASS`.
+- `ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Capture Title/Stage Select/Battle screenshots for README/showcase material.
+2. If Stage Select still feels placeholder-like, add small procedural stage preview thumbnails to each card.
+3. After visuals are acceptable, resume gameplay/content expansion.
+
+## Previous autonomous run — 2026-05-28 Batch 72: Stage Select ASCII Readability
 
 Completed:
 - Replaced Stage Select emoji/status glyphs with ASCII-safe labels (`NEXT`, `LOCKED`, `CLEARED`, `AVAILABLE`) for cleaner TMP captures.

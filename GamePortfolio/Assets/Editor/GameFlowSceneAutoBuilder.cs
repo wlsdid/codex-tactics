@@ -73,6 +73,8 @@ public static class GameFlowSceneAutoBuilder
         Image bgPanel = CreatePanel(canvas.transform, "Background Panel", Vector2.zero, new Vector2(1200, 800), new Color(0.05f, 0.05f, 0.08f, 1f));
         bgPanel.raycastTarget = false;
 
+        CreateStageSelectShowcaseFrame(canvas.transform);
+
         TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 280), new Vector2(600, 60), TextAlignmentOptions.Center);
         headerText.fontSize = 40;
         headerText.color = new Color(0.92f, 0.78f, 0.38f);
@@ -239,6 +241,12 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "StageSelectScene has Canvas", Object.FindObjectOfType<Canvas>() != null);
             AppendCheck(ref passed, ref report, "StageSelectScene has EventSystem", Object.FindObjectOfType<EventSystem>() != null);
             AppendCheck(ref passed, ref report, "StageSelectScene has GameSceneFlow component", Object.FindObjectOfType<GameSceneFlow>() != null);
+            AppendCheck(ref passed, ref report, "StageSelect showcase frame exists", HasSceneObject("Stage Select Showcase Frame Panel"));
+            AppendCheck(ref passed, ref report, "StageSelect top glow exists", HasSceneObject("Stage Select Top Glow Panel"));
+            AppendCheck(ref passed, ref report, "StageSelect card rail exists", HasSceneObject("Stage Card Rail Panel"));
+            AppendCheck(ref passed, ref report, "StageSelect gold dividers exist", HasSceneObject("Stage Select Top Gold Divider Panel") && HasSceneObject("Stage Select Bottom Gold Divider Panel"));
+            AppendCheck(ref passed, ref report, "StageSelect description divider exists", HasSceneObject("Description Gold Divider Panel"));
+            AppendCheck(ref passed, ref report, "StageSelect chapter label exists", HasSceneObject("Stage Select Chapter Label Text"));
             StageSelectController controller = Object.FindObjectOfType<StageSelectController>();
             AppendCheck(ref passed, ref report, "StageSelectController exists", controller != null);
             if (controller != null)
@@ -303,6 +311,11 @@ public static class GameFlowSceneAutoBuilder
     {
         GameObject obj = GameObject.Find(objectName);
         return obj != null ? obj.GetComponent<Button>() : null;
+    }
+
+    private static bool HasSceneObject(string objectName)
+    {
+        return GameObject.Find(objectName) != null;
     }
 
     private static bool VerifyButtonPersistentListener(Button button, string expectedMethod)
@@ -372,6 +385,32 @@ public static class GameFlowSceneAutoBuilder
         Image img = obj.GetComponent<Image>();
         img.color = color;
         return img;
+    }
+
+    private static void CreateStageSelectShowcaseFrame(Transform parent)
+    {
+        Image frame = CreatePanel(parent, "Stage Select Showcase Frame Panel", new Vector2(0, 20), new Vector2(1080, 620), new Color(0.025f, 0.027f, 0.045f, 0.82f));
+        frame.raycastTarget = false;
+
+        Image topGlow = CreatePanel(parent, "Stage Select Top Glow Panel", new Vector2(0, 320), new Vector2(920, 34), new Color(0.16f, 0.22f, 0.40f, 0.45f));
+        topGlow.raycastTarget = false;
+
+        Image topDivider = CreatePanel(parent, "Stage Select Top Gold Divider Panel", new Vector2(0, 246), new Vector2(900, 4), new Color(0.82f, 0.62f, 0.24f, 0.95f));
+        topDivider.raycastTarget = false;
+
+        Image cardRail = CreatePanel(parent, "Stage Card Rail Panel", new Vector2(0, 95), new Vector2(880, 360), new Color(0.035f, 0.040f, 0.070f, 0.70f));
+        cardRail.raycastTarget = false;
+
+        Image bottomDivider = CreatePanel(parent, "Stage Select Bottom Gold Divider Panel", new Vector2(0, -70), new Vector2(760, 3), new Color(0.72f, 0.48f, 0.18f, 0.88f));
+        bottomDivider.raycastTarget = false;
+
+        Image descDivider = CreatePanel(parent, "Description Gold Divider Panel", new Vector2(0, -80), new Vector2(620, 3), new Color(0.82f, 0.62f, 0.24f, 0.90f));
+        descDivider.raycastTarget = false;
+
+        TMP_Text chapterText = CreateText(parent, "Stage Select Chapter Label Text", "CHAPTER 1 - TUTORIAL FRONT", new Vector2(0, 238), new Vector2(680, 28), TextAlignmentOptions.Center);
+        chapterText.fontSize = 16;
+        chapterText.color = new Color(0.70f, 0.82f, 1.0f, 0.92f);
+        chapterText.raycastTarget = false;
     }
 
     private static TMP_Text CreateText(Transform parent, string name, string content, Vector2 position, Vector2 size, TextAlignmentOptions alignment)
