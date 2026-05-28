@@ -404,15 +404,15 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 520f, 3f));
         AppendCheck(ref passed, ref report, "Tactical grid tile exists", IsDecorativePanelLikelyConfigured(tacticalGridTile, 80f, 35f));
         AppendCheck(ref passed, ref report, "Skill action arc exists", IsDecorativePanelLikelyConfigured(skillActionArc, 450f, 4f));
-        AppendCheck(ref passed, ref report, "Hero chibi pixel standee exists", IsSpriteImageLikelyConfigured(heroStandeeBody, 200f, 270f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 6f, 62f));
-        AppendCheck(ref passed, ref report, "Enemy chibi pixel standee exists", IsSpriteImageLikelyConfigured(enemyStandeeBody, 230f, 280f) && IsDecorativePanelLikelyConfigured(enemyStandeeCrown, 58f, 8f));
+        AppendCheck(ref passed, ref report, "Hero mature high-density pixel standee exists", IsSpriteImageLikelyConfigured(heroStandeeBody, 165f, 220f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 6f, 56f));
+        AppendCheck(ref passed, ref report, "Enemy mature high-density pixel standee exists", IsSpriteImageLikelyConfigured(enemyStandeeBody, 185f, 218f) && IsDecorativePanelLikelyConfigured(enemyStandeeCrown, 52f, 8f));
         AppendCheck(ref passed, ref report, "Premium command header exists", IsDecorativePanelLikelyConfigured(commandHeaderPanel, 240f, 24f) && IsNameplateTextLikelyConfigured(commandHeaderText, "COMMAND", "CHAIN"));
         AppendCheck(ref passed, ref report, "Skill tier badge exists", IsDecorativePanelLikelyConfigured(skillTierBadge, 56f, 20f));
         AppendCheck(ref passed, ref report, "Party roster panel exists", partyRosterPanel != null && IsDecorativePanelLikelyConfigured(partyRosterPanel, 210f, 330f));
         AppendCheck(ref passed, ref report, "Party roster slots exist", IsDecorativePanelLikelyConfigured(partyRosterSlot1, 200f, 50f));
         AppendCheck(ref passed, ref report, "Enemy roster slots exist", IsDecorativePanelLikelyConfigured(enemyRosterSlot1, 150f, 50f));
-        AppendCheck(ref passed, ref report, "Party roster pixel mini sprites exist", IsSpriteImageLikelyConfigured(partyRosterMiniSprite1, 36f, 42f));
-        AppendCheck(ref passed, ref report, "Enemy roster pixel mini sprites exist", IsSpriteImageLikelyConfigured(enemyRosterMiniSprite1, 34f, 38f));
+        AppendCheck(ref passed, ref report, "Party roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(partyRosterMiniSprite1, 30f, 38f));
+        AppendCheck(ref passed, ref report, "Enemy roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(enemyRosterMiniSprite1, 30f, 36f));
         AppendCheck(ref passed, ref report, "Player card title exists", IsNameplateTextLikelyConfigured(playerCardTitleText, "ALLY", "HERO"));
         AppendCheck(ref passed, ref report, "Enemy card title exists", IsNameplateTextLikelyConfigured(enemyCardTitleText, "ENEMY", "ENEMY"));
         AppendCheck(ref passed, ref report, "Battle line divider text exists", IsNameplateTextLikelyConfigured(versusDividerText, "BATTLE", "LINE"));
@@ -1141,21 +1141,21 @@ public static class BattleSceneAutoBuilder
 
     private static void CreateBattlefieldUnitStandees(Transform parent)
     {
-        // Original chibi pixel standees inspired by the user's reference direction:
-        // big head, tiny body, readable silhouette, dark outline, limited fantasy palette.
+        // Original high-density tactical pixel standees inspired by the user's reference direction:
+        // compact screen footprint, sharper adult silhouette, dark outline, limited fantasy palette.
         // These are generated project assets, not copied character art.
-        CreatePanel(parent, "Hero Standee Shadow", new Vector2(-206, -116), new Vector2(112, 18), new Color(0.0f, 0.0f, 0.0f, 0.34f));
-        CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -24), new Vector2(132, 172), new Color(0.25f, 0.60f, 1.0f, 0.13f));
-        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/Generated/chibi_hero_original.png", new Vector2(-204, -2), new Vector2(220, 293));
-        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-158, -18), new Vector2(8, 70), new Color(0.88f, 0.94f, 1.0f, 0.42f));
+        CreatePanel(parent, "Hero Standee Shadow", new Vector2(-206, -112), new Vector2(94, 16), new Color(0.0f, 0.0f, 0.0f, 0.34f));
+        CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -28), new Vector2(112, 148), new Color(0.25f, 0.60f, 1.0f, 0.11f));
+        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/Generated/chibi_hero_original.png", new Vector2(-204, -8), new Vector2(176, 220));
+        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-166, -24), new Vector2(7, 60), new Color(0.88f, 0.94f, 1.0f, 0.38f));
         heroBlade.rectTransform.localRotation = Quaternion.Euler(0, 0, -18f);
         heroBody.raycastTarget = false;
         heroBlade.raycastTarget = false;
 
-        CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -110), new Vector2(146, 22), new Color(0.0f, 0.0f, 0.0f, 0.38f));
-        CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -24), new Vector2(166, 184), new Color(0.82f, 0.20f, 1.0f, 0.13f));
-        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/Generated/chibi_enemy_original.png", new Vector2(232, -2), new Vector2(252, 306));
-        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 82), new Vector2(78, 10), new Color(1.0f, 0.66f, 0.20f, 0.42f));
+        CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -108), new Vector2(122, 20), new Color(0.0f, 0.0f, 0.0f, 0.38f));
+        CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -26), new Vector2(136, 156), new Color(0.82f, 0.20f, 1.0f, 0.11f));
+        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/Generated/chibi_enemy_original.png", new Vector2(232, -8), new Vector2(190, 224));
+        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 66), new Vector2(60, 9), new Color(1.0f, 0.66f, 0.20f, 0.38f));
         enemyBody.raycastTarget = false;
         enemyCrown.raycastTarget = false;
     }
@@ -1208,7 +1208,7 @@ public static class BattleSceneAutoBuilder
             slot.raycastTarget = false;
             CreatePanel(parent, $"Party Roster Portrait Chip {i + 1}", new Vector2(-610, y), new Vector2(44, 44), new Color(0.06f, 0.08f, 0.11f, 0.90f));
             string spritePath = i == 0 ? "Assets/Art/Generated/chibi_hero_original.png" : "Assets/Art/Generated/chibi_ally_guardian.png";
-            Image miniSprite = CreateSpritePanel(parent, $"Party Roster Mini Sprite {i + 1}", spritePath, new Vector2(-610, y + 1), new Vector2(42, 50));
+            Image miniSprite = CreateSpritePanel(parent, $"Party Roster Mini Sprite {i + 1}", spritePath, new Vector2(-610, y + 1), new Vector2(34, 42));
             miniSprite.raycastTarget = false;
             TMP_Text label = CreateText(parent, $"Party Roster Label {i + 1}", i == 0 ? "Hero  100" : $"Ally {i + 1}  {100 - i * 8}", new Vector2(-500, y + 4), new Vector2(126, 20), TextAlignmentOptions.Left);
             label.fontSize = 12;
@@ -1226,7 +1226,7 @@ public static class BattleSceneAutoBuilder
             slot.raycastTarget = false;
             CreatePanel(parent, $"Enemy Roster Portrait Chip {i + 1}", new Vector2(485, y), new Vector2(38, 38), new Color(0.08f, 0.04f, 0.10f, 0.88f));
             string spritePath = i == 4 ? "Assets/Art/Generated/chibi_enemy_original.png" : "Assets/Art/Generated/chibi_enemy_raider.png";
-            Image miniSprite = CreateSpritePanel(parent, $"Enemy Roster Mini Sprite {i + 1}", spritePath, new Vector2(485, y + 1), new Vector2(38, 44));
+            Image miniSprite = CreateSpritePanel(parent, $"Enemy Roster Mini Sprite {i + 1}", spritePath, new Vector2(485, y + 1), new Vector2(32, 38));
             miniSprite.raycastTarget = false;
             TMP_Text label = CreateText(parent, $"Enemy Roster Label {i + 1}", i == 0 ? "Raider 80" : i == 4 ? "Boss" : $"Enemy {i + 1}", new Vector2(562, y), new Vector2(112, 20), TextAlignmentOptions.Right);
             label.fontSize = 12;

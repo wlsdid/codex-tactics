@@ -98,7 +98,7 @@ Unity Editor 메뉴:
 - `Tools > Codex Tactics > Create Game Flow Scenes`
 - `Tools > Codex Tactics > Validate Game Flow Scenes`
 
-2026-05-28 / Batch 77 검증 결과:
+2026-05-28 / Batch 79 검증 결과:
 
 ```text
 git diff --check: PASS
@@ -106,6 +106,7 @@ BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
 GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
 BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
 Standalone CaptureRunner + contact sheet visual QA: PASS
+Mature high-density pixel standees: PASS
 ```
 
 Unity batchmode에서 `This should not be called in batch mode.` 경고가 출력될 수 있지만, 현재 테스트는 exit code 0 및 `RESULT: PASS`로 정상 완료됩니다.
@@ -140,6 +141,7 @@ Tools > Codex Tactics > Validate Battle Test Scene
 - 실제 전투에 적용되는 Stage Modifier 시스템
 - 자동 검증으로 UI/전투/씬 연결 회귀 방지
 - UI/VFX/SFX를 통한 전투 피드백 강화
+- 고해상도 도트 기반의 작고 덜 유아틱한 tactical RPG 캐릭터 스탠디
 - C#과 Unity 학습을 실제 프로젝트 문제 해결에 적용한 과정
 
 ---

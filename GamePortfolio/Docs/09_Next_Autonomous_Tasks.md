@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-28 Batch 78: Chibi Pixel Art Improvement
+## Latest autonomous run — 2026-05-28 Batch 79: Mature Pixel Density Pass
+
+Completed:
+- Reworked the generated pixel standees so they use more native dots but occupy less space in the battle scene.
+- Reduced the overly baby-like proportions: smaller/sharper eyes, longer tactical body/legs, stronger sword/shield/axe/wing silhouettes, and lower-saturation metal/leather palette.
+- Regenerated `chibi_hero_original.png`, `chibi_enemy_original.png`, `chibi_ally_guardian.png`, and `chibi_enemy_raider.png`.
+- Shrunk the main battlefield standees and roster mini sprites in `BattleSceneAutoBuilder`.
+- Updated validation thresholds to cover the new high-density mature pixel presentation.
+- Added `Docs/Devlog/2026-05-28_mature-pixel-density-pass.md`.
+
+Verification completed:
+- `CreateBattleTestScene`: PASS.
+- `ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- `CaptureScreenshots.Run`: PASS.
+- `CaptureRunner.exe -capture -captureOutputDir Docs/Captures`: PASS.
+- Contact sheet visual QA: PASS; screenshots are not black/white broken, sprites are smaller and less toddler-like.
+
+Recommended next tasks:
+1. Batch 80: strengthen Fire/Ice/Lightning/Guard hit feedback and screen shake for an 8-15 second GIF.
+2. Batch 81: add simple idle bob / hit reaction movement to make sprites feel alive.
+3. Batch 82: generate README-ready gameplay GIF from the working capture pipeline.
+
+## Previous autonomous run — 2026-05-28 Batch 78: Chibi Pixel Art Improvement
 
 Completed:
 - Regenerated the main hero/enemy chibi standees with clearer SNES-like outlines, faces, weapon/crown/wing silhouettes, and limited fantasy palettes.
