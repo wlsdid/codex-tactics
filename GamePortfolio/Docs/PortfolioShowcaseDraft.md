@@ -1,12 +1,12 @@
 # Codex Tactics — Portfolio Showcase Draft
 
-> Updated: 2026-05-28 — current target: short, high-quality commercial-looking portfolio demo. Covers Batch 75 scope: premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, and automated validation.
+> Updated: 2026-05-28 — current target: short, high-quality commercial-looking portfolio demo. Covers Batch 76 scope: chibi pixel-art inspired battle standees, premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, and automated validation.
 
 ## 1. Game overview
 
 **Codex Tactics** is a Unity 2D turn-based RPG vertical slice. It demonstrates a complete playable loop from title screen to stage selection, tactical battle, result summary, rewards, save/progress tracking, and stage unlocks.
 
-The project focuses on portfolio-visible systems and presentation: AP-based skill choices, elemental weaknesses, status effects, Break gauge, items, auto-battle AI, stage-specific battlefield modifiers, premium tactical battle UI, original placeholder standees, UI/VFX/SFX feedback, and Unity Editor validation tools.
+The project focuses on portfolio-visible systems and presentation: AP-based skill choices, elemental weaknesses, status effects, Break gauge, items, auto-battle AI, stage-specific battlefield modifiers, premium tactical battle UI, original generated PNG chibi pixel standees, UI/VFX/SFX feedback, and Unity Editor validation tools.
 
 Latest showcase direction:
 
@@ -106,13 +106,14 @@ Current commercial-look improvements:
 
 - Dark tactical RPG panel hierarchy: top status, side unit cards, center battlefield, command bar.
 - Generated battle backdrop, tactical grid, formation markers, floor glow, gold dividers, and vignette shadows.
-- Original placeholder hero/enemy standees in the battlefield so screenshots show units, not only UI boxes.
+- Original generated PNG hero/enemy chibi pixel standees in the battlefield so screenshots show characters, not only UI boxes.
+- Reference-driven art direction: large heads, small bodies, crisp dark outlines, limited fantasy palettes, readable weapon/accessory silhouettes, and soft oval shadows. The implementation adapts the feel as original generated art instead of copying commercial/reference sprites.
 - Premium command header and AP badge to make the skill area feel like a designed game interface.
 - Stage Select showcase frame and fresh README capture contact sheet.
 
 Next visual priorities:
 
-1. Replace placeholder standees with a more coherent original art style or procedural portrait set.
+1. Expand the chibi pixel standee system into a small original party/enemy roster with palette swaps and class silhouettes.
 2. Improve skill impact timing and hit feedback so short GIFs feel satisfying.
 3. Tighten Stage Select thumbnails and stage-card art direction.
 4. Record a 8-15 second gameplay GIF for the README.
@@ -150,7 +151,7 @@ Instead of relying only on manual Play Mode checks, the project includes Editor 
 
 ## 7. Validation status on 2026-05-28
 
-Reviewed after Batch 75 premium battle presentation work.
+Reviewed after Batch 76 chibi pixel standee work.
 
 Passed checks:
 
@@ -175,7 +176,7 @@ Note: Unity batchmode still prints a benign `This should not be called in batch 
 
 ### Recommended follow-up polish
 
-1. Improve generated standees/portraits into a unified original visual style.
+1. Add 2-3 more original chibi pixel variants for party/enemy roster readability.
 2. Add stronger skill impact anticipation/hit/recovery feedback.
 3. Capture a short GIF after the next combat VFX pass.
 4. Keep README and devlog updated after every visual polish batch.
@@ -200,4 +201,4 @@ Codex Tactics is a Unity 2D turn-based RPG prototype built as a portfolio vertic
 
 ## 11. Korean presentation summary
 
-Codex Tactics는 Unity 2D 기반 턴제 RPG 포트폴리오 프로젝트입니다. 단순 전투 데모가 아니라 타이틀, 스테이지 선택, 전투, 결과, 저장/진행도까지 이어지는 수직 슬라이스를 목표로 만들었습니다. 전투는 AP 기반 스킬, 속성 약점, 상태이상, Break, 아이템, 자동 전투, 스테이지별 전장 기믹으로 구성되어 있습니다. 특히 StageData를 중심으로 스테이지 표시와 실제 전투 로직을 연결했고, Unity Editor 자동 검증을 통해 기능 추가 후에도 전투 로직과 UI 연결이 깨지지 않도록 관리했습니다.
+Codex Tactics는 Unity 2D 기반 턴제 RPG 포트폴리오 프로젝트입니다. 단순 전투 데모가 아니라 타이틀, 스테이지 선택, 전투, 결과, 저장/진행도까지 이어지는 수직 슬라이스를 목표로 만들었습니다. 전투는 AP 기반 스킬, 속성 약점, 상태이상, Break, 아이템, 자동 전투, 스테이지별 전장 기믹으로 구성되어 있습니다. 최근에는 브라운더스트2처럼 캐릭터성이 살아있는 전투 화면을 목표로, 레퍼런스의 치비 픽셀 감성을 직접 복제하지 않고 큰 머리/작은 몸/진한 외곽선/제한 팔레트 기반의 오리지널 절차형 스탠디로 재해석했습니다. 특히 StageData를 중심으로 스테이지 표시와 실제 전투 로직을 연결했고, Unity Editor 자동 검증을 통해 기능 추가 후에도 전투 로직과 UI 연결이 깨지지 않도록 관리했습니다.

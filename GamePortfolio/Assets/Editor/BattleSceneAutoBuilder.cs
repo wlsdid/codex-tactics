@@ -402,8 +402,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 520f, 3f));
         AppendCheck(ref passed, ref report, "Tactical grid tile exists", IsDecorativePanelLikelyConfigured(tacticalGridTile, 80f, 35f));
         AppendCheck(ref passed, ref report, "Skill action arc exists", IsDecorativePanelLikelyConfigured(skillActionArc, 450f, 4f));
-        AppendCheck(ref passed, ref report, "Hero battlefield standee exists", IsDecorativePanelLikelyConfigured(heroStandeeBody, 55f, 125f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 6f, 90f));
-        AppendCheck(ref passed, ref report, "Enemy battlefield standee exists", IsDecorativePanelLikelyConfigured(enemyStandeeBody, 70f, 115f) && IsDecorativePanelLikelyConfigured(enemyStandeeCrown, 60f, 8f));
+        AppendCheck(ref passed, ref report, "Hero chibi pixel standee exists", IsDecorativePanelLikelyConfigured(heroStandeeBody, 50f, 55f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 6f, 62f));
+        AppendCheck(ref passed, ref report, "Enemy chibi pixel standee exists", IsDecorativePanelLikelyConfigured(enemyStandeeBody, 62f, 58f) && IsDecorativePanelLikelyConfigured(enemyStandeeCrown, 58f, 8f));
         AppendCheck(ref passed, ref report, "Premium command header exists", IsDecorativePanelLikelyConfigured(commandHeaderPanel, 240f, 24f) && IsNameplateTextLikelyConfigured(commandHeaderText, "COMMAND", "CHAIN"));
         AppendCheck(ref passed, ref report, "Skill tier badge exists", IsDecorativePanelLikelyConfigured(skillTierBadge, 56f, 20f));
         AppendCheck(ref passed, ref report, "Party roster panel exists", partyRosterPanel != null && IsDecorativePanelLikelyConfigured(partyRosterPanel, 210f, 330f));
@@ -963,6 +963,52 @@ public static class BattleSceneAutoBuilder
         return image;
     }
 
+    private static Image CreateSpritePanel(Transform parent, string name, string assetPath, Vector2 anchoredPosition, Vector2 size)
+    {
+        GameObject panelObject = new GameObject(name);
+        panelObject.transform.SetParent(parent, false);
+
+        RectTransform rectTransform = panelObject.AddComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = anchoredPosition;
+        rectTransform.sizeDelta = size;
+
+        Image image = panelObject.AddComponent<Image>();
+        image.sprite = LoadPixelSprite(assetPath);
+        image.color = Color.white;
+        image.preserveAspect = true;
+        image.raycastTarget = false;
+        return image;
+    }
+
+    private static Sprite LoadPixelSprite(string assetPath)
+    {
+        TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+        if (importer != null)
+        {
+            bool needsReimport = importer.textureType != TextureImporterType.Sprite
+                || importer.spriteImportMode != SpriteImportMode.Single
+                || importer.filterMode != FilterMode.Point
+                || importer.textureCompression != TextureImporterCompression.Uncompressed;
+
+            if (needsReimport)
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spriteImportMode = SpriteImportMode.Single;
+                importer.filterMode = FilterMode.Point;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.mipmapEnabled = false;
+                importer.alphaIsTransparency = true;
+                importer.SaveAndReimport();
+            }
+        }
+
+        AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+        return AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+    }
+
     private static Image CreatePortrait(Transform parent, string name, Vector2 anchoredPosition, Vector2 size)
     {
         GameObject portraitObject = new GameObject(name);
@@ -1076,33 +1122,30 @@ public static class BattleSceneAutoBuilder
 
     private static void CreateBattlefieldUnitStandees(Transform parent)
     {
-        // Original placeholder standees: enough visual identity for portfolio captures
-        // without relying on external or copied commercial art assets.
-        Image heroShadow = CreatePanel(parent, "Hero Standee Shadow", new Vector2(-210, -114), new Vector2(128, 20), new Color(0.0f, 0.0f, 0.0f, 0.34f));
-        Image heroCape = CreatePanel(parent, "Hero Standee Cape", new Vector2(-228, -34), new Vector2(42, 120), new Color(0.08f, 0.16f, 0.34f, 0.78f));
-        Image heroBody = CreatePanel(parent, "Hero Standee Body", new Vector2(-202, -30), new Vector2(58, 132), new Color(0.26f, 0.62f, 0.86f, 0.92f));
-        Image heroHead = CreatePanel(parent, "Hero Standee Head", new Vector2(-202, 52), new Vector2(48, 42), new Color(0.86f, 0.72f, 0.52f, 0.96f));
-        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-152, -20), new Vector2(8, 98), new Color(0.86f, 0.94f, 1.0f, 0.88f));
-        Image heroAura = CreatePanel(parent, "Hero Standee Aura", new Vector2(-202, -28), new Vector2(96, 170), new Color(0.24f, 0.66f, 1.0f, 0.16f));
-        heroBlade.rectTransform.localRotation = Quaternion.Euler(0, 0, -20f);
-
-        Image enemyShadow = CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -104), new Vector2(140, 22), new Color(0.0f, 0.0f, 0.0f, 0.38f));
-        Image enemyBody = CreatePanel(parent, "Enemy Standee Body", new Vector2(232, -28), new Vector2(78, 122), new Color(0.58f, 0.18f, 0.36f, 0.94f));
-        Image enemyCore = CreatePanel(parent, "Enemy Standee Core", new Vector2(232, -18), new Vector2(48, 46), new Color(1.0f, 0.34f, 0.28f, 0.82f));
-        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 50), new Vector2(70, 10), new Color(1.0f, 0.65f, 0.22f, 0.92f));
-        Image enemyAura = CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -26), new Vector2(118, 160), new Color(1.0f, 0.16f, 0.34f, 0.16f));
-
-        heroShadow.raycastTarget = false;
-        heroCape.raycastTarget = false;
+        // Original chibi pixel standees inspired by the user's reference direction:
+        // big head, tiny body, readable silhouette, dark outline, limited fantasy palette.
+        // These are generated project assets, not copied character art.
+        CreatePanel(parent, "Hero Standee Shadow", new Vector2(-206, -116), new Vector2(112, 18), new Color(0.0f, 0.0f, 0.0f, 0.34f));
+        CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -24), new Vector2(132, 172), new Color(0.25f, 0.60f, 1.0f, 0.13f));
+        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/Generated/chibi_hero_original.png", new Vector2(-204, -2), new Vector2(220, 293));
+        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-158, -18), new Vector2(8, 70), new Color(0.88f, 0.94f, 1.0f, 0.42f));
+        heroBlade.rectTransform.localRotation = Quaternion.Euler(0, 0, -18f);
         heroBody.raycastTarget = false;
-        heroHead.raycastTarget = false;
         heroBlade.raycastTarget = false;
-        heroAura.raycastTarget = false;
-        enemyShadow.raycastTarget = false;
+
+        CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -110), new Vector2(146, 22), new Color(0.0f, 0.0f, 0.0f, 0.38f));
+        CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -24), new Vector2(166, 184), new Color(0.82f, 0.20f, 1.0f, 0.13f));
+        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/Generated/chibi_enemy_original.png", new Vector2(232, -2), new Vector2(252, 306));
+        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 82), new Vector2(78, 10), new Color(1.0f, 0.66f, 0.20f, 0.42f));
         enemyBody.raycastTarget = false;
-        enemyCore.raycastTarget = false;
         enemyCrown.raycastTarget = false;
-        enemyAura.raycastTarget = false;
+    }
+
+    private static Image CreatePixelBlock(Transform parent, string name, Vector2 anchoredPosition, Vector2 size, Color color)
+    {
+        Image block = CreatePanel(parent, name, anchoredPosition, size, color);
+        block.raycastTarget = false;
+        return block;
     }
 
     private static void CreatePremiumCommandFrame(Transform parent)
