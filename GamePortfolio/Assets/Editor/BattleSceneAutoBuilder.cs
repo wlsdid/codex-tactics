@@ -35,6 +35,7 @@ public static class BattleSceneAutoBuilder
         commandGoldDividerPanel.raycastTarget = false;
         CreateTacticalGrid(canvas.transform);
         CreateFieldVignette(canvas.transform);
+        CreateBattlefieldUnitStandees(canvas.transform);
 
         // Premium dark panels — slim overlay style, leaving the battlefield visible.
         Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 320), new Vector2(1220, 72), new Color(0.018f, 0.025f, 0.040f, 0.92f));
@@ -156,6 +157,8 @@ public static class BattleSceneAutoBuilder
         battleLogPanel.gameObject.SetActive(false);
         battleLogTitleText.gameObject.SetActive(false);
         battleLogText.gameObject.SetActive(false);
+
+        CreatePremiumCommandFrame(canvas.transform);
 
         Button attackButton = CreateButton(canvas.transform, "Attack Button", "Attack", new Vector2(130, 82), new Vector2(125, 48));
         Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire", new Vector2(265, 82), new Vector2(125, 48));
@@ -376,6 +379,13 @@ public static class BattleSceneAutoBuilder
         Image enemyRosterSlot1 = FindImage("Enemy Roster Slot 1");
         Image tacticalGridTile = FindImage("Tactical Grid Tile 1-1");
         Image skillActionArc = FindImage("Skill Action Arc");
+        Image heroStandeeBody = FindImage("Hero Standee Body");
+        Image heroStandeeBlade = FindImage("Hero Standee Blade");
+        Image enemyStandeeBody = FindImage("Enemy Standee Body");
+        Image enemyStandeeCrown = FindImage("Enemy Standee Crown");
+        Image commandHeaderPanel = FindImage("Command Header Panel");
+        TMP_Text commandHeaderText = FindText("Command Header Text");
+        Image skillTierBadge = FindImage("Skill Tier Badge");
         TMP_Text resultSummaryText = FindTextIncludingInactive("Result Summary Text");
         Image resultSummaryPanel = FindImageIncludingInactive("Result Summary Panel");
         Image commandPreviewPanel = FindImageIncludingInactive("Command Preview Panel");
@@ -392,6 +402,10 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 520f, 3f));
         AppendCheck(ref passed, ref report, "Tactical grid tile exists", IsDecorativePanelLikelyConfigured(tacticalGridTile, 80f, 35f));
         AppendCheck(ref passed, ref report, "Skill action arc exists", IsDecorativePanelLikelyConfigured(skillActionArc, 450f, 4f));
+        AppendCheck(ref passed, ref report, "Hero battlefield standee exists", IsDecorativePanelLikelyConfigured(heroStandeeBody, 55f, 125f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 6f, 90f));
+        AppendCheck(ref passed, ref report, "Enemy battlefield standee exists", IsDecorativePanelLikelyConfigured(enemyStandeeBody, 70f, 115f) && IsDecorativePanelLikelyConfigured(enemyStandeeCrown, 60f, 8f));
+        AppendCheck(ref passed, ref report, "Premium command header exists", IsDecorativePanelLikelyConfigured(commandHeaderPanel, 240f, 24f) && IsNameplateTextLikelyConfigured(commandHeaderText, "COMMAND", "CHAIN"));
+        AppendCheck(ref passed, ref report, "Skill tier badge exists", IsDecorativePanelLikelyConfigured(skillTierBadge, 56f, 20f));
         AppendCheck(ref passed, ref report, "Party roster panel exists", partyRosterPanel != null && IsDecorativePanelLikelyConfigured(partyRosterPanel, 210f, 330f));
         AppendCheck(ref passed, ref report, "Party roster slots exist", IsDecorativePanelLikelyConfigured(partyRosterSlot1, 200f, 50f));
         AppendCheck(ref passed, ref report, "Enemy roster slots exist", IsDecorativePanelLikelyConfigured(enemyRosterSlot1, 150f, 50f));
@@ -1058,6 +1072,60 @@ public static class BattleSceneAutoBuilder
         CreatePanel(parent, "Stage Glow Firefly 1", new Vector2(-210, 150), new Vector2(8, 8), new Color(0.72f, 1.0f, 0.42f, 0.70f));
         CreatePanel(parent, "Stage Glow Firefly 2", new Vector2(188, 118), new Vector2(7, 7), new Color(0.72f, 1.0f, 0.42f, 0.65f));
         CreatePanel(parent, "Stage Glow Firefly 3", new Vector2(-18, -184), new Vector2(6, 6), new Color(0.72f, 1.0f, 0.42f, 0.55f));
+    }
+
+    private static void CreateBattlefieldUnitStandees(Transform parent)
+    {
+        // Original placeholder standees: enough visual identity for portfolio captures
+        // without relying on external or copied commercial art assets.
+        Image heroShadow = CreatePanel(parent, "Hero Standee Shadow", new Vector2(-210, -114), new Vector2(128, 20), new Color(0.0f, 0.0f, 0.0f, 0.34f));
+        Image heroCape = CreatePanel(parent, "Hero Standee Cape", new Vector2(-228, -34), new Vector2(42, 120), new Color(0.08f, 0.16f, 0.34f, 0.78f));
+        Image heroBody = CreatePanel(parent, "Hero Standee Body", new Vector2(-202, -30), new Vector2(58, 132), new Color(0.26f, 0.62f, 0.86f, 0.92f));
+        Image heroHead = CreatePanel(parent, "Hero Standee Head", new Vector2(-202, 52), new Vector2(48, 42), new Color(0.86f, 0.72f, 0.52f, 0.96f));
+        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-152, -20), new Vector2(8, 98), new Color(0.86f, 0.94f, 1.0f, 0.88f));
+        Image heroAura = CreatePanel(parent, "Hero Standee Aura", new Vector2(-202, -28), new Vector2(96, 170), new Color(0.24f, 0.66f, 1.0f, 0.16f));
+        heroBlade.rectTransform.localRotation = Quaternion.Euler(0, 0, -20f);
+
+        Image enemyShadow = CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -104), new Vector2(140, 22), new Color(0.0f, 0.0f, 0.0f, 0.38f));
+        Image enemyBody = CreatePanel(parent, "Enemy Standee Body", new Vector2(232, -28), new Vector2(78, 122), new Color(0.58f, 0.18f, 0.36f, 0.94f));
+        Image enemyCore = CreatePanel(parent, "Enemy Standee Core", new Vector2(232, -18), new Vector2(48, 46), new Color(1.0f, 0.34f, 0.28f, 0.82f));
+        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 50), new Vector2(70, 10), new Color(1.0f, 0.65f, 0.22f, 0.92f));
+        Image enemyAura = CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -26), new Vector2(118, 160), new Color(1.0f, 0.16f, 0.34f, 0.16f));
+
+        heroShadow.raycastTarget = false;
+        heroCape.raycastTarget = false;
+        heroBody.raycastTarget = false;
+        heroHead.raycastTarget = false;
+        heroBlade.raycastTarget = false;
+        heroAura.raycastTarget = false;
+        enemyShadow.raycastTarget = false;
+        enemyBody.raycastTarget = false;
+        enemyCore.raycastTarget = false;
+        enemyCrown.raycastTarget = false;
+        enemyAura.raycastTarget = false;
+    }
+
+    private static void CreatePremiumCommandFrame(Transform parent)
+    {
+        Image headerPanel = CreatePanel(parent, "Command Header Panel", new Vector2(362, -230), new Vector2(292, 28), new Color(0.09f, 0.075f, 0.045f, 0.92f));
+        TMP_Text headerText = CreateText(parent, "Command Header Text", "COMMAND CHAIN", new Vector2(362, -230), new Vector2(270, 24), TextAlignmentOptions.Center);
+        headerText.fontSize = 13;
+        headerText.fontStyle = FontStyles.Bold;
+        headerText.color = new Color(1.0f, 0.84f, 0.42f);
+
+        Image skillTierBadge = CreatePanel(parent, "Skill Tier Badge", new Vector2(558, -230), new Vector2(64, 24), new Color(0.30f, 0.20f, 0.10f, 0.92f));
+        TMP_Text skillTierText = CreateText(parent, "Skill Tier Text", "AP3", new Vector2(558, -230), new Vector2(58, 20), TextAlignmentOptions.Center);
+        skillTierText.fontSize = 12;
+        skillTierText.fontStyle = FontStyles.Bold;
+        skillTierText.color = new Color(0.86f, 0.94f, 1.0f);
+
+        Image commandGlowLeft = CreatePanel(parent, "Command Glow Left", new Vector2(106, -303), new Vector2(4, 88), new Color(0.95f, 0.72f, 0.34f, 0.68f));
+        Image commandGlowRight = CreatePanel(parent, "Command Glow Right", new Vector2(618, -303), new Vector2(4, 88), new Color(0.95f, 0.72f, 0.34f, 0.68f));
+
+        headerPanel.raycastTarget = false;
+        skillTierBadge.raycastTarget = false;
+        commandGlowLeft.raycastTarget = false;
+        commandGlowRight.raycastTarget = false;
     }
 
     private static void CreatePartyRosterSlots(Transform parent)

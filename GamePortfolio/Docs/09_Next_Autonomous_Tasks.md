@@ -1,6 +1,28 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-28 Batch 74: Portfolio Screenshot Capture
+## Latest autonomous run — 2026-05-28 Batch 75: Battle Commercial Presentation Pass
+
+Completed:
+- Reframed the project target as a short, high-quality commercial-looking portfolio demo rather than a long game.
+- Added generated battlefield standees for hero/enemy so battle screenshots show units in the field, not only UI boxes.
+- Added premium command framing: `COMMAND CHAIN` header, AP tier badge, and gold glow rails around the command area.
+- Extended `ValidateBattleTestScene` to check the new standee and command presentation elements.
+- Updated `Docs/PortfolioShowcaseDraft.md` and added `Docs/Devlog/2026-05-28_battle-commercial-presentation-pass.md`.
+
+Verification completed:
+- `CreateBattleTestScene`: PASS.
+- `ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- `ValidateGameFlowScenes`: PASS / `RESULT: PASS`.
+- Capture contact sheet visual QA: usable, but next batch should improve art cohesion further.
+- `git diff --check`: PASS after Unity YAML cleanup.
+
+Recommended next tasks:
+1. Batch 76: improve hero/enemy standees into a more coherent original art style or procedural portrait set.
+2. Batch 77: improve Fire/Ice/Lightning hit feedback timing for a GIF-ready battle loop.
+3. Batch 78: tighten Stage Select thumbnails/cards to match the battle scene quality.
+
+## Previous autonomous run — 2026-05-28 Batch 74: Portfolio Screenshot Capture
 
 Completed:
 - Extended the capture runner to build the full flow scenes and capture Title, Stage Select, and Battle screenshots.

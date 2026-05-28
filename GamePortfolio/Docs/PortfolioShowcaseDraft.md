@@ -1,12 +1,16 @@
 # Codex Tactics — Portfolio Showcase Draft
 
-> Updated: 2026-05-18 — current main `14ebcd2`, covers Batch 55 scope: 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, and automated validation.
+> Updated: 2026-05-28 — current target: short, high-quality commercial-looking portfolio demo. Covers Batch 75 scope: premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, and automated validation.
 
 ## 1. Game overview
 
 **Codex Tactics** is a Unity 2D turn-based RPG vertical slice. It demonstrates a complete playable loop from title screen to stage selection, tactical battle, result summary, rewards, save/progress tracking, and stage unlocks.
 
-The project focuses on portfolio-visible systems: AP-based skill choices, elemental weaknesses, status effects, Break gauge, items, auto-battle AI, stage-specific battlefield modifiers, UI/VFX/SFX feedback, and Unity Editor validation tools.
+The project focuses on portfolio-visible systems and presentation: AP-based skill choices, elemental weaknesses, status effects, Break gauge, items, auto-battle AI, stage-specific battlefield modifiers, premium tactical battle UI, original placeholder standees, UI/VFX/SFX feedback, and Unity Editor validation tools.
+
+Latest showcase direction:
+
+> A short 5-10 minute vertical slice that looks closer to a polished commercial indie tactics demo than a test scene. Scope can stay small; first impression, UI hierarchy, battle readability, and documented process are the priority.
 
 ## 2. Play loop
 
@@ -94,6 +98,25 @@ This helps test and demonstrate battles quickly.
 | Audio/VFX | `AudioManager.cs`, `SkillProjectile.cs`, `ScreenShake.cs`, `DamagePopup.cs` | Feedback, procedural fallback SFX, projectile/hit effects |
 | Editor tools | `BattleAutoTestRunner.cs`, `BattleSceneAutoBuilder.cs`, `GameFlowSceneAutoBuilder.cs` | Automated scene generation and validation |
 
+## 5.1 Presentation direction
+
+The current polish target is not a long RPG campaign. It is a compact portfolio demo that should look deliberate in screenshots and short videos.
+
+Current commercial-look improvements:
+
+- Dark tactical RPG panel hierarchy: top status, side unit cards, center battlefield, command bar.
+- Generated battle backdrop, tactical grid, formation markers, floor glow, gold dividers, and vignette shadows.
+- Original placeholder hero/enemy standees in the battlefield so screenshots show units, not only UI boxes.
+- Premium command header and AP badge to make the skill area feel like a designed game interface.
+- Stage Select showcase frame and fresh README capture contact sheet.
+
+Next visual priorities:
+
+1. Replace placeholder standees with a more coherent original art style or procedural portrait set.
+2. Improve skill impact timing and hit feedback so short GIFs feel satisfying.
+3. Tighten Stage Select thumbnails and stage-card art direction.
+4. Record a 8-15 second gameplay GIF for the README.
+
 ## 6. Problem-solving highlights
 
 ### 6.1 Stage Select vs Battle data consistency
@@ -125,14 +148,14 @@ Instead of relying only on manual Play Mode checks, the project includes Editor 
 - Title/StageSelect/Battle flow validator
 - `git diff --check` whitespace verification
 
-## 7. Validation status on 2026-05-18
+## 7. Validation status on 2026-05-28
 
-Reviewed at HEAD: `14ebcd2 Batch 55: Fix fallback config values - AP recovery 2, shield 20, burn 5`
+Reviewed after Batch 75 premium battle presentation work.
 
 Passed checks:
 
 ```text
-git diff --check 9da4ab5..HEAD: PASS
+git diff --check: PASS
 BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
 GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
 BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
@@ -152,23 +175,24 @@ Note: Unity batchmode still prints a benign `This should not be called in batch 
 
 ### Recommended follow-up polish
 
-1. Prevent repeated overlay pulse coroutines in `BattleUI`.
-2. Replace repeated `FindObjectOfType<Canvas>()` in projectile hit spark creation with cached/passed references.
-3. Update the root README to match Batch 55 / 6-stage scope.
-4. Capture fresh screenshots/GIFs for Stage Select, Stage 4~6 modifiers, and Result Summary.
+1. Improve generated standees/portraits into a unified original visual style.
+2. Add stronger skill impact anticipation/hit/recovery feedback.
+3. Capture a short GIF after the next combat VFX pass.
+4. Keep README and devlog updated after every visual polish batch.
 
 ## 9. Screenshots/GIF checklist
 
-- [ ] Title screen with star particles and start button glow
-- [ ] Stage Select with unlocked/locked cards and modifier text
-- [ ] Battle HUD showing HP/AP bars, enemy element badge, and battle log
-- [ ] Fire Bolt + Burn feedback
-- [ ] Ice Lance + Stun feedback
+- [x] Title screen with star particles and start button glow
+- [x] Stage Select with unlocked/locked cards and modifier text
+- [x] Battle HUD showing HP/AP bars, enemy element badge, and tactical layout
+- [x] Fire Bolt + Burn feedback
+- [ ] Ice Lance + Stun feedback GIF
 - [ ] Break gauge depletion and Break bonus
 - [ ] Stage 4 Storm Surge activation
 - [ ] Stage 5 Void Drain AP drain / AP-empty HP damage
 - [ ] Stage 6 Radiant Trial start and Break/strong-attack pressure
-- [ ] Result summary with rank/reward/metrics
+- [x] Result summary with rank/reward/metrics
+- [ ] 8-15 second polished gameplay GIF
 
 ## 10. Short portfolio description
 
