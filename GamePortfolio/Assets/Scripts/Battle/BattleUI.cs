@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 /// <summary>
 /// Handles all UI rendering for the battle system.
@@ -56,6 +57,13 @@ public class BattleUI : MonoBehaviour
     [Header("Result")]
     [SerializeField] private TMP_Text resultSummaryText;
     [SerializeField] private GameObject resultSummaryPanel;
+
+    [Header("Character Selection Commands")]
+    [SerializeField] private GameObject actionCommandPanel;
+    [SerializeField] private Button playerSelectButton;
+    [SerializeField] private Image playerSelectionHighlight;
+    [SerializeField] private TMP_Text selectedUnitText;
+    private bool playerUnitSelected;
 
     [Header("Buttons")]
     [SerializeField] private Button attackButton;
@@ -138,6 +146,9 @@ public class BattleUI : MonoBehaviour
     public bool DebugCommandPreviewPanelExists => commandPreviewPanel != null;
     public string DebugTurnBannerText => turnBannerText != null ? turnBannerText.text : "";
     public bool DebugTurnBannerPanelExists => turnBannerPanel != null;
+    public bool DebugActionCommandPanelVisible => actionCommandPanel != null && actionCommandPanel.activeSelf;
+    public bool DebugPlayerUnitSelected => playerUnitSelected;
+    public string DebugSelectedUnitText => selectedUnitText != null ? selectedUnitText.text : "";
 
     // --- Lifecycle ---
 
@@ -155,7 +166,8 @@ public class BattleUI : MonoBehaviour
         UnityEngine.Events.UnityAction onSpeedToggle = null,
         UnityEngine.Events.UnityAction onAutoBattleToggle = null,
         UnityEngine.Events.UnityAction onItem = null,
-        UnityEngine.Events.UnityAction onPause = null)
+        UnityEngine.Events.UnityAction onPause = null,
+        UnityEngine.Events.UnityAction onPlayerSelect = null)
     {
         WireButton(attackButton, onAttack);
         WireButton(fireSkillButton, onFireSkill);
@@ -180,11 +192,13 @@ public class BattleUI : MonoBehaviour
         }
 
         WireButton(battleLogToggleButton, ToggleBattleLogVisibility);
+        if (onPlayerSelect != null)
+            WireButton(playerSelectButton, onPlayerSelect);
     }
 
     private static void WireButton(Button btn, UnityEngine.Events.UnityAction action)
     {
-        if (btn == null) return;
+        if (btn == null || action == null) return;
         btn.onClick.RemoveListener(action);
         btn.onClick.AddListener(action);
     }
@@ -224,6 +238,7 @@ public class BattleUI : MonoBehaviour
         SetStageSelectButtonVisible(false);
         SetResultSummaryVisible(false, "");
         ClearCommandPreview();
+        HideCharacterCommandMenu();
         // Cache continue button's child text component if not yet set
         if (continueButtonText == null && continueButton != null)
             continueButtonText = continueButton.GetComponentInChildren<TMP_Text>();
@@ -369,6 +384,43 @@ public class BattleUI : MonoBehaviour
         AddBattleLogEntry(message, maxBattleLogEntries);
     }
 
+    public void ShowCharacterCommandMenu(string unitName)
+    {
+        playerUnitSelected = true;
+        SetGameObjectActiveIfChanged(actionCommandPanel, true);
+        SetActionCommandButtonsVisible(true);
+        if (playerSelectionHighlight != null)
+            SetGameObjectActiveIfChanged(playerSelectionHighlight.gameObject, true);
+        if (selectedUnitText != null)
+            SetGameObjectActiveIfChanged(selectedUnitText.gameObject, true);
+        SetTextIfChanged(selectedUnitText, string.IsNullOrWhiteSpace(unitName) ? "Selected: Hero" : $"Selected: {unitName}");
+    }
+
+    public void HideCharacterCommandMenu()
+    {
+        playerUnitSelected = false;
+        SetGameObjectActiveIfChanged(actionCommandPanel, false);
+        SetActionCommandButtonsVisible(false);
+        if (playerSelectionHighlight != null)
+            SetGameObjectActiveIfChanged(playerSelectionHighlight.gameObject, false);
+        if (selectedUnitText != null)
+            SetGameObjectActiveIfChanged(selectedUnitText.gameObject, false);
+        SetTextIfChanged(selectedUnitText, "Click an ally to command");
+    }
+
+
+    private void SetActionCommandButtonsVisible(bool isVisible)
+    {
+        SetGameObjectActiveIfChanged(attackButton != null ? attackButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(fireSkillButton != null ? fireSkillButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(iceSkillButton != null ? iceSkillButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(lightningSkillButton != null ? lightningSkillButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(earthSkillButton != null ? earthSkillButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(guardButton != null ? guardButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(endTurnButton != null ? endTurnButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(itemButton != null ? itemButton.gameObject : null, isVisible);
+    }
+
     public void SetActionButtonsInteractable(bool isInteractable)
     {
         SetButtonInteractable(attackButton, isInteractable);
@@ -378,10 +430,21 @@ public class BattleUI : MonoBehaviour
         SetButtonInteractable(earthSkillButton, isInteractable);
         SetButtonInteractable(endTurnButton, isInteractable);
         SetButtonInteractable(guardButton, isInteractable);
+        SetButtonInteractable(itemButton, isInteractable);
     }
 
     public void UpdateActionButtons(CharacterData player, SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, BattleState currentState)
     {
+        bool commandVisible = playerUnitSelected && currentState == BattleState.PlayerTurn;
+        SetGameObjectActiveIfChanged(actionCommandPanel, commandVisible);
+        if (!commandVisible)
+        {
+            SetActionButtonsInteractable(false);
+            SetActionCommandButtonsVisible(false);
+            return;
+        }
+        SetActionCommandButtonsVisible(true);
+
         SetButtonInteractable(attackButton, player.HasEnoughAp(basicSkill.apCost) && ProgressState.IsSkillUnlocked(basicSkill.skillName));
         SetButtonInteractable(fireSkillButton, player.HasEnoughAp(fireSkill.apCost) && ProgressState.IsSkillUnlocked(fireSkill.skillName));
         SetButtonInteractable(iceSkillButton, player.HasEnoughAp(iceSkill.apCost) && ProgressState.IsSkillUnlocked(iceSkill.skillName));
@@ -389,6 +452,7 @@ public class BattleUI : MonoBehaviour
         SetButtonInteractable(earthSkillButton, player.HasEnoughAp(earthSkill.apCost) && ProgressState.IsSkillUnlocked(earthSkill.skillName));
         SetButtonInteractable(endTurnButton, currentState == BattleState.PlayerTurn);
         SetButtonInteractable(guardButton, currentState == BattleState.PlayerTurn);
+        SetButtonInteractable(itemButton, currentState == BattleState.PlayerTurn);
     }
 
     // --- Result ---

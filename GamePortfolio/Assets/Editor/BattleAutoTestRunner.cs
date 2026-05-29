@@ -39,6 +39,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "impactText", CreateText("Impact Text"));
         SetPrivateField(battleUI, "skillHelpText", CreateText("Skill Help Text"));
         ConfigureBattleLogFields(battleUI);
+        ConfigureCharacterCommandFields(battleUI);
         SetPrivateField(battleUI, "resultSummaryText", CreateText("Result Summary Text"));
         SetPrivateField(battleUI, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
         SetPrivateField(battleUI, "attackButton", CreateButton("Attack Button"));
@@ -86,9 +87,12 @@ public static class BattleAutoTestRunner
         battleUI.ToggleBattleLogVisibility();
         AppendCheck(ref passed, ref report, "Battle log toggle can collapse the panel again", !battleUI.DebugBattleLogPanelVisible);
         AppendCheck(ref passed, ref report, "Stage 1 starts with Tutorial Field modifier message", battleManager.DebugBattleLogText.Contains("Tutorial Field"));
-        AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("Player Turn: recovered 2 AP. Choose an action."));
+        AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("Player Turn: recovered 2 AP. Click Hero to choose an action."));
         AppendCheck(ref passed, ref report, "Impact text starts with ready feedback", battleManager.DebugImpactText == "Impact: Ready");
         AppendCheck(ref passed, ref report, "Enemy Break starts full", battleManager.DebugEnemyBreakText == "Break: 2/2");
+        AppendCheck(ref passed, ref report, "Action command panel starts hidden until a character is clicked", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
+        battleManager.OnClickPlayerUnit();
+        AppendCheck(ref passed, ref report, "Clicking Hero opens selected-character command menu", battleUI.DebugActionCommandPanelVisible && battleUI.DebugPlayerUnitSelected && battleUI.DebugSelectedUnitText.Contains("Hero"));
 
         battleManager.OnClickFireSkillButton();
         AppendCheck(ref passed, ref report, "Player AP bar spends 2 AP after Fire Skill", battleManager.DebugPlayerApBarValue == 1f && battleManager.DebugPlayerApBarMaxValue == 3f);
@@ -99,6 +103,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Weakness hit reduces Break gauge", battleManager.DebugEnemyBreakText == "Break: 1/2");
         AppendCheck(ref passed, ref report, "Damage dealt tracks Fire Skill weakness damage", battleManager.DebugTotalDamageDealt == 45);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Fire Skill", battleManager.DebugSkillsUsedCount == 1);
+        AppendCheck(ref passed, ref report, "Action command panel closes after a skill is chosen", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
 
         battleManager.DebugStartBattleForTest();
         AppendCheck(ref passed, ref report, "Restart resets Player AP bar to full", battleManager.DebugPlayerApBarValue == 3f && battleManager.DebugPlayerApBarMaxValue == 3f);
@@ -125,7 +130,9 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Damage dealt tracks Lightning Strike damage", battleManager.DebugTotalDamageDealt == 40);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Lightning Strike", battleManager.DebugSkillsUsedCount == 1);
 
+        battleManager.OnClickPlayerUnit();
         battleManager.OnClickGuardButton();
+        AppendCheck(ref passed, ref report, "Action command panel closes after Guard", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
         AppendCheck(ref passed, ref report, "Player status shows Guarding before enemy attack", battleManager.DebugPlayerStatusText == "Status: Guarding");
         battleManager.DebugResolveEnemyAttackForTest();
         AppendCheck(ref passed, ref report, "Player status returns to Ready after guard is consumed", battleManager.DebugPlayerStatusText == "Status: Ready");
@@ -538,6 +545,21 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "battleLogText", CreateText("Battle Log Text"));
         SetPrivateField(battleUI, "battleLogToggleButton", CreateButton("Battle Log Toggle Button"));
         SetPrivateField(battleUI, "battleLogToggleLabel", CreateText("Battle Log Toggle Label"));
+    }
+
+    private static void ConfigureCharacterCommandFields(BattleUI battleUI)
+    {
+        SetPrivateField(battleUI, "actionCommandPanel", CreatePanel("Action Command Panel"));
+        SetPrivateField(battleUI, "playerSelectButton", CreateButton("Player Select Button"));
+        SetPrivateField(battleUI, "playerSelectionHighlight", CreateImage("Player Selection Highlight"));
+        SetPrivateField(battleUI, "selectedUnitText", CreateText("Selected Unit Text"));
+    }
+
+    private static Image CreateImage(string name)
+    {
+        GameObject imageObject = new GameObject(name);
+        imageObject.SetActive(false);
+        return imageObject.AddComponent<Image>();
     }
 
     private static Slider CreateSlider(string name)

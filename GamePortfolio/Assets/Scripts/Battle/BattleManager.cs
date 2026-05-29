@@ -167,7 +167,8 @@ public class BattleManager : MonoBehaviour
                 OnClickRetryButton, OnClickContinueButton,
                 OnClickStageSelectButton, OnClickSpeedToggle, OnClickAutoBattleToggle,
                 OnClickItemButton,
-                OnClickPauseButton);
+                OnClickPauseButton,
+                OnClickPlayerUnit);
             battleUI.SetupPauseListeners(OnResumeGame, OnClickStageSelectButton);
         }
         InitializeFromStageSelection();
@@ -302,11 +303,12 @@ public class BattleManager : MonoBehaviour
     {
         currentState = BattleState.PlayerTurn;
         if (player != null) player.RecoverAp(CfgPlayerApRecovery);
+        battleUI?.HideCharacterCommandMenu();
         battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
             CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-            $"Player Turn: recovered {CfgPlayerApRecovery} AP. Choose an action.",
+            $"Player Turn: recovered {CfgPlayerApRecovery} AP. Click Hero to choose an action.",
             basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
         battleUI?.ShowTurnBanner("PLAYER TURN", new Color(0.30f, 0.70f, 1.0f), 0.9f);
         if (autoBattleEnabled) ExecuteAutoAction();
@@ -328,6 +330,16 @@ public class BattleManager : MonoBehaviour
     }
 
     // --- Player actions (public for button binding & testing) ---
+
+
+    public void OnClickPlayerUnit()
+    {
+        if (currentState != BattleState.PlayerTurn || player == null) return;
+        AudioManager.Instance?.PlayButtonClick();
+        battleUI?.ShowCharacterCommandMenu(player.characterName);
+        battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
+        battleUI?.UpdateCommandPreview("Choose Attack, Skill, Guard, or End Turn for the selected ally.", new Color(0.92f, 0.86f, 0.55f));
+    }
 
     public void OnClickAttackButton()
     {
@@ -523,8 +535,8 @@ public class BattleManager : MonoBehaviour
     {
         AudioManager.Instance?.PlayButtonClick();
         battleUI?.SetPauseVisible(false);
-        if (currentState == BattleState.PlayerTurn)
-            battleUI?.SetActionButtonsInteractable(true);
+        if (currentState == BattleState.PlayerTurn && battleUI != null && battleUI.DebugPlayerUnitSelected)
+            battleUI.SetActionButtonsInteractable(true);
     }
 
     public void OnClickContinueButton()
@@ -605,6 +617,7 @@ public class BattleManager : MonoBehaviour
     private void EndPlayerTurn()
     {
         if (currentState != BattleState.PlayerTurn) return;
+        battleUI?.HideCharacterCommandMenu();
         battleUI?.SetActionButtonsInteractable(false);
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
             currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
@@ -645,6 +658,7 @@ public class BattleManager : MonoBehaviour
                 break;
         }
 
+        battleUI?.HideCharacterCommandMenu();
         battleUI?.SetActionButtonsInteractable(false);
         battleUI?.SetImpactText($"Impact: Used {item.itemName}");
         battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
@@ -660,6 +674,7 @@ public class BattleManager : MonoBehaviour
         if (currentState != BattleState.PlayerTurn) return;
         playerIsGuarding = true;
         guardUseCount++;
+        battleUI?.HideCharacterCommandMenu();
         battleUI?.SetActionButtonsInteractable(false);
         // Guard visual feedback: screen flash + guard icon flash
         battleUI?.ScreenFlash(0.08f);
@@ -696,6 +711,7 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        battleUI?.HideCharacterCommandMenu();
         battleUI?.SetActionButtonsInteractable(false);
         skillsUsedCount++;
         if (skill != null) skillsUsedNames.Add(skill.skillName);

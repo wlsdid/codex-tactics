@@ -46,6 +46,18 @@ public static class BattleSceneAutoBuilder
         Image partyRosterPanel = CreatePanel(canvas.transform, "Party Roster Panel", new Vector2(-530, -28), new Vector2(224, 350), new Color(0.014f, 0.018f, 0.030f, 0.72f));
         partyRosterPanel.raycastTarget = false;
         CreatePartyRosterSlots(canvas.transform);
+        Image playerSelectionHighlight = CreatePanel(canvas.transform, "Player Selection Highlight", new Vector2(-530, 40), new Vector2(220, 60), new Color(0.95f, 0.72f, 0.34f, 0.32f));
+        playerSelectionHighlight.gameObject.SetActive(false);
+        Button playerSelectButton = CreateButton(canvas.transform, "Player Select Button", "Click Hero", new Vector2(-530, 40), new Vector2(212, 54));
+        playerSelectButton.GetComponent<Image>().color = new Color(0.10f, 0.18f, 0.24f, 0.12f);
+        TMP_Text playerSelectLabel = playerSelectButton.GetComponentInChildren<TMP_Text>();
+        if (playerSelectLabel != null)
+        {
+            playerSelectLabel.text = "Click Hero";
+            playerSelectLabel.fontSize = 11;
+            playerSelectLabel.color = new Color(0.96f, 0.92f, 0.68f, 0.92f);
+            playerSelectLabel.alignment = TextAlignmentOptions.BottomRight;
+        }
         CreateEnemyRosterSlots(canvas.transform);
         topStatusPanel.raycastTarget = false;
         playerCardPanel.raycastTarget = false;
@@ -159,14 +171,27 @@ public static class BattleSceneAutoBuilder
         battleLogText.gameObject.SetActive(false);
 
         CreatePremiumCommandFrame(canvas.transform);
+        Image actionCommandPanel = CreatePanel(canvas.transform, "Action Command Panel", new Vector2(-530, -186), new Vector2(224, 132), new Color(0.030f, 0.038f, 0.060f, 0.96f));
+        TMP_Text selectedUnitText = CreateText(canvas.transform, "Selected Unit Text", "Click an ally to command", new Vector2(-530, -128), new Vector2(204, 24), TextAlignmentOptions.Center);
+        selectedUnitText.fontSize = 13;
+        selectedUnitText.color = new Color(0.96f, 0.92f, 0.68f);
+        selectedUnitText.gameObject.SetActive(false);
 
-        Button attackButton = CreateButton(canvas.transform, "Attack Button", "Attack", new Vector2(130, 82), new Vector2(125, 48));
-        Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire", new Vector2(265, 82), new Vector2(125, 48));
-        Button iceSkillButton = CreateButton(canvas.transform, "Ice Lance Button", "Ice", new Vector2(400, 82), new Vector2(125, 48));
-        Button lightningSkillButton = CreateButton(canvas.transform, "Lightning Strike Button", "Lightning", new Vector2(130, 28), new Vector2(125, 42));
-        Button earthSkillButton = CreateButton(canvas.transform, "Earth Wall Button", "Wall", new Vector2(265, 28), new Vector2(125, 42));
-        Button guardButton = CreateButton(canvas.transform, "Guard Button", "Guard", new Vector2(400, 28), new Vector2(125, 42));
-        Button endTurnButton = CreateButton(canvas.transform, "End Turn Button", "BATTLE START >>", new Vector2(350, 148), new Vector2(220, 52));
+        Button attackButton = CreateButton(canvas.transform, "Attack Button", "Attack", new Vector2(-584, 92), new Vector2(100, 34));
+        Button fireSkillButton = CreateButton(canvas.transform, "Fire Skill Button", "Fire", new Vector2(-476, 92), new Vector2(100, 34));
+        Button iceSkillButton = CreateButton(canvas.transform, "Ice Lance Button", "Ice", new Vector2(-584, 52), new Vector2(100, 34));
+        Button lightningSkillButton = CreateButton(canvas.transform, "Lightning Strike Button", "Lightning", new Vector2(-476, 52), new Vector2(100, 34));
+        Button earthSkillButton = CreateButton(canvas.transform, "Earth Wall Button", "Wall", new Vector2(-584, 12), new Vector2(100, 34));
+        Button guardButton = CreateButton(canvas.transform, "Guard Button", "Guard", new Vector2(-476, 12), new Vector2(100, 34));
+        Button endTurnButton = CreateButton(canvas.transform, "End Turn Button", "End Turn", new Vector2(-530, -30), new Vector2(208, 34));
+        actionCommandPanel.gameObject.SetActive(false);
+        attackButton.gameObject.SetActive(false);
+        fireSkillButton.gameObject.SetActive(false);
+        iceSkillButton.gameObject.SetActive(false);
+        lightningSkillButton.gameObject.SetActive(false);
+        earthSkillButton.gameObject.SetActive(false);
+        guardButton.gameObject.SetActive(false);
+        endTurnButton.gameObject.SetActive(false);
         Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(170, 145), new Vector2(140, 48));
         retryButton.gameObject.SetActive(false);
         Button continueButton = CreateButton(canvas.transform, "Continue Button", "Continue", new Vector2(320, 145), new Vector2(150, 48));
@@ -176,7 +201,8 @@ public static class BattleSceneAutoBuilder
         Button stageSelectButton = CreateButton(canvas.transform, "Stage Select Button", "Stage Select", new Vector2(-505, 28), new Vector2(120, 40));
         Button speedToggleButton = CreateButton(canvas.transform, "Speed Toggle Button", "1x", new Vector2(520, 672), new Vector2(52, 30));
         Button autoBattleButton = CreateButton(canvas.transform, "Auto Battle Button", "Auto", new Vector2(458, 672), new Vector2(58, 30));
-        Button itemButton = CreateButton(canvas.transform, "Item Button", "Items", new Vector2(555, 24), new Vector2(100, 40));
+        Button itemButton = CreateButton(canvas.transform, "Item Button", "Items", new Vector2(-530, -68), new Vector2(208, 32));
+        itemButton.gameObject.SetActive(false);
         Button pauseButton = CreateButton(canvas.transform, "Pause Button", "II", new Vector2(582, 672), new Vector2(52, 30));
         Button battleLogToggleButton = CreateButton(canvas.transform, "Battle Log Toggle Button", "Log", new Vector2(555, 72), new Vector2(100, 38));
         TMP_Text battleLogToggleLabel = battleLogToggleButton.GetComponentInChildren<TMP_Text>();
@@ -261,6 +287,10 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "commandPreviewText", commandPreviewText);
         SetObjectReference(serializedBattleUI, "turnBannerPanel", turnBannerObj);
         SetObjectReference(serializedBattleUI, "turnBannerText", turnBannerText);
+        SetObjectReference(serializedBattleUI, "actionCommandPanel", actionCommandPanel.gameObject);
+        SetObjectReference(serializedBattleUI, "playerSelectButton", playerSelectButton);
+        SetObjectReference(serializedBattleUI, "playerSelectionHighlight", playerSelectionHighlight);
+        SetObjectReference(serializedBattleUI, "selectedUnitText", selectedUnitText);
         SetObjectReference(serializedBattleUI, "attackButton", attackButton);
         SetObjectReference(serializedBattleUI, "fireSkillButton", fireSkillButton);
         SetObjectReference(serializedBattleUI, "iceSkillButton", iceSkillButton);
@@ -294,7 +324,7 @@ public static class BattleSceneAutoBuilder
         Selection.activeGameObject = battleManagerObject;
         EditorUtility.DisplayDialog(
             "BattleScene Created",
-            "Assets/Scenes/BattleScene.unity created!\n\nPress Play to test Attack / Fire Skill / Ice Lance / Lightning Strike / Earth Wall / Guard / End Turn / Continue / Retry.",
+            "Assets/Scenes/BattleScene.unity created!\n\nPress Play, click Hero in the party roster, then test Attack / Skills / Guard / End Turn.",
             "OK"
         );
     }
@@ -323,13 +353,13 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "EventSystem exists", eventSystem != null);
         AppendCheck(ref passed, ref report, "BattleManager exists", battleManager != null);
 
-        Button attackButton = FindButton("Attack Button");
-        Button fireSkillButton = FindButton("Fire Skill Button");
-        Button iceSkillButton = FindButton("Ice Lance Button");
-        Button lightningSkillButton = FindButton("Lightning Strike Button");
-        Button earthSkillButton = FindButton("Earth Wall Button");
-        Button guardButton = FindButton("Guard Button");
-        Button endTurnButton = FindButton("End Turn Button");
+        Button attackButton = FindButtonIncludingInactive("Attack Button");
+        Button fireSkillButton = FindButtonIncludingInactive("Fire Skill Button");
+        Button iceSkillButton = FindButtonIncludingInactive("Ice Lance Button");
+        Button lightningSkillButton = FindButtonIncludingInactive("Lightning Strike Button");
+        Button earthSkillButton = FindButtonIncludingInactive("Earth Wall Button");
+        Button guardButton = FindButtonIncludingInactive("Guard Button");
+        Button endTurnButton = FindButtonIncludingInactive("End Turn Button");
         Button retryButton = FindButtonIncludingInactive("Retry Button");
         Button continueButton = FindButtonIncludingInactive("Continue Button");
         Button stageSelectButton = FindButtonIncludingInactive("Stage Select Button");
@@ -337,6 +367,10 @@ public static class BattleSceneAutoBuilder
         Button autoBattleButton = FindButtonIncludingInactive("Auto Battle Button");
         Button itemButton = FindButtonIncludingInactive("Item Button");
         Button battleLogToggleButton = FindButtonIncludingInactive("Battle Log Toggle Button");
+        Button playerSelectButton = FindButtonIncludingInactive("Player Select Button");
+        Image actionCommandPanel = FindImageIncludingInactive("Action Command Panel");
+        Image playerSelectionHighlight = FindImageIncludingInactive("Player Selection Highlight");
+        TMP_Text selectedUnitText = FindTextIncludingInactive("Selected Unit Text");
         TMP_Text playerHpText = FindText("Player HP Text");
         TMP_Text playerApText = FindText("Player AP Text");
         TMP_Text enemyHpText = FindText("Enemy HP Text");
@@ -412,6 +446,10 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Party roster slots exist", IsDecorativePanelLikelyConfigured(partyRosterSlot1, 200f, 50f));
         AppendCheck(ref passed, ref report, "Enemy roster slots exist", IsDecorativePanelLikelyConfigured(enemyRosterSlot1, 150f, 50f));
         AppendCheck(ref passed, ref report, "Party roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(partyRosterMiniSprite1, 30f, 38f));
+        AppendCheck(ref passed, ref report, "Player roster select button exists", IsButtonLikelyConfigured(playerSelectButton));
+        AppendCheck(ref passed, ref report, "Player selection highlight starts hidden", playerSelectionHighlight != null && !playerSelectionHighlight.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Action command panel starts hidden until ally click", IsOverlayPanelLikelyConfigured(actionCommandPanel, 200f, 120f) && actionCommandPanel != null && !actionCommandPanel.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Selected unit prompt starts hidden with command UI", selectedUnitText != null && !selectedUnitText.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Enemy roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(enemyRosterMiniSprite1, 30f, 36f));
         AppendCheck(ref passed, ref report, "Player card title exists", IsNameplateTextLikelyConfigured(playerCardTitleText, "ALLY", "HERO"));
         AppendCheck(ref passed, ref report, "Enemy card title exists", IsNameplateTextLikelyConfigured(enemyCardTitleText, "ENEMY", "ENEMY"));
@@ -484,10 +522,10 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Player HP slider exists", playerHpSlider != null);
         AppendCheck(ref passed, ref report, "Player AP slider exists", playerApSlider != null);
         AppendCheck(ref passed, ref report, "Enemy HP slider exists", enemyHpSlider != null);
-        AppendCheck(ref passed, ref report, "Attack button is visible", IsButtonLikelyVisible(attackButton));
-        AppendCheck(ref passed, ref report, "Fire Skill button is visible", IsButtonLikelyVisible(fireSkillButton));
-        AppendCheck(ref passed, ref report, "Guard button is visible", IsButtonLikelyVisible(guardButton));
-        AppendCheck(ref passed, ref report, "End Turn button is visible", IsButtonLikelyVisible(endTurnButton));
+        AppendCheck(ref passed, ref report, "Attack button starts hidden until ally click", IsButtonLikelyConfigured(attackButton) && attackButton != null && !attackButton.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Fire Skill button starts hidden until ally click", IsButtonLikelyConfigured(fireSkillButton) && fireSkillButton != null && !fireSkillButton.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Guard button starts hidden until ally click", IsButtonLikelyConfigured(guardButton) && guardButton != null && !guardButton.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "End Turn button starts hidden until ally click", IsButtonLikelyConfigured(endTurnButton) && endTurnButton != null && !endTurnButton.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Retry button is configured but initially hidden", IsButtonLikelyConfigured(retryButton) && retryButton != null && !retryButton.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Continue button is configured but initially hidden", IsButtonLikelyConfigured(continueButton) && continueButton != null && !continueButton.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Player HP slider is configured", IsSliderLikelyConfigured(playerHpSlider));
@@ -499,6 +537,10 @@ public static class BattleSceneAutoBuilder
             BattleUI battleUI = battleManager.GetComponent<BattleUI>();
             SerializedObject serializedBattleUI = battleUI != null ? new SerializedObject(battleUI) : null;
             AppendCheck(ref passed, ref report, "BattleUI component exists on BattleManager object", battleUI != null);
+            AppendCheck(ref passed, ref report, "Action command panel linked", HasObjectReference(serializedBattleUI, "actionCommandPanel"));
+            AppendCheck(ref passed, ref report, "Player select button linked", HasObjectReference(serializedBattleUI, "playerSelectButton"));
+            AppendCheck(ref passed, ref report, "Player selection highlight linked", HasObjectReference(serializedBattleUI, "playerSelectionHighlight"));
+            AppendCheck(ref passed, ref report, "Selected unit text linked", HasObjectReference(serializedBattleUI, "selectedUnitText"));
             AppendCheck(ref passed, ref report, "Player HP text linked", HasObjectReference(serializedBattleUI, "playerHpText"));
             AppendCheck(ref passed, ref report, "Player HP slider linked", HasObjectReference(serializedBattleUI, "playerHpSlider"));
             AppendCheck(ref passed, ref report, "Player AP text linked", HasObjectReference(serializedBattleUI, "playerApText"));
