@@ -6,6 +6,8 @@ Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현�
 
 **쇼케이스 초안:** [`Docs/PortfolioShowcaseDraft.md`](Docs/PortfolioShowcaseDraft.md)
 
+**60초 리뷰 체크리스트:** [`Docs/ReviewerQuickCheck.md`](Docs/ReviewerQuickCheck.md)
+
 **영문 README:** [`README.EN.md`](README.EN.md)
 
 ---

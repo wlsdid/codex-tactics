@@ -144,6 +144,11 @@ public static class BattleSceneAutoBuilder
         TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "Impact: Ready", new Vector2(0, 218), new Vector2(420, 28), TextAlignmentOptions.Center);
         impactText.fontSize = 16;
         impactText.color = new Color(1.0f, 0.84f, 0.36f);
+        Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(0, 184), new Vector2(640, 34), new Color(0.025f, 0.034f, 0.052f, 0.86f));
+        demoRoutePanel.raycastTarget = false;
+        TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "8-15s demo route: Click Hero -> Fire -> Guard -> Result -> Retry", new Vector2(0, 184), new Vector2(610, 26), TextAlignmentOptions.Center);
+        demoRouteText.fontSize = 14;
+        demoRouteText.color = new Color(0.96f, 0.92f, 0.68f);
         TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(-220, -308), new Vector2(320, 52), TextAlignmentOptions.TopLeft);
         skillHelpText.fontSize = 9;
         skillHelpText.color = new Color(0.72f, 0.90f, 1.0f);
@@ -433,6 +438,8 @@ public static class BattleSceneAutoBuilder
         Image turnBannerPanel = FindImageIncludingInactive("Turn Banner Panel");
         TMP_Text turnBannerText = FindTextIncludingInactive("Turn Banner Text");
         TMP_Text impactText = FindText("Impact Text");
+        Image demoRoutePanel = FindImage("Demo Route Panel");
+        TMP_Text demoRouteText = FindText("Demo Route Text");
 
         AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
         AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 850f, 500f));
@@ -484,8 +491,10 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Stage Progress text shows encounter count", IsStageProgressTextLikelyConfigured(stageProgressText));
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
         AppendCheck(ref passed, ref report, "Impact text exists", impactText != null);
+        AppendCheck(ref passed, ref report, "Demo route panel exists", IsDecorativePanelLikelyConfigured(demoRoutePanel, 600f, 30f));
+        AppendCheck(ref passed, ref report, "Demo route text shows the 8-15 second reviewer path", IsDemoRouteTextLikelyConfigured(demoRouteText));
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
-        AppendCheck(ref passed, ref report, "Runtime labels skip raycast for UI performance", IsTextRaycastOptimized(runStatusText, battleGuideText, stageText, stageObjectiveText, stageProgressText, playerHpText, playerApText, enemyHpText, skillHelpText, messageText, impactText));
+        AppendCheck(ref passed, ref report, "Runtime labels skip raycast for UI performance", IsTextRaycastOptimized(runStatusText, battleGuideText, stageText, stageObjectiveText, stageProgressText, playerHpText, playerApText, enemyHpText, skillHelpText, messageText, impactText, demoRouteText));
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
         AppendCheck(ref passed, ref report, "Enemy Intent text exists", enemyIntentText != null);
         AppendCheck(ref passed, ref report, "Enemy Break text exists", enemyBreakText != null);
@@ -843,6 +852,25 @@ public static class BattleSceneAutoBuilder
             && text.Contains("AP")
             && text.Contains("guard")
             && text.Contains("skills");
+    }
+
+    private static bool IsDemoRouteTextLikelyConfigured(TMP_Text routeText)
+    {
+        if (routeText == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = routeText.GetComponent<RectTransform>();
+        string text = routeText.text;
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= 600f
+            && text.Contains("8-15s demo route")
+            && text.Contains("Click Hero")
+            && text.Contains("Fire")
+            && text.Contains("Guard")
+            && text.Contains("Result")
+            && text.Contains("Retry");
     }
 
     private static bool IsStageTextLikelyConfigured(TMP_Text stageText)

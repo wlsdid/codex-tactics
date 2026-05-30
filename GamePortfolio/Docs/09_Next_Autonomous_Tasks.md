@@ -1,6 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-30 Batch 86: Runtime Clip Conversion Workflow
+## Latest autonomous run — 2026-05-30 Batch 87: Reviewer Demo Route Hint
+
+Completed:
+- Added a generated in-game `Demo Route` panel/text in `BattleSceneAutoBuilder`: `Click Hero -> Fire -> Guard -> Result -> Retry`.
+- Extended `Validate Battle Test Scene` checks so the route hint is generated, readable, and included in UI raycast optimization validation.
+- Added `Docs/ReviewerQuickCheck.md` for a less-than-60-second portfolio review path.
+- Linked the reviewer checklist from `README.md`.
+- Added `Docs/Devlog/2026-05-30_reviewer-demo-route-hint.md`.
+
+Verification completed:
+- Static C# syntax/brace checks: PASS.
+- Unity batch compile: PASS.
+- `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- Markdown link/file reference check: PASS.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 88: record one true 8-15 second Windows Game Bar/OBS runtime MP4 following the visible in-game route, then run `Docs/Captures/convert_runtime_clip.py`.
+2. Batch 89: if the runtime GIF is readable and under 5 MB, add it to README/showcase evidence; otherwise tune trim/FPS/width/colors.
+3. Batch 90: add a small Stage Select thumbnail/party roster polish pass if capture evidence is already accepted.
+
+## Previous autonomous run — 2026-05-30 Batch 86: Runtime Clip Conversion Workflow
 
 Completed:
 - Added `Docs/Captures/convert_runtime_clip.py`, an ffmpeg/ffprobe-based helper for user-recorded runtime MP4 clips.
