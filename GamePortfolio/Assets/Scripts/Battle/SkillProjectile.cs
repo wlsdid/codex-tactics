@@ -9,6 +9,10 @@ public class SkillProjectile : MonoBehaviour
 {
     [SerializeField] private float duration = 0.3f;
     private ElementType element;
+    private Image projectileImage;
+    private RectTransform projectileRect;
+    private RectTransform trailRect;
+    private Image trailImage;
     private static ScreenShake cachedShake;
     private static Canvas cachedCanvas;
     private static Transform cachedCanvasTransform;
@@ -41,26 +45,33 @@ public class SkillProjectile : MonoBehaviour
         img.raycastTarget = false;
 
         RectTransform rt = obj.GetComponent<RectTransform>();
+        Vector2 projectileSize = GetProjectileSize(element);
+        rt.sizeDelta = projectileSize;
 
-        switch (element)
-        {
-            case ElementType.Lightning:
-                rt.sizeDelta = new Vector2(6, 28);
-                break;
-            case ElementType.Ice:
-                rt.sizeDelta = new Vector2(16, 16);
-                break;
-            case ElementType.Earth:
-                rt.sizeDelta = new Vector2(22, 22);
-                break;
-            default:
-                rt.sizeDelta = new Vector2(18, 18);
-                break;
-        }
+        GameObject trail = new GameObject("Projectile Trail", typeof(RectTransform), typeof(Image));
+        trail.transform.SetParent(obj.transform, false);
+        trail.transform.SetAsFirstSibling();
+        RectTransform trailRt = trail.GetComponent<RectTransform>();
+        trailRt.anchorMin = new Vector2(0.5f, 0.5f);
+        trailRt.anchorMax = new Vector2(0.5f, 0.5f);
+        trailRt.pivot = new Vector2(0.5f, 0.5f);
+        trailRt.anchoredPosition = Vector2.zero;
+        trailRt.sizeDelta = projectileSize + GetTrailPadding(element);
+        Image trailImg = trail.GetComponent<Image>();
+        Color trailColor = GetElementColor(element);
+        trailColor.a = GetTrailAlpha(element);
+        trailImg.color = trailColor;
+        trailImg.raycastTarget = false;
+
         rt.position = start;
 
         SkillProjectile proj = obj.AddComponent<SkillProjectile>();
         proj.element = element;
+        proj.duration = GetProjectileDuration(element);
+        proj.projectileImage = img;
+        proj.projectileRect = rt;
+        proj.trailRect = trailRt;
+        proj.trailImage = trailImg;
         proj.StartCoroutine(proj.MoveRoutine(start, end));
     }
 
@@ -106,6 +117,8 @@ public class SkillProjectile : MonoBehaviour
                 transform.localScale = new Vector3(1f, pulse, 1f);
             }
 
+            UpdateProjectileReadability(t);
+
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -119,11 +132,38 @@ public class SkillProjectile : MonoBehaviour
         ScreenShake shake = GetOrCacheShake();
         if (shake != null)
         {
-            float shMag = element == ElementType.Lightning ? 0.10f : element == ElementType.Fire ? 0.08f : 0.05f;
-            shake.Shake(0.08f, shMag);
+            shake.Shake(GetShakeDuration(element), GetShakeMagnitude(element));
         }
 
         Destroy(gameObject, 0.05f);
+    }
+
+    private void UpdateProjectileReadability(float t)
+    {
+        if (projectileRect == null) return;
+
+        float breathe = 1f + Mathf.Sin(t * Mathf.PI * GetPulseFrequency(element)) * GetPulseAmount(element);
+        projectileRect.localScale = new Vector3(breathe, breathe, 1f);
+
+        if (projectileImage != null)
+        {
+            Color baseColor = GetElementColor(element);
+            float alpha = Mathf.Lerp(0.85f, 1f, Mathf.Sin(t * Mathf.PI));
+            projectileImage.color = new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
+        }
+
+        if (trailRect != null)
+        {
+            float trailPulse = 1f + Mathf.Sin(t * Mathf.PI * 2f) * 0.12f;
+            trailRect.localScale = new Vector3(trailPulse, trailPulse, 1f);
+        }
+
+        if (trailImage != null)
+        {
+            Color trailColor = GetElementColor(element);
+            trailColor.a = Mathf.Lerp(GetTrailAlpha(element) * 0.45f, GetTrailAlpha(element), Mathf.Sin(t * Mathf.PI));
+            trailImage.color = trailColor;
+        }
     }
 
     private static void SpawnHitSpark(Vector3 position, ElementType element)
@@ -142,19 +182,20 @@ public class SkillProjectile : MonoBehaviour
         RectTransform rt = spark.GetComponent<RectTransform>();
         rt.sizeDelta = new Vector2(8, 8);
 
+        SpawnImpactRing(position, element);
         spark.AddComponent<SkillProjectile>().StartCoroutine(SparkFadeRoutine(spark, rt, element));
     }
 
     private static IEnumerator SparkFadeRoutine(GameObject spark, RectTransform rt, ElementType element)
     {
         Image img = spark.GetComponent<Image>();
-        float expandSize = element == ElementType.Lightning ? 40f : element == ElementType.Fire ? 30f : 24f;
+        float expandSize = GetImpactSparkSize(element);
         float startSize = 8f;
-        float duration = 0.2f;
+        float duration = GetImpactDuration(element);
         float elapsed = 0f;
 
         // Expand outward multiple smaller sparks
-        int sparkCount = element == ElementType.Fire ? 5 : 3;
+        int sparkCount = GetBurstSparkCount(element);
         for (int i = 0; i < sparkCount; i++)
         {
             SpawnSubSpark(spark.transform.position, element, i, sparkCount);
@@ -191,17 +232,17 @@ public class SkillProjectile : MonoBehaviour
 
         float angle = (360f / count) * index;
         Vector3 dir = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0);
-        float distance = 20f + index * 5f;
+        float distance = GetSubSparkDistance(element) + index * 5f;
         Vector3 targetPos = origin + dir * distance;
 
-        sub.AddComponent<SkillProjectile>().StartCoroutine(SubSparkRoutine(sub, targetPos));
+        sub.AddComponent<SkillProjectile>().StartCoroutine(SubSparkRoutine(sub, targetPos, element));
     }
 
-    private static IEnumerator SubSparkRoutine(GameObject sub, Vector3 target)
+    private static IEnumerator SubSparkRoutine(GameObject sub, Vector3 target, ElementType element)
     {
         Image img = sub.GetComponent<Image>();
         Vector3 start = sub.transform.position;
-        float duration = 0.15f;
+        float duration = GetImpactDuration(element) * 0.75f;
         float elapsed = 0f;
 
         while (elapsed < duration)
@@ -214,6 +255,47 @@ public class SkillProjectile : MonoBehaviour
         }
 
         Destroy(sub);
+    }
+
+    private static void SpawnImpactRing(Vector3 position, ElementType element)
+    {
+        GetOrCacheCanvas();
+        if (cachedCanvasTransform == null) return;
+
+        GameObject ring = new GameObject($"Impact Ring {element}", typeof(RectTransform), typeof(Image));
+        ring.transform.SetParent(cachedCanvasTransform, false);
+        ring.transform.position = position;
+
+        Image ringImg = ring.GetComponent<Image>();
+        Color color = GetElementColor(element);
+        color.a = GetImpactRingAlpha(element);
+        ringImg.color = color;
+        ringImg.raycastTarget = false;
+
+        RectTransform ringRt = ring.GetComponent<RectTransform>();
+        ringRt.sizeDelta = new Vector2(12f, 12f);
+
+        ring.AddComponent<SkillProjectile>().StartCoroutine(ImpactRingRoutine(ring, ringRt, element));
+    }
+
+    private static IEnumerator ImpactRingRoutine(GameObject ring, RectTransform rt, ElementType element)
+    {
+        Image img = ring.GetComponent<Image>();
+        float duration = GetImpactDuration(element) * 1.25f;
+        float endSize = GetImpactRingSize(element);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            float eased = 1f - Mathf.Pow(1f - t, 2f);
+            rt.sizeDelta = new Vector2(Mathf.Lerp(12f, endSize, eased), Mathf.Lerp(12f, endSize, eased));
+            img.color = new Color(img.color.r, img.color.g, img.color.b, Mathf.Lerp(GetImpactRingAlpha(element), 0f, t));
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(ring);
     }
 
     private static readonly Color FireColor = new Color(1f, 0.4f, 0.1f);
@@ -230,4 +312,56 @@ public class SkillProjectile : MonoBehaviour
         ElementType.Earth => EarthColor,
         _ => PhysicalColor
     };
+
+    private static Vector2 GetProjectileSize(ElementType element) => element switch
+    {
+        ElementType.Lightning => new Vector2(7f, 34f),
+        ElementType.Ice => new Vector2(18f, 18f),
+        ElementType.Earth => new Vector2(24f, 24f),
+        ElementType.Fire => new Vector2(20f, 20f),
+        _ => new Vector2(18f, 18f)
+    };
+
+    private static Vector2 GetTrailPadding(ElementType element) => element switch
+    {
+        ElementType.Lightning => new Vector2(10f, 18f),
+        ElementType.Ice => new Vector2(14f, 14f),
+        ElementType.Earth => new Vector2(12f, 12f),
+        ElementType.Fire => new Vector2(18f, 18f),
+        _ => new Vector2(12f, 12f)
+    };
+
+    private static float GetProjectileDuration(ElementType element) => element switch
+    {
+        ElementType.Lightning => 0.20f,
+        ElementType.Fire => 0.26f,
+        ElementType.Ice => 0.34f,
+        ElementType.Earth => 0.38f,
+        _ => 0.28f
+    };
+
+    private static float GetPulseFrequency(ElementType element) => element == ElementType.Lightning ? 6f : 3f;
+    private static float GetPulseAmount(ElementType element) => element == ElementType.Ice ? 0.10f : 0.18f;
+    private static float GetTrailAlpha(ElementType element) => element == ElementType.Lightning ? 0.34f : 0.24f;
+    private static float GetImpactDuration(ElementType element) => element == ElementType.Lightning ? 0.16f : element == ElementType.Earth ? 0.24f : 0.20f;
+    private static float GetImpactSparkSize(ElementType element) => element == ElementType.Lightning ? 56f : element == ElementType.Fire ? 46f : element == ElementType.Earth ? 42f : 34f;
+    private static float GetImpactRingSize(ElementType element) => element == ElementType.Lightning ? 86f : element == ElementType.Fire ? 72f : element == ElementType.Earth ? 64f : 54f;
+    private static float GetImpactRingAlpha(ElementType element) => element == ElementType.Lightning ? 0.48f : 0.36f;
+    private static float GetShakeDuration(ElementType element) => element == ElementType.Lightning ? 0.12f : element == ElementType.Earth ? 0.11f : 0.09f;
+    private static float GetShakeMagnitude(ElementType element) => element == ElementType.Lightning ? 0.14f : element == ElementType.Fire ? 0.11f : element == ElementType.Earth ? 0.10f : 0.07f;
+    private static float GetSubSparkDistance(ElementType element) => element == ElementType.Lightning ? 32f : element == ElementType.Fire ? 28f : 22f;
+
+    private static int GetBurstSparkCount(ElementType element) => element switch
+    {
+        ElementType.Fire => 8,
+        ElementType.Lightning => 7,
+        ElementType.Earth => 6,
+        ElementType.Ice => 5,
+        _ => 4
+    };
+
+    public static string DebugImpactProfile(ElementType element)
+    {
+        return $"Element={element}; Projectile={GetProjectileSize(element)}; Trail={GetTrailPadding(element)}; Sparks={GetBurstSparkCount(element)}; Ring={GetImpactRingSize(element)}; Shake={GetShakeMagnitude(element):0.00}";
+    }
 }

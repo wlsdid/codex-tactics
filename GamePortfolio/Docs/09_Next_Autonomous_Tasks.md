@@ -1,6 +1,26 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-28 Batch 79: Mature Pixel Density Pass
+## Latest autonomous run — 2026-05-30 Batch 80: Hit Feedback VFX Pass
+
+Completed:
+- Strengthened elemental projectile readability with per-element projectile timing, trail padding, pulse, spark burst count, impact ring size, and screen shake values.
+- Added an impact ring at the hit point so Fire/Ice/Lightning/Earth attacks read better in screenshots and short GIF captures.
+- Added `SkillProjectile.DebugImpactProfile` and editor auto-test checks for Fire, Lightning, and Ice feedback profiles.
+- Added `Docs/Devlog/2026-05-30_hit-feedback-vfx-pass.md`.
+
+Verification target:
+- Static C# syntax/brace checks.
+- Unity batch compile.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`.
+- `ValidateBattleTestScene`.
+- `git diff --check`.
+
+Recommended next tasks:
+1. Batch 81: add simple idle bob / hit reaction movement to make sprites feel alive.
+2. Batch 82: generate README-ready gameplay GIF from the capture pipeline.
+3. Batch 83: add a small battle-speed/camera polish note to the portfolio showcase page.
+
+## Previous autonomous run — 2026-05-28 Batch 79: Mature Pixel Density Pass
 
 Completed:
 - Reworked the generated pixel standees so they use more native dots but occupy less space in the battle scene.
