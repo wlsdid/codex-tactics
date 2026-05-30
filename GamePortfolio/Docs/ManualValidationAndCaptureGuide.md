@@ -80,6 +80,22 @@ Suggested filename:
 Docs/Captures/codex_tactics_battle_loop.gif
 ```
 
+If a fresh capture PNG set already exists, build the README GIF directly from WSL:
+
+```bash
+cd /mnt/c/Users/jywls/Desktop/game_portfolio/GamePortfolio
+python3 Docs/Captures/build_readme_gif.py
+```
+
+This writes:
+
+```text
+Docs/Captures/codex_tactics_battle_loop.gif
+Docs/Captures/codex_tactics_battle_loop_preview.png
+```
+
+The builder validates the 960x540 GIF frame count and file size before exiting.
+
 ## 6. Windows capture tools
 
 Simple options:

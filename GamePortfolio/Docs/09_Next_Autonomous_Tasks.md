@@ -1,6 +1,26 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-30 Batch 81: Idle Bob / Hit Reaction Motion
+## Latest autonomous run — 2026-05-30 Batch 82: README Gameplay GIF
+
+Completed:
+- Added `Docs/Captures/build_readme_gif.py`, a reproducible WSL/Pillow builder for the README gameplay GIF.
+- Generated `Docs/Captures/codex_tactics_battle_loop.gif` from the existing capture PNG sequence.
+- Generated `Docs/Captures/codex_tactics_battle_loop_preview.png` for quick visual QA of the GIF frames.
+- Updated `README.md`, `Docs/Captures/README.md`, `Docs/ManualValidationAndCaptureGuide.md`, and `Docs/PortfolioShowcaseDraft.md` to reference the GIF and rebuild command.
+- Added `Docs/Devlog/2026-05-30_readme-gameplay-gif.md`.
+
+Verification completed:
+- `python3 Docs/Captures/build_readme_gif.py`: PASS.
+- GIF file validation: PASS — 960x540, 7 frames, 482572 bytes.
+- Preview visual QA: PASS — no blank/black frames; Title, Stage Select, battle, Fire, Guard, Result, and Retry frames are visible.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 83: capture or generate a true motion GIF/MP4 from the standalone runner after the next VFX/camera polish pass.
+2. Batch 84: add a compact showcase page section explaining hit feedback, idle motion, and GIF/capture evidence.
+3. Batch 85: add a small battle-speed/camera polish note to the portfolio showcase page.
+
+## Previous autonomous run — 2026-05-30 Batch 81: Idle Bob / Hit Reaction Motion
 
 Completed:
 - Added `BattleSpriteMotion`, a small UI component for generated-scene-safe idle bob and hit shove/squash reactions.

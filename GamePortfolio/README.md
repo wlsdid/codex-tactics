@@ -150,7 +150,17 @@ Tools > Codex Tactics > Validate Battle Test Scene
 
 최신 자동 캡처 결과는 `Docs/Captures/`에 정리되어 있습니다.
 
+![Codex Tactics gameplay GIF](Docs/Captures/codex_tactics_battle_loop.gif)
+
+GIF 재생이 느린 환경에서는 아래 캡처 시트로 같은 흐름을 확인할 수 있습니다.
+
 ![Codex Tactics capture sheet](Docs/Captures/capture_contact_sheet.png)
+
+생성 명령:
+
+```bash
+python3 Docs/Captures/build_readme_gif.py
+```
 
 개별 이미지:
 

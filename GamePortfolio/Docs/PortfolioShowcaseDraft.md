@@ -195,7 +195,7 @@ Note: Unity batchmode still prints a benign `This should not be called in batch 
 - [ ] Stage 5 Void Drain AP drain / AP-empty HP damage
 - [ ] Stage 6 Radiant Trial start and Break/strong-attack pressure
 - [x] Result summary with rank/reward/metrics
-- [ ] 8-15 second polished gameplay GIF
+- [x] 8-15 second polished gameplay GIF
 
 ## 10. Short portfolio description
 
