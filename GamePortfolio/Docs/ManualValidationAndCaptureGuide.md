@@ -96,7 +96,42 @@ Docs/Captures/codex_tactics_battle_loop_preview.png
 
 The builder validates the 960x540 GIF frame count and file size before exiting.
 
-## 6. Windows capture tools
+## 6. Runtime motion storyboard fallback
+
+If true runtime MP4/GIF capture is too expensive for a small batch, build a motion-focused storyboard from the action-heavy capture frames:
+
+```bash
+cd /mnt/c/Users/jywls/Desktop/game_portfolio/GamePortfolio
+python3 Docs/Captures/build_runtime_motion_storyboard.py
+```
+
+This writes:
+
+```text
+Docs/Captures/codex_tactics_runtime_motion_storyboard.gif
+Docs/Captures/codex_tactics_runtime_motion_storyboard_preview.png
+```
+
+The storyboard uses Battle Start, Fire/Burn, Guard, Result, and Retry frames with small pan/zoom beats. It validates source PNG existence, minimum source dimensions, 960x540 output dimensions, exact frame count, preview-sheet dimensions, and README-safe output size. Treat it as a verified fallback until a true standalone-runner video is captured.
+
+## 7. Standalone runner capture path
+
+For true runtime still captures, Unity can build the standalone capture runner from the Editor method:
+
+```text
+CaptureScreenshots.Run
+```
+
+The build writes helper files under `Builds/`:
+
+```text
+Builds/_build_path.txt
+Builds/_capture_args.txt
+```
+
+Run the generated Windows player with the args from `_capture_args.txt` so `ScreenshotCaptureJob` writes back to `Docs/Captures/`. Use `-captureOutputDir` or `CODEX_TACTICS_CAPTURE_DIR` if a different capture folder is needed.
+
+## 8. Windows capture tools
 
 Simple options:
 
@@ -106,7 +141,7 @@ Simple options:
 
 If recording through Windows Game Bar, save the video first, then convert a short clip to GIF later.
 
-## 7. README embed example
+## 9. README embed example
 
 After a capture file exists, add one of these to `README.md`.
 
@@ -122,7 +157,7 @@ GIF:
 ![Codex Tactics battle loop](Docs/Captures/codex_tactics_battle_loop.gif)
 ```
 
-## 8. What not to claim yet
+## 10. What not to claim yet
 
 Do not write that Unity Play Mode passed until the project was actually run in Unity. Until then, use this wording:
 

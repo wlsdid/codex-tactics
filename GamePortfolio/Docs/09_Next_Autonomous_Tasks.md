@@ -1,6 +1,28 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-30 Batch 83: Showcase GIF Evidence
+## Latest autonomous run — 2026-05-30 Batch 84: Runtime Motion Storyboard
+
+Completed:
+- Added `Docs/Captures/build_runtime_motion_storyboard.py`, a Pillow-only WSL helper that creates a runtime-motion-focused GIF from action-heavy capture PNGs.
+- Generated `Docs/Captures/codex_tactics_runtime_motion_storyboard.gif` with 29 pan/zoom frames covering Battle Start, Fire/Burn, Guard, Result, and Retry.
+- Generated `Docs/Captures/codex_tactics_runtime_motion_storyboard_preview.png` as a compact visual QA sheet.
+- Updated `Docs/Captures/README.md` and `Docs/ManualValidationAndCaptureGuide.md` with rebuild commands, validation guarantees, and the standalone runner capture path.
+- Added `Docs/Devlog/2026-05-30_runtime-motion-storyboard.md`.
+
+Verification completed:
+- `python3 Docs/Captures/build_runtime_motion_storyboard.py`: PASS.
+- Motion storyboard GIF validation: PASS — 960x540, 29 frames, 2,471,988 bytes.
+- Preview sheet validation: PASS — 1200x135, 153,943 bytes, visually non-blank/corrupt.
+- `python3 -m py_compile Docs/Captures/build_readme_gif.py Docs/Captures/build_runtime_motion_storyboard.py`: PASS.
+- `git diff --check`: PASS.
+- Unity compile not run: PASS by scope — capture docs/Python/media-only batch, no C# or scene changes.
+
+Recommended next tasks:
+1. Batch 85: capture a true runtime MP4/GIF from the standalone runner or Windows Game Bar and compare it against the storyboard fallback.
+2. Batch 86: add a compact camera/battle-speed polish note and acceptance checklist for runtime motion capture.
+3. Batch 87: if visual polish resumes, tighten Stage Select thumbnails or add a small party/enemy roster variant set.
+
+## Previous autonomous run — 2026-05-30 Batch 83: Showcase GIF Evidence
 
 Completed:
 - Added `Docs/ShowcaseGifEvidence.md` to explain the README GIF as admissions/portfolio evidence.
