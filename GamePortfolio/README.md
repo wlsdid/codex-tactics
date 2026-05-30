@@ -1,6 +1,6 @@
 # GamePortfolio — Codex Tactics
 
-Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 77 기준으로 타이틀 화면, 스테이지 선택, 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처까지 포함합니다.
+Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 83 기준으로 타이틀 화면, 스테이지 선택, 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처, README GIF와 쇼케이스 근거 문서까지 포함합니다.
 
 **최신 포트폴리오 정리:** [`Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt`](Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt)
 
@@ -155,6 +155,16 @@ Tools > Codex Tactics > Validate Battle Test Scene
 GIF 재생이 느린 환경에서는 아래 캡처 시트로 같은 흐름을 확인할 수 있습니다.
 
 ![Codex Tactics capture sheet](Docs/Captures/capture_contact_sheet.png)
+
+### GIF가 보여주는 포트폴리오 근거
+
+- **완성 흐름:** Title → Stage Select → Battle → Result/Retry가 한 GIF 안에서 이어집니다.
+- **데이터 기반 구조:** Stage/Enemy/Skill/Result 값은 `StageData`, `EnemyData`, `SkillData`, `BattleBalanceConfig`, `BattleResultEvaluator` 계층으로 분리되어 있습니다.
+- **전투 의사결정:** 선택한 아군 기준으로 Attack/Guard/Skill 명령이 열리는 tactical RPG식 contextual command UI를 보여줍니다.
+- **피드백 품질:** Fire/Burn, Guard, damage popup, hit spark, impact ring, screen shake, idle bob/hit reaction이 짧은 캡처에서도 읽히도록 설계되었습니다.
+- **검증 가능성:** Unity `Tools > Codex Tactics` 메뉴의 scene/battle validators와 `Docs/Captures/build_readme_gif.py`로 재현할 수 있습니다.
+
+자세한 프레임별 설명: [`Docs/ShowcaseGifEvidence.md`](Docs/ShowcaseGifEvidence.md)
 
 생성 명령:
 

@@ -1,6 +1,6 @@
 # Codex Tactics — Portfolio Showcase Draft
 
-> Updated: 2026-05-28 — current target: short, high-quality commercial-looking portfolio demo. Covers Batch 77 scope: working standalone capture pipeline, chibi pixel-art inspired battle standees, premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, and automated validation.
+> Updated: 2026-05-30 — current target: short, high-quality commercial-looking portfolio demo with README GIF evidence. Covers Batch 83 scope: working standalone capture pipeline, chibi pixel-art inspired battle standees, premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, automated validation, and reviewer-facing GIF explanation notes.
 
 ## 1. Game overview
 
@@ -150,9 +150,27 @@ Instead of relying only on manual Play Mode checks, the project includes Editor 
 - Title/StageSelect/Battle flow validator
 - `git diff --check` whitespace verification
 
-## 7. Validation status on 2026-05-28
+## 6.4 README GIF evidence — Batch 83
 
-Reviewed after Batch 77 capture runner readability pass.
+The current README GIF should be presented as portfolio evidence, not only as decoration. It demonstrates the connected vertical slice in a short review-friendly loop:
+
+```text
+Title -> Stage Select -> Battle HUD -> Fire/Burn feedback -> Guard feedback -> Result summary -> Retry reset
+```
+
+Frame-by-frame reviewer notes are maintained in [`Docs/ShowcaseGifEvidence.md`](ShowcaseGifEvidence.md).
+
+What the GIF proves concretely:
+
+- **Flow completion:** the project no longer relies on a single isolated battle test scene; it has title, stage selection, combat, result, and retry states.
+- **Tactical UI direction:** party/enemy rosters, central battlefield, command area, recent actions, and enemy intent are visually separated for screenshot/GIF readability.
+- **Data-driven design:** stage previews and battle behavior use `StageData`/`EnemyData`; skills use `SkillData`; result ranks/rewards/tips are handled through result data/evaluator/presenter classes.
+- **Technical polish loop:** hit feedback, idle bob, hit reaction, and result metrics were chosen because they improve a short portfolio capture, not because they add unnecessary scope.
+- **Verification path:** reviewers can run Unity `Tools > Codex Tactics` validators and rebuild the GIF with `python3 Docs/Captures/build_readme_gif.py`.
+
+## 7. Validation status on 2026-05-30
+
+Reviewed after Batch 83 showcase GIF evidence documentation pass.
 
 Passed checks:
 
@@ -162,9 +180,11 @@ BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
 GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
 BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
 Standalone CaptureRunner + contact sheet visual QA: PASS
+Markdown link/file existence check: PASS
+README GIF evidence documentation: PASS
 ```
 
-Note: Unity batchmode still prints a benign `This should not be called in batch mode.` warning from editor dialog usage, but the validation methods return exit code 0 and `RESULT: PASS`.
+Note: Batch 83 changed documentation only, so Unity compile was not rerun for this pass. Previous Unity validation remains documented above; Batch 83 verification focused on Markdown links, required file existence, and `git diff --check`.
 
 ## 8. Review notes
 
@@ -180,8 +200,8 @@ Note: Unity batchmode still prints a benign `This should not be called in batch 
 
 1. Add 2-3 more original chibi pixel variants for party/enemy roster readability.
 2. Add stronger skill impact anticipation/hit/recovery feedback.
-3. Capture a short GIF after the next combat VFX pass.
-4. Keep README and devlog updated after every visual polish batch.
+3. Capture a true runtime motion GIF/MP4 after the next camera/VFX pass.
+4. Keep README, GIF evidence notes, and devlog updated after every visual polish batch.
 
 ## 9. Screenshots/GIF checklist
 

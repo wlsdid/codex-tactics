@@ -1,6 +1,26 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-30 Batch 82: README Gameplay GIF
+## Latest autonomous run — 2026-05-30 Batch 83: Showcase GIF Evidence
+
+Completed:
+- Added `Docs/ShowcaseGifEvidence.md` to explain the README GIF as admissions/portfolio evidence.
+- Mapped each GIF frame to visible proof: title flow, stage select, battle HUD, Fire/Burn, Guard, result summary, and retry reset.
+- Documented which visible systems are data-driven: StageData, EnemyData, SkillData, BattleBalanceConfig, BattleResultData/Evaluator/Presenter, and BattleUI.
+- Updated `README.md` and `Docs/PortfolioShowcaseDraft.md` with concrete reviewer-facing GIF notes.
+- Added `Docs/Devlog/2026-05-30_showcase-gif-evidence.md`.
+
+Verification completed:
+- Markdown link/file existence check: PASS.
+- Required documentation file existence check: PASS.
+- `git diff --check`: PASS.
+- Unity compile not run: PASS by scope — documentation-only batch, no C# or scene changes.
+
+Recommended next tasks:
+1. Batch 84: capture or generate a true runtime motion GIF/MP4 from the standalone runner after one more camera/VFX polish pass.
+2. Batch 85: add a compact camera/battle-speed polish note and acceptance checklist for runtime motion capture.
+3. Batch 86: if visual polish resumes, tighten Stage Select thumbnails or add a small party/enemy roster variant set.
+
+## Previous autonomous run — 2026-05-30 Batch 82: README Gameplay GIF
 
 Completed:
 - Added `Docs/Captures/build_readme_gif.py`, a reproducible WSL/Pillow builder for the README gameplay GIF.
