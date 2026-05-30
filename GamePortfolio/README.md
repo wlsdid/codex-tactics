@@ -166,6 +166,8 @@ GIF 재생이 느린 환경에서는 아래 캡처 시트로 같은 흐름을 �
 
 자세한 프레임별 설명: [`Docs/ShowcaseGifEvidence.md`](Docs/ShowcaseGifEvidence.md)
 
+캡처 미디어 결정: [`Docs/CaptureMediaDecision.md`](Docs/CaptureMediaDecision.md) — 현재는 README gameplay GIF를 기본 포트폴리오 미디어로 사용하고, runtime-motion storyboard GIF를 보조 증거로 둡니다. 실제 MP4/GIF는 짧게 녹화·압축·크기 검증 후 추가합니다.
+
 생성 명령:
 
 ```bash

@@ -131,6 +131,20 @@ Builds/_capture_args.txt
 
 Run the generated Windows player with the args from `_capture_args.txt` so `ScreenshotCaptureJob` writes back to `Docs/Captures/`. Use `-captureOutputDir` or `CODEX_TACTICS_CAPTURE_DIR` if a different capture folder is needed.
 
+Batch 85 verified the existing player directly from WSL with this shape:
+
+```bash
+cd /mnt/c/Users/jywls/Desktop/game_portfolio/GamePortfolio
+"/mnt/c/Users/jywls/Desktop/game_portfolio/GamePortfolio/Builds/CaptureBuild/CaptureRunner.exe" \
+  -screen-width 1920 \
+  -screen-height 1080 \
+  -capture \
+  -captureOutputDir "C:/Users/jywls/Desktop/game_portfolio/GamePortfolio/Docs/Captures" \
+  -logFile "C:/Users/jywls/Desktop/game_portfolio/GamePortfolio/capture_runner_batch85.log"
+```
+
+This path refreshes deterministic PNGs only. It does not record a true MP4. The current media decision and future MP4/GIF acceptance criteria are tracked in [`Docs/CaptureMediaDecision.md`](CaptureMediaDecision.md).
+
 ## 8. Windows capture tools
 
 Simple options:

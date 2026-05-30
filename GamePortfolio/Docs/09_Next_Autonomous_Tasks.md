@@ -1,6 +1,30 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-30 Batch 84: Runtime Motion Storyboard
+## Latest autonomous run — 2026-05-30 Batch 85: Capture Media Decision
+
+Completed:
+- Reran the existing standalone `Builds/CaptureBuild/CaptureRunner.exe` from WSL with `-captureOutputDir` pointing back to `Docs/Captures`.
+- Confirmed the current capture path refreshes deterministic 1920x1080 PNG evidence without adding risky raw video binaries.
+- Added `Docs/CaptureMediaDecision.md` comparing the README gameplay GIF, runtime-motion storyboard GIF, and a future true MP4/GIF path.
+- Updated `README.md`, `Docs/Captures/README.md`, `Docs/ManualValidationAndCaptureGuide.md`, and `Docs/PortfolioShowcaseDraft.md` with the verified media decision and acceptance criteria.
+- Added `Docs/Devlog/2026-05-30_capture-media-decision.md`.
+
+Verification completed:
+- `CaptureRunner.exe -capture -captureOutputDir Docs/Captures`: PASS.
+- Capture PNG validation: PASS — 7 expected PNGs refreshed, each 1920x1080 and non-trivial size.
+- Existing GIF validation: PASS — `codex_tactics_battle_loop.gif` 960x540, 7 frames, 482,572 bytes; `codex_tactics_runtime_motion_storyboard.gif` 960x540, 29 frames, 2,471,988 bytes.
+- `ffmpeg` availability check: PASS — available at `/usr/bin/ffmpeg` for future conversion, but no true runtime MP4 was committed this batch.
+- Markdown link/file existence check: PASS.
+- `python3 -m py_compile Docs/Captures/build_readme_gif.py Docs/Captures/build_runtime_motion_storyboard.py`: PASS.
+- `git diff --check`: PASS.
+- Unity compile not rerun: PASS by scope — no C# or scene files changed.
+
+Recommended next tasks:
+1. Batch 86: record a short true runtime source clip via Windows Game Bar/OBS, convert to a small GIF with ffmpeg, and compare it against the accepted README GIF/storyboard path.
+2. Batch 87: add a compact camera/battle-speed polish note and acceptance checklist for runtime motion capture.
+3. Batch 88: if visual polish resumes, tighten Stage Select thumbnails or add a small party/enemy roster variant set.
+
+## Previous autonomous run — 2026-05-30 Batch 84: Runtime Motion Storyboard
 
 Completed:
 - Added `Docs/Captures/build_runtime_motion_storyboard.py`, a Pillow-only WSL helper that creates a runtime-motion-focused GIF from action-heavy capture PNGs.
