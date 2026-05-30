@@ -1,6 +1,28 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-30 Batch 80: Hit Feedback VFX Pass
+## Latest autonomous run — 2026-05-30 Batch 81: Idle Bob / Hit Reaction Motion
+
+Completed:
+- Added `BattleSpriteMotion`, a small UI component for generated-scene-safe idle bob and hit shove/squash reactions.
+- Wired player/enemy damage flashes to trigger hit reaction movement, so impacts read better in short portfolio clips.
+- Updated `BattleSceneAutoBuilder` so generated portraits and battlefield standees keep motion profiles.
+- Extended `Validate Battle Test Scene` and `Run Battle Logic Auto Test` coverage for sprite motion profiles.
+- Added `Docs/Devlog/2026-05-30_idle-bob-hit-reaction-motion.md`.
+
+Verification completed:
+- Static C# syntax/brace checks: PASS.
+- Unity batch compile: PASS.
+- `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS / `RESULT: PASS`.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS / `RESULT: PASS`.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 82: generate README-ready gameplay GIF from the capture pipeline.
+2. Batch 83: add a compact showcase page section explaining hit feedback, idle motion, and capture evidence.
+3. Batch 84: add a small battle-speed/camera polish note to the portfolio showcase page.
+
+## Previous autonomous run — 2026-05-30 Batch 80: Hit Feedback VFX Pass
 
 Completed:
 - Strengthened elemental projectile readability with per-element projectile timing, trail padding, pulse, spark burst count, impact ring size, and screen shake values.

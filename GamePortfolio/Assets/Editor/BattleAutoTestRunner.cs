@@ -27,6 +27,8 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "enemyHpSlider", CreateSlider("Enemy HP Slider"));
         SetPrivateField(battleUI, "playerStatusText", CreateText("Player Status Text"));
         SetPrivateField(battleUI, "playerShieldText", CreateText("Player Shield Text"));
+        SetPrivateField(battleUI, "playerSpriteImage", CreateSpriteImage("Player Sprite"));
+        SetPrivateField(battleUI, "enemySpriteImage", CreateSpriteImage("Enemy Sprite"));
         SetPrivateField(battleUI, "enemyStatusText", CreateText("Enemy Status Text"));
         SetPrivateField(battleUI, "enemyIntentText", CreateText("Enemy Intent Text"));
         SetPrivateField(battleUI, "enemyBreakText", CreateText("Enemy Break Text"));
@@ -103,6 +105,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Fire impact profile is GIF-ready with stronger burst and ring feedback", SkillProjectile.DebugImpactProfile(ElementType.Fire).Contains("Sparks=8") && SkillProjectile.DebugImpactProfile(ElementType.Fire).Contains("Ring=72") && SkillProjectile.DebugImpactProfile(ElementType.Fire).Contains("Shake=0.11"));
         AppendCheck(ref passed, ref report, "Lightning impact profile has the strongest shake and large hit ring", SkillProjectile.DebugImpactProfile(ElementType.Lightning).Contains("Sparks=7") && SkillProjectile.DebugImpactProfile(ElementType.Lightning).Contains("Ring=86") && SkillProjectile.DebugImpactProfile(ElementType.Lightning).Contains("Shake=0.14"));
         AppendCheck(ref passed, ref report, "Ice impact profile keeps readable slower feedback", SkillProjectile.DebugImpactProfile(ElementType.Ice).Contains("Sparks=5") && SkillProjectile.DebugImpactProfile(ElementType.Ice).Contains("Ring=54") && SkillProjectile.DebugImpactProfile(ElementType.Ice).Contains("Shake=0.07"));
+        AppendCheck(ref passed, ref report, "Sprite motion profiles add idle bob and hit shove feedback", battleUI.DebugPlayerSpriteMotionProfile.Contains("Bob=3.5") && battleUI.DebugPlayerSpriteMotionProfile.Contains("Hit=14") && battleUI.DebugEnemySpriteMotionProfile.Contains("Bob=4.5") && battleUI.DebugEnemySpriteMotionProfile.Contains("Hit=18"));
         AppendCheck(ref passed, ref report, "Weakness hit reduces Break gauge", battleManager.DebugEnemyBreakText == "Break: 1/2");
         AppendCheck(ref passed, ref report, "Damage dealt tracks Fire Skill weakness damage", battleManager.DebugTotalDamageDealt == 45);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Fire Skill", battleManager.DebugSkillsUsedCount == 1);
@@ -563,6 +566,14 @@ public static class BattleAutoTestRunner
         GameObject imageObject = new GameObject(name);
         imageObject.SetActive(false);
         return imageObject.AddComponent<Image>();
+    }
+
+    private static Image CreateSpriteImage(string name)
+    {
+        GameObject imageObject = new GameObject(name, typeof(RectTransform));
+        Image image = imageObject.AddComponent<Image>();
+        imageObject.AddComponent<BattleSpriteMotion>();
+        return image;
     }
 
     private static Slider CreateSlider(string name)

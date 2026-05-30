@@ -97,6 +97,7 @@ public static class BattleSceneAutoBuilder
         CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-592, 200), new Vector2(72, 72));
         CreatePortraitPixelAccent(canvas.transform, "Player", new Vector2(-592, 200), new Color(0.38f, 0.78f, 1.0f, 0.88f));
         Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-592, 200), new Vector2(58, 58));
+        ConfigureBattleSpriteMotion(playerSpriteImage, 3.5f, 1.45f, 0f, 14f, 0.06f, false);
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-486, 157), new Vector2(170, 14), new Color(0.22f, 0.72f, 0.38f));
         TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-486, 136), new Vector2(170, 24), TextAlignmentOptions.Left);
         playerApText.fontSize = 15;
@@ -121,6 +122,7 @@ public static class BattleSceneAutoBuilder
         CreatePortraitFrame(canvas.transform, "Enemy Portrait Frame", new Vector2(505, 198), new Vector2(70, 70));
         CreatePortraitPixelAccent(canvas.transform, "Enemy", new Vector2(505, 198), new Color(1.0f, 0.45f, 0.24f, 0.88f));
         Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(505, 198), new Vector2(56, 56));
+        ConfigureBattleSpriteMotion(enemySpriteImage, 4.5f, 1.25f, 0.35f, 18f, 0.08f, true);
         Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(505, 198), new Vector2(56, 56));
         Image stunOverlay = CreateStatusOverlay(canvas.transform, "Stun Overlay", new Vector2(505, 198), new Vector2(56, 56));
         Image brokenOverlay = CreateStatusOverlay(canvas.transform, "Broken Overlay", new Vector2(505, 198), new Vector2(56, 56));
@@ -371,6 +373,8 @@ public static class BattleSceneAutoBuilder
         Image actionCommandPanel = FindImageIncludingInactive("Action Command Panel");
         Image playerSelectionHighlight = FindImageIncludingInactive("Player Selection Highlight");
         TMP_Text selectedUnitText = FindTextIncludingInactive("Selected Unit Text");
+        Image playerSpriteImage = FindImage("Player Sprite");
+        Image enemySpriteImage = FindImage("Enemy Sprite");
         TMP_Text playerHpText = FindText("Player HP Text");
         TMP_Text playerApText = FindText("Player AP Text");
         TMP_Text enemyHpText = FindText("Enemy HP Text");
@@ -440,6 +444,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Skill action arc exists", IsDecorativePanelLikelyConfigured(skillActionArc, 450f, 4f));
         AppendCheck(ref passed, ref report, "Hero mature high-density pixel standee exists", IsSpriteImageLikelyConfigured(heroStandeeBody, 165f, 220f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 6f, 56f));
         AppendCheck(ref passed, ref report, "Enemy mature high-density pixel standee exists", IsSpriteImageLikelyConfigured(enemyStandeeBody, 185f, 218f) && IsDecorativePanelLikelyConfigured(enemyStandeeCrown, 52f, 8f));
+        AppendCheck(ref passed, ref report, "Battle portraits have idle bob and hit reaction motion", HasBattleSpriteMotion(playerSpriteImage) && HasBattleSpriteMotion(enemySpriteImage));
+        AppendCheck(ref passed, ref report, "Battlefield standees have idle bob motion", HasBattleSpriteMotion(heroStandeeBody) && HasBattleSpriteMotion(enemyStandeeBody));
         AppendCheck(ref passed, ref report, "Premium command header exists", IsDecorativePanelLikelyConfigured(commandHeaderPanel, 240f, 24f) && IsNameplateTextLikelyConfigured(commandHeaderText, "COMMAND", "CHAIN"));
         AppendCheck(ref passed, ref report, "Skill tier badge exists", IsDecorativePanelLikelyConfigured(skillTierBadge, 56f, 20f));
         AppendCheck(ref passed, ref report, "Party roster panel exists", partyRosterPanel != null && IsDecorativePanelLikelyConfigured(partyRosterPanel, 210f, 330f));
@@ -776,6 +782,20 @@ public static class BattleSceneAutoBuilder
             && rectTransform.sizeDelta.y >= minimumHeight
             && spriteImage.sprite != null
             && spriteImage.color.a >= 0.95f;
+    }
+
+    private static bool HasBattleSpriteMotion(Image spriteImage)
+    {
+        if (spriteImage == null)
+        {
+            return false;
+        }
+
+        BattleSpriteMotion motion = spriteImage.GetComponent<BattleSpriteMotion>();
+        return motion != null
+            && motion.DebugProfile.Contains("Bob=")
+            && motion.DebugProfile.Contains("Hit=")
+            && motion.DebugProfile.Contains("Squash=");
     }
 
     private static bool IsNameplateTextLikelyConfigured(TMP_Text text, string firstToken, string secondToken)
@@ -1189,6 +1209,7 @@ public static class BattleSceneAutoBuilder
         CreatePanel(parent, "Hero Standee Shadow", new Vector2(-206, -112), new Vector2(94, 16), new Color(0.0f, 0.0f, 0.0f, 0.34f));
         CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -28), new Vector2(112, 148), new Color(0.25f, 0.60f, 1.0f, 0.11f));
         Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/Generated/chibi_hero_original.png", new Vector2(-204, -8), new Vector2(176, 220));
+        ConfigureBattleSpriteMotion(heroBody, 5f, 1.1f, 0.15f, 20f, 0.05f, false);
         Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-166, -24), new Vector2(7, 60), new Color(0.88f, 0.94f, 1.0f, 0.38f));
         heroBlade.rectTransform.localRotation = Quaternion.Euler(0, 0, -18f);
         heroBody.raycastTarget = false;
@@ -1197,6 +1218,7 @@ public static class BattleSceneAutoBuilder
         CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -108), new Vector2(122, 20), new Color(0.0f, 0.0f, 0.0f, 0.38f));
         CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -26), new Vector2(136, 156), new Color(0.82f, 0.20f, 1.0f, 0.11f));
         Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/Generated/chibi_enemy_original.png", new Vector2(232, -8), new Vector2(190, 224));
+        ConfigureBattleSpriteMotion(enemyBody, 6f, 0.95f, 0.45f, 24f, 0.07f, true);
         Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 66), new Vector2(60, 9), new Color(1.0f, 0.66f, 0.20f, 0.38f));
         enemyBody.raycastTarget = false;
         enemyCrown.raycastTarget = false;
@@ -1207,6 +1229,15 @@ public static class BattleSceneAutoBuilder
         Image block = CreatePanel(parent, name, anchoredPosition, size, color);
         block.raycastTarget = false;
         return block;
+    }
+
+    private static void ConfigureBattleSpriteMotion(Image image, float bobPixels, float bobSpeed, float phaseOffset, float hitPixels, float squashAmount, bool moveLeftOnHit)
+    {
+        if (image == null) return;
+        BattleSpriteMotion motion = image.GetComponent<BattleSpriteMotion>();
+        if (motion == null)
+            motion = image.gameObject.AddComponent<BattleSpriteMotion>();
+        motion.Configure(bobPixels, bobSpeed, phaseOffset, hitPixels, squashAmount, moveLeftOnHit);
     }
 
     private static void CreatePremiumCommandFrame(Transform parent)

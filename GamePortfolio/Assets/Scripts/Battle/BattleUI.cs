@@ -99,6 +99,8 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text turnBannerText;
     private Canvas cachedCanvas;
     private Transform cachedCanvasTransform;
+    private BattleSpriteMotion playerSpriteMotion;
+    private BattleSpriteMotion enemySpriteMotion;
     private Coroutine guardPulseRoutine;
     private Coroutine burnPulseRoutine;
     private Coroutine stunPulseRoutine;
@@ -149,6 +151,8 @@ public class BattleUI : MonoBehaviour
     public bool DebugActionCommandPanelVisible => actionCommandPanel != null && actionCommandPanel.activeSelf;
     public bool DebugPlayerUnitSelected => playerUnitSelected;
     public string DebugSelectedUnitText => selectedUnitText != null ? selectedUnitText.text : "";
+    public string DebugPlayerSpriteMotionProfile => GetSpriteMotionProfile(playerSpriteImage, true);
+    public string DebugEnemySpriteMotionProfile => GetSpriteMotionProfile(enemySpriteImage, false);
 
     // --- Lifecycle ---
 
@@ -332,6 +336,7 @@ public class BattleUI : MonoBehaviour
             playerSpriteImage.sprite = PlaceholderSpriteGenerator.CreateHeroSprite();
         if (enemySpriteImage != null)
             enemySpriteImage.sprite = PlaceholderSpriteGenerator.CreateEnemySprite(enemyElement, isBoss);
+        EnsureSpriteMotions();
     }
 
     /// <summary>Clears cached sprite references so they can be regenerated on next battle.</summary>
@@ -845,7 +850,11 @@ public class BattleUI : MonoBehaviour
     public void FlashEnemyDamage()
     {
         if (enemySpriteImage != null)
+        {
+            EnsureSpriteMotions();
+            enemySpriteMotion?.PlayHitReaction();
             StartCoroutine(FlashRoutine(enemySpriteImage, Color.white, 0.1f));
+        }
     }
 
     public Vector3 GetPlayerSpriteWorldPosition()
@@ -882,7 +891,40 @@ public class BattleUI : MonoBehaviour
     public void FlashPlayerDamage()
     {
         if (playerSpriteImage != null)
+        {
+            EnsureSpriteMotions();
+            playerSpriteMotion?.PlayHitReaction();
             StartCoroutine(FlashRoutine(playerSpriteImage, Color.red, 0.15f));
+        }
+    }
+
+    private void EnsureSpriteMotions()
+    {
+        playerSpriteMotion = EnsureSpriteMotion(playerSpriteImage, playerSpriteMotion, 3.5f, 1.45f, 0f, 14f, 0.06f, false);
+        enemySpriteMotion = EnsureSpriteMotion(enemySpriteImage, enemySpriteMotion, 4.5f, 1.25f, 0.35f, 18f, 0.08f, true);
+    }
+
+    private static BattleSpriteMotion EnsureSpriteMotion(Image image, BattleSpriteMotion cachedMotion, float bobPixels, float bobSpeed, float phaseOffset, float hitPixels, float squashAmount, bool moveLeftOnHit)
+    {
+        if (cachedMotion != null)
+            return cachedMotion;
+        if (image == null)
+            return null;
+        BattleSpriteMotion motion = image.GetComponent<BattleSpriteMotion>();
+        if (motion == null)
+            motion = image.gameObject.AddComponent<BattleSpriteMotion>();
+        motion.Configure(bobPixels, bobSpeed, phaseOffset, hitPixels, squashAmount, moveLeftOnHit);
+        return motion;
+    }
+
+    private static string GetSpriteMotionProfile(Image image, bool playerProfile)
+    {
+        BattleSpriteMotion motion = image != null ? image.GetComponent<BattleSpriteMotion>() : null;
+        if (motion == null)
+            return playerProfile
+                ? BattleSpriteMotion.BuildDebugProfile(3.5f, 1.45f, 14f, 0.06f)
+                : BattleSpriteMotion.BuildDebugProfile(4.5f, 1.25f, 18f, 0.08f);
+        return motion.DebugProfile;
     }
 
     private IEnumerator FlashRoutine(Image target, Color flashColor, float duration)
