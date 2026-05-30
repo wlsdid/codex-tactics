@@ -149,6 +149,11 @@ public static class BattleSceneAutoBuilder
         TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "8-15s demo route: Click Hero -> Fire -> Guard -> Result -> Retry", new Vector2(0, 184), new Vector2(610, 26), TextAlignmentOptions.Center);
         demoRouteText.fontSize = 14;
         demoRouteText.color = new Color(0.96f, 0.92f, 0.68f);
+        Image captureRehearsalPanel = CreatePanel(canvas.transform, "Capture Rehearsal Panel", new Vector2(0, 152), new Vector2(640, 30), new Color(0.030f, 0.045f, 0.070f, 0.88f));
+        captureRehearsalPanel.raycastTarget = false;
+        TMP_Text captureRehearsalText = CreateText(canvas.transform, "Capture Rehearsal Text", "Capture Rehearsal 1/5: Click Hero in the party roster.", new Vector2(0, 152), new Vector2(610, 24), TextAlignmentOptions.Center);
+        captureRehearsalText.fontSize = 13;
+        captureRehearsalText.color = new Color(0.72f, 0.90f, 1.0f);
         TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(-220, -308), new Vector2(320, 52), TextAlignmentOptions.TopLeft);
         skillHelpText.fontSize = 9;
         skillHelpText.color = new Color(0.72f, 0.90f, 1.0f);
@@ -282,6 +287,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "stageProgressText", stageProgressText);
         SetObjectReference(serializedBattleUI, "messageText", messageText);
         SetObjectReference(serializedBattleUI, "impactText", impactText);
+        SetObjectReference(serializedBattleUI, "captureRehearsalText", captureRehearsalText);
         SetObjectReference(serializedBattleUI, "skillHelpText", skillHelpText);
         SetObjectReference(serializedBattleUI, "battleLogPanel", battleLogPanel.gameObject);
         SetObjectReference(serializedBattleUI, "battleLogTitleText", battleLogTitleText);
@@ -440,6 +446,8 @@ public static class BattleSceneAutoBuilder
         TMP_Text impactText = FindText("Impact Text");
         Image demoRoutePanel = FindImage("Demo Route Panel");
         TMP_Text demoRouteText = FindText("Demo Route Text");
+        Image captureRehearsalPanel = FindImage("Capture Rehearsal Panel");
+        TMP_Text captureRehearsalText = FindText("Capture Rehearsal Text");
 
         AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
         AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 850f, 500f));
@@ -493,8 +501,10 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Impact text exists", impactText != null);
         AppendCheck(ref passed, ref report, "Demo route panel exists", IsDecorativePanelLikelyConfigured(demoRoutePanel, 600f, 30f));
         AppendCheck(ref passed, ref report, "Demo route text shows the 8-15 second reviewer path", IsDemoRouteTextLikelyConfigured(demoRouteText));
+        AppendCheck(ref passed, ref report, "Capture rehearsal panel exists", IsDecorativePanelLikelyConfigured(captureRehearsalPanel, 600f, 28f));
+        AppendCheck(ref passed, ref report, "Capture rehearsal text starts with step-by-step prompt", IsCaptureRehearsalTextLikelyConfigured(captureRehearsalText));
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
-        AppendCheck(ref passed, ref report, "Runtime labels skip raycast for UI performance", IsTextRaycastOptimized(runStatusText, battleGuideText, stageText, stageObjectiveText, stageProgressText, playerHpText, playerApText, enemyHpText, skillHelpText, messageText, impactText, demoRouteText));
+        AppendCheck(ref passed, ref report, "Runtime labels skip raycast for UI performance", IsTextRaycastOptimized(runStatusText, battleGuideText, stageText, stageObjectiveText, stageProgressText, playerHpText, playerApText, enemyHpText, skillHelpText, messageText, impactText, demoRouteText, captureRehearsalText));
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
         AppendCheck(ref passed, ref report, "Enemy Intent text exists", enemyIntentText != null);
         AppendCheck(ref passed, ref report, "Enemy Break text exists", enemyBreakText != null);
@@ -573,6 +583,7 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Stage Progress text linked", HasObjectReference(serializedBattleUI, "stageProgressText"));
             AppendCheck(ref passed, ref report, "Message text linked", HasObjectReference(serializedBattleUI, "messageText"));
             AppendCheck(ref passed, ref report, "Impact text linked", HasObjectReference(serializedBattleUI, "impactText"));
+            AppendCheck(ref passed, ref report, "Capture rehearsal text linked", HasObjectReference(serializedBattleUI, "captureRehearsalText"));
             AppendCheck(ref passed, ref report, "Skill Help text linked", HasObjectReference(serializedBattleUI, "skillHelpText"));
             AppendCheck(ref passed, ref report, "Battle Log panel linked", HasObjectReference(serializedBattleUI, "battleLogPanel"));
             AppendCheck(ref passed, ref report, "Battle Log title linked", HasObjectReference(serializedBattleUI, "battleLogTitleText"));
@@ -871,6 +882,22 @@ public static class BattleSceneAutoBuilder
             && text.Contains("Guard")
             && text.Contains("Result")
             && text.Contains("Retry");
+    }
+
+    private static bool IsCaptureRehearsalTextLikelyConfigured(TMP_Text rehearsalText)
+    {
+        if (rehearsalText == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = rehearsalText.GetComponent<RectTransform>();
+        string text = rehearsalText.text;
+        return rectTransform != null
+            && rectTransform.sizeDelta.x >= 600f
+            && text.Contains("Capture Rehearsal")
+            && text.Contains("1/5")
+            && text.Contains("Click Hero");
     }
 
     private static bool IsStageTextLikelyConfigured(TMP_Text stageText)

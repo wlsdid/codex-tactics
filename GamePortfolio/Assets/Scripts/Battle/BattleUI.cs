@@ -41,6 +41,7 @@ public class BattleUI : MonoBehaviour
     [Header("Message & Help")]
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private TMP_Text impactText;
+    [SerializeField] private TMP_Text captureRehearsalText;
     [SerializeField] private TMP_Text skillHelpText;
 
     [Header("Command Preview")]
@@ -133,6 +134,7 @@ public class BattleUI : MonoBehaviour
     public float DebugEnemyBreakBarValue => enemyBreakSlider != null ? enemyBreakSlider.value : -1f;
     public float DebugEnemyBreakBarMaxValue => enemyBreakSlider != null ? enemyBreakSlider.maxValue : -1f;
     public string DebugImpactText => impactText != null ? impactText.text : "";
+    public string DebugCaptureRehearsalText => captureRehearsalText != null ? captureRehearsalText.text : "";
     public string DebugRunStatusText => runStatusText != null ? runStatusText.text : "";
     public string DebugStageText => stageText != null ? stageText.text : "";
     public string DebugStageObjectiveText => stageObjectiveText != null ? stageObjectiveText.text : "";
@@ -243,6 +245,7 @@ public class BattleUI : MonoBehaviour
         SetResultSummaryVisible(false, "");
         ClearCommandPreview();
         HideCharacterCommandMenu();
+        ResetCaptureRehearsal();
         // Cache continue button's child text component if not yet set
         if (continueButtonText == null && continueButton != null)
             continueButtonText = continueButton.GetComponentInChildren<TMP_Text>();
@@ -411,6 +414,41 @@ public class BattleUI : MonoBehaviour
         if (selectedUnitText != null)
             SetGameObjectActiveIfChanged(selectedUnitText.gameObject, false);
         SetTextIfChanged(selectedUnitText, "Click an ally to command");
+    }
+
+    public void ResetCaptureRehearsal()
+    {
+        SetCaptureRehearsalText("Capture Rehearsal 1/5: Click Hero in the party roster.");
+    }
+
+    public void MarkCaptureRehearsalHeroSelected()
+    {
+        SetCaptureRehearsalText("Capture Rehearsal 2/5: Choose Fire Bolt from the command panel.");
+    }
+
+    public void MarkCaptureRehearsalFireUsed()
+    {
+        SetCaptureRehearsalText("Capture Rehearsal 3/5: Wait for enemy turn, click Hero again, then choose GUARD.");
+    }
+
+    public void MarkCaptureRehearsalGuardUsed()
+    {
+        SetCaptureRehearsalText("Capture Rehearsal 4/5: Let the battle reach Result, then press Retry.");
+    }
+
+    public void MarkCaptureRehearsalResultShown()
+    {
+        SetCaptureRehearsalText("Capture Rehearsal 5/5: Result shown. Press Retry to prove the reset loop.");
+    }
+
+    public void MarkCaptureRehearsalRetryDone()
+    {
+        SetCaptureRehearsalText("Capture Rehearsal Complete: Retry reset done. Start recording again from Click Hero.");
+    }
+
+    private void SetCaptureRehearsalText(string text)
+    {
+        SetTextIfChanged(captureRehearsalText, text);
     }
 
 

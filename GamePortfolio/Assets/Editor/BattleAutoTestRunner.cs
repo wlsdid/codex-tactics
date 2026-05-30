@@ -39,6 +39,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "stageProgressText", CreateText("Stage Progress Text"));
         SetPrivateField(battleUI, "messageText", CreateText("Message Text"));
         SetPrivateField(battleUI, "impactText", CreateText("Impact Text"));
+        SetPrivateField(battleUI, "captureRehearsalText", CreateText("Capture Rehearsal Text"));
         SetPrivateField(battleUI, "skillHelpText", CreateText("Skill Help Text"));
         ConfigureBattleLogFields(battleUI);
         ConfigureCharacterCommandFields(battleUI);
@@ -92,9 +93,11 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("Player Turn: recovered 2 AP. Click Hero to choose an action."));
         AppendCheck(ref passed, ref report, "Impact text starts with ready feedback", battleManager.DebugImpactText == "Impact: Ready");
         AppendCheck(ref passed, ref report, "Enemy Break starts full", battleManager.DebugEnemyBreakText == "Break: 2/2");
+        AppendCheck(ref passed, ref report, "Capture rehearsal starts by prompting Hero selection", battleManager.DebugCaptureRehearsalText.Contains("1/5") && battleManager.DebugCaptureRehearsalText.Contains("Click Hero"));
         AppendCheck(ref passed, ref report, "Action command panel starts hidden until a character is clicked", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
         battleManager.OnClickPlayerUnit();
         AppendCheck(ref passed, ref report, "Clicking Hero opens selected-character command menu", battleUI.DebugActionCommandPanelVisible && battleUI.DebugPlayerUnitSelected && battleUI.DebugSelectedUnitText.Contains("Hero"));
+        AppendCheck(ref passed, ref report, "Capture rehearsal advances after Hero select", battleManager.DebugCaptureRehearsalText.Contains("2/5") && battleManager.DebugCaptureRehearsalText.Contains("Fire"));
 
         battleManager.OnClickFireSkillButton();
         AppendCheck(ref passed, ref report, "Player AP bar spends 2 AP after Fire Skill", battleManager.DebugPlayerApBarValue == 1f && battleManager.DebugPlayerApBarMaxValue == 3f);
@@ -109,6 +112,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Weakness hit reduces Break gauge", battleManager.DebugEnemyBreakText == "Break: 1/2");
         AppendCheck(ref passed, ref report, "Damage dealt tracks Fire Skill weakness damage", battleManager.DebugTotalDamageDealt == 45);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Fire Skill", battleManager.DebugSkillsUsedCount == 1);
+        AppendCheck(ref passed, ref report, "Capture rehearsal advances after Fire", battleManager.DebugCaptureRehearsalText.Contains("3/5") && battleManager.DebugCaptureRehearsalText.Contains("GUARD"));
         AppendCheck(ref passed, ref report, "Action command panel closes after a skill is chosen", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
 
         battleManager.DebugStartBattleForTest();
@@ -139,6 +143,7 @@ public static class BattleAutoTestRunner
         battleManager.OnClickPlayerUnit();
         battleManager.OnClickGuardButton();
         AppendCheck(ref passed, ref report, "Action command panel closes after Guard", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
+        AppendCheck(ref passed, ref report, "Capture rehearsal advances after Guard", battleManager.DebugCaptureRehearsalText.Contains("4/5") && battleManager.DebugCaptureRehearsalText.Contains("Result"));
         AppendCheck(ref passed, ref report, "Player status shows Guarding before enemy attack", battleManager.DebugPlayerStatusText == "Status: Guarding");
         battleManager.DebugResolveEnemyAttackForTest();
         AppendCheck(ref passed, ref report, "Player status returns to Ready after guard is consumed", battleManager.DebugPlayerStatusText == "Status: Ready");
@@ -167,8 +172,10 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Run status marks defeat as retry current encounter", battleManager.DebugRunStatusText == "Run Status: Retry Current Encounter");
         AppendCheck(ref passed, ref report, "Stage progress marks defeat as retry needed", battleManager.DebugStageProgressText == "Progress: Encounter 1/2 | Retry Needed");
         AppendCheck(ref passed, ref report, "Result summary panel is shown after defeat", battleManager.DebugResultSummaryPanelVisible);
+        AppendCheck(ref passed, ref report, "Capture rehearsal advances at Result", battleManager.DebugCaptureRehearsalText.Contains("5/5") && battleManager.DebugCaptureRehearsalText.Contains("Retry"));
         battleManager.OnClickRetryButton();
         AppendCheck(ref passed, ref report, "Retry restarts battle with full HP", battleManager.DebugPlayerHpText == "Hero HP: 100/100 (100%)" && battleManager.DebugMessageText.Contains("Player Turn"));
+        AppendCheck(ref passed, ref report, "Capture rehearsal confirms Retry reset", battleManager.DebugCaptureRehearsalText.Contains("Complete") && battleManager.DebugCaptureRehearsalText.Contains("reset"));
         AppendCheck(ref passed, ref report, "Retry clears result summary", string.IsNullOrEmpty(battleManager.DebugResultSummaryText));
         AppendCheck(ref passed, ref report, "Retry hides result summary panel", !battleManager.DebugResultSummaryPanelVisible);
         AppendCheck(ref passed, ref report, "Retry resets player/enemy status, intent, and combat report counters", battleManager.DebugPlayerStatusText == "Status: Ready" && battleManager.DebugEnemyStatusText == "Status: None" && battleManager.DebugEnemyIntentText == "Next Enemy: [Fire] Normal Attack (15)" && battleManager.DebugGuardUseCount == 0 && battleManager.DebugSkillsUsedCount == 0);

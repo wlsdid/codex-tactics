@@ -57,6 +57,7 @@ Title Scene → Stage Select Scene → Battle Scene → Result / Continue / Retr
 - Title screen star particles, fade-in, title float, button glow
 - Stage Select auto-select, card pulse animation, modifier preview
 - Battle HUD: HP/AP bars, status, enemy intent, Break gauge, stage progress, recent actions
+- Capture Rehearsal helper: in-game `1/5 -> 5/5` prompts for the short recording path (`Click Hero -> Fire -> Guard -> Result -> Retry`)
 - Original chibi pixel standees + roster mini sprites with forced Sprite import + point filtering for screenshot readability
 - Element badge, impact text color coding, guard/status overlays
 - Elemental projectile VFX, hit sparks, screen shake, damage/heal/buff popups

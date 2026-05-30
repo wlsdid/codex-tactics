@@ -100,6 +100,7 @@ public class BattleManager : MonoBehaviour
     public float DebugEnemyBreakBarValue => battleUI != null ? battleUI.DebugEnemyBreakBarValue : -1f;
     public float DebugEnemyBreakBarMaxValue => battleUI != null ? battleUI.DebugEnemyBreakBarMaxValue : -1f;
     public string DebugImpactText => battleUI != null ? battleUI.DebugImpactText : "";
+    public string DebugCaptureRehearsalText => battleUI != null ? battleUI.DebugCaptureRehearsalText : "";
     public string DebugRunStatusText => battleUI != null ? battleUI.DebugRunStatusText : "";
     public string DebugStageText => battleUI != null ? battleUI.DebugStageText : "";
     public string DebugStageObjectiveText => battleUI != null ? battleUI.DebugStageObjectiveText : "";
@@ -337,6 +338,7 @@ public class BattleManager : MonoBehaviour
         if (currentState != BattleState.PlayerTurn || player == null) return;
         AudioManager.Instance?.PlayButtonClick();
         battleUI?.ShowCharacterCommandMenu(player.characterName);
+        battleUI?.MarkCaptureRehearsalHeroSelected();
         battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
         battleUI?.UpdateCommandPreview("Choose Attack, Skill, Guard, or End Turn for the selected ally.", new Color(0.92f, 0.86f, 0.55f));
     }
@@ -389,6 +391,7 @@ public class BattleManager : MonoBehaviour
         AudioManager.Instance?.PlayButtonClick();
         StopAllCoroutines();
         StartBattle();
+        battleUI?.MarkCaptureRehearsalRetryDone();
     }
 
     public void OnClickAutoBattleToggle()
@@ -675,6 +678,7 @@ public class BattleManager : MonoBehaviour
         playerIsGuarding = true;
         guardUseCount++;
         battleUI?.HideCharacterCommandMenu();
+        battleUI?.MarkCaptureRehearsalGuardUsed();
         battleUI?.SetActionButtonsInteractable(false);
         // Guard visual feedback: screen flash + guard icon flash
         battleUI?.ScreenFlash(0.08f);
@@ -712,6 +716,7 @@ public class BattleManager : MonoBehaviour
         }
 
         battleUI?.HideCharacterCommandMenu();
+        if (skill == fireSkill) battleUI?.MarkCaptureRehearsalFireUsed();
         battleUI?.SetActionButtonsInteractable(false);
         skillsUsedCount++;
         if (skill != null) skillsUsedNames.Add(skill.skillName);
@@ -1108,6 +1113,7 @@ public class BattleManager : MonoBehaviour
 
         string resultSummary = BuildResultSummaryText(resultState);
         battleUI?.SetResultSummaryVisible(true, resultSummary);
+        battleUI?.MarkCaptureRehearsalResultShown();
         SyncProgressToState();
         if (finalStageCleared) SaveManager.Save();
 
