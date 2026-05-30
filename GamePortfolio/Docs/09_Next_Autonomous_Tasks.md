@@ -1,6 +1,32 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-30 Batch 85: Capture Media Decision
+## Latest autonomous run — 2026-05-30 Batch 86: Runtime Clip Conversion Workflow
+
+Completed:
+- Added `Docs/Captures/convert_runtime_clip.py`, an ffmpeg/ffprobe-based helper for user-recorded runtime MP4 clips.
+- The script trims a source MP4, resizes to 960px wide by default, limits to 12 fps, creates a palette GIF, creates a preview/contact sheet, validates dimensions/frame count/size, and prints exact source/output metrics.
+- Confirmed no sample runtime MP4 currently exists in `Docs/Captures` or the project tree, so no generated runtime GIF was committed this batch.
+- Updated `Docs/Captures/README.md`, `Docs/ManualValidationAndCaptureGuide.md`, `Docs/CaptureMediaDecision.md`, and `Docs/PortfolioShowcaseDraft.md` with the exact post-recording conversion command.
+- Added `Docs/Devlog/2026-05-30_runtime-clip-conversion-workflow.md`.
+
+Verification completed:
+- `ffmpeg` availability check: PASS — `/usr/bin/ffmpeg`.
+- `ffprobe` availability check: PASS — `/usr/bin/ffprobe`.
+- MP4 search: PASS — no sample `.mp4` found, so only help/missing-input validation was run.
+- `python3 -m py_compile Docs/Captures/convert_runtime_clip.py`: PASS.
+- `python3 Docs/Captures/convert_runtime_clip.py --help`: PASS.
+- `python3 Docs/Captures/convert_runtime_clip.py /tmp/missing_runtime_clip.mp4`: PASS — clear missing-input error.
+- Synthetic temp MP4 conversion smoke test: PASS — generated `/tmp/codex_runtime_clip_test/source.mp4`, converted to 960x540 GIF, 36 frames, 1,351,828 bytes, preview 221,639 bytes.
+- Markdown/file reference check: PASS.
+- `git diff --check`: PASS.
+- Unity compile not rerun: PASS by scope — Python/docs-only batch, no C# or scene files changed.
+
+Recommended next tasks:
+1. Batch 87: record one 8-15 second Windows Game Bar/OBS runtime MP4 and run `convert_runtime_clip.py` to produce/inspect `codex_tactics_runtime_clip.gif`.
+2. Batch 88: if the true runtime GIF is readable and under 5 MB, add it to README/showcase evidence; otherwise tune trim/FPS/width/colors.
+3. Batch 89: resume visual polish with Stage Select thumbnails or a small party/enemy roster variant set.
+
+## Previous autonomous run — 2026-05-30 Batch 85: Capture Media Decision
 
 Completed:
 - Reran the existing standalone `Builds/CaptureBuild/CaptureRunner.exe` from WSL with `-captureOutputDir` pointing back to `Docs/Captures`.

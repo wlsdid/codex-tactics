@@ -155,6 +155,32 @@ Simple options:
 
 If recording through Windows Game Bar, save the video first, then convert a short clip to GIF later.
 
+## 8.1 Convert a user-recorded runtime MP4
+
+After Windows Game Bar/OBS records a real runtime MP4, keep the raw source outside git, then run the Batch 86 converter from WSL:
+
+```bash
+cd /mnt/c/Users/jywls/Desktop/game_portfolio/GamePortfolio
+python3 Docs/Captures/convert_runtime_clip.py "/mnt/c/Users/jywls/Videos/Captures/YOUR_RUNTIME_CLIP.mp4"
+```
+
+The default output is:
+
+```text
+Docs/Captures/codex_tactics_runtime_clip.gif
+Docs/Captures/codex_tactics_runtime_clip_preview.png
+```
+
+Default settings are tuned for a short portfolio clip: 12 seconds, 960px wide, 12 fps, 96-color palette, and a 5 MB validation cap. To trim a better moment from a longer recording:
+
+```bash
+python3 Docs/Captures/convert_runtime_clip.py "/mnt/c/Users/jywls/Videos/Captures/YOUR_RUNTIME_CLIP.mp4" \
+  --start 2 \
+  --duration 10
+```
+
+Expected PASS output includes exact source resolution/duration, trim range, GIF dimensions, frame count, GIF byte size, and preview/contact-sheet byte size. If the script reports that the GIF is too large, retry with `--duration 8`, `--fps 10`, `--width 720`, or `--colors 64`.
+
 ## 9. README embed example
 
 After a capture file exists, add one of these to `README.md`.

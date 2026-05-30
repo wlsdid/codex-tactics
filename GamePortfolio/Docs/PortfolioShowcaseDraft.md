@@ -168,15 +168,22 @@ What the GIF proves concretely:
 - **Technical polish loop:** hit feedback, idle bob, hit reaction, and result metrics were chosen because they improve a short portfolio capture, not because they add unnecessary scope.
 - **Verification path:** reviewers can run Unity `Tools > Codex Tactics` validators and rebuild the GIF with `python3 Docs/Captures/build_readme_gif.py`.
 
-## 6.5 Capture media decision — Batch 85
+## 6.5 Capture media decision and runtime MP4 conversion — Batch 85/86
 
 Batch 85 reran the existing standalone capture runner and confirmed it safely refreshes the deterministic PNG sequence in `Docs/Captures/`, but it does not produce a true MP4 by itself.
 
 Current showcase choice:
-
 - Use `Docs/Captures/codex_tactics_battle_loop.gif` as the primary README/portfolio media because it is compact and directly communicates the vertical slice flow.
 - Use `Docs/Captures/codex_tactics_runtime_motion_storyboard.gif` as secondary motion/VFX evidence, clearly labelled as a storyboard fallback.
 - Do not commit raw MP4 yet. A true runtime clip should be recorded through Windows Game Bar/OBS or a future in-engine recorder, then trimmed, converted, and checked against the acceptance criteria in [`Docs/CaptureMediaDecision.md`](CaptureMediaDecision.md).
+
+Batch 86 adds the reproducible conversion step for that future source clip:
+
+```bash
+python3 Docs/Captures/convert_runtime_clip.py "/mnt/c/Users/jywls/Videos/Captures/YOUR_RUNTIME_CLIP.mp4"
+```
+
+The converter creates `codex_tactics_runtime_clip.gif` plus `codex_tactics_runtime_clip_preview.png`, using 12 seconds, 960px width, 12 fps, a 96-color palette, and a 5 MB size cap by default. It validates `ffmpeg`/`ffprobe`, source duration/dimensions, GIF width/frame count/file size, and preview output before the media is considered portfolio-ready.
 
 ## 7. Validation status on 2026-05-30
 

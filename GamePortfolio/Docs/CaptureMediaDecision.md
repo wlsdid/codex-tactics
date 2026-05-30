@@ -1,4 +1,4 @@
-# Capture Media Decision — Batch 85
+# Capture Media Decision — Batch 85/86
 
 Date: 2026-05-30
 
@@ -58,27 +58,22 @@ Before a true runtime clip replaces or joins the README GIF, it should meet all 
 6. Reproducibility: document the exact recorder and conversion commands.
 7. Repository hygiene: do not commit raw OBS/Game Bar captures; commit only compressed showcase media and docs.
 
-## Recommended future command path
+## Batch 86 conversion workflow update
 
-If Windows Game Bar or OBS records a short source clip outside git, place it temporarily outside the repository or under an ignored folder, then convert a small GIF with ffmpeg:
+Batch 86 adds `Docs/Captures/convert_runtime_clip.py` so the future true runtime MP4 path no longer depends on an ad-hoc ffmpeg one-liner. Hermes/WSL still cannot press Windows Game Bar/OBS controls directly, but once the user records a short MP4, the script can trim, resize, fps-limit, palette-convert, preview, and validate the output with exact metrics.
 
-```bash
-# Example only; replace SOURCE.mp4 with the recorded clip path.
-ffmpeg -y -i SOURCE.mp4 \
-  -vf "fps=12,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=96[p];[s1][p]paletteuse=dither=bayer" \
-  Docs/Captures/codex_tactics_runtime_clip.gif
-```
-
-Validation command:
+Verified command shape:
 
 ```bash
-python3 - <<'PY'
-from pathlib import Path
-from PIL import Image
-p = Path('Docs/Captures/codex_tactics_runtime_clip.gif')
-im = Image.open(p)
-print(p, im.size, getattr(im, 'n_frames', 1), p.stat().st_size)
-PY
+cd /mnt/c/Users/jywls/Desktop/game_portfolio/GamePortfolio
+python3 Docs/Captures/convert_runtime_clip.py "/mnt/c/Users/jywls/Videos/Captures/YOUR_RUNTIME_CLIP.mp4"
 ```
 
-Only embed `codex_tactics_runtime_clip.gif` after the clip passes the acceptance criteria.
+Default output paths:
+
+```text
+Docs/Captures/codex_tactics_runtime_clip.gif
+Docs/Captures/codex_tactics_runtime_clip_preview.png
+```
+
+Default validation target: 12 second clip, 960px wide, 12 fps, 96-color palette, under 5 MB. The script rejects missing `ffmpeg`/`ffprobe`, missing or non-MP4 input, invalid source duration/dimensions, suspicious frame counts, tiny/corrupt outputs, and GIFs that exceed the README size cap.
