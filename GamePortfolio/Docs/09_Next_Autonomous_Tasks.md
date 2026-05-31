@@ -1,27 +1,29 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-31 Batch 88: Capture Rehearsal Step Tracker
+## Latest autonomous run — 2026-05-31 Batch 89: Professional Visual Polish Pass
 
 Completed:
-- Added a runtime `Capture Rehearsal` prompt to `BattleUI` for the recording route: Hero select -> Fire -> Guard -> Result -> Retry.
-- Wired `BattleManager` events so the prompt advances after selected-ally opening, Fire use, Guard use, result display, and retry reset.
-- Extended generated `BattleScene` UI with a visible rehearsal panel/text under the existing demo route hint.
-- Updated `Validate Battle Test Scene` and `Run Battle Logic Auto Test` coverage for the new rehearsal prompt and debug accessor.
-- Updated README and `Docs/ReviewerQuickCheck.md`; added a Batch 88 devlog.
+- Upgraded generated `TitleScene` with a premium dark frame, gold dividers, battlefield silhouette, party/enemy silhouettes, and reviewer-facing pitch text.
+- Upgraded generated `StageSelectScene` cards with thumbnail frames, element-color accents, ground strips, and locked-card dim overlays.
+- Added Battle Scene depth layers: distant forest silhouette, moonlight beam, foreground fog, rear horizon line, and hero/enemy base rings.
+- Extended Game Flow and Battle validators so the new presentation objects are required.
+- Updated README, PortfolioShowcaseDraft, and added a visual-polish devlog.
 
 Verification target:
 - Static C# syntax/brace checks.
 - Unity batch compile.
 - `BattleSceneAutoBuilder.CreateBattleTestScene`.
 - `BattleSceneAutoBuilder.ValidateBattleTestScene` / `RESULT: PASS`.
+- `GameFlowSceneAutoBuilder.CreateGameFlowScenes`.
+- `GameFlowSceneAutoBuilder.ValidateGameFlowScenes` / `RESULT: PASS`.
 - `BattleAutoTestRunner.RunBattleLogicAutoTest` / `RESULT: PASS`.
 - Markdown link/file reference check.
 - `git diff --check`.
 
 Recommended next tasks:
-1. Batch 89: record one true 8-15 second Windows Game Bar/OBS runtime MP4 following the in-game rehearsal prompt, then run `Docs/Captures/convert_runtime_clip.py`.
-2. Batch 90: if the runtime GIF is readable and under 5 MB, add it to README/showcase evidence; otherwise tune trim/FPS/width/colors.
-3. Batch 91: add a small Stage Select thumbnail/party roster polish pass if capture evidence is already accepted.
+1. Batch 90: regenerate/capture the polished Title, Stage Select, and Battle screenshots, then visually QA the contact sheet.
+2. Batch 91: tune runtime motion/GIF quality with camera feel, hit timing, and 8-15 second readability.
+3. Batch 92: if screenshots are accepted, update README/showcase GIF evidence with the improved visual pass.
 
 ## Previous autonomous run — 2026-05-30 Batch 87: Reviewer Demo Route Hint
 

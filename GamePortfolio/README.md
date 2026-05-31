@@ -1,6 +1,6 @@
 # GamePortfolio — Codex Tactics
 
-Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 83 기준으로 타이틀 화면, 스테이지 선택, 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처, README GIF와 쇼케이스 근거 문서까지 포함합니다.
+Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 89 기준으로 타이틀/스테이지 선택/전투 배경 1차 전문화 패스, 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처, README GIF와 쇼케이스 근거 문서까지 포함합니다.
 
 **최신 포트폴리오 정리:** [`Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt`](Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt)
 
@@ -9,6 +9,13 @@ Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현�
 **60초 리뷰 체크리스트:** [`Docs/ReviewerQuickCheck.md`](Docs/ReviewerQuickCheck.md)
 
 **영문 README:** [`README.EN.md`](README.EN.md)
+
+## 최신 비주얼 폴리시
+
+- Title Scene: 프리미엄 다크 프레임, 금색 구분선, 전장/파티 실루엣, 짧은 리뷰어용 피치 문구 추가.
+- Stage Select: 카드별 썸네일 프레임, 속성 컬러 장식, 잠금 카드 dim 처리로 plain 버튼 느낌 감소.
+- Battle Scene: 원경 숲 실루엣, 달빛 빔, 전경 안개, 유닛 base ring으로 전장 깊이와 캐릭터 접지감 강화.
+- 검증: 새 프레젠테이션 오브젝트를 Game Flow/Battle Scene validator에서 자동 확인.
 
 ---
 

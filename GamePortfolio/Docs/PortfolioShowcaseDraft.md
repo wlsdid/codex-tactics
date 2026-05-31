@@ -1,6 +1,6 @@
 # Codex Tactics — Portfolio Showcase Draft
 
-> Updated: 2026-05-30 — current target: short, high-quality commercial-looking portfolio demo with README GIF evidence. Covers Batch 83 scope: working standalone capture pipeline, chibi pixel-art inspired battle standees, premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, automated validation, and reviewer-facing GIF explanation notes.
+> Updated: 2026-05-31 — current target: short, high-quality commercial-looking portfolio demo with professionalized generated scene presentation. Covers Batch 89 scope plus prior GIF evidence: working standalone capture pipeline, chibi pixel-art inspired battle standees, premium battle presentation pass, generated scene validation, portfolio captures, 6 stages, 12 encounters, stage modifiers, battle UI/VFX/SFX polish, items, result/progress systems, automated validation, and reviewer-facing GIF explanation notes.
 
 ## 1. Game overview
 
@@ -11,6 +11,13 @@ The project focuses on portfolio-visible systems and presentation: AP-based skil
 Latest showcase direction:
 
 > A short 5-10 minute vertical slice that looks closer to a polished commercial indie tactics demo than a test scene. Scope can stay small; first impression, UI hierarchy, battle readability, and documented process are the priority.
+
+Latest visual polish pass:
+
+- Title Scene now uses a dark premium frame, gold dividers, battlefield silhouette, party/enemy silhouettes, and a concise reviewer pitch line.
+- Stage Select cards now include thumbnail-style art frames, element-colored accents, ground strips, and locked-card dim overlays.
+- Battle Scene now has layered battlefield depth: distant forest silhouette, moonlight beam, foreground fog, rear horizon line, and unit base rings.
+- Validators were extended so these presentation elements are automatically checked after regeneration.
 
 ## 2. Play loop
 

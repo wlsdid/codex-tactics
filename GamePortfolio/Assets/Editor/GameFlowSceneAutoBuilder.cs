@@ -39,18 +39,25 @@ public static class GameFlowSceneAutoBuilder
         Canvas canvas = CreateCanvas(camera);
         CreateEventSystem();
 
-        Image bgPanel = CreatePanel(canvas.transform, "Background Panel", Vector2.zero, new Vector2(1200, 800), new Color(0.04f, 0.04f, 0.07f, 1f));
+        Image bgPanel = CreatePanel(canvas.transform, "Background Panel", Vector2.zero, new Vector2(1200, 800), new Color(0.025f, 0.026f, 0.045f, 1f));
         bgPanel.raycastTarget = false;
+        CreateTitleShowcaseFrame(canvas.transform);
 
-        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Codex Tactics", new Vector2(0, 100), new Vector2(800, 80), TextAlignmentOptions.Center);
-        titleText.fontSize = 56;
-        titleText.color = new Color(0.92f, 0.78f, 0.38f);
+        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Codex Tactics", new Vector2(0, 135), new Vector2(860, 92), TextAlignmentOptions.Center);
+        titleText.fontSize = 64;
+        titleText.fontStyle = FontStyles.Bold;
+        titleText.color = new Color(0.96f, 0.78f, 0.34f);
 
-        TMP_Text subtitleText = CreateText(canvas.transform, "Subtitle Text", "Tactical Break RPG Prototype", new Vector2(0, 30), new Vector2(600, 50), TextAlignmentOptions.Center);
-        subtitleText.fontSize = 26;
-        subtitleText.color = new Color(0.72f, 0.85f, 1.0f);
+        TMP_Text subtitleText = CreateText(canvas.transform, "Subtitle Text", "A short tactical break RPG vertical slice", new Vector2(0, 70), new Vector2(720, 40), TextAlignmentOptions.Center);
+        subtitleText.fontSize = 24;
+        subtitleText.color = new Color(0.76f, 0.90f, 1.0f);
 
-        Button startButton = CreateButton(canvas.transform, "Start Game Button", "Start Game", new Vector2(0, -80), new Vector2(280, 70));
+        TMP_Text pitchText = CreateText(canvas.transform, "Title Pitch Text", "Click Hero -> chain skills -> Guard the heavy hit -> finish with rank rewards", new Vector2(0, 28), new Vector2(760, 34), TextAlignmentOptions.Center);
+        pitchText.fontSize = 17;
+        pitchText.color = new Color(0.90f, 0.92f, 1.0f);
+
+        Button startButton = CreateButton(canvas.transform, "Start Game Button", "Start Game", new Vector2(0, -115), new Vector2(300, 64));
+        startButton.GetComponent<Image>().color = new Color(0.20f, 0.15f, 0.08f, 0.96f);
 
         // Create GameSceneFlow and wire Start button (persistent listener for serialization)
         GameObject flowObject = new GameObject("GameSceneFlow");
@@ -126,26 +133,30 @@ public static class GameFlowSceneAutoBuilder
             cardButtons[i] = cardBtn;
             cardBgs[i] = cardBtn.GetComponent<Image>();
 
+            CreateStageCardThumbnail(cardBtn.transform, i, cardElements[i], i == 0);
+
             // Stage name text
-            TMP_Text nameText = CreateText(cardBtn.transform, $"Stage {i + 1} Name Text", cardNames[i], new Vector2(0, 38), new Vector2(190, 28), TextAlignmentOptions.Center);
-            nameText.fontSize = 18;
-            nameText.color = i == 0 ? Color.white : new Color(0.5f, 0.5f, 0.5f);
+            TMP_Text nameText = CreateText(cardBtn.transform, $"Stage {i + 1} Name Text", cardNames[i], new Vector2(0, 46), new Vector2(190, 24), TextAlignmentOptions.Center);
+            nameText.fontSize = 16;
+            nameText.fontStyle = FontStyles.Bold;
+            nameText.color = i == 0 ? Color.white : new Color(0.58f, 0.58f, 0.62f);
 
             // Element icon + difficulty text (single line)
             string eleDiffStr = $"{cardElements[i]} {cardDifficulties[i]}";
-            TMP_Text eleDiffText = CreateText(cardBtn.transform, $"Stage {i + 1} EleDiff Text", eleDiffStr, new Vector2(0, 12), new Vector2(190, 22), TextAlignmentOptions.Center);
-            eleDiffText.fontSize = 16;
-            eleDiffText.color = i == 0 ? new Color(0.82f, 0.86f, 0.95f) : new Color(0.5f, 0.5f, 0.5f);
+            TMP_Text eleDiffText = CreateText(cardBtn.transform, $"Stage {i + 1} EleDiff Text", eleDiffStr, new Vector2(-52, -18), new Vector2(86, 22), TextAlignmentOptions.Center);
+            eleDiffText.fontSize = 14;
+            eleDiffText.fontStyle = FontStyles.Bold;
+            eleDiffText.color = i == 0 ? new Color(0.95f, 0.86f, 0.55f) : new Color(0.5f, 0.5f, 0.5f);
 
             // Description text (short for card preview)
-            TMP_Text shortDescText = CreateText(cardBtn.transform, $"Stage {i + 1} Desc Text", cardDescs[i], new Vector2(0, -10), new Vector2(190, 22), TextAlignmentOptions.Top);
-            shortDescText.fontSize = 13;
-            shortDescText.color = i == 0 ? new Color(0.72f, 0.72f, 0.72f) : new Color(0.4f, 0.4f, 0.4f);
+            TMP_Text shortDescText = CreateText(cardBtn.transform, $"Stage {i + 1} Desc Text", cardDescs[i], new Vector2(36, -18), new Vector2(104, 28), TextAlignmentOptions.TopLeft);
+            shortDescText.fontSize = 11;
+            shortDescText.color = i == 0 ? new Color(0.78f, 0.82f, 0.92f) : new Color(0.42f, 0.42f, 0.46f);
 
             // Status text
             string statusLabel = i == 0 ? "NEXT" : "LOCKED";
             Color statusColor = i == 0 ? new Color(0.38f, 1f, 0.42f) : new Color(1f, 0.5f, 0.5f);
-            TMP_Text statusText = CreateText(cardBtn.transform, $"Stage {i + 1} Status Text", statusLabel, new Vector2(0, -43), new Vector2(190, 24), TextAlignmentOptions.Center);
+            TMP_Text statusText = CreateText(cardBtn.transform, $"Stage {i + 1} Status Text", statusLabel, new Vector2(0, -50), new Vector2(190, 22), TextAlignmentOptions.Center);
             statusText.fontSize = 16;
             statusText.color = statusColor;
             statusTexts[i] = statusText;
@@ -231,6 +242,10 @@ public static class GameFlowSceneAutoBuilder
             Button startBtn = FindButtonInScene("Start Game Button");
             AppendCheck(ref passed, ref report, "TitleScene has Start Game Button", startBtn != null);
             AppendCheck(ref passed, ref report, "TitleScene has GameSceneFlow component", Object.FindObjectOfType<GameSceneFlow>() != null);
+            AppendCheck(ref passed, ref report, "TitleScene has premium frame", HasSceneObject("Title Premium Frame Panel"));
+            AppendCheck(ref passed, ref report, "TitleScene has battlefield silhouette", HasSceneObject("Title Battlefield Silhouette Panel"));
+            AppendCheck(ref passed, ref report, "TitleScene has party silhouette", HasSceneObject("Title Party Silhouette Hero"));
+            AppendCheck(ref passed, ref report, "TitleScene has reviewer pitch text", HasSceneObject("Title Pitch Text"));
             if (startBtn != null)
                 AppendCheck(ref passed, ref report, "Start Game Button has LoadStageSelect persistent listener", VerifyButtonPersistentListener(startBtn, "LoadStageSelect"));
         }
@@ -247,6 +262,8 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "StageSelect gold dividers exist", HasSceneObject("Stage Select Top Gold Divider Panel") && HasSceneObject("Stage Select Bottom Gold Divider Panel"));
             AppendCheck(ref passed, ref report, "StageSelect description divider exists", HasSceneObject("Description Gold Divider Panel"));
             AppendCheck(ref passed, ref report, "StageSelect chapter label exists", HasSceneObject("Stage Select Chapter Label Text"));
+            AppendCheck(ref passed, ref report, "StageSelect cards have thumbnail art frames", HasSceneObject("Stage 1 Thumbnail Frame Panel") && HasSceneObject("Stage 1 Thumbnail Sky Panel"));
+            AppendCheck(ref passed, ref report, "StageSelect locked cards have dimmed thumbnail treatment", HasSceneObject("Stage 2 Thumbnail Lock Veil Panel"));
             StageSelectController controller = Object.FindObjectOfType<StageSelectController>();
             AppendCheck(ref passed, ref report, "StageSelectController exists", controller != null);
             if (controller != null)
@@ -385,6 +402,61 @@ public static class GameFlowSceneAutoBuilder
         Image img = obj.GetComponent<Image>();
         img.color = color;
         return img;
+    }
+
+    private static void CreateTitleShowcaseFrame(Transform parent)
+    {
+        Image frame = CreatePanel(parent, "Title Premium Frame Panel", new Vector2(0, 0), new Vector2(980, 560), new Color(0.030f, 0.034f, 0.060f, 0.84f));
+        frame.raycastTarget = false;
+        Image topGold = CreatePanel(parent, "Title Top Gold Divider Panel", new Vector2(0, 224), new Vector2(820, 5), new Color(0.90f, 0.66f, 0.24f, 0.92f));
+        Image bottomGold = CreatePanel(parent, "Title Bottom Gold Divider Panel", new Vector2(0, -194), new Vector2(680, 4), new Color(0.78f, 0.50f, 0.18f, 0.84f));
+        topGold.raycastTarget = false;
+        bottomGold.raycastTarget = false;
+
+        Image battlefield = CreatePanel(parent, "Title Battlefield Silhouette Panel", new Vector2(0, -6), new Vector2(720, 160), new Color(0.018f, 0.040f, 0.040f, 0.70f));
+        battlefield.raycastTarget = false;
+        Image floorGlow = CreatePanel(parent, "Title Floor Glow Panel", new Vector2(0, -68), new Vector2(560, 46), new Color(0.16f, 0.28f, 0.20f, 0.36f));
+        floorGlow.raycastTarget = false;
+
+        Image hero = CreatePanel(parent, "Title Party Silhouette Hero", new Vector2(-142, -24), new Vector2(42, 92), new Color(0.25f, 0.62f, 1.0f, 0.52f));
+        Image guardian = CreatePanel(parent, "Title Party Silhouette Guardian", new Vector2(-76, -38), new Vector2(54, 72), new Color(0.38f, 0.80f, 0.66f, 0.42f));
+        Image enemy = CreatePanel(parent, "Title Enemy Silhouette Boss", new Vector2(142, -26), new Vector2(92, 104), new Color(0.90f, 0.25f, 0.62f, 0.40f));
+        hero.raycastTarget = false;
+        guardian.raycastTarget = false;
+        enemy.raycastTarget = false;
+    }
+
+    private static void CreateStageCardThumbnail(Transform parent, int index, string elementLabel, bool unlocked)
+    {
+        Color elementColor = GetStageElementColor(elementLabel);
+        Image frame = CreatePanel(parent, $"Stage {index + 1} Thumbnail Frame Panel", new Vector2(0, 7), new Vector2(188, 58), new Color(0.015f, 0.018f, 0.030f, 0.88f));
+        Image sky = CreatePanel(parent, $"Stage {index + 1} Thumbnail Sky Panel", new Vector2(0, 13), new Vector2(176, 34), new Color(elementColor.r, elementColor.g, elementColor.b, unlocked ? 0.24f : 0.10f));
+        Image ground = CreatePanel(parent, $"Stage {index + 1} Thumbnail Ground Panel", new Vector2(0, -10), new Vector2(176, 14), new Color(0.04f, 0.05f, 0.055f, unlocked ? 0.88f : 0.55f));
+        Image accent = CreatePanel(parent, $"Stage {index + 1} Thumbnail Element Accent Panel", new Vector2(-74, 12), new Vector2(22, 28), new Color(elementColor.r, elementColor.g, elementColor.b, unlocked ? 0.82f : 0.32f));
+        frame.raycastTarget = false;
+        sky.raycastTarget = false;
+        ground.raycastTarget = false;
+        accent.raycastTarget = false;
+
+        if (!unlocked)
+        {
+            Image veil = CreatePanel(parent, $"Stage {index + 1} Thumbnail Lock Veil Panel", new Vector2(0, 7), new Vector2(188, 58), new Color(0.0f, 0.0f, 0.0f, 0.38f));
+            veil.raycastTarget = false;
+        }
+    }
+
+    private static Color GetStageElementColor(string elementLabel)
+    {
+        switch (elementLabel)
+        {
+            case "FIRE": return new Color(1.0f, 0.38f, 0.18f, 1f);
+            case "NAT": return new Color(0.30f, 0.82f, 0.42f, 1f);
+            case "EARTH": return new Color(0.75f, 0.55f, 0.28f, 1f);
+            case "LIT": return new Color(0.95f, 0.88f, 0.24f, 1f);
+            case "DARK": return new Color(0.55f, 0.28f, 0.88f, 1f);
+            case "LIGHT": return new Color(0.95f, 0.88f, 0.62f, 1f);
+            default: return new Color(0.55f, 0.72f, 1.0f, 1f);
+        }
     }
 
     private static void CreateStageSelectShowcaseFrame(Transform parent)
