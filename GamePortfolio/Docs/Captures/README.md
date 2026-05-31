@@ -1,6 +1,6 @@
 # Captures
 
-Unity screenshots, README gameplay GIF, runtime-motion storyboard GIF, runtime MP4 conversion helper, and contact sheets for the portfolio README. Batch 82 adds a reproducible Pillow-based GIF builder that turns the current capture PNGs into `codex_tactics_battle_loop.gif` without reopening Unity. Batch 84 adds a motion-focused storyboard builder for action/VFX review when true runtime video capture is not available. Batch 85 validates the standalone capture runner path and records the current media decision in `Docs/CaptureMediaDecision.md`. Batch 86 adds an ffmpeg-based conversion/validation workflow for a user-recorded runtime MP4. Batch 90 refreshes the generated PNG/GIF set after visual polish and fixes victory result summary readability.
+Unity screenshots, README gameplay GIF, runtime-motion storyboard GIF, runtime MP4 conversion helper, and contact sheets for the portfolio README. Batch 82 adds a reproducible Pillow-based GIF builder that turns the current capture PNGs into `codex_tactics_battle_loop.gif` without reopening Unity. Batch 84 adds a motion-focused storyboard builder for action/VFX review when true runtime video capture is not available. Batch 85 validates the standalone capture runner path and records the current media decision in `Docs/CaptureMediaDecision.md`. Batch 86 adds an ffmpeg-based conversion/validation workflow for a user-recorded runtime MP4. Batch 90 refreshes the generated PNG/GIF set after visual polish and fixes victory result summary readability. Batch 91 refreshes the battle captures again after reducing HUD density for README-size readability.
 
 ## Current captured files
 
@@ -97,3 +97,8 @@ The script checks for `ffmpeg`/`ffprobe`, validates the input MP4, creates a pal
 ## Batch 90 refresh notes
 
 The current PNGs, contact sheet, README gameplay GIF, and runtime-motion storyboard were regenerated from a freshly rebuilt standalone `CaptureRunner.exe`. Visual QA specifically checked that `04_result_summary_rank.png` reads as a Victory result instead of a red defeat-like overlay, and that the summary no longer uses oversized centered text that spills over the combatants.
+
+
+## Batch 91 HUD density notes
+
+The battle PNGs and GIFs were regenerated after a HUD density pass. The capture keeps the tactical proof points visible — HP/AP, enemy intent, Fire/Burn, Guard, Result, Retry — while reducing side roster rows and shortening route/capture prompts so the center battlefield and characters are clearer in README-sized images.

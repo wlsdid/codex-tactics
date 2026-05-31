@@ -1,6 +1,30 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-31 Batch 90: Capture Refresh and Result Readability QA
+## Latest autonomous run — 2026-05-31 Batch 91: Battle HUD Density Pass
+
+Completed:
+- Reduced generated Battle HUD side roster density: party and enemy roster lists now show three readable rows instead of filling the sides with five rows.
+- Shortened the capture prompt text (`Capture 1/5: Click Hero`) while preserving the automated capture route proof.
+- Tightened the demo route strip and top mission guide so the center battlefield reads better in README-sized captures.
+- Regenerated `BattleScene.unity`, refreshed battle PNGs, contact sheet, README gameplay GIF, and runtime-motion storyboard GIF.
+
+Verification completed:
+- Static C# brace check: PASS.
+- `git diff --check`: PASS.
+- `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS.
+- `CaptureScreenshots.Run`: PASS.
+- Standalone `CaptureRunner.exe` PNG refresh: PASS.
+- README GIF and runtime-motion storyboard rebuild: PASS.
+- Contact-sheet visual QA: PASS — battle captures are less cluttered while keeping HP/AP, enemy intent, command flow, result, and retry proof visible.
+
+Recommended next tasks:
+1. Batch 92: make Stage Select/Title decorative art more illustrative if the user wants another visual polish pass.
+2. Batch 93: only add a true runtime MP4/GIF if a short Windows Game Bar/OBS source clip is available.
+3. Batch 94: prepare a concise portfolio submission note highlighting generated-scene validators and capture evidence.
+
+## Previous autonomous run — 2026-05-31 Batch 90: Capture Refresh and Result Readability QA
 
 Completed:
 - Rebuilt the standalone `CaptureRunner.exe` with `CaptureScreenshots.Run`.

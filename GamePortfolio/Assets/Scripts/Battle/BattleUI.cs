@@ -418,32 +418,32 @@ public class BattleUI : MonoBehaviour
 
     public void ResetCaptureRehearsal()
     {
-        SetCaptureRehearsalText("Capture Rehearsal 1/5: Click Hero in the party roster.");
+        SetCaptureRehearsalText("Capture 1/5: Click Hero");
     }
 
     public void MarkCaptureRehearsalHeroSelected()
     {
-        SetCaptureRehearsalText("Capture Rehearsal 2/5: Choose Fire Bolt from the command panel.");
+        SetCaptureRehearsalText("Capture 2/5: Fire Bolt");
     }
 
     public void MarkCaptureRehearsalFireUsed()
     {
-        SetCaptureRehearsalText("Capture Rehearsal 3/5: Wait for enemy turn, click Hero again, then choose GUARD.");
+        SetCaptureRehearsalText("Capture 3/5: choose GUARD");
     }
 
     public void MarkCaptureRehearsalGuardUsed()
     {
-        SetCaptureRehearsalText("Capture Rehearsal 4/5: Let the battle reach Result, then press Retry.");
+        SetCaptureRehearsalText("Capture 4/5: reach Result");
     }
 
     public void MarkCaptureRehearsalResultShown()
     {
-        SetCaptureRehearsalText("Capture Rehearsal 5/5: Result shown. Press Retry to prove the reset loop.");
+        SetCaptureRehearsalText("Capture 5/5: Retry reset");
     }
 
     public void MarkCaptureRehearsalRetryDone()
     {
-        SetCaptureRehearsalText("Capture Rehearsal Complete: Retry reset done. Start recording again from Click Hero.");
+        SetCaptureRehearsalText("Capture Complete: Retry reset done");
     }
 
     private void SetCaptureRehearsalText(string text)
