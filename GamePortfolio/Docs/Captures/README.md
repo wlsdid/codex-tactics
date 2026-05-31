@@ -1,6 +1,6 @@
 # Captures
 
-Unity screenshots, README gameplay GIF, runtime-motion storyboard GIF, runtime MP4 conversion helper, and contact sheets for the portfolio README. Batch 82 adds a reproducible Pillow-based GIF builder that turns the current capture PNGs into `codex_tactics_battle_loop.gif` without reopening Unity. Batch 84 adds a motion-focused storyboard builder for action/VFX review when true runtime video capture is not available. Batch 85 validates the standalone capture runner path and records the current media decision in `Docs/CaptureMediaDecision.md`. Batch 86 adds an ffmpeg-based conversion/validation workflow for a user-recorded runtime MP4.
+Unity screenshots, README gameplay GIF, runtime-motion storyboard GIF, runtime MP4 conversion helper, and contact sheets for the portfolio README. Batch 82 adds a reproducible Pillow-based GIF builder that turns the current capture PNGs into `codex_tactics_battle_loop.gif` without reopening Unity. Batch 84 adds a motion-focused storyboard builder for action/VFX review when true runtime video capture is not available. Batch 85 validates the standalone capture runner path and records the current media decision in `Docs/CaptureMediaDecision.md`. Batch 86 adds an ffmpeg-based conversion/validation workflow for a user-recorded runtime MP4. Batch 90 refreshes the generated PNG/GIF set after visual polish and fixes victory result summary readability.
 
 ## Current captured files
 
@@ -92,3 +92,8 @@ The script checks for `ffmpeg`/`ffprobe`, validates the input MP4, creates a pal
 ## Batch 85 media decision
 
 `../CaptureMediaDecision.md` records the current capture choice after rerunning the standalone capture runner: keep `codex_tactics_battle_loop.gif` as the primary README media, keep `codex_tactics_runtime_motion_storyboard.gif` as supplemental motion evidence, and postpone a true MP4/GIF until a short Windows Game Bar/OBS clip can be recorded, trimmed, compressed, and size-checked without committing raw video.
+
+
+## Batch 90 refresh notes
+
+The current PNGs, contact sheet, README gameplay GIF, and runtime-motion storyboard were regenerated from a freshly rebuilt standalone `CaptureRunner.exe`. Visual QA specifically checked that `04_result_summary_rank.png` reads as a Victory result instead of a red defeat-like overlay, and that the summary no longer uses oversized centered text that spills over the combatants.

@@ -521,21 +521,30 @@ public class BattleUI : MonoBehaviour
         if (resultPanelBackground != null)
         {
             resultPanelBackground.gameObject.SetActive(isVisible);
-            bool isVictory = summary != null && summary.Contains("VICTORY");
+            bool isVictory = IsVictorySummary(summary);
             resultPanelBackground.color = isVictory
-                ? new Color(0.03f, 0.06f, 0.12f, 0.94f)  // deep navy for victory
-                : new Color(0.12f, 0.03f, 0.03f, 0.94f);  // deep burgundy for defeat
+                ? new Color(0.03f, 0.06f, 0.12f, 0.97f)  // deep navy for victory
+                : new Color(0.12f, 0.03f, 0.03f, 0.97f);  // deep burgundy for defeat
         }
-        // Style the result text
+        // Style the result text for capture readability. The summary is eight compact lines,
+        // so keep it small and top-left aligned instead of letting large centered text spill
+        // over the characters in README screenshots.
         if (resultSummaryText != null && isVisible)
         {
-            bool isVictory = summary != null && summary.Contains("VICTORY");
+            bool isVictory = IsVictorySummary(summary);
             resultSummaryText.color = isVictory
-                ? new Color(1f, 0.85f, 0.4f)   // gold for victory
-                : new Color(1f, 0.3f, 0.3f);    // red for defeat
-            resultSummaryText.fontSize = 24;
-            resultSummaryText.alignment = TMPro.TextAlignmentOptions.Center;
+                ? new Color(1f, 0.88f, 0.48f)   // gold for victory
+                : new Color(1f, 0.46f, 0.46f);    // red for defeat
+            resultSummaryText.fontSize = 18;
+            resultSummaryText.alignment = TMPro.TextAlignmentOptions.TopLeft;
+            resultSummaryText.enableWordWrapping = true;
         }
+    }
+
+    private static bool IsVictorySummary(string summary)
+    {
+        return !string.IsNullOrEmpty(summary)
+            && summary.IndexOf("Victory", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     public void SetRetryButtonVisible(bool isVisible)

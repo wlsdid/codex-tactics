@@ -1,6 +1,6 @@
-# Capture Media Decision — Batch 85/86
+# Capture Media Decision — Batch 85/86/90
 
-Date: 2026-05-30
+Date: 2026-05-30; refreshed 2026-05-31
 
 ## Goal
 
@@ -77,3 +77,8 @@ Docs/Captures/codex_tactics_runtime_clip_preview.png
 ```
 
 Default validation target: 12 second clip, 960px wide, 12 fps, 96-color palette, under 5 MB. The script rejects missing `ffmpeg`/`ffprobe`, missing or non-MP4 input, invalid source duration/dimensions, suspicious frame counts, tiny/corrupt outputs, and GIFs that exceed the README size cap.
+
+
+## Batch 90 capture refresh update
+
+Batch 90 rebuilt `CaptureRunner.exe`, reran it from WSL, and refreshed the deterministic PNG sequence after the professional visual polish pass. The README gameplay GIF and runtime-motion storyboard GIF were regenerated from the new captures. Visual QA caught a result-screen styling bug where `Result: Victory` was treated as non-victory because the UI checked only uppercase `VICTORY`; `BattleUI` now detects Victory case-insensitively and renders the result summary in compact top-left gold styling for clearer portfolio screenshots.

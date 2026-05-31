@@ -1,6 +1,30 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-31 Batch 89: Professional Visual Polish Pass
+## Latest autonomous run — 2026-05-31 Batch 90: Capture Refresh and Result Readability QA
+
+Completed:
+- Rebuilt the standalone `CaptureRunner.exe` with `CaptureScreenshots.Run`.
+- Reran the runner from WSL and refreshed all deterministic 1920x1080 PNGs in `Docs/Captures/`.
+- Regenerated `capture_contact_sheet.png`, `codex_tactics_battle_loop.gif`, `codex_tactics_battle_loop_preview.png`, `codex_tactics_runtime_motion_storyboard.gif`, and its preview.
+- Visual-QA found that the victory result screenshot looked like a red defeat panel because runtime styling only checked uppercase `VICTORY`; fixed `BattleUI` to detect Victory case-insensitively, use gold victory styling, and keep the result summary compact/top-left aligned.
+
+Verification completed:
+- Static C# brace check: PASS.
+- `git diff --check`: PASS.
+- Unity batch compile: PASS.
+- `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS.
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS.
+- `CaptureScreenshots.Run`: PASS.
+- `CaptureRunner.exe -capture -captureOutputDir Docs/Captures`: PASS.
+- README GIF and runtime-motion storyboard rebuild: PASS.
+- Contact-sheet visual QA: PASS.
+
+Recommended next tasks:
+1. Batch 91: reduce Battle HUD density for README screenshots without removing tactical information.
+2. Batch 92: add a true runtime MP4/GIF only if the user records a short Windows Game Bar/OBS source clip.
+3. Batch 93: add more professional Stage Select/Title decorative art if the battle HUD readability is accepted.
+
+## Previous autonomous run — 2026-05-31 Batch 89: Professional Visual Polish Pass
 
 Completed:
 - Upgraded generated `TitleScene` with a premium dark frame, gold dividers, battlefield silhouette, party/enemy silhouettes, and reviewer-facing pitch text.

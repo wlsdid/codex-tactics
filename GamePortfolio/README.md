@@ -1,6 +1,6 @@
 # GamePortfolio — Codex Tactics
 
-Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 89 기준으로 타이틀/스테이지 선택/전투 배경 1차 전문화 패스, 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처, README GIF와 쇼케이스 근거 문서까지 포함합니다.
+Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 90 기준으로 타이틀/스테이지 선택/전투 배경 전문화 패스와 최신 자동 캡처/시각 QA까지 반영한 2D 턴제 RPG 수직 슬라이스입니다. 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처, README GIF와 쇼케이스 근거 문서까지 포함합니다.
 
 **최신 포트폴리오 정리:** [`Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt`](Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt)
 
@@ -16,6 +16,7 @@ Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현�
 - Stage Select: 카드별 썸네일 프레임, 속성 컬러 장식, 잠금 카드 dim 처리로 plain 버튼 느낌 감소.
 - Battle Scene: 원경 숲 실루엣, 달빛 빔, 전경 안개, 유닛 base ring으로 전장 깊이와 캐릭터 접지감 강화.
 - 검증: 새 프레젠테이션 오브젝트를 Game Flow/Battle Scene validator에서 자동 확인.
+- Batch 90 캡처 QA: CaptureRunner로 1920x1080 PNG와 README GIF를 재생성했고, Result Summary가 Victory를 금색/상단 정렬로 읽히도록 수정했습니다.
 
 ---
 
@@ -108,7 +109,7 @@ Unity Editor 메뉴:
 - `Tools > Codex Tactics > Create Game Flow Scenes`
 - `Tools > Codex Tactics > Validate Game Flow Scenes`
 
-2026-05-28 / Batch 79 검증 결과:
+2026-05-31 / Batch 90 검증 결과:
 
 ```text
 git diff --check: PASS
@@ -116,7 +117,7 @@ BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
 GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
 BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
 Standalone CaptureRunner + contact sheet visual QA: PASS
-Mature high-density pixel standees: PASS
+Result Summary capture readability QA: PASS
 ```
 
 Unity batchmode에서 `This should not be called in batch mode.` 경고가 출력될 수 있지만, 현재 테스트는 exit code 0 및 `RESULT: PASS`로 정상 완료됩니다.
