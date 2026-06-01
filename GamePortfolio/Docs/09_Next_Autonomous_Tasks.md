@@ -20,9 +20,9 @@ Verification completed:
 - Contact-sheet visual QA: PASS — battle captures are less cluttered while keeping HP/AP, enemy intent, command flow, result, and retry proof visible.
 
 Recommended next tasks:
-1. Batch 92: make Stage Select/Title decorative art more illustrative if the user wants another visual polish pass.
-2. Batch 93: only add a true runtime MP4/GIF if a short Windows Game Bar/OBS source clip is available.
-3. Batch 94: prepare a concise portfolio submission note highlighting generated-scene validators and capture evidence.
+1. Batch 92: reference-driven battle UI adoption pass using `Docs/References/UI/2026-06-01_browndust2_battle_ui_reference.png` and the new adoption note: darker top HUD, left party cards, cleaner center grid, right skill/intent cards, bottom selected-unit strip.
+2. Batch 93: integrate cleaned individual character/enemy sprites from `Docs/References/UI/2026-06-01_character_enemy_sprite_reference.png` after extracting transparent unit PNGs.
+3. Batch 94: only add a true runtime MP4/GIF if a short Windows Game Bar/OBS source clip is available.
 
 ## Previous autonomous run — 2026-05-31 Batch 90: Capture Refresh and Result Readability QA
 
