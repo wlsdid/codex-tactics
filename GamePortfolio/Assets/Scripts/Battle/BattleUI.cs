@@ -19,6 +19,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text playerStatusText;
     [SerializeField] private TMP_Text playerShieldText;
     [SerializeField] private Image playerSpriteImage;
+    [SerializeField] private Sprite referencePlayerSprite;
 
     [Header("Enemy UI")]
     [SerializeField] private TMP_Text enemyHpText;
@@ -28,6 +29,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text enemyBreakText;
     [SerializeField] private Slider enemyBreakSlider;
     [SerializeField] private Image enemySpriteImage;
+    [SerializeField] private Sprite referenceEnemySprite;
     [SerializeField] private Image burnOverlay;
     [SerializeField] private Image stunOverlay;
     [SerializeField] private Image brokenOverlay;
@@ -336,9 +338,9 @@ public class BattleUI : MonoBehaviour
     public void SetupPlaceholderSprites(ElementType enemyElement = ElementType.Fire, bool isBoss = false)
     {
         if (playerSpriteImage != null && playerSpriteImage.sprite == null)
-            playerSpriteImage.sprite = PlaceholderSpriteGenerator.CreateHeroSprite();
-        if (enemySpriteImage != null)
-            enemySpriteImage.sprite = PlaceholderSpriteGenerator.CreateEnemySprite(enemyElement, isBoss);
+            playerSpriteImage.sprite = referencePlayerSprite != null ? referencePlayerSprite : PlaceholderSpriteGenerator.CreateHeroSprite();
+        if (enemySpriteImage != null && enemySpriteImage.sprite == null)
+            enemySpriteImage.sprite = referenceEnemySprite != null ? referenceEnemySprite : PlaceholderSpriteGenerator.CreateEnemySprite(enemyElement, isBoss);
         EnsureSpriteMotions();
     }
 

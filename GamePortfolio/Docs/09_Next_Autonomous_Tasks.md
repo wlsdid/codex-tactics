@@ -1,6 +1,32 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-05-31 Batch 91: Battle HUD Density Pass
+## Latest autonomous run — 2026-06-01 Batch 92: Reference-Driven Battle UI Pass
+
+Completed:
+- Preserved the user's provided UI/sprite references under `Docs/References/UI/` and applied the battle layout hierarchy to the generated scene.
+- Added the new game-progress UI reference and adopted its visible structure: tall left party list, center preparation grid, right skill-card stack, bottom FEH-style unit status, portrait queue, turn dial, and large `BATTLE START` CTA.
+- Ran a first visual-quality pass to narrow the gap with the polished reference: generated a layered forest battle backdrop, added dedicated drawn skill icon PNGs, softened panel translucency/material colors, and reduced some central text/grid clutter.
+- Moved selected-ally commands into a compact bottom command strip with ASCII-safe labels: `ATK`, `FIRE`, `ICE`, `LIT`, `EARTH`, `GUARD`, `END`, `ITEM`.
+- Aligned the ally roster click target with the visible party card, removed its stray capture-visible label, and added a bottom command hint for first-time reviewers.
+- Added right-side skill/intent cards inspired by the provided UI reference.
+- Extracted the user's provided sprite sheet into `Assets/Art/ReferenceSprites/` and replaced generated standees/roster chips with Paladin, Cleric, Archmage, Goblin, Skeleton, and Dark Knight sprites.
+- Updated `BattleUI` so the provided Paladin/Goblin sprites survive runtime setup instead of being overwritten by procedural placeholders.
+- Added validator checks for the new reference-style skill detail and enemy intent panels.
+
+Verification completed:
+- Static C# syntax/brace checks: PASS.
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- Unity `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS (`RESULT: PASS`).
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS (`RESULT: PASS`).
+- Capture refresh/contact-sheet QA: PASS; refreshed battle capture reviewed after using a Windows output path.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 93: replace the remaining validator/demo text overlays with proper top HUD chips and tune the light-beam/grid composition so the battlefield reads less like debug UI.
+2. Batch 94: polish the extracted sprite transparency and replace more encounter-specific enemies with Goblin/Skeleton/Orc/Lich/Golem/Dark Knight variants.
+3. Batch 95: only add a true runtime MP4/GIF if a short Windows Game Bar/OBS source clip is available.
+
+## Previous autonomous run — 2026-05-31 Batch 91: Battle HUD Density Pass
 
 Completed:
 - Reduced generated Battle HUD side roster density: party and enemy roster lists now show three readable rows instead of filling the sides with five rows.
