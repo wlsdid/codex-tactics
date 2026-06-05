@@ -1,6 +1,30 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-06-06 Batch 95: Top Guide Microcopy Density Pass
+## Latest autonomous run — 2026-06-06 Batch 96: Battlefield Contrast Polish
+
+Completed:
+- Tuned only the generated BattleScene central battlefield layer for README-thumbnail readability without adding gameplay features.
+- Darkened/widened the floor plate, made tactical tiles slightly larger and clearer, and restrained fog/horizon alpha so tiles and standees separate from the backdrop.
+- Increased hero/enemy base-ring, grounding-shadow, aura, blade, and crown readability with small alpha/size adjustments rather than bright debug colors.
+- Extended `Validate Battle Test Scene` expectations for restrained tile/ring/shadow/aura contrast and added `Docs/Devlog/2026-06-06_batch96_battlefield-contrast-polish.md`.
+
+Verification completed:
+- Start/end git status checked; root `screenshots/` remained untracked and untouched.
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- Unity `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS (`RESULT: PASS`).
+- Unity `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS (`RESULT: PASS`).
+- Unity `CaptureScreenshots.Run`: PASS (`Build succeeded`).
+- Standalone `CaptureRunner.exe` PNG refresh: PASS; all 7 capture PNGs are 1920x1080 and fresh.
+- README GIF/contact sheet rebuild: PASS.
+- Contact-sheet visual QA: PASS — central silhouettes and tile rings read more clearly at thumbnail size without overbright debug coloring.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 97: polish roster mini-sprite crop/edge readability now that the center battlefield contrast is stabilized.
+2. Batch 98: add encounter-specific enemy visual variants only if the current capture readability remains accepted.
+3. Batch 99: update portfolio/showcase wording around the improved capture evidence.
+
+## Previous autonomous run — 2026-06-06 Batch 95: Top Guide Microcopy Density Pass
 
 Completed:
 - Shortened the Battle HUD top guide/run text so README thumbnails emphasize the central battlefield instead of explanatory copy.

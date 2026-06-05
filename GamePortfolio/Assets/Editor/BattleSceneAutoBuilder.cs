@@ -27,7 +27,7 @@ public static class BattleSceneAutoBuilder
         // Reference-inspired tactical RPG layout: left party stack, open center stage, right enemy stack, compact bottom commands.
         Image battleStageBackdropPanel = CreateSpritePanel(canvas.transform, "Battle Stage Backdrop Panel", "Assets/Art/Generated/polished_forest_battle_bg.png", new Vector2(0, 18), new Vector2(1220, 600));
         battleStageBackdropPanel.color = new Color(0.88f, 0.94f, 1.0f, 0.96f);
-        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -104), new Vector2(900, 220), new Color(0.055f, 0.145f, 0.135f, 0.42f));
+        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -104), new Vector2(920, 228), new Color(0.030f, 0.088f, 0.082f, 0.54f));
         Image topGoldDividerPanel = CreatePanel(canvas.transform, "Top Gold Divider Panel", new Vector2(0, 276), new Vector2(1220, 3), new Color(1.0f, 0.78f, 0.42f, 0.62f));
         Image commandGoldDividerPanel = CreatePanel(canvas.transform, "Command Gold Divider Panel", new Vector2(80, -258), new Vector2(990, 2), new Color(1.0f, 0.80f, 0.45f, 0.58f));
         battleStageBackdropPanel.raycastTarget = false;
@@ -482,6 +482,10 @@ public static class BattleSceneAutoBuilder
         Image foregroundFog = FindImage("Foreground Fog Panel");
         Image heroBaseRing = FindImage("Hero Base Ring Panel");
         Image enemyBaseRing = FindImage("Enemy Base Ring Panel");
+        Image heroStandeeShadow = FindImage("Hero Standee Shadow");
+        Image enemyStandeeShadow = FindImage("Enemy Standee Shadow");
+        Image heroStandeeAura = FindImage("Hero Standee Aura");
+        Image enemyStandeeAura = FindImage("Enemy Standee Aura");
         Image progressSkillCard1 = FindImage("Progress Skill Card 1");
         Image progressBattleStartPanel = FindImage("Progress Battle Start Panel");
         TMP_Text progressBattleStartText = FindText("Progress Battle Start Text");
@@ -495,10 +499,14 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield has layered forest silhouette", IsDecorativePanelLikelyConfigured(distantForestSilhouette, 680f, 70f));
         AppendCheck(ref passed, ref report, "Battlefield has moonlight beam depth", IsDecorativePanelLikelyConfigured(moonlightBeam, 110f, 330f));
         AppendCheck(ref passed, ref report, "Battlefield has foreground fog layer", IsDecorativePanelLikelyConfigured(foregroundFog, 650f, 34f));
-        AppendCheck(ref passed, ref report, "Battlefield unit base rings exist", IsDecorativePanelLikelyConfigured(heroBaseRing, 120f, 18f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 140f, 20f));
+        AppendCheck(ref passed, ref report, "Battlefield unit base rings exist", IsDecorativePanelLikelyConfigured(heroBaseRing, 136f, 20f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 154f, 22f));
+        AppendCheck(ref passed, ref report, "Battlefield contrast polish keeps rings readable but not debug-bright", IsReadableContrastAccent(heroBaseRing, 0.48f, 0.60f) && IsReadableContrastAccent(enemyBaseRing, 0.48f, 0.60f));
+        AppendCheck(ref passed, ref report, "Battlefield standee grounding shadows are readable", IsReadableContrastAccent(heroStandeeShadow, 0.46f, 0.58f) && IsReadableContrastAccent(enemyStandeeShadow, 0.48f, 0.60f));
+        AppendCheck(ref passed, ref report, "Battlefield standee aura stays subtle", IsReadableContrastAccent(heroStandeeAura, 0.14f, 0.24f) && IsReadableContrastAccent(enemyStandeeAura, 0.14f, 0.24f));
         AppendCheck(ref passed, ref report, "Top gold divider exists", topGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(topGoldDividerPanel, 1000f, 3f));
         AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 900f, 2f));
-        AppendCheck(ref passed, ref report, "Tactical grid tile exists", IsDecorativePanelLikelyConfigured(tacticalGridTile, 70f, 32f));
+        AppendCheck(ref passed, ref report, "Tactical grid tile exists", IsDecorativePanelLikelyConfigured(tacticalGridTile, 80f, 34f));
+        AppendCheck(ref passed, ref report, "Tactical grid tile contrast is readable but restrained", IsReadableContrastAccent(tacticalGridTile, 0.40f, 0.50f));
         AppendCheck(ref passed, ref report, "Skill action arc exists", IsDecorativePanelLikelyConfigured(skillActionArc, 450f, 4f));
         AppendCheck(ref passed, ref report, "Hero mature high-density pixel standee exists", IsSpriteImageLikelyConfigured(heroStandeeBody, 165f, 220f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 6f, 56f));
         AppendCheck(ref passed, ref report, "Enemy mature high-density pixel standee exists", IsSpriteImageLikelyConfigured(enemyStandeeBody, 185f, 218f) && IsDecorativePanelLikelyConfigured(enemyStandeeCrown, 52f, 8f));
@@ -837,6 +845,22 @@ public static class BattleSceneAutoBuilder
             && rectTransform.sizeDelta.x >= minimumWidth
             && rectTransform.sizeDelta.y >= minimumHeight
             && color.a >= 0.35f;
+    }
+
+    private static bool IsReadableContrastAccent(Image panelImage, float minimumAlpha, float maximumAlpha)
+    {
+        if (panelImage == null)
+        {
+            return false;
+        }
+
+        RectTransform rectTransform = panelImage.GetComponent<RectTransform>();
+        Color color = panelImage.color;
+        return rectTransform != null
+            && rectTransform.sizeDelta.x > 0f
+            && rectTransform.sizeDelta.y > 0f
+            && color.a >= minimumAlpha
+            && color.a <= maximumAlpha;
     }
 
     private static bool IsSpriteImageLikelyConfigured(Image spriteImage, float minimumWidth, float minimumHeight)
@@ -1298,7 +1322,7 @@ public static class BattleSceneAutoBuilder
             for (int col = 0; col < 6; col++)
             {
                 Vector2 pos = new Vector2(-238 + col * 88 + row * 28, -118 + row * 38);
-                Image tile = CreatePanel(parent, $"Tactical Grid Tile {row + 1}-{col + 1}", pos, new Vector2(78, 32), new Color(0.18f, 0.76f, 0.74f, 0.35f));
+                Image tile = CreatePanel(parent, $"Tactical Grid Tile {row + 1}-{col + 1}", pos, new Vector2(82, 34), new Color(0.12f, 0.62f, 0.58f, 0.43f));
                 tile.rectTransform.localRotation = Quaternion.Euler(0, 0, -10f);
                 tile.raycastTarget = false;
             }
@@ -1325,10 +1349,10 @@ public static class BattleSceneAutoBuilder
 
     private static void CreateBattlefieldDepthLayers(Transform parent)
     {
-        Image distantForest = CreatePanel(parent, "Distant Forest Silhouette Panel", new Vector2(0, 92), new Vector2(820, 80), new Color(0.010f, 0.040f, 0.034f, 0.38f));
-        Image moonlight = CreatePanel(parent, "Moonlight Beam Panel", new Vector2(96, 28), new Vector2(112, 430), new Color(0.46f, 0.64f, 0.88f, 0.36f));
-        Image fog = CreatePanel(parent, "Foreground Fog Panel", new Vector2(0, -172), new Vector2(740, 44), new Color(0.62f, 0.78f, 0.70f, 0.36f));
-        Image rearHorizon = CreatePanel(parent, "Rear Horizon Gold Line Panel", new Vector2(0, 58), new Vector2(620, 3), new Color(0.86f, 0.62f, 0.24f, 0.32f));
+        Image distantForest = CreatePanel(parent, "Distant Forest Silhouette Panel", new Vector2(0, 92), new Vector2(820, 80), new Color(0.006f, 0.028f, 0.026f, 0.48f));
+        Image moonlight = CreatePanel(parent, "Moonlight Beam Panel", new Vector2(96, 28), new Vector2(124, 430), new Color(0.54f, 0.68f, 0.90f, 0.42f));
+        Image fog = CreatePanel(parent, "Foreground Fog Panel", new Vector2(0, -172), new Vector2(740, 44), new Color(0.55f, 0.70f, 0.62f, 0.35f));
+        Image rearHorizon = CreatePanel(parent, "Rear Horizon Gold Line Panel", new Vector2(0, 58), new Vector2(620, 3), new Color(0.86f, 0.62f, 0.24f, 0.28f));
         distantForest.raycastTarget = false;
         moonlight.raycastTarget = false;
         fog.raycastTarget = false;
@@ -1340,22 +1364,22 @@ public static class BattleSceneAutoBuilder
     {
         // User-provided reference sprites are now used directly for the battlefield standees.
         // Keep the surrounding rings/aura original so the portfolio scene has a readable tactical frame.
-        CreatePanel(parent, "Hero Standee Shadow", new Vector2(-206, -112), new Vector2(94, 16), new Color(0.0f, 0.0f, 0.0f, 0.34f));
-        CreatePanel(parent, "Hero Base Ring Panel", new Vector2(-206, -103), new Vector2(128, 20), new Color(0.34f, 0.72f, 1.0f, 0.38f));
-        CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -28), new Vector2(112, 148), new Color(0.25f, 0.60f, 1.0f, 0.13f));
-        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/ReferenceSprites/reference_paladin_full.png", new Vector2(-204, -8), new Vector2(176, 220));
+        CreatePanel(parent, "Hero Standee Shadow", new Vector2(-206, -112), new Vector2(106, 18), new Color(0.0f, 0.0f, 0.0f, 0.50f));
+        CreatePanel(parent, "Hero Base Ring Panel", new Vector2(-206, -103), new Vector2(140, 22), new Color(0.46f, 0.82f, 1.0f, 0.52f));
+        CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -28), new Vector2(118, 152), new Color(0.28f, 0.64f, 1.0f, 0.18f));
+        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/ReferenceSprites/reference_paladin_full.png", new Vector2(-204, -8), new Vector2(182, 226));
         ConfigureBattleSpriteMotion(heroBody, 5f, 1.1f, 0.15f, 20f, 0.05f, false);
-        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-166, -24), new Vector2(7, 60), new Color(0.88f, 0.94f, 1.0f, 0.38f));
+        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-166, -24), new Vector2(8, 64), new Color(0.92f, 0.96f, 1.0f, 0.52f));
         heroBlade.rectTransform.localRotation = Quaternion.Euler(0, 0, -18f);
         heroBody.raycastTarget = false;
         heroBlade.raycastTarget = false;
 
-        CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -108), new Vector2(122, 20), new Color(0.0f, 0.0f, 0.0f, 0.38f));
-        CreatePanel(parent, "Enemy Base Ring Panel", new Vector2(230, -99), new Vector2(148, 22), new Color(1.0f, 0.36f, 0.70f, 0.38f));
-        CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -26), new Vector2(136, 156), new Color(0.82f, 0.20f, 1.0f, 0.13f));
-        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/ReferenceSprites/reference_goblin_full.png", new Vector2(232, -18), new Vector2(190, 224));
+        CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -108), new Vector2(134, 22), new Color(0.0f, 0.0f, 0.0f, 0.52f));
+        CreatePanel(parent, "Enemy Base Ring Panel", new Vector2(230, -99), new Vector2(158, 24), new Color(1.0f, 0.42f, 0.76f, 0.52f));
+        CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -26), new Vector2(144, 162), new Color(0.86f, 0.24f, 1.0f, 0.18f));
+        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/ReferenceSprites/reference_goblin_full.png", new Vector2(232, -18), new Vector2(196, 230));
         ConfigureBattleSpriteMotion(enemyBody, 6f, 0.95f, 0.45f, 24f, 0.07f, true);
-        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 66), new Vector2(60, 9), new Color(1.0f, 0.66f, 0.20f, 0.38f));
+        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 66), new Vector2(64, 10), new Color(1.0f, 0.70f, 0.24f, 0.52f));
         enemyBody.raycastTarget = false;
         enemyCrown.raycastTarget = false;
     }
