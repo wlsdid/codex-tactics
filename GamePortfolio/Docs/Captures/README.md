@@ -1,6 +1,6 @@
 # Captures
 
-Unity screenshots, README gameplay GIF, runtime-motion storyboard GIF, runtime MP4 conversion helper, and contact sheets for the portfolio README. Batch 82 adds a reproducible Pillow-based GIF builder that turns the current capture PNGs into `codex_tactics_battle_loop.gif` without reopening Unity. Batch 84 adds a motion-focused storyboard builder for action/VFX review when true runtime video capture is not available. Batch 85 validates the standalone capture runner path and records the current media decision in `Docs/CaptureMediaDecision.md`. Batch 86 adds an ffmpeg-based conversion/validation workflow for a user-recorded runtime MP4. Batch 90 refreshes the generated PNG/GIF set after visual polish and fixes victory result summary readability. Batch 91 refreshes the battle captures again after reducing HUD density for README-size readability.
+Unity screenshots, README gameplay GIF, runtime-motion storyboard GIF, runtime MP4 conversion helper, and contact sheets for the portfolio README. Batch 82 adds a reproducible Pillow-based GIF builder that turns the current capture PNGs into `codex_tactics_battle_loop.gif` without reopening Unity. Batch 84 adds a motion-focused storyboard builder for action/VFX review when true runtime video capture is not available. Batch 85 validates the standalone capture runner path and records the current media decision in `Docs/CaptureMediaDecision.md`. Batch 86 adds an ffmpeg-based conversion/validation workflow for a user-recorded runtime MP4. Batch 90 refreshes the generated PNG/GIF set after visual polish and fixes victory result summary readability. Batch 91 refreshes the battle captures again after reducing HUD density for README-size readability. Batch 94 refreshes the compact HUD chip capture set and records a contact-sheet QA pass after detecting that `-batchmode` standalone capture can produce black frames in WSL.
 
 ## Current captured files
 
@@ -102,3 +102,7 @@ The current PNGs, contact sheet, README gameplay GIF, and runtime-motion storybo
 ## Batch 91 HUD density notes
 
 The battle PNGs and GIFs were regenerated after a HUD density pass. The capture keeps the tactical proof points visible — HP/AP, enemy intent, Fire/Burn, Guard, Result, Retry — while reducing side roster rows and shortening route/capture prompts so the center battlefield and characters are clearer in README-sized images.
+
+## Batch 94 compact HUD capture QA
+
+After the compact route/capture/impact HUD chip pass, the standalone capture runner was rebuilt and the PNG/GIF/contact sheet media was refreshed. A WSL launch with `-batchmode` produced black 1920x1080 frames, so the accepted refresh used the same `CaptureRunner.exe` without `-batchmode` and then verified file sizes, dimensions, GIF frame counts, and contact-sheet readability. The central battlefield remains readable at contact-sheet size; top microcopy is still secondary and can be shortened further in a later polish pass.

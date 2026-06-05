@@ -18,6 +18,7 @@ Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현�
 - 검증: 새 프레젠테이션 오브젝트를 Game Flow/Battle Scene validator에서 자동 확인.
 - Batch 90 캡처 QA: CaptureRunner로 1920x1080 PNG와 README GIF를 재생성했고, Result Summary가 Victory를 금색/상단 정렬로 읽히도록 수정했습니다.
 - Batch 91 HUD 밀도 축소: 전투 캡처에서 side roster 행 수를 줄이고, route/capture prompt/top guide를 작게 정리해 README 축소 이미지에서 전장이 더 잘 보이도록 조정했습니다.
+- Batch 94 캡처 QA: compact HUD chip 적용 후 CaptureRunner PNG/GIF/contact sheet를 재생성했고, blank/stale 여부와 중앙 전장 가독성을 다시 확인했습니다.
 
 ---
 
