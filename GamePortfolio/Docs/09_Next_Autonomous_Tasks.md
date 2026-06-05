@@ -1,6 +1,32 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-06-05 Batch 93: Compact Battle HUD Chips
+## Latest autonomous run — 2026-06-06 Batch 95: Top Guide Microcopy Density Pass
+
+Completed:
+- Shortened the Battle HUD top guide/run text so README thumbnails emphasize the central battlefield instead of explanatory copy.
+- Tightened the generated top status panel and battle-center header, then replaced long microcopy with compact strings such as `Break -> flank.`, `Push = +25% HP dmg.`, `Grid / intent`, and `Cost 3 / Chain`.
+- Shortened the reviewer route and capture prompt chips to `HERO > FIRE > GUARD > WIN` and `1/5 CLICK HERO`.
+- Updated runtime `BattleUI` labels and `BattleAutoTestRunner` expectations to the same compact vocabulary (`Run: Active`, `Goal: Defeat ...`, `Enc 1/2 | Active`).
+- Regenerated `BattleScene.unity`, rebuilt `CaptureRunner.exe`, refreshed PNG/GIF/contact-sheet capture evidence, and added `Docs/Devlog/2026-06-06_batch95_top-guide-microcopy-density.md`.
+
+Verification completed:
+- Start/end git status checked; root `screenshots/` remained untracked and untouched.
+- C# brace balance check: PASS.
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- Unity `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS (`RESULT: PASS`).
+- Unity `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS (`RESULT: PASS`).
+- Unity `CaptureScreenshots.Run`: PASS (`Build succeeded`).
+- Standalone `CaptureRunner.exe` PNG refresh: PASS; battle PNGs are 1920x1080 and fresh.
+- README GIF/runtime storyboard/contact sheet rebuild: PASS.
+- Contact-sheet visual QA: PASS — captures are non-blank, top text is compact, and central characters/battlefield remain readable.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 96: clean sprite/standee transparency edges and roster mini-sprite readability in the refreshed battle captures.
+2. Batch 97: if sprite edges are accepted, tune enemy variants per encounter without changing the battle loop.
+3. Batch 98: update portfolio/showcase copy around the now-readable compact HUD evidence.
+
+## Previous autonomous run — 2026-06-05 Batch 93: Compact Battle HUD Chips
 
 Completed:
 - Replaced the remaining center-field reviewer/demo overlays with compact, low-alpha HUD chips near the battle-center header.

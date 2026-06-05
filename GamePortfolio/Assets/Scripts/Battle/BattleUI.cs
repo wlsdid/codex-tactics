@@ -782,12 +782,12 @@ public class BattleUI : MonoBehaviour
         if (runStatusText == null) return;
         if (state == BattleState.Victory)
             runStatusText.text = HasNextStage(stageIndex, encounters)
-                ? "Run Status: Encounter Clear - Continue to Next"
-                : "Run Status: Final Clear - Stage 1 Complete";
+                ? "Run: Clear -> Next"
+                : "Run: Stage Clear";
         else if (state == BattleState.Defeat)
-            runStatusText.text = "Run Status: Retry Current Encounter";
+            runStatusText.text = "Run: Retry";
         else
-            runStatusText.text = "Run Status: Stage 1 In Progress";
+            runStatusText.text = "Run: Active";
     }
 
     private void SetStageText(int stageIndex, List<StageData> encounters)
@@ -801,7 +801,7 @@ public class BattleUI : MonoBehaviour
     {
         if (stageObjectiveText == null) return;
         var current = GetStageData(stageIndex, encounters);
-        if (current == null) { stageObjectiveText.text = "Objective: Unknown"; return; }
+        if (current == null) { stageObjectiveText.text = "Goal: Unknown"; return; }
 
         if (state == BattleState.Victory)
         {
@@ -809,13 +809,13 @@ public class BattleUI : MonoBehaviour
             {
                 var next = GetStageData(stageIndex + 1, encounters);
                 string nextName = next != null ? next.BuildDisplayName() : "next encounter";
-                stageObjectiveText.text = $"Objective Complete: {current.BuildDisplayName()} | Continue to {nextName}";
+                stageObjectiveText.text = $"Clear: {current.BuildDisplayName()} -> {nextName}";
             }
             else
-                stageObjectiveText.text = "Objective Complete: Stage 1 cleared | Final Clear";
+                stageObjectiveText.text = "Clear: Stage 1";
         }
         else if (state == BattleState.Defeat)
-            stageObjectiveText.text = $"Objective Failed: Retry {current.BuildDisplayName()}";
+            stageObjectiveText.text = $"Retry: {current.BuildDisplayName()}";
         else
             stageObjectiveText.text = current.BuildObjectiveText();
     }
@@ -827,10 +827,10 @@ public class BattleUI : MonoBehaviour
         int currentNum = Mathf.Clamp(stageIndex + 1, 1, Mathf.Max(1, count));
         string statusLabel = "Active";
         if (state == BattleState.Victory)
-            statusLabel = HasNextStage(stageIndex, encounters) ? "Encounter Clear" : "Stage Clear";
+            statusLabel = "Clear";
         else if (state == BattleState.Defeat)
-            statusLabel = "Retry Needed";
-        stageProgressText.text = $"Progress: Encounter {currentNum}/{count} | {statusLabel}";
+            statusLabel = "Retry";
+        stageProgressText.text = $"Enc {currentNum}/{count} | {statusLabel}";
     }
 
     private void SetMessageText(string message)

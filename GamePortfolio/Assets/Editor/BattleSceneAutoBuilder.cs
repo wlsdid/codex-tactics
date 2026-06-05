@@ -40,10 +40,10 @@ public static class BattleSceneAutoBuilder
         CreateBattlefieldUnitStandees(canvas.transform);
 
         // Premium dark panels — slim overlay style, leaving the battlefield visible.
-        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 326), new Vector2(1220, 62), new Color(0.010f, 0.014f, 0.024f, 0.72f));
+        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 330), new Vector2(1220, 54), new Color(0.010f, 0.014f, 0.024f, 0.66f));
         Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-508, 54), new Vector2(300, 455), new Color(0.010f, 0.012f, 0.020f, 0.66f));
         Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(526, 56), new Vector2(245, 390), new Color(0.014f, 0.012f, 0.018f, 0.58f));
-        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, 238), new Vector2(570, 80), new Color(0.010f, 0.014f, 0.024f, 0.40f));
+        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, 244), new Vector2(520, 60), new Color(0.010f, 0.014f, 0.024f, 0.35f));
         Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -318), new Vector2(1220, 96), new Color(0.010f, 0.012f, 0.018f, 0.88f));
         Image partyRosterPanel = CreatePanel(canvas.transform, "Party Roster Panel", new Vector2(-508, 28), new Vector2(296, 386), new Color(0.006f, 0.008f, 0.014f, 0.48f));
         partyRosterPanel.raycastTarget = false;
@@ -70,26 +70,26 @@ public static class BattleSceneAutoBuilder
         battleCenterPanel.raycastTarget = false;
         commandBarPanel.raycastTarget = false;
 
-        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "* Codex Tactics  x334", new Vector2(-470, 326), new Vector2(330, 42), TextAlignmentOptions.Left);
-        titleText.fontSize = 21;
+        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "* Codex Tactics  x334", new Vector2(-470, 330), new Vector2(310, 34), TextAlignmentOptions.Left);
+        titleText.fontSize = 19;
         titleText.fontStyle = FontStyles.Bold;
 
-        TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "1) Break enemy posture, then open them from behind.", new Vector2(-20, 334), new Vector2(650, 26), TextAlignmentOptions.Left);
-        runStatusText.fontSize = 13;
+        TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "Break -> flank.", new Vector2(-35, 338), new Vector2(330, 20), TextAlignmentOptions.Left);
+        runStatusText.fontSize = 11;
         runStatusText.color = new Color(0.76f, 1.0f, 0.82f);
 
-        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Push targets into allies to deal bonus damage equal to 25% max HP.", new Vector2(-20, 306), new Vector2(680, 24), TextAlignmentOptions.Left);
-        battleGuideText.fontSize = 12;
+        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Push = +25% HP dmg.", new Vector2(-35, 316), new Vector2(330, 18), TextAlignmentOptions.Left);
+        battleGuideText.fontSize = 10;
         battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
 
-        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "BATTLE PREP", new Vector2(-210, 252), new Vector2(250, 28), TextAlignmentOptions.Center);
-        stageText.fontSize = 17;
+        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "BATTLE PREP", new Vector2(-210, 252), new Vector2(220, 24), TextAlignmentOptions.Center);
+        stageText.fontSize = 15;
         stageText.color = new Color(0.92f, 0.86f, 0.55f);
-        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Formation grid / enemy intent preview", new Vector2(70, 252), new Vector2(390, 22), TextAlignmentOptions.Left);
-        stageObjectiveText.fontSize = 12;
+        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Grid / intent", new Vector2(55, 252), new Vector2(220, 18), TextAlignmentOptions.Left);
+        stageObjectiveText.fontSize = 10;
         stageObjectiveText.color = new Color(1.0f, 0.94f, 0.72f);
-        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Turn Cost 3 / Chain slots ready", new Vector2(360, 226), new Vector2(330, 20), TextAlignmentOptions.Right);
-        stageProgressText.fontSize = 11;
+        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Cost 3 / Chain", new Vector2(300, 228), new Vector2(220, 18), TextAlignmentOptions.Right);
+        stageProgressText.fontSize = 9;
         stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
 
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-330, -560), new Vector2(170, 20), TextAlignmentOptions.Left);
@@ -152,12 +152,12 @@ public static class BattleSceneAutoBuilder
         impactText.color = new Color(1.0f, 0.84f, 0.36f, 0.82f);
         Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(-248, 222), new Vector2(236, 22), new Color(0.025f, 0.034f, 0.052f, 0.38f));
         demoRoutePanel.raycastTarget = false;
-        TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "PATH  HERO / FIRE / GUARD / RESULT / RETRY", new Vector2(-248, 222), new Vector2(220, 16), TextAlignmentOptions.Center);
+        TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "HERO > FIRE > GUARD > WIN", new Vector2(-248, 222), new Vector2(220, 16), TextAlignmentOptions.Center);
         demoRouteText.fontSize = 7;
         demoRouteText.color = new Color(0.96f, 0.92f, 0.68f, 0.62f);
         Image captureRehearsalPanel = CreatePanel(canvas.transform, "Capture Rehearsal Panel", new Vector2(262, 222), new Vector2(184, 22), new Color(0.030f, 0.045f, 0.070f, 0.40f));
         captureRehearsalPanel.raycastTarget = false;
-        TMP_Text captureRehearsalText = CreateText(canvas.transform, "Capture Rehearsal Text", "SHOT 1/5  CLICK HERO", new Vector2(262, 222), new Vector2(170, 16), TextAlignmentOptions.Center);
+        TMP_Text captureRehearsalText = CreateText(canvas.transform, "Capture Rehearsal Text", "1/5 CLICK HERO", new Vector2(262, 222), new Vector2(170, 16), TextAlignmentOptions.Center);
         captureRehearsalText.fontSize = 7;
         captureRehearsalText.color = new Color(0.72f, 0.90f, 1.0f, 0.64f);
         TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(-420, -620), new Vector2(250, 28), TextAlignmentOptions.TopLeft);
@@ -521,17 +521,17 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Player portrait pixel accents exist", IsPortraitAccentLikelyConfigured(playerPortraitPixelAccent1) && IsPortraitAccentLikelyConfigured(playerPortraitPixelAccent4));
         AppendCheck(ref passed, ref report, "Enemy portrait pixel accents exist", IsPortraitAccentLikelyConfigured(enemyPortraitPixelAccent1) && IsPortraitAccentLikelyConfigured(enemyPortraitPixelAccent4));
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
-        AppendCheck(ref passed, ref report, "Top Status panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 58f));
+        AppendCheck(ref passed, ref report, "Top Status panel has compact premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 50f));
         AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
         AppendCheck(ref passed, ref report, "Player Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 280f, 420f));
         AppendCheck(ref passed, ref report, "Enemy Card panel exists", enemyCardPanel != null);
         AppendCheck(ref passed, ref report, "Enemy Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 230f, 360f));
         AppendCheck(ref passed, ref report, "Battle Center panel exists", battleCenterPanel != null);
-        AppendCheck(ref passed, ref report, "Battle Center panel has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleCenterPanel, 520f, 56f));
+        AppendCheck(ref passed, ref report, "Battle Center panel has compact premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleCenterPanel, 500f, 54f));
         AppendCheck(ref passed, ref report, "Command Bar panel exists", commandBarPanel != null);
         AppendCheck(ref passed, ref report, "Command Bar panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(commandBarPanel, 1100f, 88f));
         AppendCheck(ref passed, ref report, "Battle Guide text exists", battleGuideText != null);
-        AppendCheck(ref passed, ref report, "Battle Guide text explains main controls", IsBattleGuideTextLikelyConfigured(battleGuideText));
+        AppendCheck(ref passed, ref report, "Battle Guide text is compact for capture readability", IsBattleGuideTextLikelyConfigured(battleGuideText));
         AppendCheck(ref passed, ref report, "Run Status text exists", runStatusText != null);
         AppendCheck(ref passed, ref report, "Run Status text shows the current stage run", IsRunStatusTextLikelyConfigured(runStatusText));
         AppendCheck(ref passed, ref report, "Stage text exists", stageText != null);
@@ -922,10 +922,11 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = guideText.GetComponent<RectTransform>();
         string text = guideText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 640f
+            && rectTransform.sizeDelta.x >= 300f
+            && text.Length <= 24
             && text.Contains("Push")
-            && text.Contains("targets")
-            && text.Contains("bonus damage");
+            && text.Contains("+25%")
+            && text.Contains("HP");
     }
 
     private static bool IsDemoRouteTextLikelyConfigured(TMP_Text routeText)
@@ -939,12 +940,11 @@ public static class BattleSceneAutoBuilder
         string text = routeText.text;
         return rectTransform != null
             && rectTransform.sizeDelta.x >= 200f
-            && text.Contains("PATH")
+            && text.Length <= 28
             && text.Contains("HERO")
             && text.Contains("FIRE")
             && text.Contains("GUARD")
-            && text.Contains("RESULT")
-            && text.Contains("RETRY");
+            && text.Contains("WIN");
     }
 
     private static bool IsCaptureRehearsalTextLikelyConfigured(TMP_Text rehearsalText)
@@ -958,7 +958,7 @@ public static class BattleSceneAutoBuilder
         string text = rehearsalText.text;
         return rectTransform != null
             && rectTransform.sizeDelta.x >= 160f
-            && text.Contains("SHOT")
+            && text.Length <= 16
             && text.Contains("1/5")
             && text.Contains("CLICK HERO");
     }
@@ -972,7 +972,7 @@ public static class BattleSceneAutoBuilder
 
         RectTransform rectTransform = stageText.GetComponent<RectTransform>();
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 240f
+            && rectTransform.sizeDelta.x >= 210f
             && stageText.text.Contains("BATTLE")
             && stageText.text.Contains("PREP");
     }
@@ -987,9 +987,10 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = runStatusText.GetComponent<RectTransform>();
         string text = runStatusText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 600f
-            && text.Contains("Break enemy posture")
-            && text.Contains("behind");
+            && rectTransform.sizeDelta.x >= 300f
+            && text.Length <= 24
+            && text.Contains("Break")
+            && text.Contains("flank");
     }
 
     private static bool IsStageObjectiveTextLikelyConfigured(TMP_Text objectiveText)
@@ -1002,8 +1003,9 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = objectiveText.GetComponent<RectTransform>();
         string text = objectiveText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 380f
-            && text.Contains("Formation")
+            && rectTransform.sizeDelta.x >= 200f
+            && text.Length <= 18
+            && text.Contains("Grid")
             && text.Contains("intent");
     }
 
@@ -1017,8 +1019,9 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = progressText.GetComponent<RectTransform>();
         string text = progressText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 320f
-            && text.Contains("Turn Cost")
+            && rectTransform.sizeDelta.x >= 200f
+            && text.Length <= 16
+            && text.Contains("Cost")
             && text.Contains("Chain");
     }
 

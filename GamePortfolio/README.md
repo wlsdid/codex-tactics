@@ -1,6 +1,6 @@
 # GamePortfolio — Codex Tactics
 
-Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 91 기준으로 타이틀/스테이지 선택/전투 배경 전문화 패스, Battle HUD 밀도 축소, 최신 자동 캡처/시각 QA까지 반영한 2D 턴제 RPG 수직 슬라이스입니다. 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처, README GIF와 쇼케이스 근거 문서까지 포함합니다.
+Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 95 기준으로 타이틀/스테이지 선택/전투 배경 전문화 패스, Battle HUD 밀도 축소, top guide microcopy 축소, 최신 자동 캡처/시각 QA까지 반영한 2D 턴제 RPG 수직 슬라이스입니다. 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처, README GIF와 쇼케이스 근거 문서까지 포함합니다.
 
 **최신 포트폴리오 정리:** [`Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt`](Docs/Portfolio_CodexTactics_Review_and_Showcase_2026-05-18.txt)
 
@@ -19,6 +19,7 @@ Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현�
 - Batch 90 캡처 QA: CaptureRunner로 1920x1080 PNG와 README GIF를 재생성했고, Result Summary가 Victory를 금색/상단 정렬로 읽히도록 수정했습니다.
 - Batch 91 HUD 밀도 축소: 전투 캡처에서 side roster 행 수를 줄이고, route/capture prompt/top guide를 작게 정리해 README 축소 이미지에서 전장이 더 잘 보이도록 조정했습니다.
 - Batch 94 캡처 QA: compact HUD chip 적용 후 CaptureRunner PNG/GIF/contact sheet를 재생성했고, blank/stale 여부와 중앙 전장 가독성을 다시 확인했습니다.
+- Batch 95 top guide 축소: `Break -> flank.`, `Push = +25% HP dmg.`, `Enc 1/2 | Active`처럼 상단/진행 microcopy를 더 짧게 줄이고 CaptureRunner/contact sheet로 중앙 전장 가독성을 재검증했습니다.
 
 ---
 
@@ -111,15 +112,15 @@ Unity Editor 메뉴:
 - `Tools > Codex Tactics > Create Game Flow Scenes`
 - `Tools > Codex Tactics > Validate Game Flow Scenes`
 
-2026-05-31 / Batch 91 검증 결과:
+2026-06-06 / Batch 95 검증 결과:
 
 ```text
 git diff --check: PASS
 BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
-GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
+BattleSceneAutoBuilder.CreateBattleTestScene: PASS
 BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
 Standalone CaptureRunner + contact sheet visual QA: PASS
-Battle HUD density visual QA: PASS
+Battle top guide microcopy visual QA: PASS
 ```
 
 Unity batchmode에서 `This should not be called in batch mode.` 경고가 출력될 수 있지만, 현재 테스트는 exit code 0 및 `RESULT: PASS`로 정상 완료됩니다.

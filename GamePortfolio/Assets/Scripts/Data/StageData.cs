@@ -32,7 +32,7 @@ public class StageData
 
     public string BuildObjectiveText()
     {
-        return $"Objective: Defeat {encounterName}";
+        return $"Goal: Defeat {encounterName}";
     }
 
     public static StageData CreateStage1Normal()
