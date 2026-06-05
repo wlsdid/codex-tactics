@@ -144,21 +144,22 @@ public static class BattleSceneAutoBuilder
         enemyBreakText.fontSize = 10;
         enemyBreakText.color = new Color(1.0f, 0.58f, 0.82f);
         Slider enemyBreakSlider = CreateHpSlider(canvas.transform, "Enemy Break Slider", new Vector2(540, 158), new Vector2(150, 8), new Color(0.92f, 0.36f, 0.72f));
-        TMP_Text messageText = CreateText(canvas.transform, "Message Text", "Battle Start!", new Vector2(0, 286), new Vector2(640, 24), TextAlignmentOptions.Center);
-        messageText.fontSize = 13;
-        TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "Impact: Ready", new Vector2(0, 214), new Vector2(420, 22), TextAlignmentOptions.Center);
-        impactText.fontSize = 12;
-        impactText.color = new Color(1.0f, 0.84f, 0.36f);
-        Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(0, 184), new Vector2(500, 24), new Color(0.025f, 0.034f, 0.052f, 0.58f));
+        TMP_Text messageText = CreateText(canvas.transform, "Message Text", "Battle Start!", new Vector2(0, 286), new Vector2(420, 22), TextAlignmentOptions.Center);
+        messageText.fontSize = 12;
+        messageText.color = new Color(1.0f, 0.94f, 0.72f, 0.86f);
+        TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "IMPACT READY", new Vector2(262, 254), new Vector2(176, 18), TextAlignmentOptions.Center);
+        impactText.fontSize = 9;
+        impactText.color = new Color(1.0f, 0.84f, 0.36f, 0.82f);
+        Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(-248, 222), new Vector2(236, 22), new Color(0.025f, 0.034f, 0.052f, 0.38f));
         demoRoutePanel.raycastTarget = false;
-        TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "Route: Hero -> Fire -> Guard -> Result -> Retry", new Vector2(0, 184), new Vector2(470, 20), TextAlignmentOptions.Center);
-        demoRouteText.fontSize = 11;
-        demoRouteText.color = new Color(0.96f, 0.92f, 0.68f, 0.56f);
-        Image captureRehearsalPanel = CreatePanel(canvas.transform, "Capture Rehearsal Panel", new Vector2(0, 156), new Vector2(380, 22), new Color(0.030f, 0.045f, 0.070f, 0.54f));
+        TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "PATH  HERO / FIRE / GUARD / RESULT / RETRY", new Vector2(-248, 222), new Vector2(220, 16), TextAlignmentOptions.Center);
+        demoRouteText.fontSize = 7;
+        demoRouteText.color = new Color(0.96f, 0.92f, 0.68f, 0.62f);
+        Image captureRehearsalPanel = CreatePanel(canvas.transform, "Capture Rehearsal Panel", new Vector2(262, 222), new Vector2(184, 22), new Color(0.030f, 0.045f, 0.070f, 0.40f));
         captureRehearsalPanel.raycastTarget = false;
-        TMP_Text captureRehearsalText = CreateText(canvas.transform, "Capture Rehearsal Text", "Capture 1/5: Click Hero", new Vector2(0, 156), new Vector2(350, 18), TextAlignmentOptions.Center);
-        captureRehearsalText.fontSize = 10;
-        captureRehearsalText.color = new Color(0.72f, 0.90f, 1.0f, 0.50f);
+        TMP_Text captureRehearsalText = CreateText(canvas.transform, "Capture Rehearsal Text", "SHOT 1/5  CLICK HERO", new Vector2(262, 222), new Vector2(170, 16), TextAlignmentOptions.Center);
+        captureRehearsalText.fontSize = 7;
+        captureRehearsalText.color = new Color(0.72f, 0.90f, 1.0f, 0.64f);
         TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(-420, -620), new Vector2(250, 28), TextAlignmentOptions.TopLeft);
         skillHelpText.fontSize = 5;
         skillHelpText.color = new Color(0.72f, 0.90f, 1.0f);
@@ -541,10 +542,10 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Stage Progress text shows encounter count", IsStageProgressTextLikelyConfigured(stageProgressText));
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
         AppendCheck(ref passed, ref report, "Impact text exists", impactText != null);
-        AppendCheck(ref passed, ref report, "Demo route panel exists", IsDecorativePanelLikelyConfigured(demoRoutePanel, 480f, 22f));
-        AppendCheck(ref passed, ref report, "Demo route text shows the 8-15 second reviewer path", IsDemoRouteTextLikelyConfigured(demoRouteText));
-        AppendCheck(ref passed, ref report, "Capture rehearsal panel exists", IsDecorativePanelLikelyConfigured(captureRehearsalPanel, 360f, 20f));
-        AppendCheck(ref passed, ref report, "Capture rehearsal text starts with step-by-step prompt", IsCaptureRehearsalTextLikelyConfigured(captureRehearsalText));
+        AppendCheck(ref passed, ref report, "Demo route chip exists", IsDecorativePanelLikelyConfigured(demoRoutePanel, 220f, 18f));
+        AppendCheck(ref passed, ref report, "Demo route chip shows compact reviewer path", IsDemoRouteTextLikelyConfigured(demoRouteText));
+        AppendCheck(ref passed, ref report, "Capture rehearsal chip exists", IsDecorativePanelLikelyConfigured(captureRehearsalPanel, 170f, 18f));
+        AppendCheck(ref passed, ref report, "Capture rehearsal chip starts with compact step prompt", IsCaptureRehearsalTextLikelyConfigured(captureRehearsalText));
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
         AppendCheck(ref passed, ref report, "Runtime labels skip raycast for UI performance", IsTextRaycastOptimized(runStatusText, battleGuideText, stageText, stageObjectiveText, stageProgressText, playerHpText, playerApText, enemyHpText, skillHelpText, messageText, impactText, demoRouteText, captureRehearsalText));
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
@@ -937,13 +938,13 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = routeText.GetComponent<RectTransform>();
         string text = routeText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 460f
-            && text.Contains("Route:")
-            && text.Contains("Hero")
-            && text.Contains("Fire")
-            && text.Contains("Guard")
-            && text.Contains("Result")
-            && text.Contains("Retry");
+            && rectTransform.sizeDelta.x >= 200f
+            && text.Contains("PATH")
+            && text.Contains("HERO")
+            && text.Contains("FIRE")
+            && text.Contains("GUARD")
+            && text.Contains("RESULT")
+            && text.Contains("RETRY");
     }
 
     private static bool IsCaptureRehearsalTextLikelyConfigured(TMP_Text rehearsalText)
@@ -956,10 +957,10 @@ public static class BattleSceneAutoBuilder
         RectTransform rectTransform = rehearsalText.GetComponent<RectTransform>();
         string text = rehearsalText.text;
         return rectTransform != null
-            && rectTransform.sizeDelta.x >= 340f
-            && text.Contains("Capture")
+            && rectTransform.sizeDelta.x >= 160f
+            && text.Contains("SHOT")
             && text.Contains("1/5")
-            && text.Contains("Click Hero");
+            && text.Contains("CLICK HERO");
     }
 
     private static bool IsStageTextLikelyConfigured(TMP_Text stageText)

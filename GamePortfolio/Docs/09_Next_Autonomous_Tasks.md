@@ -1,6 +1,26 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-06-01 Batch 92: Reference-Driven Battle UI Pass
+## Latest autonomous run — 2026-06-05 Batch 93: Compact Battle HUD Chips
+
+Completed:
+- Replaced the remaining center-field reviewer/demo overlays with compact, low-alpha HUD chips near the battle-center header.
+- Converted the long route hint into `PATH  HERO / FIRE / GUARD / RESULT / RETRY` so it preserves the reviewer path without covering the battlefield.
+- Converted the capture prompt into `SHOT 1/5  CLICK HERO` and reduced its footprint for README-sized captures.
+- Moved the impact label into a smaller HUD chip and softened message/impact colors so the central battlefield reads less like debug UI.
+- Regenerated `BattleScene.unity` from `BattleSceneAutoBuilder` and updated validator thresholds for the smaller chips.
+
+Verification completed:
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- Unity `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS (`RESULT: PASS`).
+- `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS (`RESULT: PASS`).
+- `git diff --check`: PASS after Unity YAML whitespace cleanup.
+
+Recommended next tasks:
+1. Batch 94: refresh battle captures/contact sheet and visually QA the new HUD chips at README size.
+2. Batch 95: polish extracted sprite transparency and replace more encounter-specific enemies with Goblin/Skeleton/Orc/Lich/Golem/Dark Knight variants.
+3. Batch 96: tune the light-beam/grid composition further if the capture still looks too busy.
+
+## Previous autonomous run — 2026-06-01 Batch 92: Reference-Driven Battle UI Pass
 
 Completed:
 - Preserved the user's provided UI/sprite references under `Docs/References/UI/` and applied the battle layout hierarchy to the generated scene.
