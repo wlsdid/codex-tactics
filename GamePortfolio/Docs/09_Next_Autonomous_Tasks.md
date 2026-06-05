@@ -1,6 +1,31 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-06-06 Batch 96: Battlefield Contrast Polish
+## Latest autonomous run — 2026-06-06 Batch 97: Roster Mini-Sprite Readability Pass
+
+Completed:
+- Tuned only the generated BattleScene party/enemy roster mini-sprite crop/edge readability without adding gameplay features or replacing the existing character sprites.
+- Added darker portrait-chip backing, mini-sprite shadows, crop-frame panels, and thin edge accents so side roster/card units separate from the background in small captures.
+- Retuned party and enemy mini-sprite size/offsets slightly, then extended `Validate Battle Test Scene` to require the new shadow/edge readability checks.
+- Regenerated `BattleScene.unity`, rebuilt `CaptureRunner.exe`, refreshed PNG/GIF/contact-sheet capture evidence, and added `Docs/Devlog/2026-06-06_batch97_roster-mini-sprite-readability.md`.
+
+Verification completed:
+- Start/end git status checked; root `screenshots/` remained untracked and untouched.
+- C# brace balance check: PASS.
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- Unity `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS (`RESULT: PASS`).
+- Unity `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS (`RESULT: PASS`).
+- Unity `CaptureScreenshots.Run`: PASS (`Build succeeded`).
+- Standalone `CaptureRunner.exe` PNG refresh: PASS; all 7 capture PNGs are 1920x1080, fresh, and non-blank.
+- README GIF/runtime storyboard/contact sheet rebuild: PASS.
+- Contact-sheet visual QA: PASS — party roster mini sprites and the right-side enemy mini/card silhouette are readable at thumbnail size without blank/stale capture issues.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 98: add encounter-specific enemy visual variants only if the current capture readability remains accepted.
+2. Batch 99: update README/showcase wording around the now-readable side roster capture evidence.
+3. Batch 100: do a small final portfolio QA pass across Title/Stage/Battle screenshots before adding new systems.
+
+## Previous autonomous run — 2026-06-06 Batch 96: Battlefield Contrast Polish
 
 Completed:
 - Tuned only the generated BattleScene central battlefield layer for README-thumbnail readability without adding gameplay features.

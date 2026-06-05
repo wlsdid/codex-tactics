@@ -451,7 +451,11 @@ public static class BattleSceneAutoBuilder
         Image partyRosterSlot1 = FindImage("Party Roster Slot 1");
         Image enemyRosterSlot1 = FindImageIncludingInactive("Enemy Roster Slot 1");
         Image partyRosterMiniSprite1 = FindImage("Party Roster Mini Sprite 1");
+        Image partyRosterMiniSpriteShadow1 = FindImage("Party Roster Mini Sprite Shadow 1");
+        Image partyRosterMiniSpriteEdge1 = FindImage("Party Roster Mini Sprite Edge Accent 1");
         Image enemyRosterMiniSprite1 = FindImageIncludingInactive("Enemy Roster Mini Sprite 1");
+        Image enemyRosterMiniSpriteShadow1 = FindImageIncludingInactive("Enemy Roster Mini Sprite Shadow 1");
+        Image enemyRosterMiniSpriteEdge1 = FindImageIncludingInactive("Enemy Roster Mini Sprite Edge Accent 1");
         Image tacticalGridTile = FindImage("Tactical Grid Tile 1-1");
         Image skillActionArc = FindImage("Skill Action Arc");
         Image heroStandeeBody = FindImage("Hero Standee Body");
@@ -517,12 +521,14 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Party roster panel exists", partyRosterPanel != null && IsDecorativePanelLikelyConfigured(partyRosterPanel, 280f, 360f));
         AppendCheck(ref passed, ref report, "Party roster slots exist", IsDecorativePanelLikelyConfigured(partyRosterSlot1, 280f, 66f));
         AppendCheck(ref passed, ref report, "Enemy roster slots exist", IsDecorativePanelLikelyConfigured(enemyRosterSlot1, 150f, 50f));
-        AppendCheck(ref passed, ref report, "Party roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(partyRosterMiniSprite1, 30f, 38f));
+        AppendCheck(ref passed, ref report, "Party roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(partyRosterMiniSprite1, 48f, 56f));
+        AppendCheck(ref passed, ref report, "Party roster mini-sprite crop frame and shadow are readable", IsReadableContrastAccent(partyRosterMiniSpriteShadow1, 0.36f, 0.52f) && IsReadableContrastAccent(partyRosterMiniSpriteEdge1, 0.62f, 0.82f));
         AppendCheck(ref passed, ref report, "Player roster select button exists", IsButtonLikelyConfigured(playerSelectButton));
         AppendCheck(ref passed, ref report, "Player selection highlight starts hidden", playerSelectionHighlight != null && !playerSelectionHighlight.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Action command panel starts hidden until ally click", IsOverlayPanelLikelyConfigured(actionCommandPanel, 540f, 88f) && actionCommandPanel != null && !actionCommandPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Selected unit prompt starts hidden with command UI", selectedUnitText != null && !selectedUnitText.gameObject.activeSelf);
-        AppendCheck(ref passed, ref report, "Enemy roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(enemyRosterMiniSprite1, 30f, 36f));
+        AppendCheck(ref passed, ref report, "Enemy roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(enemyRosterMiniSprite1, 32f, 40f));
+        AppendCheck(ref passed, ref report, "Enemy roster mini-sprite crop frame and shadow are readable", IsReadableContrastAccent(enemyRosterMiniSpriteShadow1, 0.36f, 0.52f) && IsReadableContrastAccent(enemyRosterMiniSpriteEdge1, 0.62f, 0.82f));
         AppendCheck(ref passed, ref report, "Player card title exists", IsNameplateTextLikelyConfigured(playerCardTitleText, "ALLY", "HERO"));
         AppendCheck(ref passed, ref report, "Enemy card title exists", IsNameplateTextLikelyConfigured(enemyCardTitleText, "ENEMY", "ENEMY"));
         AppendCheck(ref passed, ref report, "Battle line divider text exists", IsNameplateTextLikelyConfigured(versusDividerText, "BATTLE", "LINE"));
@@ -1558,10 +1564,13 @@ public static class BattleSceneAutoBuilder
             Color slotColor = i == 0 ? new Color(0.12f, 0.10f, 0.055f, 0.70f) : new Color(0.010f, 0.012f, 0.020f, 0.48f);
             Image slot = CreatePanel(parent, $"Party Roster Slot {i + 1}", new Vector2(-508, y), new Vector2(292, 70), slotColor);
             slot.raycastTarget = false;
-            CreatePanel(parent, $"Party Roster Portrait Chip {i + 1}", new Vector2(-610, y), new Vector2(70, 64), new Color(0.02f, 0.024f, 0.032f, 0.78f));
+            CreatePanel(parent, $"Party Roster Portrait Chip {i + 1}", new Vector2(-610, y), new Vector2(76, 66), new Color(0.014f, 0.018f, 0.026f, 0.88f));
+            CreatePanel(parent, $"Party Roster Mini Sprite Shadow {i + 1}", new Vector2(-606, y - 4), new Vector2(58, 52), new Color(0.0f, 0.0f, 0.0f, 0.44f));
+            CreatePanel(parent, $"Party Roster Mini Sprite Crop Frame {i + 1}", new Vector2(-610, y), new Vector2(74, 64), new Color(0.04f, 0.055f, 0.075f, 0.36f));
             if (i == 0) CreatePanel(parent, "Party Roster Selected Gold Rim", new Vector2(-508, y + 35), new Vector2(286, 3), new Color(1.0f, 0.78f, 0.38f, 0.72f));
-            Image miniSprite = CreateSpritePanel(parent, $"Party Roster Mini Sprite {i + 1}", sprites[i], new Vector2(-610, y), new Vector2(66, 60));
+            Image miniSprite = CreateSpritePanel(parent, $"Party Roster Mini Sprite {i + 1}", sprites[i], new Vector2(-608, y + 3), new Vector2(58, 66));
             miniSprite.raycastTarget = false;
+            CreatePanel(parent, $"Party Roster Mini Sprite Edge Accent {i + 1}", new Vector2(-610, y + 31), new Vector2(68, 3), i == 0 ? new Color(1.0f, 0.78f, 0.38f, 0.74f) : new Color(0.45f, 0.86f, 1.0f, 0.66f));
             TMP_Text level = CreateText(parent, $"Party Roster Level {i + 1}", (i == 0 ? 13 : 114 + i * 47).ToString(), new Vector2(-644, y - 24), new Vector2(34, 20), TextAlignmentOptions.Center);
             level.fontSize = 14;
             level.fontStyle = FontStyles.Bold;
@@ -1585,21 +1594,27 @@ public static class BattleSceneAutoBuilder
             Color color = i == 2 ? new Color(0.72f, 0.05f, 0.12f, 0.82f) : new Color(0.07f, 0.075f, 0.10f, 0.68f);
             Image slot = CreatePanel(parent, $"Enemy Roster Slot {i + 1}", new Vector2(548, y), new Vector2(160, 50), color);
             slot.raycastTarget = false;
-            Image chip = CreatePanel(parent, $"Enemy Roster Portrait Chip {i + 1}", new Vector2(485, y), new Vector2(38, 38), new Color(0.08f, 0.04f, 0.10f, 0.88f));
+            Image chip = CreatePanel(parent, $"Enemy Roster Portrait Chip {i + 1}", new Vector2(485, y), new Vector2(46, 44), new Color(0.035f, 0.018f, 0.045f, 0.92f));
             string spritePath = i == 0
                 ? "Assets/Art/ReferenceSprites/reference_goblin_full.png"
                 : i == 1
                     ? "Assets/Art/ReferenceSprites/reference_skeleton_full.png"
                     : "Assets/Art/ReferenceSprites/reference_dark_knight_full.png";
-            Image miniSprite = CreateSpritePanel(parent, $"Enemy Roster Mini Sprite {i + 1}", spritePath, new Vector2(485, y + 1), new Vector2(32, 38));
+            Image shadow = CreatePanel(parent, $"Enemy Roster Mini Sprite Shadow {i + 1}", new Vector2(488, y - 3), new Vector2(36, 36), new Color(0.0f, 0.0f, 0.0f, 0.44f));
+            Image cropFrame = CreatePanel(parent, $"Enemy Roster Mini Sprite Crop Frame {i + 1}", new Vector2(485, y), new Vector2(44, 42), new Color(0.12f, 0.045f, 0.09f, 0.36f));
+            Image miniSprite = CreateSpritePanel(parent, $"Enemy Roster Mini Sprite {i + 1}", spritePath, new Vector2(486, y + 2), new Vector2(34, 42));
             miniSprite.raycastTarget = false;
+            Image edgeAccent = CreatePanel(parent, $"Enemy Roster Mini Sprite Edge Accent {i + 1}", new Vector2(485, y + 21), new Vector2(42, 3), i == 2 ? new Color(1.0f, 0.40f, 0.56f, 0.76f) : new Color(1.0f, 0.52f, 0.34f, 0.68f));
             string enemyLabel = i == 0 ? "Goblin 80" : i == 1 ? "Skeleton" : "Dark Knight";
             TMP_Text label = CreateText(parent, $"Enemy Roster Label {i + 1}", enemyLabel, new Vector2(562, y), new Vector2(112, 20), TextAlignmentOptions.Right);
             label.fontSize = 12;
             label.color = i == 2 ? new Color(1.0f, 0.78f, 0.78f) : new Color(0.82f, 0.86f, 0.94f);
             slot.gameObject.SetActive(false);
             chip.gameObject.SetActive(false);
+            shadow.gameObject.SetActive(false);
+            cropFrame.gameObject.SetActive(false);
             miniSprite.gameObject.SetActive(false);
+            edgeAccent.gameObject.SetActive(false);
             label.gameObject.SetActive(false);
         }
     }
