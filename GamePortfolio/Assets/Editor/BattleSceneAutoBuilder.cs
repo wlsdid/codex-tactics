@@ -194,17 +194,17 @@ public static class BattleSceneAutoBuilder
         TMP_Text commandHintText = CreateText(canvas.transform, "Command Hint Text", "Select Hero to open contextual commands.", new Vector2(214, -620), new Vector2(310, 18), TextAlignmentOptions.Center);
         commandHintText.fontSize = 9;
         commandHintText.color = new Color(0.96f, 0.92f, 0.68f);
-        Image referenceSkillDetailPanel = CreatePanel(canvas.transform, "Reference Skill Detail Panel", new Vector2(520, -238), new Vector2(172, 70), new Color(0.045f, 0.034f, 0.052f, 0.88f));
+        Image referenceSkillDetailPanel = CreatePanel(canvas.transform, "Reference Skill Detail Panel", new Vector2(562, -238), new Vector2(146, 64), new Color(0.045f, 0.034f, 0.052f, 0.88f));
         referenceSkillDetailPanel.raycastTarget = false;
-        TMP_Text referenceSkillDetailText = CreateText(canvas.transform, "Reference Skill Detail Text", "SKILL\nFIRE AP2", new Vector2(520, -238), new Vector2(150, 50), TextAlignmentOptions.Center);
-        referenceSkillDetailText.fontSize = 11;
+        TMP_Text referenceSkillDetailText = CreateText(canvas.transform, "Reference Skill Detail Text", "SKILL\nFIRE AP2", new Vector2(562, -238), new Vector2(126, 46), TextAlignmentOptions.Center);
+        referenceSkillDetailText.fontSize = 10;
         referenceSkillDetailText.color = new Color(1.0f, 0.84f, 0.48f);
         referenceSkillDetailPanel.gameObject.SetActive(false);
         referenceSkillDetailText.gameObject.SetActive(false);
-        Image enemyIntentCardPanel = CreatePanel(canvas.transform, "Enemy Intent Card Panel", new Vector2(526, -154), new Vector2(164, 44), new Color(0.08f, 0.035f, 0.045f, 0.78f));
+        Image enemyIntentCardPanel = CreatePanel(canvas.transform, "Enemy Intent Card Panel", new Vector2(564, -154), new Vector2(138, 40), new Color(0.08f, 0.035f, 0.045f, 0.78f));
         enemyIntentCardPanel.raycastTarget = false;
-        TMP_Text enemyIntentCardText = CreateText(canvas.transform, "Enemy Intent Card Text", "INTENT / Shield", new Vector2(526, -154), new Vector2(146, 28), TextAlignmentOptions.Center);
-        enemyIntentCardText.fontSize = 10;
+        TMP_Text enemyIntentCardText = CreateText(canvas.transform, "Enemy Intent Card Text", "INTENT / Shield", new Vector2(564, -154), new Vector2(122, 26), TextAlignmentOptions.Center);
+        enemyIntentCardText.fontSize = 9;
         enemyIntentCardText.color = new Color(1.0f, 0.70f, 0.42f);
 
         Image actionCommandPanel = CreatePanel(canvas.transform, "Action Command Panel", new Vector2(335, -302), new Vector2(560, 92), new Color(0.030f, 0.038f, 0.060f, 0.96f));
@@ -597,9 +597,9 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Command Preview panel starts hidden", commandPreviewPanel != null && !commandPreviewPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Command Preview text exists", commandPreviewText != null);
         AppendCheck(ref passed, ref report, "Bottom command strip has visible select-unit hint", IsCommandHintTextLikelyConfigured(commandHintText));
-        AppendCheck(ref passed, ref report, "Reference-style skill detail card exists", IsDecorativePanelLikelyConfigured(referenceSkillDetailPanel, 160f, 68f) && IsNameplateTextLikelyConfigured(referenceSkillDetailText, "SKILL", "AP2"));
-        AppendCheck(ref passed, ref report, "Reference-style enemy intent card exists", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 160f, 42f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
-        AppendCheck(ref passed, ref report, "Progress-reference right skill cards exist", IsDecorativePanelLikelyConfigured(progressSkillCard1, 230f, 78f));
+        AppendCheck(ref passed, ref report, "Reference-style skill detail card exists", IsDecorativePanelLikelyConfigured(referenceSkillDetailPanel, 140f, 62f) && IsNameplateTextLikelyConfigured(referenceSkillDetailText, "SKILL", "AP2"));
+        AppendCheck(ref passed, ref report, "Reference-style enemy intent card exists", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 136f, 38f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
+        AppendCheck(ref passed, ref report, "Progress-reference right skill cards exist", IsDecorativePanelLikelyConfigured(progressSkillCard1, 190f, 74f));
         AppendCheck(ref passed, ref report, "Bottom right duplicate battle-start CTA removed", FindImage("Progress Battle Start Panel") == null && FindText("Progress Battle Start Text") == null);
         AppendCheck(ref passed, ref report, "Progress-reference bottom turn dial exists", IsDecorativePanelLikelyConfigured(progressTurnDial, 80f, 80f));
         AppendCheck(ref passed, ref report, "Progress-reference bottom portrait strip exists", IsSpriteImageLikelyConfigured(progressBottomPortrait1, 54f, 54f));
@@ -1488,17 +1488,17 @@ public static class BattleSceneAutoBuilder
 
         for (int i = 0; i < names.Length; i++)
         {
-            float y = 174 - i * 112;
-            Image card = CreatePanel(parent, $"Progress Skill Card {i + 1}", new Vector2(530, y), new Vector2(245, 84), new Color(0.010f, 0.010f, 0.016f, 0.52f));
+            float y = 174 - i * 108;
+            Image card = CreatePanel(parent, $"Progress Skill Card {i + 1}", new Vector2(566, y), new Vector2(198, 78), new Color(0.010f, 0.010f, 0.016f, 0.50f));
             string iconPath = i == 0 ? "Assets/Art/Generated/skill_revenge_icon.png" : i == 1 ? "Assets/Art/Generated/skill_shield_icon.png" : "Assets/Art/Generated/skill_holy_icon.png";
-            Image iconGlow = CreatePanel(parent, $"Progress Skill Icon Glow {i + 1}", new Vector2(438, y), new Vector2(82, 82), new Color(1.0f, 0.82f, 0.36f, 0.13f));
-            Image icon = CreateSpritePanel(parent, $"Progress Skill Icon {i + 1}", iconPath, new Vector2(438, y), new Vector2(72, 72));
-            TMP_Text title = CreateText(parent, $"Progress Skill Title {i + 1}", names[i], new Vector2(548, y + 17), new Vector2(138, 28), TextAlignmentOptions.Left);
-            title.fontSize = 16;
+            Image iconGlow = CreatePanel(parent, $"Progress Skill Icon Glow {i + 1}", new Vector2(492, y), new Vector2(66, 66), new Color(1.0f, 0.82f, 0.36f, 0.13f));
+            Image icon = CreateSpritePanel(parent, $"Progress Skill Icon {i + 1}", iconPath, new Vector2(492, y), new Vector2(58, 58));
+            TMP_Text title = CreateText(parent, $"Progress Skill Title {i + 1}", names[i], new Vector2(574, y + 16), new Vector2(108, 24), TextAlignmentOptions.Left);
+            title.fontSize = 14;
             title.fontStyle = FontStyles.Bold;
             title.color = new Color(0.92f, 0.86f, 0.70f);
-            TMP_Text body = CreateText(parent, $"Progress Skill Body {i + 1}", desc[i], new Vector2(548, y - 16), new Vector2(138, 38), TextAlignmentOptions.Left);
-            body.fontSize = 10;
+            TMP_Text body = CreateText(parent, $"Progress Skill Body {i + 1}", desc[i], new Vector2(574, y - 15), new Vector2(108, 32), TextAlignmentOptions.Left);
+            body.fontSize = 9;
             body.color = new Color(0.76f, 0.74f, 0.68f);
             card.raycastTarget = false;
             icon.raycastTarget = false;
