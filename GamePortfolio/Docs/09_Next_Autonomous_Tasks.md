@@ -1,6 +1,33 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-06-06 Batch 97: Roster Mini-Sprite Readability Pass
+## Latest autonomous run — 2026-06-09 Batch 98: Enemy Visual Variants
+
+Completed:
+- Connected encounter-specific enemy visual variants to the existing battle data model without changing combat rules.
+- Added `EnemyVisualVariant` values for Goblin, Skeleton, Orc, Lich, Golem, and Dark Knight and assigned them across the StageData encounter presets.
+- Updated runtime BattleUI so the enemy portrait, central standee, and roster mini sprites can swap to the current encounter's extracted reference sprite.
+- Updated BattleSceneAutoBuilder serialized reference wiring and validation checks for the existing `Assets/Art/ReferenceSprites/reference_*_full.png` enemy assets.
+- Added editor auto-test expectations for StageData variant coverage and runtime Goblin -> Skeleton visual swap on Stage 1 continue.
+- Added `Docs/Devlog/2026-06-09_batch98_enemy-visual-variants.md`.
+
+Verification completed:
+- Start/end git status checked; root `screenshots/` remained untracked and untouched.
+- C# brace balance check: PASS.
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- Unity `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS (`RESULT: PASS`).
+- Unity `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS (`RESULT: PASS`).
+- Unity `CaptureScreenshots.Run`: PASS (`Build succeeded`).
+- Standalone `CaptureRunner.exe` PNG refresh: PASS; all 7 capture PNGs are 1920x1080, fresh, and non-blank.
+- README GIF/runtime storyboard/contact sheet rebuild: PASS.
+- Contact-sheet visual QA: PASS — no blank frames; the battle captures show readable Goblin enemy portrait/standee/roster visuals with the current UI layout.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 99: update README/showcase wording around encounter-specific enemy visuals and roster evidence.
+2. Batch 100: final portfolio QA pass across Title/Stage/Battle screenshots before adding new systems.
+3. Later: add only small enemy idle/hit VFX variants if screenshots remain readable.
+
+## Previous autonomous run — 2026-06-06 Batch 97: Roster Mini-Sprite Readability Pass
 
 Completed:
 - Tuned only the generated BattleScene party/enemy roster mini-sprite crop/edge readability without adding gameplay features or replacing the existing character sprites.

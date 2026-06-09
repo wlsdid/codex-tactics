@@ -29,7 +29,16 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TMP_Text enemyBreakText;
     [SerializeField] private Slider enemyBreakSlider;
     [SerializeField] private Image enemySpriteImage;
+    [SerializeField] private Image enemyStandeeImage;
+    [SerializeField] private Image[] enemyRosterMiniSprites;
+    [SerializeField] private TMP_Text[] enemyRosterLabels;
     [SerializeField] private Sprite referenceEnemySprite;
+    [SerializeField] private Sprite referenceGoblinSprite;
+    [SerializeField] private Sprite referenceSkeletonSprite;
+    [SerializeField] private Sprite referenceOrcSprite;
+    [SerializeField] private Sprite referenceLichSprite;
+    [SerializeField] private Sprite referenceGolemSprite;
+    [SerializeField] private Sprite referenceDarkKnightSprite;
     [SerializeField] private Image burnOverlay;
     [SerializeField] private Image stunOverlay;
     [SerializeField] private Image brokenOverlay;
@@ -157,6 +166,10 @@ public class BattleUI : MonoBehaviour
     public string DebugSelectedUnitText => selectedUnitText != null ? selectedUnitText.text : "";
     public string DebugPlayerSpriteMotionProfile => GetSpriteMotionProfile(playerSpriteImage, true);
     public string DebugEnemySpriteMotionProfile => GetSpriteMotionProfile(enemySpriteImage, false);
+    public string DebugEnemySpriteName => enemySpriteImage != null && enemySpriteImage.sprite != null ? enemySpriteImage.sprite.name : "";
+    public string DebugEnemyStandeeSpriteName => enemyStandeeImage != null && enemyStandeeImage.sprite != null ? enemyStandeeImage.sprite.name : "";
+    public string DebugEnemyRosterFirstSpriteName => enemyRosterMiniSprites != null && enemyRosterMiniSprites.Length > 0 && enemyRosterMiniSprites[0] != null && enemyRosterMiniSprites[0].sprite != null ? enemyRosterMiniSprites[0].sprite.name : "";
+    public string DebugEnemyRosterFirstLabel => enemyRosterLabels != null && enemyRosterLabels.Length > 0 && enemyRosterLabels[0] != null ? enemyRosterLabels[0].text : "";
 
     // --- Lifecycle ---
 
@@ -335,12 +348,14 @@ public class BattleUI : MonoBehaviour
         if (continueButtonText != null) continueButtonText.text = label;
     }
 
-    public void SetupPlaceholderSprites(ElementType enemyElement = ElementType.Fire, bool isBoss = false)
+    public void SetupPlaceholderSprites(ElementType enemyElement = ElementType.Fire, bool isBoss = false, EnemyVisualVariant visualVariant = EnemyVisualVariant.Goblin)
     {
         if (playerSpriteImage != null && playerSpriteImage.sprite == null)
             playerSpriteImage.sprite = referencePlayerSprite != null ? referencePlayerSprite : PlaceholderSpriteGenerator.CreateHeroSprite();
+        Sprite enemyVisualSprite = SelectReferenceEnemySprite(visualVariant);
         if (enemySpriteImage != null && enemySpriteImage.sprite == null)
-            enemySpriteImage.sprite = referenceEnemySprite != null ? referenceEnemySprite : PlaceholderSpriteGenerator.CreateEnemySprite(enemyElement, isBoss);
+            enemySpriteImage.sprite = enemyVisualSprite != null ? enemyVisualSprite : PlaceholderSpriteGenerator.CreateEnemySprite(enemyElement, isBoss);
+        ApplyEnemyVisualSprite(enemyVisualSprite, GetEnemyVisualLabel(visualVariant));
         EnsureSpriteMotions();
     }
 
@@ -349,6 +364,75 @@ public class BattleUI : MonoBehaviour
     {
         if (playerSpriteImage != null) playerSpriteImage.sprite = null;
         if (enemySpriteImage != null) enemySpriteImage.sprite = null;
+        if (enemyStandeeImage != null) enemyStandeeImage.sprite = null;
+        if (enemyRosterMiniSprites != null)
+        {
+            for (int i = 0; i < enemyRosterMiniSprites.Length; i++)
+            {
+                if (enemyRosterMiniSprites[i] != null) enemyRosterMiniSprites[i].sprite = null;
+            }
+        }
+    }
+
+
+    public void SetEnemyVisuals(StageData stageData, ElementType fallbackElement = ElementType.Fire)
+    {
+        EnemyVisualVariant visualVariant = stageData != null && stageData.enemy != null
+            ? stageData.enemy.visualVariant
+            : EnemyVisualVariant.Goblin;
+        Sprite visualSprite = SelectReferenceEnemySprite(visualVariant);
+        if (visualSprite == null)
+            visualSprite = PlaceholderSpriteGenerator.CreateEnemySprite(fallbackElement, visualVariant == EnemyVisualVariant.DarkKnight || visualVariant == EnemyVisualVariant.Golem || visualVariant == EnemyVisualVariant.Lich);
+
+        if (enemySpriteImage != null && enemySpriteImage.sprite != visualSprite)
+            enemySpriteImage.sprite = visualSprite;
+        ApplyEnemyVisualSprite(visualSprite, GetEnemyVisualLabel(visualVariant));
+        EnsureSpriteMotions();
+    }
+
+    private void ApplyEnemyVisualSprite(Sprite visualSprite, string visualLabel)
+    {
+        if (visualSprite != null && enemyStandeeImage != null && enemyStandeeImage.sprite != visualSprite)
+            enemyStandeeImage.sprite = visualSprite;
+
+        if (enemyRosterMiniSprites != null)
+        {
+            for (int i = 0; i < enemyRosterMiniSprites.Length; i++)
+            {
+                if (enemyRosterMiniSprites[i] != null && visualSprite != null)
+                    enemyRosterMiniSprites[i].sprite = visualSprite;
+            }
+        }
+
+        if (enemyRosterLabels != null && enemyRosterLabels.Length > 0 && enemyRosterLabels[0] != null)
+            SetTextIfChanged(enemyRosterLabels[0], visualLabel);
+    }
+
+    private Sprite SelectReferenceEnemySprite(EnemyVisualVariant visualVariant)
+    {
+        Sprite selected = visualVariant switch
+        {
+            EnemyVisualVariant.Skeleton => referenceSkeletonSprite,
+            EnemyVisualVariant.Orc => referenceOrcSprite,
+            EnemyVisualVariant.Lich => referenceLichSprite,
+            EnemyVisualVariant.Golem => referenceGolemSprite,
+            EnemyVisualVariant.DarkKnight => referenceDarkKnightSprite,
+            _ => referenceGoblinSprite
+        };
+        return selected != null ? selected : referenceEnemySprite;
+    }
+
+    private static string GetEnemyVisualLabel(EnemyVisualVariant visualVariant)
+    {
+        return visualVariant switch
+        {
+            EnemyVisualVariant.Skeleton => "Skeleton",
+            EnemyVisualVariant.Orc => "Orc",
+            EnemyVisualVariant.Lich => "Lich",
+            EnemyVisualVariant.Golem => "Golem",
+            EnemyVisualVariant.DarkKnight => "Dark Knight",
+            _ => "Goblin"
+        };
     }
 
     // --- Main Update ---
@@ -390,6 +474,7 @@ public class BattleUI : MonoBehaviour
         SetStageProgressText(currentState, currentStageIndex, stageEncounters);
         SetMessageText(message);
         var currentStageData = GetStageData(currentStageIndex, stageEncounters);
+        SetEnemyVisuals(currentStageData, enemy.weaknessElement);
         UpdateSkillHelpText(basicSkill, fireSkill, iceSkill, lightningSkill, earthSkill, guardReductionPercent, enemyPattern, currentStageData);
         AddBattleLogEntry(message, maxBattleLogEntries);
     }

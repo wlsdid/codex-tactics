@@ -29,6 +29,7 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "playerShieldText", CreateText("Player Shield Text"));
         SetPrivateField(battleUI, "playerSpriteImage", CreateSpriteImage("Player Sprite"));
         SetPrivateField(battleUI, "enemySpriteImage", CreateSpriteImage("Enemy Sprite"));
+        ConfigureEnemyVisualVariantFields(battleUI);
         SetPrivateField(battleUI, "enemyStatusText", CreateText("Enemy Status Text"));
         SetPrivateField(battleUI, "enemyIntentText", CreateText("Enemy Intent Text"));
         SetPrivateField(battleUI, "enemyBreakText", CreateText("Enemy Break Text"));
@@ -93,6 +94,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Battle log records the latest player turn prompt", battleManager.DebugBattleLogText.Contains("Player Turn: recovered 2 AP. Click Hero to choose an action."));
         AppendCheck(ref passed, ref report, "Impact text starts with ready feedback", battleManager.DebugImpactText == "Impact: Ready");
         AppendCheck(ref passed, ref report, "Enemy Break starts full", battleManager.DebugEnemyBreakText == "Break: 2/2");
+        AppendCheck(ref passed, ref report, "Stage 1 normal uses Goblin reference sprite across enemy portrait, standee, and roster", battleManager.DebugEnemySpriteName == "Test Goblin Sprite" && battleManager.DebugEnemyStandeeSpriteName == "Test Goblin Sprite" && battleManager.DebugEnemyRosterFirstSpriteName == "Test Goblin Sprite" && battleManager.DebugEnemyRosterFirstLabel == "Goblin");
         AppendCheck(ref passed, ref report, "Capture rehearsal starts by prompting Hero selection", battleManager.DebugCaptureRehearsalText.Contains("1/5") && battleManager.DebugCaptureRehearsalText.Contains("Click Hero"));
         AppendCheck(ref passed, ref report, "Action command panel starts hidden until a character is clicked", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
         battleManager.OnClickPlayerUnit();
@@ -192,6 +194,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Stage progress marks first encounter clear before Continue", battleManager.DebugStageProgressText == "Enc 1/2 | Clear");
         battleManager.OnClickContinueButton();
         AppendCheck(ref passed, ref report, "Continue advances to the Stage 1 boss encounter", battleManager.DebugStageText == "Stage 1-2: Slime King" && battleManager.DebugStageObjectiveText == "Goal: Defeat Slime King" && battleManager.DebugStageProgressText == "Enc 2/2 | Active" && battleManager.DebugEnemyHpText == "Slime King HP: 140/140 (100%)" && battleManager.DebugEnemyIntentText == "Next Enemy: [Fire] Normal Attack (18)");
+        AppendCheck(ref passed, ref report, "Stage 1 boss swaps runtime enemy visual to Skeleton", battleManager.DebugEnemySpriteName == "Test Skeleton Sprite" && battleManager.DebugEnemyStandeeSpriteName == "Test Skeleton Sprite" && battleManager.DebugEnemyRosterFirstLabel == "Skeleton");
         AppendCheck(ref passed, ref report, "Continue hides again during the next active battle", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable);
         battleManager.DebugEndBattleForTest(BattleState.Victory);
         AppendCheck(ref passed, ref report, "Final boss victory hides Continue and explains final clear follow-up", !battleManager.DebugContinueButtonVisible && !battleManager.DebugContinueButtonInteractable && battleManager.DebugMessageText.Contains("Final Clear") && battleManager.DebugMessageText.Contains("Review Total Gold"));
@@ -282,6 +285,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Stage 6 Normal metadata has RadiantTrial modifier", StageData.CreateStage6Normal().stageModifier == StageModifierType.RadiantTrial);
         AppendCheck(ref passed, ref report, "Stage 6 Boss metadata has RadiantTrial modifier", StageData.CreateStage6Boss().stageModifier == StageModifierType.RadiantTrial);
         AppendCheck(ref passed, ref report, "StageData centralizes readable modifier names", StageData.GetModifierDisplayName(StageModifierType.StormSurge) == "Storm Surge" && StageData.GetModifierDisplayName(StageModifierType.VoidDrain) == "Void Drain");
+        AppendCheck(ref passed, ref report, "StageData assigns encounter-specific enemy visual variants", StageData.CreateStage1Normal().enemy.visualVariant == EnemyVisualVariant.Goblin && StageData.CreateStage1Boss().enemy.visualVariant == EnemyVisualVariant.Skeleton && StageData.CreateStage2Normal().enemy.visualVariant == EnemyVisualVariant.Orc && StageData.CreateStage3Normal().enemy.visualVariant == EnemyVisualVariant.Golem && StageData.CreateStage5Normal().enemy.visualVariant == EnemyVisualVariant.Lich && StageData.CreateStage6Boss().enemy.visualVariant == EnemyVisualVariant.DarkKnight);
         AppendCheck(ref passed, ref report, "Procedural portrait sprites are generated without external assets", PlaceholderSpriteGenerator.CreateHeroSprite() != null && PlaceholderSpriteGenerator.CreateEnemySprite(ElementType.Fire, false) != null && PlaceholderSpriteGenerator.CreateEnemySprite(ElementType.Fire, true) != null);
         AppendCheck(ref passed, ref report, "StageData builds modifier summary text from source data", StageData.CreateStage5Normal().BuildModifierSummaryText().Contains("Modifier: Void Drain") && StageData.CreateStage5Normal().BuildModifierSummaryText().Contains("Effect: Shadow energy drains AP over time."));
         AppendCheck(ref passed, ref report, "Stage 3 Normal creates Golem Sentry", StageData.CreateStage3Normal().enemy.enemyName == "Golem Sentry" && StageData.CreateStage3Normal().enemy.maxHp == 120);
@@ -568,6 +572,29 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "selectedUnitText", CreateText("Selected Unit Text"));
     }
 
+    private static void ConfigureEnemyVisualVariantFields(BattleUI battleUI)
+    {
+        SetPrivateField(battleUI, "enemyStandeeImage", CreateSpriteImage("Enemy Standee Sprite"));
+        SetPrivateField(battleUI, "enemyRosterMiniSprites", new Image[]
+        {
+            CreateSpriteImage("Enemy Roster Mini Sprite 1"),
+            CreateSpriteImage("Enemy Roster Mini Sprite 2"),
+            CreateSpriteImage("Enemy Roster Mini Sprite 3")
+        });
+        SetPrivateField(battleUI, "enemyRosterLabels", new TMP_Text[]
+        {
+            CreateText("Enemy Roster Label 1"),
+            CreateText("Enemy Roster Label 2"),
+            CreateText("Enemy Roster Label 3")
+        });
+        SetPrivateField(battleUI, "referenceGoblinSprite", CreateNamedSprite("Test Goblin Sprite", Color.green));
+        SetPrivateField(battleUI, "referenceSkeletonSprite", CreateNamedSprite("Test Skeleton Sprite", Color.gray));
+        SetPrivateField(battleUI, "referenceOrcSprite", CreateNamedSprite("Test Orc Sprite", new Color(0.35f, 0.55f, 0.15f)));
+        SetPrivateField(battleUI, "referenceLichSprite", CreateNamedSprite("Test Lich Sprite", new Color(0.45f, 0.25f, 0.75f)));
+        SetPrivateField(battleUI, "referenceGolemSprite", CreateNamedSprite("Test Golem Sprite", new Color(0.45f, 0.40f, 0.32f)));
+        SetPrivateField(battleUI, "referenceDarkKnightSprite", CreateNamedSprite("Test Dark Knight Sprite", new Color(0.10f, 0.10f, 0.16f)));
+    }
+
     private static Image CreateImage(string name)
     {
         GameObject imageObject = new GameObject(name);
@@ -587,6 +614,23 @@ public static class BattleAutoTestRunner
     {
         GameObject sliderObject = new GameObject(name);
         return sliderObject.AddComponent<Slider>();
+    }
+
+    private static Sprite CreateNamedSprite(string name, Color color)
+    {
+        Texture2D texture = new Texture2D(8, 8, TextureFormat.RGBA32, false);
+        for (int y = 0; y < 8; y++)
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                texture.SetPixel(x, y, color);
+            }
+        }
+        texture.Apply();
+        texture.name = name + " Texture";
+        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, 8, 8), new Vector2(0.5f, 0.5f), 100f);
+        sprite.name = name;
+        return sprite;
     }
 
     private static void SetPrivateField(object target, string fieldName, object value)

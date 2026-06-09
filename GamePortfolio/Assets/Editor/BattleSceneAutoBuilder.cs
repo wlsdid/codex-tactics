@@ -301,7 +301,22 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "enemyBreakText", enemyBreakText);
         SetObjectReference(serializedBattleUI, "enemyBreakSlider", enemyBreakSlider);
         SetObjectReference(serializedBattleUI, "enemySpriteImage", enemySpriteImage);
+        SetObjectReference(serializedBattleUI, "enemyStandeeImage", FindImage("Enemy Standee Body"));
+        SetObjectArrayReferences(serializedBattleUI, "enemyRosterMiniSprites",
+            FindImageIncludingInactive("Enemy Roster Mini Sprite 1"),
+            FindImageIncludingInactive("Enemy Roster Mini Sprite 2"),
+            FindImageIncludingInactive("Enemy Roster Mini Sprite 3"));
+        SetObjectArrayReferences(serializedBattleUI, "enemyRosterLabels",
+            FindTextIncludingInactive("Enemy Roster Label 1"),
+            FindTextIncludingInactive("Enemy Roster Label 2"),
+            FindTextIncludingInactive("Enemy Roster Label 3"));
         SetObjectReference(serializedBattleUI, "referenceEnemySprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_goblin_full.png"));
+        SetObjectReference(serializedBattleUI, "referenceGoblinSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_goblin_full.png"));
+        SetObjectReference(serializedBattleUI, "referenceSkeletonSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_skeleton_full.png"));
+        SetObjectReference(serializedBattleUI, "referenceOrcSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_orc_full.png"));
+        SetObjectReference(serializedBattleUI, "referenceLichSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_lich_full.png"));
+        SetObjectReference(serializedBattleUI, "referenceGolemSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_golem_full.png"));
+        SetObjectReference(serializedBattleUI, "referenceDarkKnightSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_dark_knight_full.png"));
         SetObjectReference(serializedBattleUI, "burnOverlay", burnOverlay);
         SetObjectReference(serializedBattleUI, "stunOverlay", stunOverlay);
         SetObjectReference(serializedBattleUI, "brokenOverlay", brokenOverlay);
@@ -514,6 +529,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Skill action arc exists", IsDecorativePanelLikelyConfigured(skillActionArc, 450f, 4f));
         AppendCheck(ref passed, ref report, "Hero mature high-density pixel standee exists", IsSpriteImageLikelyConfigured(heroStandeeBody, 165f, 220f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 6f, 56f));
         AppendCheck(ref passed, ref report, "Enemy mature high-density pixel standee exists", IsSpriteImageLikelyConfigured(enemyStandeeBody, 185f, 218f) && IsDecorativePanelLikelyConfigured(enemyStandeeCrown, 52f, 8f));
+        AppendCheck(ref passed, ref report, "StageData enemy visual variants use extracted reference sprites", StageData.CreateStage1Normal().enemy.visualVariant == EnemyVisualVariant.Goblin && StageData.CreateStage1Boss().enemy.visualVariant == EnemyVisualVariant.Skeleton && StageData.CreateStage3Normal().enemy.visualVariant == EnemyVisualVariant.Golem && StageData.CreateStage5Normal().enemy.visualVariant == EnemyVisualVariant.Lich);
         AppendCheck(ref passed, ref report, "Battle portraits have idle bob and hit reaction motion", HasBattleSpriteMotion(playerSpriteImage) && HasBattleSpriteMotion(enemySpriteImage));
         AppendCheck(ref passed, ref report, "Battlefield standees have idle bob motion", HasBattleSpriteMotion(heroStandeeBody) && HasBattleSpriteMotion(enemyStandeeBody));
         AppendCheck(ref passed, ref report, "Premium command header exists", IsDecorativePanelLikelyConfigured(commandHeaderPanel, 240f, 24f) && IsNameplateTextLikelyConfigured(commandHeaderText, "COMMAND", "CHAIN"));
@@ -641,6 +657,8 @@ public static class BattleSceneAutoBuilder
             AppendCheck(ref passed, ref report, "Enemy Intent text linked", HasObjectReference(serializedBattleUI, "enemyIntentText"));
             AppendCheck(ref passed, ref report, "Enemy Break text linked", HasObjectReference(serializedBattleUI, "enemyBreakText"));
             AppendCheck(ref passed, ref report, "Enemy Break slider linked", HasObjectReference(serializedBattleUI, "enemyBreakSlider"));
+            AppendCheck(ref passed, ref report, "Enemy standee sprite linked for runtime visual variants", HasObjectReference(serializedBattleUI, "enemyStandeeImage"));
+            AppendCheck(ref passed, ref report, "Enemy reference sprite variants linked", HasObjectReference(serializedBattleUI, "referenceGoblinSprite") && HasObjectReference(serializedBattleUI, "referenceSkeletonSprite") && HasObjectReference(serializedBattleUI, "referenceOrcSprite") && HasObjectReference(serializedBattleUI, "referenceLichSprite") && HasObjectReference(serializedBattleUI, "referenceGolemSprite") && HasObjectReference(serializedBattleUI, "referenceDarkKnightSprite"));
             AppendCheck(ref passed, ref report, "Run Status text linked", HasObjectReference(serializedBattleUI, "runStatusText"));
             AppendCheck(ref passed, ref report, "Stage text linked", HasObjectReference(serializedBattleUI, "stageText"));
             AppendCheck(ref passed, ref report, "Stage Objective text linked", HasObjectReference(serializedBattleUI, "stageObjectiveText"));
@@ -1713,6 +1731,21 @@ public static class BattleSceneAutoBuilder
         label.raycastTarget = false;
 
         return button;
+    }
+
+    private static void SetObjectArrayReferences(SerializedObject serializedObject, string propertyName, params Object[] values)
+    {
+        SerializedProperty property = serializedObject.FindProperty(propertyName);
+        if (property == null || !property.isArray || values == null)
+        {
+            return;
+        }
+
+        property.arraySize = values.Length;
+        for (int i = 0; i < values.Length; i++)
+        {
+            property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+        }
     }
 
     private static void SetObjectReference(SerializedObject serializedObject, string propertyName, Object value)

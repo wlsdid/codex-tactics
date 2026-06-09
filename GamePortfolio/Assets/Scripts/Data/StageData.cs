@@ -55,7 +55,8 @@ public class StageData
                     strongAttackName = "Heavy Slam",
                     strongAttackDamage = 30,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Goblin
             )
         };
     }
@@ -80,7 +81,8 @@ public class StageData
                     strongAttackName = "Royal Slam",
                     strongAttackDamage = 36,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Skeleton
             )
         };
     }
@@ -105,7 +107,8 @@ public class StageData
                     strongAttackName = "Pack Howl",
                     strongAttackDamage = 35,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Orc
             )
         };
     }
@@ -130,7 +133,8 @@ public class StageData
                     strongAttackName = "Alpha Strike",
                     strongAttackDamage = 42,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.DarkKnight
             )
         };
     }
@@ -155,7 +159,8 @@ public class StageData
                     strongAttackName = "Bedrock Slam",
                     strongAttackDamage = 38,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Golem
             )
         };
     }
@@ -180,7 +185,8 @@ public class StageData
                     strongAttackName = "Cataclysm",
                     strongAttackDamage = 48,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Golem
             )
         };
     }
@@ -205,7 +211,8 @@ public class StageData
                     strongAttackName = "Thunder Dive",
                     strongAttackDamage = 40,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Orc
             )
         };
     }
@@ -230,7 +237,8 @@ public class StageData
                     strongAttackName = "Skyfall",
                     strongAttackDamage = 55,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.DarkKnight
             )
         };
     }
@@ -255,7 +263,8 @@ public class StageData
                     strongAttackName = "Void Grasp",
                     strongAttackDamage = 45,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Lich
             )
         };
     }
@@ -280,7 +289,8 @@ public class StageData
                     strongAttackName = "Oblivion Strike",
                     strongAttackDamage = 55,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Lich
             )
         };
     }
@@ -305,7 +315,8 @@ public class StageData
                     strongAttackName = "Radiance Blast",
                     strongAttackDamage = 50,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.Golem
             )
         };
     }
@@ -330,7 +341,8 @@ public class StageData
                     strongAttackName = "Heavenly Wrath",
                     strongAttackDamage = 60,
                     strongAttackEveryTurns = 3
-                }
+                },
+                EnemyVisualVariant.DarkKnight
             )
         };
     }

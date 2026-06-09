@@ -97,6 +97,10 @@ public class BattleManager : MonoBehaviour
     public string DebugEnemyStatusText => battleUI != null ? battleUI.DebugEnemyStatusText : "";
     public string DebugEnemyIntentText => battleUI != null ? battleUI.DebugEnemyIntentText : "";
     public string DebugEnemyBreakText => battleUI != null ? battleUI.DebugEnemyBreakText : "";
+    public string DebugEnemySpriteName => battleUI != null ? battleUI.DebugEnemySpriteName : "";
+    public string DebugEnemyStandeeSpriteName => battleUI != null ? battleUI.DebugEnemyStandeeSpriteName : "";
+    public string DebugEnemyRosterFirstSpriteName => battleUI != null ? battleUI.DebugEnemyRosterFirstSpriteName : "";
+    public string DebugEnemyRosterFirstLabel => battleUI != null ? battleUI.DebugEnemyRosterFirstLabel : "";
     public float DebugEnemyBreakBarValue => battleUI != null ? battleUI.DebugEnemyBreakBarValue : -1f;
     public float DebugEnemyBreakBarMaxValue => battleUI != null ? battleUI.DebugEnemyBreakBarMaxValue : -1f;
     public string DebugImpactText => battleUI != null ? battleUI.DebugImpactText : "";
@@ -267,8 +271,9 @@ public class BattleManager : MonoBehaviour
 
         // Set up element-aware sprites
         bool isBossEncounter = stageEncounters != null && currentStageIndex == 1;
+        EnemyVisualVariant enemyVisualVariant = GetCurrentStageData()?.enemy?.visualVariant ?? EnemyVisualVariant.Goblin;
         battleUI?.ClearCachedSprites();
-        battleUI?.SetupPlaceholderSprites(enemyWeakness, isBossEncounter);
+        battleUI?.SetupPlaceholderSprites(enemyWeakness, isBossEncounter, enemyVisualVariant);
 
         battleUI?.StartNewBattle();
         battleUI?.SetImpactText("Impact: Ready");
