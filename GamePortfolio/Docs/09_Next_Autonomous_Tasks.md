@@ -1,6 +1,32 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-06-09 Batch 98: Enemy Visual Variants
+## Latest autonomous run — 2026-06-09 Batch 99: UI Overlap Cleanup & Background UI Polish
+
+Completed:
+- Removed duplicated battle HUD affordances that were competing with real runtime controls: the bottom-right reference `BATTLE START` CTA is gone, and top-right reference `AUTO`/`x2`/pause labels became non-text decorative accents.
+- Shortened capture rehearsal text to compact `SHOT n/5` labels so screenshot-proof guidance no longer spills across the center HUD.
+- Reduced/repositioned the demo route and capture chips and softened their alpha so they read as reviewer evidence instead of foreground debug UI.
+- Added a darker color-grade layer and softened battlefield divider/floor alpha to make the forest/tactical grid background feel more unified and professional.
+- Tightened hidden skill/intent reference cards to reduce bottom-right overlap risk when contextual command/result UI appears.
+- Added `Docs/Devlog/2026-06-09_batch99_ui-overlap-background-polish.md`.
+
+Verification completed:
+- C# brace balance check: PASS.
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: PASS.
+- Unity `BattleSceneAutoBuilder.ValidateBattleTestScene`: PASS (`RESULT: PASS`).
+- Unity `BattleAutoTestRunner.RunBattleLogicAutoTest`: PASS (`RESULT: PASS`).
+- Unity `CaptureScreenshots.Run`: PASS (`Build succeeded`).
+- Standalone `CaptureRunner.exe -capture -force-d3d11`: PASS; all 7 capture PNGs are 1920x1080 and non-blank.
+- README GIF/runtime storyboard/contact sheet rebuild: PASS.
+- Contact-sheet visual QA: PASS — no blank frames; duplicate bottom-right CTA is gone, top-right duplicate text controls were reduced, and the darker battlefield background reads more professional. Remaining risk: the right skill/intention column is still dense and should be watched in final QA.
+- `git diff --check`: PASS.
+
+Recommended next tasks:
+1. Batch 100: final portfolio QA pass across Title/Stage/Battle screenshots after this overlap cleanup.
+2. Batch 101: README/showcase wording pass focused on enemy variants + cleaner battle HUD evidence.
+3. Later: add only small enemy idle/hit VFX variants if screenshots remain readable.
+
+## Previous autonomous run — 2026-06-09 Batch 98: Enemy Visual Variants
 
 Completed:
 - Connected encounter-specific enemy visual variants to the existing battle data model without changing combat rules.

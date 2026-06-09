@@ -505,32 +505,32 @@ public class BattleUI : MonoBehaviour
 
     public void ResetCaptureRehearsal()
     {
-        SetCaptureRehearsalText("Capture 1/5: Click Hero");
+        SetCaptureRehearsalText("SHOT 1/5");
     }
 
     public void MarkCaptureRehearsalHeroSelected()
     {
-        SetCaptureRehearsalText("Capture 2/5: Fire Bolt");
+        SetCaptureRehearsalText("SHOT 2/5");
     }
 
     public void MarkCaptureRehearsalFireUsed()
     {
-        SetCaptureRehearsalText("Capture 3/5: choose GUARD");
+        SetCaptureRehearsalText("SHOT 3/5");
     }
 
     public void MarkCaptureRehearsalGuardUsed()
     {
-        SetCaptureRehearsalText("Capture 4/5: reach Result");
+        SetCaptureRehearsalText("SHOT 4/5");
     }
 
     public void MarkCaptureRehearsalResultShown()
     {
-        SetCaptureRehearsalText("Capture 5/5: Retry reset");
+        SetCaptureRehearsalText("SHOT 5/5");
     }
 
     public void MarkCaptureRehearsalRetryDone()
     {
-        SetCaptureRehearsalText("Capture Complete: Retry reset done");
+        SetCaptureRehearsalText("SHOT OK");
     }
 
     private void SetCaptureRehearsalText(string text)
