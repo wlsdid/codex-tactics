@@ -233,7 +233,7 @@ Note: Batch 83 changed documentation only, so Unity compile was not rerun for th
 - [x] Stage Select with unlocked/locked cards and modifier text
 - [x] Battle HUD showing HP/AP bars, enemy element badge, and tactical layout
 - [x] Fire Bolt + Burn feedback
-- [ ] Ice Lance + Stun feedback GIF
+- [x] Ice Lance + Stun feedback GIF
 - [ ] Break gauge depletion and Break bonus
 - [ ] Stage 4 Storm Surge activation
 - [ ] Stage 5 Void Drain AP drain / AP-empty HP damage

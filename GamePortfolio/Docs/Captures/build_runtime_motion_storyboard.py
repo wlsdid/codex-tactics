@@ -40,7 +40,8 @@ class Beat:
 # Use the frames most likely to show motion/VFX/readable combat feedback.
 BEATS = [
     Beat("01_battle_start.png", "Runtime setup: selected ally, tactical HUD, target lane", 5, 1.00, 1.03, -0.05, -0.02),
-    Beat("02_fire_skill_burn.png", "Action beat: Fire Skill impact, projectile/VFX, Burn feedback", 7, 1.02, 1.10, 0.12, -0.03),
+    Beat("02_fire_skill_burn.png", "Action beat: Fire Skill impact, projectile/VFX, Burn feedback", 6, 1.02, 1.10, 0.12, -0.03),
+    Beat("03_ice_lance_stun.png", "Action beat: Ice Lance follow-up and Stun feedback", 6, 1.02, 1.09, 0.10, -0.02),
     Beat("03_guard_status.png", "Defense beat: Guard status and enemy-response readability", 6, 1.00, 1.07, -0.10, 0.04),
     Beat("04_result_summary_rank.png", "Resolution beat: result metrics, rank, reward, clear state", 6, 1.01, 1.05, 0.02, 0.08),
     Beat("05_retry_reset.png", "Loop beat: retry reset ready for another run", 5, 1.00, 1.04, -0.04, -0.05),
@@ -170,8 +171,11 @@ def validate_output(expected_frames: int) -> None:
         raise SystemExit(f"Motion storyboard GIF is too large for README use: {size} bytes")
 
     with Image.open(PREVIEW_SHEET) as preview:
-        if preview.size != (240 * len(BEATS), 135):
-            raise SystemExit(f"Unexpected preview sheet size: {preview.size}")
+        columns = 5
+        rows = (len(BEATS) + columns - 1) // columns
+        expected_preview_size = (240 * columns, 135 * rows)
+        if preview.size != expected_preview_size:
+            raise SystemExit(f"Unexpected preview sheet size: {preview.size}, expected {expected_preview_size}")
 
 
 def main() -> None:

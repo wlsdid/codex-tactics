@@ -105,6 +105,21 @@ public class ScreenshotCaptureJob : MonoBehaviour
         Debug.Log($"[Capture] Saved ({bytes.Length} bytes): {path}");
     }
 
+    private static void PreparePortfolioCaptureProgress()
+    {
+        // Keep standalone capture evidence deterministic and showcase-ready even when the
+        // local save file is fresh or stale. Unlocking through ProgressState only affects
+        // the transient capture run; it does not write to SaveManager.
+        ProgressState.Reset();
+        ProgressState.MarkStageCompleted(0);
+        ProgressState.MarkStageCompleted(1);
+        ProgressState.MarkStageCompleted(2);
+        ProgressState.PlayerLevel = 3;
+        ProgressState.PlayerXp = 40;
+        ProgressState.TotalGold = 480;
+        ProgressState.EnsureStarterEquipment();
+    }
+
     private IEnumerator CaptureSequence()
     {
         yield return new WaitForSeconds(1.5f);
@@ -127,7 +142,8 @@ public class ScreenshotCaptureJob : MonoBehaviour
             yield break;
         }
 
-        Debug.Log("[Capture] BattleManager found. Starting capture.");
+        PreparePortfolioCaptureProgress();
+        Debug.Log("[Capture] BattleManager found. Starting capture with showcase skill unlocks.");
 
         yield return Capture("01_battle_start.png");
         yield return new WaitForSeconds(1.0f);
@@ -135,6 +151,11 @@ public class ScreenshotCaptureJob : MonoBehaviour
         manager.OnClickFireSkillButton();
         yield return new WaitForSeconds(4.0f);
         yield return Capture("02_fire_skill_burn.png");
+        yield return new WaitForSeconds(0.5f);
+
+        manager.OnClickIceSkillButton();
+        yield return new WaitForSeconds(4.0f);
+        yield return Capture("03_ice_lance_stun.png");
         yield return new WaitForSeconds(0.5f);
 
         manager.OnClickGuardButton();

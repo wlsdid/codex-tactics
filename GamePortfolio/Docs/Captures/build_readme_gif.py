@@ -25,8 +25,9 @@ FRAMES = [
     ("00_title_scene.png", "Title -> Stage Select -> Battle vertical slice", 850),
     ("00_stage_select_scene.png", "Stage Select: modifier preview and start flow", 950),
     ("01_battle_start.png", "Battle start: tactical HUD, HP/AP bars, rosters", 950),
-    ("02_fire_skill_burn.png", "Fire Skill: projectile, impact, Burn feedback", 1100),
-    ("03_guard_status.png", "Guard: defensive status and enemy response", 1100),
+    ("02_fire_skill_burn.png", "Fire Skill: projectile, impact, Burn feedback", 1050),
+    ("03_ice_lance_stun.png", "Ice Lance: second skill beat and Stun feedback", 1050),
+    ("03_guard_status.png", "Guard: defensive status and enemy response", 1050),
     ("04_result_summary_rank.png", "Result: rank, reward, damage metrics", 1300),
     ("05_retry_reset.png", "Retry: loop resets cleanly for another run", 900),
 ]
