@@ -19,6 +19,22 @@ Recommended next tasks:
 2. Refresh `Docs/Captures`, rebuild contact sheet/GIF evidence, and visually QA the updated battle screen before marking it portfolio-ready.
 3. Continue art-only polish next: stronger skill impact VFX, reduced side-panel density, and deeper authored battlefield background.
 
+## Follow-up autonomous run — 2026-07-06 Battle Cinematic Density Pass
+
+Completed:
+- Added validation expectations for the new cinematic lighting layer and enlarged standee sizes.
+- Compressed the right-side reference skill cards so the central characters/background dominate screenshots more than side proof UI.
+- Added `Docs/Devlog/2026-07-06_battle-cinematic-density-pass.md`.
+
+Verification completed:
+- C# brace/parenthesis balance check: PASS.
+- `git diff --check`: PASS.
+- Unity regeneration/capture refresh remains blocked until Windows Unity license activation is restored.
+
+Recommended next tasks:
+1. After Unity activation: regenerate BattleScene, validate, run battle auto-test, and refresh captures.
+2. If still crowded in contact-sheet QA: further reduce side-panel density and enhance skill impact VFX.
+
 ## Previous autonomous run — 2026-06-09 Batch 99: UI Overlap Cleanup & Background UI Polish
 
 Completed:

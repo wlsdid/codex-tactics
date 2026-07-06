@@ -502,6 +502,10 @@ public static class BattleSceneAutoBuilder
         Image distantForestSilhouette = FindImage("Distant Forest Silhouette Panel");
         Image moonlightBeam = FindImage("Moonlight Beam Panel");
         Image foregroundFog = FindImage("Foreground Fog Panel");
+        Image heroCinematicSpotlight = FindImage("Hero Cinematic Spotlight");
+        Image enemyCinematicSpotlight = FindImage("Enemy Cinematic Spotlight");
+        Image centerClashGlow = FindImage("Center Clash Glow Panel");
+        Image floorSpecularHighlight = FindImage("Floor Specular Highlight Panel");
         Image heroBaseRing = FindImage("Hero Base Ring Panel");
         Image enemyBaseRing = FindImage("Enemy Base Ring Panel");
         Image heroStandeeShadow = FindImage("Hero Standee Shadow");
@@ -519,6 +523,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield has layered forest silhouette", IsDecorativePanelLikelyConfigured(distantForestSilhouette, 680f, 70f));
         AppendCheck(ref passed, ref report, "Battlefield has moonlight beam depth", IsReadableContrastAccent(moonlightBeam, 0.06f, 0.12f));
         AppendCheck(ref passed, ref report, "Battlefield has foreground fog layer", IsReadableContrastAccent(foregroundFog, 0.18f, 0.24f));
+        AppendCheck(ref passed, ref report, "Battlefield has cinematic character spotlights", IsReadableContrastAccent(heroCinematicSpotlight, 0.08f, 0.14f) && IsReadableContrastAccent(enemyCinematicSpotlight, 0.08f, 0.14f));
+        AppendCheck(ref passed, ref report, "Battlefield has restrained clash and floor highlights", IsReadableContrastAccent(centerClashGlow, 0.08f, 0.14f) && IsReadableContrastAccent(floorSpecularHighlight, 0.10f, 0.14f));
         AppendCheck(ref passed, ref report, "Battlefield unit base rings align to landing tiles", IsDecorativePanelLikelyConfigured(heroBaseRing, 100f, 16f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 112f, 18f));
         AppendCheck(ref passed, ref report, "Battlefield contrast polish keeps rings readable but not debug-bright", IsReadableContrastAccent(heroBaseRing, 0.38f, 0.48f) && IsReadableContrastAccent(enemyBaseRing, 0.38f, 0.48f));
         AppendCheck(ref passed, ref report, "Battlefield standee grounding shadows are readable", IsReadableContrastAccent(heroStandeeShadow, 0.40f, 0.50f) && IsReadableContrastAccent(enemyStandeeShadow, 0.42f, 0.52f));
@@ -528,8 +534,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Tactical grid tile exists", IsDecorativePanelLikelyConfigured(tacticalGridTile, 76f, 36f));
         AppendCheck(ref passed, ref report, "Tactical grid tile contrast is readable but restrained", IsReadableContrastAccent(tacticalGridTile, 0.66f, 0.78f));
         AppendCheck(ref passed, ref report, "Skill action arc exists", IsReadableContrastAccent(skillActionArc, 0.08f, 0.14f));
-        AppendCheck(ref passed, ref report, "Hero scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(heroStandeeBody, 116f, 154f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 4f, 38f));
-        AppendCheck(ref passed, ref report, "Enemy scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(enemyStandeeBody, 132f, 156f) && IsReadableContrastAccent(enemyStandeeCrown, 0.24f, 0.32f));
+        AppendCheck(ref passed, ref report, "Hero scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(heroStandeeBody, 148f, 188f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 5f, 52f));
+        AppendCheck(ref passed, ref report, "Enemy scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(enemyStandeeBody, 164f, 194f) && IsReadableContrastAccent(enemyStandeeCrown, 0.24f, 0.32f));
         AppendCheck(ref passed, ref report, "StageData enemy visual variants use extracted reference sprites", StageData.CreateStage1Normal().enemy.visualVariant == EnemyVisualVariant.Goblin && StageData.CreateStage1Boss().enemy.visualVariant == EnemyVisualVariant.Skeleton && StageData.CreateStage3Normal().enemy.visualVariant == EnemyVisualVariant.Golem && StageData.CreateStage5Normal().enemy.visualVariant == EnemyVisualVariant.Lich);
         AppendCheck(ref passed, ref report, "Battle portraits have idle bob and hit reaction motion", HasBattleSpriteMotion(playerSpriteImage) && HasBattleSpriteMotion(enemySpriteImage));
         AppendCheck(ref passed, ref report, "Battlefield standees have idle bob motion", HasBattleSpriteMotion(heroStandeeBody) && HasBattleSpriteMotion(enemyStandeeBody));
@@ -600,7 +606,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Bottom command strip has visible select-unit hint", IsCommandHintTextLikelyConfigured(commandHintText));
         AppendCheck(ref passed, ref report, "Reference-style skill detail card exists", IsDecorativePanelLikelyConfigured(referenceSkillDetailPanel, 140f, 62f) && IsNameplateTextLikelyConfigured(referenceSkillDetailText, "SKILL", "AP2"));
         AppendCheck(ref passed, ref report, "Reference-style enemy intent card exists", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 136f, 38f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
-        AppendCheck(ref passed, ref report, "Progress-reference right skill cards exist", IsDecorativePanelLikelyConfigured(progressSkillCard1, 190f, 74f));
+        AppendCheck(ref passed, ref report, "Progress-reference right skill cards exist", IsDecorativePanelLikelyConfigured(progressSkillCard1, 180f, 64f));
         AppendCheck(ref passed, ref report, "Bottom right duplicate battle-start CTA removed", FindImage("Progress Battle Start Panel") == null && FindText("Progress Battle Start Text") == null);
         AppendCheck(ref passed, ref report, "Progress-reference bottom turn dial exists", IsDecorativePanelLikelyConfigured(progressTurnDial, 80f, 80f));
         AppendCheck(ref passed, ref report, "Progress-reference bottom portrait strip exists", IsSpriteImageLikelyConfigured(progressBottomPortrait1, 54f, 54f));
@@ -1508,17 +1514,17 @@ public static class BattleSceneAutoBuilder
 
         for (int i = 0; i < names.Length; i++)
         {
-            float y = 174 - i * 108;
-            Image card = CreatePanel(parent, $"Progress Skill Card {i + 1}", new Vector2(566, y), new Vector2(198, 78), new Color(0.010f, 0.010f, 0.016f, 0.50f));
+            float y = 178 - i * 96;
+            Image card = CreatePanel(parent, $"Progress Skill Card {i + 1}", new Vector2(566, y), new Vector2(186, 68), new Color(0.010f, 0.010f, 0.016f, 0.42f));
             string iconPath = i == 0 ? "Assets/Art/Generated/skill_revenge_icon.png" : i == 1 ? "Assets/Art/Generated/skill_shield_icon.png" : "Assets/Art/Generated/skill_holy_icon.png";
-            Image iconGlow = CreatePanel(parent, $"Progress Skill Icon Glow {i + 1}", new Vector2(492, y), new Vector2(66, 66), new Color(1.0f, 0.82f, 0.36f, 0.13f));
-            Image icon = CreateSpritePanel(parent, $"Progress Skill Icon {i + 1}", iconPath, new Vector2(492, y), new Vector2(58, 58));
-            TMP_Text title = CreateText(parent, $"Progress Skill Title {i + 1}", names[i], new Vector2(574, y + 16), new Vector2(108, 24), TextAlignmentOptions.Left);
-            title.fontSize = 14;
+            Image iconGlow = CreatePanel(parent, $"Progress Skill Icon Glow {i + 1}", new Vector2(496, y), new Vector2(56, 56), new Color(1.0f, 0.82f, 0.36f, 0.11f));
+            Image icon = CreateSpritePanel(parent, $"Progress Skill Icon {i + 1}", iconPath, new Vector2(496, y), new Vector2(48, 48));
+            TMP_Text title = CreateText(parent, $"Progress Skill Title {i + 1}", names[i], new Vector2(574, y + 13), new Vector2(102, 22), TextAlignmentOptions.Left);
+            title.fontSize = 12;
             title.fontStyle = FontStyles.Bold;
             title.color = new Color(0.92f, 0.86f, 0.70f);
-            TMP_Text body = CreateText(parent, $"Progress Skill Body {i + 1}", desc[i], new Vector2(574, y - 15), new Vector2(108, 32), TextAlignmentOptions.Left);
-            body.fontSize = 9;
+            TMP_Text body = CreateText(parent, $"Progress Skill Body {i + 1}", desc[i], new Vector2(574, y - 13), new Vector2(102, 28), TextAlignmentOptions.Left);
+            body.fontSize = 8;
             body.color = new Color(0.76f, 0.74f, 0.68f);
             card.raycastTarget = false;
             icon.raycastTarget = false;
