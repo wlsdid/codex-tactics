@@ -164,6 +164,8 @@ public static class BattleAutoTestRunner
         battleManager.DebugResolveEnemyAttackForTest();
         battleManager.DebugResolveEnemyAttackForTest();
         AppendCheck(ref passed, ref report, "Enemy intent previews strong attack before every 3rd enemy turn", battleManager.DebugEnemyIntentText == "Next Enemy: [Fire] Heavy Slam (30)");
+        battleManager.OnClickPlayerUnit();
+        AppendCheck(ref passed, ref report, "Strong-attack command window prioritizes Guard before offense", battleUI.DebugCommandPreviewText.Contains("Recommended: Guard first") && battleUI.DebugCommandPreviewText.Contains("Heavy Slam is incoming") && battleUI.DebugCommandPreviewText.Contains("Enemy next: Heavy Slam 30 dmg -> Guard 15"));
         battleManager.DebugResolveEnemyAttackForTest();
         AppendCheck(ref passed, ref report, "Slime uses a strong attack on every 3rd enemy turn", battleManager.DebugPlayerHpText == "Hero HP: 40/100 (40%)");
         AppendCheck(ref passed, ref report, "Player HP bar follows repeated enemy damage", battleManager.DebugPlayerHpBarValue == 40f);
