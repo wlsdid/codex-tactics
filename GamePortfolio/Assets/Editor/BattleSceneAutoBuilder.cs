@@ -424,6 +424,9 @@ public static class BattleSceneAutoBuilder
         Button itemButton = FindButtonIncludingInactive("Item Button");
         Button battleLogToggleButton = FindButtonIncludingInactive("Battle Log Toggle Button");
         Button playerSelectButton = FindButtonIncludingInactive("Player Select Button");
+        Image attackButtonGoldEdge = FindImageIncludingInactive("Attack Button Gold Edge");
+        Image fireButtonTopHighlight = FindImageIncludingInactive("Fire Skill Button Top Highlight");
+        Image continueButtonGoldEdge = FindImageIncludingInactive("Continue Button Gold Edge");
         Image actionCommandPanel = FindImageIncludingInactive("Action Command Panel");
         Image playerSelectionHighlight = FindImageIncludingInactive("Player Selection Highlight");
         TMP_Text selectedUnitText = FindTextIncludingInactive("Selected Unit Text");
@@ -639,6 +642,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Item button exists", itemButton != null);
         AppendCheck(ref passed, ref report, "Battle Log toggle button exists", battleLogToggleButton != null);
         AppendCheck(ref passed, ref report, "Battle Log toggle button is configured", IsButtonLikelyConfigured(battleLogToggleButton));
+        AppendCheck(ref passed, ref report, "Command/result buttons have premium bevel material", IsDecorativePanelLikelyConfigured(attackButtonGoldEdge, 58f, 2f) && IsDecorativePanelLikelyConfigured(fireButtonTopHighlight, 54f, 2f) && IsDecorativePanelLikelyConfigured(continueButtonGoldEdge, 118f, 2f));
         AppendCheck(ref passed, ref report, "Player HP text includes percentage", IsResourceTextLikelyConfigured(playerHpText, "Hero HP", "100%"));
         AppendCheck(ref passed, ref report, "Player AP text includes percentage", IsResourceTextLikelyConfigured(playerApText, "AP", "100%"));
         AppendCheck(ref passed, ref report, "Enemy HP text includes percentage", IsResourceTextLikelyConfigured(enemyHpText, "Slime HP", "100%"));
@@ -1771,6 +1775,13 @@ public static class BattleSceneAutoBuilder
         Image image = buttonObject.AddComponent<Image>();
         image.color = new Color(0.075f, 0.082f, 0.120f, 0.96f);
 
+        Image topHighlight = CreatePanel(buttonObject.transform, name + " Top Highlight", new Vector2(0, size.y * 0.34f), new Vector2(Mathf.Max(8f, size.x - 16f), 2f), new Color(1.0f, 0.84f, 0.48f, 0.42f));
+        Image bottomShade = CreatePanel(buttonObject.transform, name + " Bottom Shade", new Vector2(0, -size.y * 0.34f), new Vector2(Mathf.Max(8f, size.x - 14f), 3f), new Color(0.0f, 0.0f, 0.0f, 0.34f));
+        Image goldEdge = CreatePanel(buttonObject.transform, name + " Gold Edge", new Vector2(0, 0), new Vector2(Mathf.Max(8f, size.x - 10f), 2f), new Color(0.92f, 0.66f, 0.28f, 0.32f));
+        topHighlight.raycastTarget = false;
+        bottomShade.raycastTarget = false;
+        goldEdge.raycastTarget = false;
+
         Button button = buttonObject.AddComponent<Button>();
         ColorBlock colors = button.colors;
         colors.normalColor = new Color(0.075f, 0.082f, 0.120f, 0.96f);
@@ -1782,6 +1793,8 @@ public static class BattleSceneAutoBuilder
 
         TMP_Text label = CreateText(buttonObject.transform, "Label", labelText, Vector2.zero, size, TextAlignmentOptions.Center);
         label.fontSize = size.y <= 32f ? 16 : 20;
+        label.fontStyle = FontStyles.Bold;
+        label.color = new Color(0.96f, 0.90f, 0.72f);
         label.enableWordWrapping = false;
         label.overflowMode = TextOverflowModes.Ellipsis;
         label.raycastTarget = false;

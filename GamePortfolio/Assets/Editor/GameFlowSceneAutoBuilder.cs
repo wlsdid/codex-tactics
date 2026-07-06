@@ -265,6 +265,8 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "StageSelect chapter label exists", HasSceneObject("Stage Select Chapter Label Text"));
             AppendCheck(ref passed, ref report, "StageSelect has premium map preview rail", HasSceneObject("Stage Select Map Preview Panel") && HasSceneObject("Stage Select Route Line Panel"));
             AppendCheck(ref passed, ref report, "StageSelect has reward chip row", HasSceneObject("Stage Select Reward Gold Chip") && HasSceneObject("Stage Select Reward XP Chip"));
+            AppendCheck(ref passed, ref report, "StageSelect primary buttons have premium bevel material", HasSceneObject("Start Battle Button Top Highlight") && HasSceneObject("Start Battle Button Gold Edge"));
+            AppendCheck(ref passed, ref report, "StageSelect cards have premium bevel material", HasSceneObject("Stage Card 1 Top Highlight") && HasSceneObject("Stage Card 1 Gold Edge"));
             AppendCheck(ref passed, ref report, "StageSelect cards have thumbnail art frames", HasSceneObject("Stage 1 Thumbnail Frame Panel") && HasSceneObject("Stage 1 Thumbnail Sky Panel"));
             AppendCheck(ref passed, ref report, "StageSelect locked cards have dimmed thumbnail treatment", HasSceneObject("Stage 2 Thumbnail Lock Veil Panel"));
             StageSelectController controller = Object.FindObjectOfType<StageSelectController>();
@@ -551,7 +553,14 @@ public static class GameFlowSceneAutoBuilder
         rt.sizeDelta = size;
 
         Image img = obj.GetComponent<Image>();
-        img.color = new Color(0.15f, 0.15f, 0.25f, 0.95f);
+        img.color = new Color(0.075f, 0.082f, 0.120f, 0.96f);
+
+        Image topHighlight = CreatePanel(obj.transform, name + " Top Highlight", new Vector2(0, size.y * 0.34f), new Vector2(Mathf.Max(8f, size.x - 18f), 3f), new Color(1.0f, 0.84f, 0.48f, 0.42f));
+        Image bottomShade = CreatePanel(obj.transform, name + " Bottom Shade", new Vector2(0, -size.y * 0.34f), new Vector2(Mathf.Max(8f, size.x - 16f), 4f), new Color(0.0f, 0.0f, 0.0f, 0.36f));
+        Image goldEdge = CreatePanel(obj.transform, name + " Gold Edge", new Vector2(0, 0), new Vector2(Mathf.Max(8f, size.x - 12f), 2f), new Color(0.92f, 0.66f, 0.28f, 0.34f));
+        topHighlight.raycastTarget = false;
+        bottomShade.raycastTarget = false;
+        goldEdge.raycastTarget = false;
 
         // Button text as child
         GameObject textObj = new GameObject("Button Text", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -562,12 +571,19 @@ public static class GameFlowSceneAutoBuilder
         textRt.sizeDelta = Vector2.zero;
         TMP_Text buttonText = textObj.GetComponent<TextMeshProUGUI>();
         buttonText.text = label;
-        buttonText.fontSize = 28;
-        buttonText.color = new Color(0.92f, 0.88f, 0.82f);
+        buttonText.fontSize = size.y <= 56f ? 20 : 24;
+        buttonText.fontStyle = FontStyles.Bold;
+        buttonText.color = new Color(0.96f, 0.90f, 0.72f);
         buttonText.alignment = TextAlignmentOptions.Center;
 
         Button btn = obj.GetComponent<Button>();
         btn.targetGraphic = img;
+        ColorBlock cb = btn.colors;
+        cb.normalColor = new Color(0.075f, 0.082f, 0.120f, 0.96f);
+        cb.highlightedColor = new Color(0.20f, 0.16f, 0.09f, 0.98f);
+        cb.pressedColor = new Color(0.045f, 0.050f, 0.080f, 1.0f);
+        cb.disabledColor = new Color(0.06f, 0.07f, 0.10f, 0.45f);
+        btn.colors = cb;
         return btn;
     }
 
@@ -584,6 +600,13 @@ public static class GameFlowSceneAutoBuilder
 
         Image img = obj.GetComponent<Image>();
         img.color = bgColor;
+
+        Image topHighlight = CreatePanel(obj.transform, name + " Top Highlight", new Vector2(0, size.y * 0.40f), new Vector2(Mathf.Max(8f, size.x - 20f), 3f), new Color(1.0f, 0.82f, 0.42f, 0.34f));
+        Image bottomShade = CreatePanel(obj.transform, name + " Bottom Shade", new Vector2(0, -size.y * 0.40f), new Vector2(Mathf.Max(8f, size.x - 18f), 4f), new Color(0.0f, 0.0f, 0.0f, 0.32f));
+        Image goldEdge = CreatePanel(obj.transform, name + " Gold Edge", new Vector2(0, 0), new Vector2(Mathf.Max(8f, size.x - 14f), 2f), new Color(0.92f, 0.66f, 0.28f, 0.24f));
+        topHighlight.raycastTarget = false;
+        bottomShade.raycastTarget = false;
+        goldEdge.raycastTarget = false;
 
         Button btn = obj.GetComponent<Button>();
         btn.targetGraphic = img;

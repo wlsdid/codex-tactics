@@ -1,6 +1,25 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-07-06 Visual Upgrade Only Pass
+## Latest autonomous run — 2026-07-06 Premium Button Material Pass
+
+Completed:
+- Continued visual-only polish instead of adding new mechanics.
+- Upgraded generated Battle buttons with top highlight, bottom shade, subtle gold edge, and bold warm-gold labels.
+- Applied the same premium bevel/material language to Game Flow buttons.
+- Added bevel/highlight material to Stage Select stage cards.
+- Added Battle/Game Flow validator expectations for the new button/card material objects.
+- Added `Docs/Devlog/2026-07-06_premium-button-material-pass.md`.
+
+Verification completed:
+- C# brace/parenthesis balance check: PASS.
+- `git diff --check`: PASS.
+- Unity regeneration/capture QA remains pending if Windows Unity license is still inactive.
+
+Recommended next tasks:
+1. Continue visual-only polish: authored icon frames, panel material gradients, and reduced side-column density.
+2. Once Unity license is active, regenerate scenes and contact sheet before judging commercial quality.
+
+## Previous autonomous run — 2026-07-06 Visual Upgrade Only Pass
 
 Completed:
 - Treated the current bottleneck as visual/commercial polish rather than mechanics.
