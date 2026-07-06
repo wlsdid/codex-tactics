@@ -39,6 +39,7 @@ public static class BattleSceneAutoBuilder
         CreateBattlefieldDepthLayers(canvas.transform);
         CreateCinematicBattlefieldLighting(canvas.transform);
         CreateFieldVignette(canvas.transform);
+        CreateCommercialBattlefieldComposition(canvas.transform);
         CreateTacticalGrid(canvas.transform);
         CreateBattlefieldUnitStandees(canvas.transform);
 
@@ -515,11 +516,21 @@ public static class BattleSceneAutoBuilder
         Image progressSkillCard1 = FindImage("Progress Skill Card 1");
         Image progressTurnDial = FindImage("Progress Turn Dial");
         Image progressBottomPortrait1 = FindImage("Progress Bottom Portrait Sprite 1");
+        Image battleLetterboxTop = FindImage("Battle Letterbox Top Panel");
+        Image battleLetterboxBottom = FindImage("Battle Letterbox Bottom Panel");
+        Image battlefieldInnerFrame = FindImage("Battlefield Inner Gold Frame Panel");
+        Image heroLandingTile = FindImage("Hero Premium Landing Tile Panel");
+        Image enemyLandingTile = FindImage("Enemy Premium Landing Tile Panel");
+        Image fieldDepthBloom = FindImage("Field Depth Bloom Panel");
 
         AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
         AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 1100f, 560f));
         AppendCheck(ref passed, ref report, "Battle stage floor glow exists", battleStageFloorPanel != null);
         AppendCheck(ref passed, ref report, "Battle stage floor glow is readable", IsDecorativePanelLikelyConfigured(battleStageFloorPanel, 820f, 220f));
+        AppendCheck(ref passed, ref report, "Battle screen has cinematic letterbox framing", IsDecorativePanelLikelyConfigured(battleLetterboxTop, 1180f, 28f) && IsDecorativePanelLikelyConfigured(battleLetterboxBottom, 1180f, 28f));
+        AppendCheck(ref passed, ref report, "Battlefield has premium inner gold frame", IsReadableContrastAccent(battlefieldInnerFrame, 0.24f, 0.34f));
+        AppendCheck(ref passed, ref report, "Premium landing tiles are visible but restrained", IsReadableContrastAccent(heroLandingTile, 0.18f, 0.28f) && IsReadableContrastAccent(enemyLandingTile, 0.18f, 0.28f));
+        AppendCheck(ref passed, ref report, "Field depth bloom adds commercial lighting layer", IsReadableContrastAccent(fieldDepthBloom, 0.08f, 0.16f));
         AppendCheck(ref passed, ref report, "Battlefield has layered forest silhouette", IsDecorativePanelLikelyConfigured(distantForestSilhouette, 680f, 70f));
         AppendCheck(ref passed, ref report, "Battlefield has moonlight beam depth", IsReadableContrastAccent(moonlightBeam, 0.06f, 0.12f));
         AppendCheck(ref passed, ref report, "Battlefield has foreground fog layer", IsReadableContrastAccent(foregroundFog, 0.18f, 0.24f));
@@ -1375,6 +1386,28 @@ public static class BattleSceneAutoBuilder
         enemyLandingTile.raycastTarget = false;
         actionArc.raycastTarget = false;
         actionArc.rectTransform.localRotation = Quaternion.Euler(0, 0, -12f);
+    }
+
+    private static void CreateCommercialBattlefieldComposition(Transform parent)
+    {
+        Image topLetterbox = CreatePanel(parent, "Battle Letterbox Top Panel", new Vector2(0, 292), new Vector2(1220, 34), new Color(0.0f, 0.0f, 0.0f, 0.34f));
+        Image bottomLetterbox = CreatePanel(parent, "Battle Letterbox Bottom Panel", new Vector2(0, -252), new Vector2(1220, 34), new Color(0.0f, 0.0f, 0.0f, 0.38f));
+        Image innerFrame = CreatePanel(parent, "Battlefield Inner Gold Frame Panel", new Vector2(0, -22), new Vector2(840, 3), new Color(1.0f, 0.78f, 0.38f, 0.28f));
+        Image bloom = CreatePanel(parent, "Field Depth Bloom Panel", new Vector2(8, -54), new Vector2(430, 118), new Color(0.36f, 0.62f, 0.86f, 0.12f));
+        Image heroTile = CreatePanel(parent, "Hero Premium Landing Tile Panel", new Vector2(-206, -104), new Vector2(166, 42), new Color(0.30f, 0.74f, 1.0f, 0.22f));
+        Image enemyTile = CreatePanel(parent, "Enemy Premium Landing Tile Panel", new Vector2(230, -102), new Vector2(178, 44), new Color(1.0f, 0.36f, 0.72f, 0.22f));
+        Image centerRule = CreatePanel(parent, "Center Field Composition Rule Panel", new Vector2(12, -102), new Vector2(238, 2), new Color(0.92f, 0.72f, 0.36f, 0.18f));
+
+        topLetterbox.raycastTarget = false;
+        bottomLetterbox.raycastTarget = false;
+        innerFrame.raycastTarget = false;
+        bloom.raycastTarget = false;
+        heroTile.raycastTarget = false;
+        enemyTile.raycastTarget = false;
+        centerRule.raycastTarget = false;
+        bloom.rectTransform.localRotation = Quaternion.Euler(0, 0, -4f);
+        heroTile.rectTransform.localRotation = Quaternion.Euler(0, 0, -4f);
+        enemyTile.rectTransform.localRotation = Quaternion.Euler(0, 0, 4f);
     }
 
     private static void CreateFieldVignette(Transform parent)

@@ -1,6 +1,25 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-07-06 Battle Commercial Readability Pass
+## Latest autonomous run — 2026-07-06 Visual Upgrade Only Pass
+
+Completed:
+- Treated the current bottleneck as visual/commercial polish rather than mechanics.
+- Added a battle composition layer: cinematic letterbox panels, restrained inner gold frame, field bloom, angled landing tiles, and center composition rule.
+- Added Stage Select commercial preview elements: route/map panel, Gold/XP reward chips, and field modifier chip.
+- Added validator coverage for the new battle and Stage Select visual objects.
+- Added `Docs/Devlog/2026-07-06_visual-upgrade-only-pass.md`.
+
+Verification completed:
+- C# brace/parenthesis balance check: PASS.
+- `git diff --check`: PASS.
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: BLOCKED by Windows Unity license activation (`No valid Unity Editor license found`, return code 198). Scene regeneration, validators, capture refresh, and true visual QA remain pending.
+
+Recommended next tasks:
+1. Continue visual-only polish until captures stop reading like a Unity test UI.
+2. If Unity remains license-blocked, keep changes source-only and explicitly report capture refresh as pending.
+3. Next art target: replace more flat panels with authored UI material/icon treatments.
+
+## Previous autonomous run — 2026-07-06 Battle Commercial Readability Pass
 
 Completed:
 - Switched the BattleScene builder from proof/debug-looking header copy toward in-game stage/encounter language.

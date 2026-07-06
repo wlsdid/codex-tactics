@@ -81,6 +81,7 @@ public static class GameFlowSceneAutoBuilder
         bgPanel.raycastTarget = false;
 
         CreateStageSelectShowcaseFrame(canvas.transform);
+        CreateStageSelectPremiumPreview(canvas.transform);
 
         TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 305), new Vector2(600, 54), TextAlignmentOptions.Center);
         headerText.fontSize = 36;
@@ -262,6 +263,8 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "StageSelect gold dividers exist", HasSceneObject("Stage Select Top Gold Divider Panel") && HasSceneObject("Stage Select Bottom Gold Divider Panel"));
             AppendCheck(ref passed, ref report, "StageSelect description divider exists", HasSceneObject("Description Gold Divider Panel"));
             AppendCheck(ref passed, ref report, "StageSelect chapter label exists", HasSceneObject("Stage Select Chapter Label Text"));
+            AppendCheck(ref passed, ref report, "StageSelect has premium map preview rail", HasSceneObject("Stage Select Map Preview Panel") && HasSceneObject("Stage Select Route Line Panel"));
+            AppendCheck(ref passed, ref report, "StageSelect has reward chip row", HasSceneObject("Stage Select Reward Gold Chip") && HasSceneObject("Stage Select Reward XP Chip"));
             AppendCheck(ref passed, ref report, "StageSelect cards have thumbnail art frames", HasSceneObject("Stage 1 Thumbnail Frame Panel") && HasSceneObject("Stage 1 Thumbnail Sky Panel"));
             AppendCheck(ref passed, ref report, "StageSelect locked cards have dimmed thumbnail treatment", HasSceneObject("Stage 2 Thumbnail Lock Veil Panel"));
             StageSelectController controller = Object.FindObjectOfType<StageSelectController>();
@@ -483,6 +486,39 @@ public static class GameFlowSceneAutoBuilder
         chapterText.fontSize = 16;
         chapterText.color = new Color(0.70f, 0.82f, 1.0f, 0.92f);
         chapterText.raycastTarget = false;
+    }
+
+    private static void CreateStageSelectPremiumPreview(Transform parent)
+    {
+        Image mapPanel = CreatePanel(parent, "Stage Select Map Preview Panel", new Vector2(-430, -196), new Vector2(230, 118), new Color(0.014f, 0.020f, 0.034f, 0.86f));
+        Image mapSky = CreatePanel(parent, "Stage Select Map Sky Glow Panel", new Vector2(-430, -178), new Vector2(202, 62), new Color(0.12f, 0.22f, 0.38f, 0.48f));
+        Image routeLine = CreatePanel(parent, "Stage Select Route Line Panel", new Vector2(-430, -216), new Vector2(170, 3), new Color(0.95f, 0.72f, 0.36f, 0.74f));
+        TMP_Text mapTitle = CreateText(parent, "Stage Select Map Preview Label Text", "SCOUT ROUTE", new Vector2(-430, -147), new Vector2(198, 20), TextAlignmentOptions.Center);
+        mapTitle.fontSize = 12;
+        mapTitle.fontStyle = FontStyles.Bold;
+        mapTitle.color = new Color(0.90f, 0.84f, 0.58f);
+
+        Image goldChip = CreatePanel(parent, "Stage Select Reward Gold Chip", new Vector2(330, -154), new Vector2(150, 30), new Color(0.18f, 0.12f, 0.05f, 0.88f));
+        TMP_Text goldText = CreateText(parent, "Stage Select Reward Gold Text", "GOLD 100-150", new Vector2(330, -154), new Vector2(136, 22), TextAlignmentOptions.Center);
+        goldText.fontSize = 12;
+        goldText.color = new Color(1.0f, 0.82f, 0.42f);
+
+        Image xpChip = CreatePanel(parent, "Stage Select Reward XP Chip", new Vector2(330, -190), new Vector2(150, 30), new Color(0.05f, 0.12f, 0.20f, 0.88f));
+        TMP_Text xpText = CreateText(parent, "Stage Select Reward XP Text", "XP 80", new Vector2(330, -190), new Vector2(136, 22), TextAlignmentOptions.Center);
+        xpText.fontSize = 12;
+        xpText.color = new Color(0.72f, 0.90f, 1.0f);
+
+        Image modifierChip = CreatePanel(parent, "Stage Select Modifier Chip", new Vector2(330, -226), new Vector2(150, 30), new Color(0.10f, 0.07f, 0.16f, 0.88f));
+        TMP_Text modifierText = CreateText(parent, "Stage Select Modifier Text", "FIELD: TUTORIAL", new Vector2(330, -226), new Vector2(136, 22), TextAlignmentOptions.Center);
+        modifierText.fontSize = 11;
+        modifierText.color = new Color(0.86f, 0.78f, 1.0f);
+
+        mapPanel.raycastTarget = false;
+        mapSky.raycastTarget = false;
+        routeLine.raycastTarget = false;
+        goldChip.raycastTarget = false;
+        xpChip.raycastTarget = false;
+        modifierChip.raycastTarget = false;
     }
 
     private static TMP_Text CreateText(Transform parent, string name, string content, Vector2 position, Vector2 size, TextAlignmentOptions alignment)
