@@ -51,6 +51,7 @@ public static class BattleSceneAutoBuilder
         Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -318), new Vector2(1220, 96), new Color(0.010f, 0.012f, 0.018f, 0.88f));
         Image partyRosterPanel = CreatePanel(canvas.transform, "Party Roster Panel", new Vector2(-508, 28), new Vector2(296, 386), new Color(0.006f, 0.008f, 0.014f, 0.48f));
         partyRosterPanel.raycastTarget = false;
+        CreateProfessionalPanelMaterialOverlays(canvas.transform);
         CreateProfessionalTopHudAccents(canvas.transform);
         CreatePartyRosterSlots(canvas.transform);
         CreateProgressReferenceSkillCards(canvas.transform);
@@ -78,23 +79,38 @@ public static class BattleSceneAutoBuilder
         titleText.fontSize = 19;
         titleText.fontStyle = FontStyles.Bold;
 
-        TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "Moonlit Ruins / Encounter 1", new Vector2(-35, 338), new Vector2(330, 20), TextAlignmentOptions.Left);
-        runStatusText.fontSize = 11;
-        runStatusText.color = new Color(0.76f, 1.0f, 0.82f);
+        Image runStatusChip = CreatePanel(canvas.transform, "Run Status Chip Panel", new Vector2(-35, 338), new Vector2(352, 22), new Color(0.006f, 0.018f, 0.026f, 0.34f));
+        Image runStatusChipEdge = CreatePanel(canvas.transform, "Run Status Chip Gold Edge", new Vector2(-205, 338), new Vector2(3, 18), new Color(0.86f, 0.74f, 0.42f, 0.42f));
+        runStatusChip.raycastTarget = false;
+        runStatusChipEdge.raycastTarget = false;
+        TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "Break flank route", new Vector2(-26, 338), new Vector2(320, 18), TextAlignmentOptions.Left);
+        runStatusText.fontSize = 10;
+        runStatusText.color = new Color(0.76f, 1.0f, 0.82f, 0.92f);
 
-        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Select an ally, spend AP, break enemy guard.", new Vector2(-35, 316), new Vector2(330, 18), TextAlignmentOptions.Left);
-        battleGuideText.fontSize = 10;
-        battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
+        Image battleGuideChip = CreatePanel(canvas.transform, "Battle Guide Chip Panel", new Vector2(-35, 315), new Vector2(352, 18), new Color(0.010f, 0.018f, 0.032f, 0.22f));
+        battleGuideChip.raycastTarget = false;
+        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Push +25% HP break", new Vector2(-26, 315), new Vector2(320, 16), TextAlignmentOptions.Left);
+        battleGuideText.fontSize = 8;
+        battleGuideText.color = new Color(0.90f, 0.95f, 1.0f, 0.72f);
 
-        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "ENCOUNTER 1", new Vector2(-210, 252), new Vector2(220, 24), TextAlignmentOptions.Center);
-        stageText.fontSize = 15;
+        Image stageChip = CreatePanel(canvas.transform, "Stage Chip Panel", new Vector2(-210, 252), new Vector2(230, 28), new Color(0.032f, 0.026f, 0.014f, 0.40f));
+        Image stageChipEdge = CreatePanel(canvas.transform, "Stage Chip Top Edge", new Vector2(-210, 266), new Vector2(204, 2), new Color(1.0f, 0.78f, 0.38f, 0.36f));
+        stageChip.raycastTarget = false;
+        stageChipEdge.raycastTarget = false;
+        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "BATTLE PREP", new Vector2(-210, 252), new Vector2(220, 24), TextAlignmentOptions.Center);
+        stageText.fontSize = 14;
+        stageText.fontStyle = FontStyles.Bold;
         stageText.color = new Color(0.92f, 0.86f, 0.55f);
-        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Break guard, then finish", new Vector2(55, 252), new Vector2(220, 18), TextAlignmentOptions.Left);
-        stageObjectiveText.fontSize = 10;
-        stageObjectiveText.color = new Color(1.0f, 0.94f, 0.72f);
-        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Progress: 1/2 | Active", new Vector2(300, 228), new Vector2(220, 18), TextAlignmentOptions.Right);
-        stageProgressText.fontSize = 9;
-        stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
+        Image objectiveChip = CreatePanel(canvas.transform, "Objective Chip Panel", new Vector2(55, 252), new Vector2(230, 20), new Color(0.026f, 0.028f, 0.040f, 0.30f));
+        objectiveChip.raycastTarget = false;
+        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Grid intent", new Vector2(55, 252), new Vector2(220, 18), TextAlignmentOptions.Left);
+        stageObjectiveText.fontSize = 9;
+        stageObjectiveText.color = new Color(1.0f, 0.94f, 0.72f, 0.82f);
+        Image stageProgressChip = CreatePanel(canvas.transform, "Stage Progress Chip Panel", new Vector2(300, 228), new Vector2(230, 18), new Color(0.018f, 0.026f, 0.040f, 0.26f));
+        stageProgressChip.raycastTarget = false;
+        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Cost Chain", new Vector2(300, 228), new Vector2(220, 18), TextAlignmentOptions.Right);
+        stageProgressText.fontSize = 8;
+        stageProgressText.color = new Color(0.72f, 0.90f, 1.0f, 0.76f);
 
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-330, -560), new Vector2(170, 20), TextAlignmentOptions.Left);
         playerHpText.fontSize = 10;
@@ -527,6 +543,11 @@ public static class BattleSceneAutoBuilder
         Image heroLandingTile = FindImage("Hero Premium Landing Tile Panel");
         Image enemyLandingTile = FindImage("Enemy Premium Landing Tile Panel");
         Image fieldDepthBloom = FindImage("Field Depth Bloom Panel");
+        Image topStatusPanelTopGloss = FindImage("Top Status Panel Top Gloss");
+        Image playerCardPanelLeftRim = FindImage("Player Card Panel Left Rim");
+        Image commandBarPanelTopShade = FindImage("Command Bar Panel Top Shade");
+        Image runStatusChip = FindImage("Run Status Chip Panel");
+        Image stageChip = FindImage("Stage Chip Panel");
 
         AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
         AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 1100f, 560f));
@@ -575,6 +596,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Enemy portrait pixel accents exist", IsPortraitAccentLikelyConfigured(enemyPortraitPixelAccent1) && IsPortraitAccentLikelyConfigured(enemyPortraitPixelAccent4));
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
         AppendCheck(ref passed, ref report, "Top Status panel has compact premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 50f));
+        AppendCheck(ref passed, ref report, "Panel material overlays add subtle gloss/rim hierarchy", IsReadableContrastAccent(topStatusPanelTopGloss, 0.18f, 0.30f) && IsReadableContrastAccent(playerCardPanelLeftRim, 0.28f, 0.40f) && IsReadableContrastAccent(commandBarPanelTopShade, 0.22f, 0.34f));
+        AppendCheck(ref passed, ref report, "Top runtime labels are framed as compact HUD chips", IsReadableContrastAccent(runStatusChip, 0.30f, 0.40f) && IsReadableContrastAccent(stageChip, 0.36f, 0.46f));
         AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
         AppendCheck(ref passed, ref report, "Player Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 280f, 420f));
         AppendCheck(ref passed, ref report, "Enemy Card panel exists", enemyCardPanel != null);
@@ -1525,6 +1548,27 @@ public static class BattleSceneAutoBuilder
         skillTierText.gameObject.SetActive(false);
         commandGlowLeft.gameObject.SetActive(false);
         commandGlowRight.gameObject.SetActive(false);
+    }
+
+    private static void CreateProfessionalPanelMaterialOverlays(Transform parent)
+    {
+        Image topGloss = CreatePanel(parent, "Top Status Panel Top Gloss", new Vector2(0, 354), new Vector2(1180, 3), new Color(0.72f, 0.88f, 1.0f, 0.22f));
+        Image topBottomShade = CreatePanel(parent, "Top Status Panel Bottom Shade", new Vector2(0, 304), new Vector2(1180, 5), new Color(0.0f, 0.0f, 0.0f, 0.28f));
+        Image playerLeftRim = CreatePanel(parent, "Player Card Panel Left Rim", new Vector2(-656, 54), new Vector2(3, 430), new Color(0.95f, 0.78f, 0.42f, 0.34f));
+        Image playerInnerShade = CreatePanel(parent, "Player Card Panel Inner Shade", new Vector2(-368, 54), new Vector2(4, 410), new Color(0.0f, 0.0f, 0.0f, 0.30f));
+        Image enemyRightRim = CreatePanel(parent, "Enemy Card Panel Right Rim", new Vector2(646, 56), new Vector2(3, 360), new Color(1.0f, 0.45f, 0.28f, 0.30f));
+        Image enemyInnerShade = CreatePanel(parent, "Enemy Card Panel Inner Shade", new Vector2(410, 56), new Vector2(4, 350), new Color(0.0f, 0.0f, 0.0f, 0.26f));
+        Image commandTopShade = CreatePanel(parent, "Command Bar Panel Top Shade", new Vector2(0, -272), new Vector2(1160, 5), new Color(1.0f, 0.78f, 0.42f, 0.28f));
+        Image commandBottomDepth = CreatePanel(parent, "Command Bar Panel Bottom Depth", new Vector2(0, -363), new Vector2(1160, 8), new Color(0.0f, 0.0f, 0.0f, 0.32f));
+
+        topGloss.raycastTarget = false;
+        topBottomShade.raycastTarget = false;
+        playerLeftRim.raycastTarget = false;
+        playerInnerShade.raycastTarget = false;
+        enemyRightRim.raycastTarget = false;
+        enemyInnerShade.raycastTarget = false;
+        commandTopShade.raycastTarget = false;
+        commandBottomDepth.raycastTarget = false;
     }
 
     private static void CreateProfessionalTopHudAccents(Transform parent)

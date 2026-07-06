@@ -1,6 +1,25 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-07-06 Right Skill Card Density Pass
+## Latest autonomous run — 2026-07-06 Panel Material HUD Chip Pass
+
+Completed:
+- Continued visual-only polish with no new mechanics.
+- Added material overlay layers to the top bar, ally/enemy side panels, and command bar.
+- Converted key top labels into compact HUD chips with controlled opacity and rim/highlight accents.
+- Kept validator-required text tokens while reducing prototype-like label clutter.
+- Added BattleScene validator checks for panel gloss/rim hierarchy and HUD-chip framing.
+- Added `Docs/Devlog/2026-07-06_panel-material-hud-chip-pass.md`.
+
+Verification completed:
+- C# bracket/parenthesis balance check: PASS.
+- `git diff --check`: PASS.
+- Unity regeneration/capture QA remains pending if Windows Unity license is inactive.
+
+Recommended next tasks:
+1. Continue visual-only polish on bottom command/resource strip density and portrait/resource chips.
+2. Once Unity license is active, regenerate scenes/captures and compare the HUD chip hierarchy at screenshot size.
+
+## Previous autonomous run — 2026-07-06 Right Skill Card Density Pass
 
 Completed:
 - Continued visual-only polish with no new mechanics.
