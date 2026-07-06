@@ -112,8 +112,13 @@ public static class BattleSceneAutoBuilder
         stageProgressText.fontSize = 8;
         stageProgressText.color = new Color(0.72f, 0.90f, 1.0f, 0.76f);
 
-        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-330, -560), new Vector2(170, 20), TextAlignmentOptions.Left);
-        playerHpText.fontSize = 10;
+        CreateBottomResourceStrip(canvas.transform);
+        Image playerHpChipPanel = CreatePanel(canvas.transform, "Player HP Chip Panel", new Vector2(-330, -560), new Vector2(184, 24), new Color(0.012f, 0.026f, 0.018f, 0.42f));
+        Image playerHpChipEdge = CreatePanel(canvas.transform, "Player HP Chip Green Edge", new Vector2(-420, -560), new Vector2(3, 18), new Color(0.34f, 0.92f, 0.46f, 0.48f));
+        playerHpChipPanel.raycastTarget = false;
+        playerHpChipEdge.raycastTarget = false;
+        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-326, -560), new Vector2(160, 18), TextAlignmentOptions.Left);
+        playerHpText.fontSize = 9;
         TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "ALLY UNIT  /  HERO", new Vector2(-530, 250), new Vector2(210, 24), TextAlignmentOptions.Center);
         playerCardTitleText.fontSize = 16;
         playerCardTitleText.fontStyle = FontStyles.Bold;
@@ -124,11 +129,17 @@ public static class BattleSceneAutoBuilder
         Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-592, 200), new Vector2(58, 58), "Assets/Art/ReferenceSprites/reference_paladin_full.png");
         ConfigureBattleSpriteMotion(playerSpriteImage, 3.5f, 1.45f, 0f, 14f, 0.06f, false);
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-330, -578), new Vector2(170, 8), new Color(0.22f, 0.72f, 0.38f));
-        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-160, -560), new Vector2(170, 20), TextAlignmentOptions.Left);
-        playerApText.fontSize = 10;
+        Image playerApChipPanel = CreatePanel(canvas.transform, "Player AP Chip Panel", new Vector2(-160, -560), new Vector2(184, 24), new Color(0.012f, 0.020f, 0.038f, 0.42f));
+        Image playerApChipEdge = CreatePanel(canvas.transform, "Player AP Chip Blue Edge", new Vector2(-250, -560), new Vector2(3, 18), new Color(0.38f, 0.64f, 1.0f, 0.50f));
+        playerApChipPanel.raycastTarget = false;
+        playerApChipEdge.raycastTarget = false;
+        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-156, -560), new Vector2(160, 18), TextAlignmentOptions.Left);
+        playerApText.fontSize = 9;
         Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-160, -578), new Vector2(170, 8), new Color(0.26f, 0.56f, 1.0f));
-        TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-245, -600), new Vector2(300, 20), TextAlignmentOptions.Left);
-        playerStatusText.fontSize = 10;
+        Image playerStatusChipPanel = CreatePanel(canvas.transform, "Player Status Chip Panel", new Vector2(-245, -600), new Vector2(312, 22), new Color(0.014f, 0.030f, 0.020f, 0.34f));
+        playerStatusChipPanel.raycastTarget = false;
+        TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-245, -600), new Vector2(300, 18), TextAlignmentOptions.Left);
+        playerStatusText.fontSize = 9;
         playerStatusText.color = new Color(0.78f, 1.0f, 0.76f);
         TMP_Text playerShieldText = CreateText(canvas.transform, "Player Shield Text", "", new Vector2(-245, -620), new Vector2(300, 18), TextAlignmentOptions.Left);
         playerShieldText.fontSize = 14;
@@ -209,9 +220,13 @@ public static class BattleSceneAutoBuilder
         battleLogText.gameObject.SetActive(false);
 
         CreatePremiumCommandFrame(canvas.transform);
+        Image commandHintChipPanel = CreatePanel(canvas.transform, "Command Hint Chip Panel", new Vector2(214, -620), new Vector2(330, 22), new Color(0.040f, 0.032f, 0.018f, 0.34f));
+        Image commandHintChipEdge = CreatePanel(canvas.transform, "Command Hint Chip Gold Edge", new Vector2(214, -609), new Vector2(280, 2), new Color(1.0f, 0.78f, 0.38f, 0.36f));
+        commandHintChipPanel.raycastTarget = false;
+        commandHintChipEdge.raycastTarget = false;
         TMP_Text commandHintText = CreateText(canvas.transform, "Command Hint Text", "Select Hero to open commands.", new Vector2(214, -620), new Vector2(310, 18), TextAlignmentOptions.Center);
-        commandHintText.fontSize = 9;
-        commandHintText.color = new Color(0.96f, 0.92f, 0.68f);
+        commandHintText.fontSize = 8;
+        commandHintText.color = new Color(0.96f, 0.92f, 0.68f, 0.84f);
         Image referenceSkillDetailPanel = CreatePanel(canvas.transform, "Reference Skill Detail Panel", new Vector2(562, -238), new Vector2(146, 64), new Color(0.045f, 0.034f, 0.052f, 0.88f));
         referenceSkillDetailPanel.raycastTarget = false;
         TMP_Text referenceSkillDetailText = CreateText(canvas.transform, "Reference Skill Detail Text", "SKILL\nFIRE AP2", new Vector2(562, -238), new Vector2(126, 46), TextAlignmentOptions.Center);
@@ -548,6 +563,10 @@ public static class BattleSceneAutoBuilder
         Image commandBarPanelTopShade = FindImage("Command Bar Panel Top Shade");
         Image runStatusChip = FindImage("Run Status Chip Panel");
         Image stageChip = FindImage("Stage Chip Panel");
+        Image bottomResourceStrip = FindImage("Bottom Resource Strip Panel");
+        Image playerHpChipPanel = FindImage("Player HP Chip Panel");
+        Image playerApChipPanel = FindImage("Player AP Chip Panel");
+        Image commandHintChipPanel = FindImage("Command Hint Chip Panel");
 
         AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
         AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 1100f, 560f));
@@ -606,6 +625,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battle Center panel has compact premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleCenterPanel, 500f, 54f));
         AppendCheck(ref passed, ref report, "Command Bar panel exists", commandBarPanel != null);
         AppendCheck(ref passed, ref report, "Command Bar panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(commandBarPanel, 1100f, 88f));
+        AppendCheck(ref passed, ref report, "Bottom resource strip frames HP/AP as commercial chips", IsReadableContrastAccent(bottomResourceStrip, 0.28f, 0.40f) && IsReadableContrastAccent(playerHpChipPanel, 0.38f, 0.46f) && IsReadableContrastAccent(playerApChipPanel, 0.38f, 0.46f));
         AppendCheck(ref passed, ref report, "Battle Guide text exists", battleGuideText != null);
         AppendCheck(ref passed, ref report, "Battle Guide text is compact for capture readability", IsBattleGuideTextLikelyConfigured(battleGuideText));
         AppendCheck(ref passed, ref report, "Run Status text exists", runStatusText != null);
@@ -643,6 +663,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Command Preview panel starts hidden", commandPreviewPanel != null && !commandPreviewPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Command Preview text exists", commandPreviewText != null);
         AppendCheck(ref passed, ref report, "Bottom command strip has visible select-unit hint", IsCommandHintTextLikelyConfigured(commandHintText));
+        AppendCheck(ref passed, ref report, "Bottom command hint is framed as a subdued chip", IsReadableContrastAccent(commandHintChipPanel, 0.30f, 0.40f));
         AppendCheck(ref passed, ref report, "Reference-style skill detail card exists", IsDecorativePanelLikelyConfigured(referenceSkillDetailPanel, 140f, 62f) && IsNameplateTextLikelyConfigured(referenceSkillDetailText, "SKILL", "AP2"));
         AppendCheck(ref passed, ref report, "Reference-style enemy intent card exists", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 136f, 38f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
         AppendCheck(ref passed, ref report, "Progress-reference right skill cards use compact density", IsDecorativePanelLikelyConfigured(progressSkillCard1, 160f, 54f));
@@ -1548,6 +1569,19 @@ public static class BattleSceneAutoBuilder
         skillTierText.gameObject.SetActive(false);
         commandGlowLeft.gameObject.SetActive(false);
         commandGlowRight.gameObject.SetActive(false);
+    }
+
+    private static void CreateBottomResourceStrip(Transform parent)
+    {
+        Image strip = CreatePanel(parent, "Bottom Resource Strip Panel", new Vector2(-245, -578), new Vector2(372, 58), new Color(0.006f, 0.008f, 0.014f, 0.34f));
+        Image topEdge = CreatePanel(parent, "Bottom Resource Strip Top Edge", new Vector2(-245, -549), new Vector2(348, 2), new Color(1.0f, 0.78f, 0.38f, 0.24f));
+        Image bottomDepth = CreatePanel(parent, "Bottom Resource Strip Bottom Depth", new Vector2(-245, -607), new Vector2(348, 4), new Color(0.0f, 0.0f, 0.0f, 0.30f));
+        Image resourceSeparator = CreatePanel(parent, "Bottom Resource Strip Separator", new Vector2(-245, -578), new Vector2(2, 44), new Color(0.92f, 0.82f, 0.54f, 0.18f));
+
+        strip.raycastTarget = false;
+        topEdge.raycastTarget = false;
+        bottomDepth.raycastTarget = false;
+        resourceSeparator.raycastTarget = false;
     }
 
     private static void CreateProfessionalPanelMaterialOverlays(Transform parent)

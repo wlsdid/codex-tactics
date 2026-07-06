@@ -1,6 +1,26 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-07-06 Panel Material HUD Chip Pass
+## Latest autonomous run — 2026-07-06 Bottom Resource Command Strip Pass
+
+Completed:
+- Continued visual-only polish with no new mechanics.
+- Added a bottom resource strip behind HP/AP/status information.
+- Framed HP and AP as separate color-coded chips with side edges.
+- Added bottom strip highlight/depth/separator layers to improve material hierarchy.
+- Framed the bottom command hint as a subdued gold-edged chip.
+- Added BattleScene validator checks for the bottom resource strip, HP/AP chips, and command hint chip.
+- Added `Docs/Devlog/2026-07-06_bottom-resource-command-strip-pass.md`.
+
+Verification completed:
+- C# bracket/parenthesis balance check: PASS.
+- `git diff --check`: PASS.
+- Unity regeneration/capture QA remains pending if Windows Unity license is inactive.
+
+Recommended next tasks:
+1. Continue visual-only polish on enemy card/resource/status chips and right-side intent hierarchy.
+2. Once Unity license is active, regenerate scenes/captures and judge bottom HUD density at screenshot size.
+
+## Previous autonomous run — 2026-07-06 Panel Material HUD Chip Pass
 
 Completed:
 - Continued visual-only polish with no new mechanics.
