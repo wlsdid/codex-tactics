@@ -609,9 +609,21 @@ public class BattleManager : MonoBehaviour
         int nextTurn = enemyTurnCount + 1;
         bool isStrongTurn = enemyPattern.IsStrongAttackTurn(nextTurn);
         string incomingName = isStrongTurn ? enemyPattern.strongAttackName : "Normal Attack";
-        int incomingDamage = isStrongTurn ? enemyPattern.strongAttackDamage : enemyPattern.normalAttackDamage;
+        int incomingDamage = CalculateIncomingDamageForTurn(nextTurn);
         int reducedDamage = CalculateGuardedDamage(incomingDamage);
-        return $"{incomingName} {incomingDamage} dmg -> Guard {reducedDamage}";
+        string enragePrefix = isEnraged ? "ENRAGED " : "";
+        return $"{enragePrefix}{incomingName} {incomingDamage} dmg -> Guard {reducedDamage}";
+    }
+
+    private int CalculateIncomingDamageForTurn(int turnNumber)
+    {
+        if (enemyPattern == null)
+            return 0;
+        int baseDamage = enemyPattern.GetDamageForTurn(turnNumber);
+        int damage = Mathf.RoundToInt(baseDamage * ProgressState.DifficultyDamageMultiplier);
+        if (isEnraged)
+            damage = Mathf.RoundToInt(damage * 1.5f);
+        return damage;
     }
 
     private int CalculateGuardedDamage(int incomingDamage)
@@ -657,11 +669,11 @@ public class BattleManager : MonoBehaviour
         int nextTurn = enemyTurnCount + 1;
         bool isStrongTurn = enemyPattern.IsStrongAttackTurn(nextTurn);
         string incomingName = isStrongTurn ? enemyPattern.strongAttackName : "Normal Attack";
-        int incomingDmg = isStrongTurn ? enemyPattern.strongAttackDamage : enemyPattern.normalAttackDamage;
+        int incomingDmg = CalculateIncomingDamageForTurn(nextTurn);
         int reducedDmg = CalculateGuardedDamage(incomingDmg);
 
         string preview = "<b>GUARD</b>\n";
-        preview += $"Next attack: {incomingDmg} dmg → Reduced to {reducedDmg} dmg\n";
+        preview += $"Next attack: {(isEnraged ? "ENRAGED " : "")}{incomingName} {incomingDmg} dmg → Reduced to {reducedDmg} dmg\n";
         preview += $"({CfgGuardReductionPercent}% reduction)";
         if (isStrongTurn)
             preview += "\n<color=#ff8844>WARN: Strong attack incoming!</color>";

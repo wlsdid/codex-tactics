@@ -145,6 +145,14 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Damage dealt tracks Lightning Strike damage", battleManager.DebugTotalDamageDealt == 40);
         AppendCheck(ref passed, ref report, "Skills used counter tracks Lightning Strike", battleManager.DebugSkillsUsedCount == 1);
 
+        battleManager.DebugStartBattleForTest();
+        battleManager.OnClickIceSkillButton();
+        battleManager.DebugSetPlayerApForTest(3);
+        battleManager.OnClickLightningSkillButton();
+        battleManager.OnClickPlayerUnit();
+        AppendCheck(ref passed, ref report, "Enraged command window labels boosted incoming threat", battleUI.DebugCommandPreviewText.Contains("Enemy next: ENRAGED Normal Attack") && battleUI.DebugCommandPreviewText.Contains("dmg -> Guard"));
+
+        battleManager.DebugStartBattleForTest();
         battleManager.OnClickPlayerUnit();
         battleManager.OnClickGuardButton();
         AppendCheck(ref passed, ref report, "Action command panel closes after Guard", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
