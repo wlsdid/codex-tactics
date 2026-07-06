@@ -26,9 +26,9 @@ public static class BattleSceneAutoBuilder
 
         // Reference-inspired tactical RPG layout: left party stack, open center stage, right enemy stack, compact bottom commands.
         Image battleStageBackdropPanel = CreateSpritePanel(canvas.transform, "Battle Stage Backdrop Panel", "Assets/Art/Generated/polished_forest_battle_bg.png", new Vector2(0, 18), new Vector2(1220, 600));
-        battleStageBackdropPanel.color = new Color(0.70f, 0.82f, 0.92f, 0.98f);
-        Image battleStageColorGradePanel = CreatePanel(canvas.transform, "Battle Stage Color Grade Panel", new Vector2(0, 18), new Vector2(1220, 600), new Color(0.006f, 0.010f, 0.022f, 0.24f));
-        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -110), new Vector2(910, 222), new Color(0.020f, 0.070f, 0.070f, 0.50f));
+        battleStageBackdropPanel.color = new Color(0.82f, 0.92f, 1.0f, 1.0f);
+        Image battleStageColorGradePanel = CreatePanel(canvas.transform, "Battle Stage Color Grade Panel", new Vector2(0, 18), new Vector2(1220, 600), new Color(0.004f, 0.008f, 0.020f, 0.34f));
+        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -118), new Vector2(930, 230), new Color(0.018f, 0.070f, 0.074f, 0.56f));
         Image topGoldDividerPanel = CreatePanel(canvas.transform, "Top Gold Divider Panel", new Vector2(0, 276), new Vector2(1220, 3), new Color(1.0f, 0.78f, 0.42f, 0.50f));
         Image commandGoldDividerPanel = CreatePanel(canvas.transform, "Command Gold Divider Panel", new Vector2(80, -258), new Vector2(990, 2), new Color(1.0f, 0.80f, 0.45f, 0.42f));
         battleStageBackdropPanel.raycastTarget = false;
@@ -37,6 +37,7 @@ public static class BattleSceneAutoBuilder
         topGoldDividerPanel.raycastTarget = false;
         commandGoldDividerPanel.raycastTarget = false;
         CreateBattlefieldDepthLayers(canvas.transform);
+        CreateCinematicBattlefieldLighting(canvas.transform);
         CreateFieldVignette(canvas.transform);
         CreateTacticalGrid(canvas.transform);
         CreateBattlefieldUnitStandees(canvas.transform);
@@ -72,25 +73,25 @@ public static class BattleSceneAutoBuilder
         battleCenterPanel.raycastTarget = false;
         commandBarPanel.raycastTarget = false;
 
-        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "* Codex Tactics  x334", new Vector2(-470, 330), new Vector2(310, 34), TextAlignmentOptions.Left);
+        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "CODEX TACTICS", new Vector2(-470, 330), new Vector2(310, 34), TextAlignmentOptions.Left);
         titleText.fontSize = 19;
         titleText.fontStyle = FontStyles.Bold;
 
-        TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "Break -> flank.", new Vector2(-35, 338), new Vector2(330, 20), TextAlignmentOptions.Left);
+        TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "Moonlit Ruins / Encounter 1", new Vector2(-35, 338), new Vector2(330, 20), TextAlignmentOptions.Left);
         runStatusText.fontSize = 11;
         runStatusText.color = new Color(0.76f, 1.0f, 0.82f);
 
-        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Push = +25% HP dmg.", new Vector2(-35, 316), new Vector2(330, 18), TextAlignmentOptions.Left);
+        TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Select an ally, spend AP, break enemy guard.", new Vector2(-35, 316), new Vector2(330, 18), TextAlignmentOptions.Left);
         battleGuideText.fontSize = 10;
         battleGuideText.color = new Color(0.90f, 0.95f, 1.0f);
 
-        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "BATTLE PREP", new Vector2(-210, 252), new Vector2(220, 24), TextAlignmentOptions.Center);
+        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "ENCOUNTER 1", new Vector2(-210, 252), new Vector2(220, 24), TextAlignmentOptions.Center);
         stageText.fontSize = 15;
         stageText.color = new Color(0.92f, 0.86f, 0.55f);
-        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Grid / intent", new Vector2(55, 252), new Vector2(220, 18), TextAlignmentOptions.Left);
+        TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Break guard, then finish", new Vector2(55, 252), new Vector2(220, 18), TextAlignmentOptions.Left);
         stageObjectiveText.fontSize = 10;
         stageObjectiveText.color = new Color(1.0f, 0.94f, 0.72f);
-        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Cost 3 / Chain", new Vector2(300, 228), new Vector2(220, 18), TextAlignmentOptions.Right);
+        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Progress: 1/2 | Active", new Vector2(300, 228), new Vector2(220, 18), TextAlignmentOptions.Right);
         stageProgressText.fontSize = 9;
         stageProgressText.color = new Color(0.72f, 0.90f, 1.0f);
 
@@ -149,19 +150,19 @@ public static class BattleSceneAutoBuilder
         TMP_Text messageText = CreateText(canvas.transform, "Message Text", "Battle Start!", new Vector2(0, 286), new Vector2(420, 22), TextAlignmentOptions.Center);
         messageText.fontSize = 12;
         messageText.color = new Color(1.0f, 0.94f, 0.72f, 0.86f);
-        TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "IMPACT READY", new Vector2(310, 250), new Vector2(150, 16), TextAlignmentOptions.Center);
+        TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "", new Vector2(310, 250), new Vector2(150, 16), TextAlignmentOptions.Center);
         impactText.fontSize = 9;
         impactText.color = new Color(1.0f, 0.84f, 0.36f, 0.82f);
-        Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(-302, 222), new Vector2(180, 18), new Color(0.025f, 0.034f, 0.052f, 0.36f));
+        Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(-302, 222), new Vector2(180, 18), new Color(0.025f, 0.034f, 0.052f, 0.12f));
         demoRoutePanel.raycastTarget = false;
         TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "HERO > FIRE > WIN", new Vector2(-302, 222), new Vector2(166, 14), TextAlignmentOptions.Center);
         demoRouteText.fontSize = 7;
-        demoRouteText.color = new Color(0.96f, 0.92f, 0.68f, 0.44f);
-        Image captureRehearsalPanel = CreatePanel(canvas.transform, "Capture Rehearsal Panel", new Vector2(306, 222), new Vector2(136, 18), new Color(0.030f, 0.045f, 0.070f, 0.36f));
+        demoRouteText.color = new Color(0.96f, 0.92f, 0.68f, 0.16f);
+        Image captureRehearsalPanel = CreatePanel(canvas.transform, "Capture Rehearsal Panel", new Vector2(306, 222), new Vector2(136, 18), new Color(0.030f, 0.045f, 0.070f, 0.12f));
         captureRehearsalPanel.raycastTarget = false;
         TMP_Text captureRehearsalText = CreateText(canvas.transform, "Capture Rehearsal Text", "SHOT 1/5", new Vector2(306, 222), new Vector2(122, 14), TextAlignmentOptions.Center);
         captureRehearsalText.fontSize = 7;
-        captureRehearsalText.color = new Color(0.72f, 0.90f, 1.0f, 0.48f);
+        captureRehearsalText.color = new Color(0.72f, 0.90f, 1.0f, 0.16f);
         TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(-420, -620), new Vector2(250, 28), TextAlignmentOptions.TopLeft);
         skillHelpText.fontSize = 5;
         skillHelpText.color = new Color(0.72f, 0.90f, 1.0f);
@@ -191,7 +192,7 @@ public static class BattleSceneAutoBuilder
         battleLogText.gameObject.SetActive(false);
 
         CreatePremiumCommandFrame(canvas.transform);
-        TMP_Text commandHintText = CreateText(canvas.transform, "Command Hint Text", "Select Hero to open contextual commands.", new Vector2(214, -620), new Vector2(310, 18), TextAlignmentOptions.Center);
+        TMP_Text commandHintText = CreateText(canvas.transform, "Command Hint Text", "Select Hero to open commands.", new Vector2(214, -620), new Vector2(310, 18), TextAlignmentOptions.Center);
         commandHintText.fontSize = 9;
         commandHintText.color = new Color(0.96f, 0.92f, 0.68f);
         Image referenceSkillDetailPanel = CreatePanel(canvas.transform, "Reference Skill Detail Panel", new Vector2(562, -238), new Vector2(146, 64), new Color(0.045f, 0.034f, 0.052f, 0.88f));
@@ -1392,26 +1393,45 @@ public static class BattleSceneAutoBuilder
         moonlight.rectTransform.localRotation = Quaternion.Euler(0, 0, -11f);
     }
 
+    private static void CreateCinematicBattlefieldLighting(Transform parent)
+    {
+        Image leftCurtain = CreatePanel(parent, "Cinematic Left Shadow Curtain", new Vector2(-390, 18), new Vector2(180, 520), new Color(0.0f, 0.0f, 0.0f, 0.20f));
+        Image rightCurtain = CreatePanel(parent, "Cinematic Right Shadow Curtain", new Vector2(390, 18), new Vector2(180, 520), new Color(0.0f, 0.0f, 0.0f, 0.20f));
+        Image heroSpotlight = CreatePanel(parent, "Hero Cinematic Spotlight", new Vector2(-205, -42), new Vector2(170, 190), new Color(0.24f, 0.58f, 1.0f, 0.11f));
+        Image enemySpotlight = CreatePanel(parent, "Enemy Cinematic Spotlight", new Vector2(232, -42), new Vector2(180, 198), new Color(1.0f, 0.32f, 0.58f, 0.10f));
+        Image centerClashGlow = CreatePanel(parent, "Center Clash Glow Panel", new Vector2(12, -88), new Vector2(260, 64), new Color(1.0f, 0.72f, 0.32f, 0.10f));
+        Image floorSpecular = CreatePanel(parent, "Floor Specular Highlight Panel", new Vector2(0, -114), new Vector2(500, 18), new Color(0.92f, 0.78f, 0.48f, 0.12f));
+
+        leftCurtain.raycastTarget = false;
+        rightCurtain.raycastTarget = false;
+        heroSpotlight.raycastTarget = false;
+        enemySpotlight.raycastTarget = false;
+        centerClashGlow.raycastTarget = false;
+        floorSpecular.raycastTarget = false;
+        heroSpotlight.rectTransform.localRotation = Quaternion.Euler(0, 0, -8f);
+        enemySpotlight.rectTransform.localRotation = Quaternion.Euler(0, 0, 8f);
+    }
+
     private static void CreateBattlefieldUnitStandees(Transform parent)
     {
         // User-provided reference sprites are now used directly for the battlefield standees.
-        // Scale and feet placement are tuned so units sit on the landing tiles, not beside/floating over them.
-        CreatePanel(parent, "Hero Standee Shadow", new Vector2(-206, -96), new Vector2(78, 13), new Color(0.0f, 0.0f, 0.0f, 0.44f));
-        CreatePanel(parent, "Hero Base Ring Panel", new Vector2(-206, -91), new Vector2(104, 17), new Color(0.46f, 0.82f, 1.0f, 0.42f));
-        CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -34), new Vector2(76, 104), new Color(0.28f, 0.64f, 1.0f, 0.12f));
-        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/ReferenceSprites/reference_paladin_full.png", new Vector2(-204, -19), new Vector2(120, 156));
+        // This pass enlarges the units so the screenshot reads as a game scene first, not as UI/debug proof first.
+        CreatePanel(parent, "Hero Standee Shadow", new Vector2(-206, -108), new Vector2(102, 17), new Color(0.0f, 0.0f, 0.0f, 0.46f));
+        CreatePanel(parent, "Hero Base Ring Panel", new Vector2(-206, -101), new Vector2(132, 22), new Color(0.46f, 0.82f, 1.0f, 0.42f));
+        CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -34), new Vector2(110, 150), new Color(0.28f, 0.64f, 1.0f, 0.12f));
+        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/ReferenceSprites/reference_paladin_full.png", new Vector2(-204, -22), new Vector2(150, 190));
         ConfigureBattleSpriteMotion(heroBody, 3f, 1.1f, 0.15f, 12f, 0.03f, false);
-        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-181, -25), new Vector2(4, 40), new Color(0.92f, 0.96f, 1.0f, 0.36f));
+        Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-176, -18), new Vector2(5, 54), new Color(0.92f, 0.96f, 1.0f, 0.36f));
         heroBlade.rectTransform.localRotation = Quaternion.Euler(0, 0, -18f);
         heroBody.raycastTarget = false;
         heroBlade.raycastTarget = false;
 
-        CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -93), new Vector2(94, 15), new Color(0.0f, 0.0f, 0.0f, 0.46f));
-        CreatePanel(parent, "Enemy Base Ring Panel", new Vector2(230, -87), new Vector2(116, 19), new Color(1.0f, 0.42f, 0.76f, 0.42f));
-        CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -32), new Vector2(86, 110), new Color(0.86f, 0.24f, 1.0f, 0.12f));
-        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/ReferenceSprites/reference_goblin_full.png", new Vector2(232, -20), new Vector2(136, 160));
+        CreatePanel(parent, "Enemy Standee Shadow", new Vector2(230, -106), new Vector2(118, 19), new Color(0.0f, 0.0f, 0.0f, 0.48f));
+        CreatePanel(parent, "Enemy Base Ring Panel", new Vector2(230, -99), new Vector2(146, 23), new Color(1.0f, 0.42f, 0.76f, 0.42f));
+        CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -32), new Vector2(118, 154), new Color(0.86f, 0.24f, 1.0f, 0.12f));
+        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/ReferenceSprites/reference_goblin_full.png", new Vector2(232, -23), new Vector2(166, 196));
         ConfigureBattleSpriteMotion(enemyBody, 3.4f, 0.95f, 0.45f, 14f, 0.04f, true);
-        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 39), new Vector2(40, 6), new Color(1.0f, 0.70f, 0.24f, 0.28f));
+        Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 54), new Vector2(48, 7), new Color(1.0f, 0.70f, 0.24f, 0.28f));
         enemyBody.raycastTarget = false;
         enemyCrown.raycastTarget = false;
     }

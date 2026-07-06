@@ -1,6 +1,25 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-06-09 Batch 99: UI Overlap Cleanup & Background UI Polish
+## Latest autonomous run — 2026-07-06 Battle Commercial Readability Pass
+
+Completed:
+- Switched the BattleScene builder from proof/debug-looking header copy toward in-game stage/encounter language.
+- Softened reviewer route/capture chips so validation evidence no longer dominates the battlefield screenshot.
+- Added a generated cinematic lighting layer: side shadow curtains, hero/enemy spotlights, center clash glow, and floor highlight.
+- Enlarged central hero/enemy standees with larger shadows, base rings, aura, blade, and crown so characters become the first visual read.
+- Added `Docs/Devlog/2026-07-06_battle-commercial-readability-pass.md`.
+
+Verification completed:
+- C# brace/parenthesis balance check: PASS.
+- `git diff --check`: PASS.
+- Unity `BattleSceneAutoBuilder.CreateBattleTestScene`: BLOCKED by Windows Unity license activation (`No valid Unity Editor license found`, return code 198). Scene regeneration/capture refresh remains pending.
+
+Recommended next tasks:
+1. Reactivate/sign in to Windows Unity, then rerun `CreateBattleTestScene`, `ValidateBattleTestScene`, and `BattleAutoTestRunner.RunBattleLogicAutoTest`.
+2. Refresh `Docs/Captures`, rebuild contact sheet/GIF evidence, and visually QA the updated battle screen before marking it portfolio-ready.
+3. Continue art-only polish next: stronger skill impact VFX, reduced side-panel density, and deeper authored battlefield background.
+
+## Previous autonomous run — 2026-06-09 Batch 99: UI Overlap Cleanup & Background UI Polish
 
 Completed:
 - Removed duplicated battle HUD affordances that were competing with real runtime controls: the bottom-right reference `BATTLE START` CTA is gone, and top-right reference `AUTO`/`x2`/pause labels became non-text decorative accents.

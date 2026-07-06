@@ -192,23 +192,22 @@ python3 Docs/Captures/convert_runtime_clip.py "/mnt/c/Users/jywls/Videos/Capture
 
 The converter creates `codex_tactics_runtime_clip.gif` plus `codex_tactics_runtime_clip_preview.png`, using 12 seconds, 960px width, 12 fps, a 96-color palette, and a 5 MB size cap by default. It validates `ffmpeg`/`ffprobe`, source duration/dimensions, GIF width/frame count/file size, and preview output before the media is considered portfolio-ready.
 
-## 7. Validation status on 2026-05-30
+## 7. Validation status on 2026-07-06
 
-Reviewed after Batch 83 showcase GIF evidence documentation pass.
+Current presentation focus:
+- The battle screen is shifting from feature-proof layout toward commercial screenshot readability.
+- Latest builder pass enlarges central hero/enemy standees, adds cinematic battlefield lighting, removes debug-looking header suffixes, and softens reviewer/capture chips.
+- Unity scene/capture refresh is pending because the current Windows Unity batch run is blocked by license activation (`No valid Unity Editor license found`). Re-run validation after Unity is signed in/activated.
 
-Passed checks:
+Most recent completed checks:
 
 ```text
-git diff --check: PASS
-BattleAutoTestRunner.RunBattleLogicAutoTest: PASS
-GameFlowSceneAutoBuilder.ValidateGameFlowScenes: PASS
-BattleSceneAutoBuilder.ValidateBattleTestScene: PASS
-Standalone CaptureRunner + contact sheet visual QA: PASS
-Markdown link/file existence check: PASS
-README GIF evidence documentation: PASS
+C# brace/parenthesis balance check: PASS
+Git whitespace check (`git diff --check`): PASS
+Unity CreateBattleTestScene: BLOCKED by license activation on 2026-07-06
 ```
 
-Note: Batch 83 changed documentation only, so Unity compile was not rerun for this pass. Previous Unity validation remains documented above; Batch 83 verification focused on Markdown links, required file existence, and `git diff --check`.
+Previous fully regenerated capture set remains documented in earlier batches; do not treat screenshots as reflecting the 2026-07-06 battle-builder polish until Unity scene generation and capture refresh pass.
 
 ## 8. Review notes
 
