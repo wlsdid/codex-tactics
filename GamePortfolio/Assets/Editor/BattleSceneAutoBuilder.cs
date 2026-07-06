@@ -517,6 +517,8 @@ public static class BattleSceneAutoBuilder
         Image heroStandeeAura = FindImage("Hero Standee Aura");
         Image enemyStandeeAura = FindImage("Enemy Standee Aura");
         Image progressSkillCard1 = FindImage("Progress Skill Card 1");
+        Image progressSkillIconFrame1 = FindImage("Progress Skill Icon Frame 1");
+        Image progressSkillCardTopHighlight1 = FindImage("Progress Skill Card Top Highlight 1");
         Image progressTurnDial = FindImage("Progress Turn Dial");
         Image progressBottomPortrait1 = FindImage("Progress Bottom Portrait Sprite 1");
         Image battleLetterboxTop = FindImage("Battle Letterbox Top Panel");
@@ -620,7 +622,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Bottom command strip has visible select-unit hint", IsCommandHintTextLikelyConfigured(commandHintText));
         AppendCheck(ref passed, ref report, "Reference-style skill detail card exists", IsDecorativePanelLikelyConfigured(referenceSkillDetailPanel, 140f, 62f) && IsNameplateTextLikelyConfigured(referenceSkillDetailText, "SKILL", "AP2"));
         AppendCheck(ref passed, ref report, "Reference-style enemy intent card exists", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 136f, 38f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
-        AppendCheck(ref passed, ref report, "Progress-reference right skill cards exist", IsDecorativePanelLikelyConfigured(progressSkillCard1, 180f, 64f));
+        AppendCheck(ref passed, ref report, "Progress-reference right skill cards use compact density", IsDecorativePanelLikelyConfigured(progressSkillCard1, 160f, 54f));
+        AppendCheck(ref passed, ref report, "Progress-reference skill icons have authored frames", IsDecorativePanelLikelyConfigured(progressSkillIconFrame1, 48f, 48f) && IsReadableContrastAccent(progressSkillCardTopHighlight1, 0.24f, 0.36f));
         AppendCheck(ref passed, ref report, "Bottom right duplicate battle-start CTA removed", FindImage("Progress Battle Start Panel") == null && FindText("Progress Battle Start Text") == null);
         AppendCheck(ref passed, ref report, "Progress-reference bottom turn dial exists", IsDecorativePanelLikelyConfigured(progressTurnDial, 80f, 80f));
         AppendCheck(ref passed, ref report, "Progress-reference bottom portrait strip exists", IsSpriteImageLikelyConfigured(progressBottomPortrait1, 54f, 54f));
@@ -1551,21 +1554,29 @@ public static class BattleSceneAutoBuilder
 
         for (int i = 0; i < names.Length; i++)
         {
-            float y = 178 - i * 96;
-            Image card = CreatePanel(parent, $"Progress Skill Card {i + 1}", new Vector2(566, y), new Vector2(186, 68), new Color(0.010f, 0.010f, 0.016f, 0.42f));
+            float y = 178 - i * 78;
+            Image card = CreatePanel(parent, $"Progress Skill Card {i + 1}", new Vector2(566, y), new Vector2(172, 58), new Color(0.010f, 0.010f, 0.016f, 0.36f));
+            Image topHighlight = CreatePanel(parent, $"Progress Skill Card Top Highlight {i + 1}", new Vector2(566, y + 27), new Vector2(150, 2), new Color(1.0f, 0.78f, 0.38f, 0.28f));
+            Image bottomShade = CreatePanel(parent, $"Progress Skill Card Bottom Shade {i + 1}", new Vector2(566, y - 27), new Vector2(150, 3), new Color(0.0f, 0.0f, 0.0f, 0.30f));
             string iconPath = i == 0 ? "Assets/Art/Generated/skill_revenge_icon.png" : i == 1 ? "Assets/Art/Generated/skill_shield_icon.png" : "Assets/Art/Generated/skill_holy_icon.png";
-            Image iconGlow = CreatePanel(parent, $"Progress Skill Icon Glow {i + 1}", new Vector2(496, y), new Vector2(56, 56), new Color(1.0f, 0.82f, 0.36f, 0.11f));
-            Image icon = CreateSpritePanel(parent, $"Progress Skill Icon {i + 1}", iconPath, new Vector2(496, y), new Vector2(48, 48));
-            TMP_Text title = CreateText(parent, $"Progress Skill Title {i + 1}", names[i], new Vector2(574, y + 13), new Vector2(102, 22), TextAlignmentOptions.Left);
-            title.fontSize = 12;
+            Image iconGlow = CreatePanel(parent, $"Progress Skill Icon Glow {i + 1}", new Vector2(500, y), new Vector2(50, 50), new Color(1.0f, 0.82f, 0.36f, 0.10f));
+            Image iconFrame = CreatePanel(parent, $"Progress Skill Icon Frame {i + 1}", new Vector2(500, y), new Vector2(50, 50), new Color(colors[i].r, colors[i].g, colors[i].b, 0.32f));
+            Image icon = CreateSpritePanel(parent, $"Progress Skill Icon {i + 1}", iconPath, new Vector2(500, y), new Vector2(40, 40));
+            Image iconEdge = CreatePanel(parent, $"Progress Skill Icon Gold Edge {i + 1}", new Vector2(500, y + 24), new Vector2(44, 2), new Color(1.0f, 0.78f, 0.38f, 0.46f));
+            TMP_Text title = CreateText(parent, $"Progress Skill Title {i + 1}", names[i], new Vector2(579, y + 10), new Vector2(92, 18), TextAlignmentOptions.Left);
+            title.fontSize = 10;
             title.fontStyle = FontStyles.Bold;
             title.color = new Color(0.92f, 0.86f, 0.70f);
-            TMP_Text body = CreateText(parent, $"Progress Skill Body {i + 1}", desc[i], new Vector2(574, y - 13), new Vector2(102, 28), TextAlignmentOptions.Left);
-            body.fontSize = 8;
+            TMP_Text body = CreateText(parent, $"Progress Skill Body {i + 1}", desc[i], new Vector2(579, y - 11), new Vector2(92, 24), TextAlignmentOptions.Left);
+            body.fontSize = 7;
             body.color = new Color(0.76f, 0.74f, 0.68f);
             card.raycastTarget = false;
+            topHighlight.raycastTarget = false;
+            bottomShade.raycastTarget = false;
             icon.raycastTarget = false;
             iconGlow.raycastTarget = false;
+            iconFrame.raycastTarget = false;
+            iconEdge.raycastTarget = false;
         }
     }
 

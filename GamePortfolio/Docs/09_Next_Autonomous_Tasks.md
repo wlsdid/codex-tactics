@@ -1,6 +1,25 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-07-06 Premium Button Material Pass
+## Latest autonomous run — 2026-07-06 Right Skill Card Density Pass
+
+Completed:
+- Continued visual-only polish with no new mechanics.
+- Compressed the right-side reference skill cards so the battlefield and central characters stay dominant.
+- Added authored icon-frame treatment: element tint, icon glow, gold edge, top highlight, and bottom shade.
+- Reduced skill-card typography size to lower proof-UI noise.
+- Added BattleScene validator checks for compact skill-card density and framed skill icons.
+- Added `Docs/Devlog/2026-07-06_right-skill-card-density-pass.md`.
+
+Verification completed:
+- C# brace/parenthesis balance check: PASS.
+- `git diff --check`: PASS.
+- Unity regeneration/capture QA remains pending if Windows Unity license is inactive.
+
+Recommended next tasks:
+1. Continue visual-only polish on panel material gradients and runtime HUD chip hierarchy.
+2. Once Unity license is active, regenerate scenes/captures and judge the right rail at contact-sheet size.
+
+## Previous autonomous run — 2026-07-06 Premium Button Material Pass
 
 Completed:
 - Continued visual-only polish instead of adding new mechanics.
