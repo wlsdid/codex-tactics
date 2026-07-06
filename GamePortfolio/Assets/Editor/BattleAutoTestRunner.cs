@@ -44,6 +44,8 @@ public static class BattleAutoTestRunner
         SetPrivateField(battleUI, "skillHelpText", CreateText("Skill Help Text"));
         ConfigureBattleLogFields(battleUI);
         ConfigureCharacterCommandFields(battleUI);
+        SetPrivateField(battleUI, "commandPreviewPanel", CreatePanel("Command Preview Panel"));
+        SetPrivateField(battleUI, "commandPreviewText", CreateText("Command Preview Text"));
         SetPrivateField(battleUI, "resultSummaryText", CreateText("Result Summary Text"));
         SetPrivateField(battleUI, "resultSummaryPanel", CreatePanel("Result Summary Panel"));
         SetPrivateField(battleUI, "attackButton", CreateButton("Attack Button"));
@@ -99,6 +101,7 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Action command panel starts hidden until a character is clicked", !battleUI.DebugActionCommandPanelVisible && !battleUI.DebugPlayerUnitSelected);
         battleManager.OnClickPlayerUnit();
         AppendCheck(ref passed, ref report, "Clicking Hero opens selected-character command menu", battleUI.DebugActionCommandPanelVisible && battleUI.DebugPlayerUnitSelected && battleUI.DebugSelectedUnitText.Contains("Hero"));
+        AppendCheck(ref passed, ref report, "Selected Hero command window recommends weakness pressure and previews guarded threat", battleUI.DebugCommandPreviewText.Contains("COMMAND WINDOW") && battleUI.DebugCommandPreviewText.Contains("Recommended: Fire Bolt") && battleUI.DebugCommandPreviewText.Contains("Break 2/2") && battleUI.DebugCommandPreviewText.Contains("Enemy next: Normal Attack 15 dmg -> Guard 7"));
         AppendCheck(ref passed, ref report, "Capture rehearsal advances after Hero select", battleManager.DebugCaptureRehearsalText == "SHOT 2/5");
 
         battleManager.OnClickFireSkillButton();

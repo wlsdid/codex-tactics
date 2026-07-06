@@ -345,7 +345,7 @@ public class BattleManager : MonoBehaviour
         battleUI?.ShowCharacterCommandMenu(player.characterName);
         battleUI?.MarkCaptureRehearsalHeroSelected();
         battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
-        battleUI?.UpdateCommandPreview("Choose Attack, Skill, Guard, or End Turn for the selected ally.", new Color(0.92f, 0.86f, 0.55f));
+        battleUI?.UpdateCommandPreview(BuildTacticalCommandPreview(), new Color(0.92f, 0.86f, 0.55f));
     }
 
     public void OnClickAttackButton()
@@ -572,6 +572,53 @@ public class BattleManager : MonoBehaviour
 
     // ── Command Preview ──
 
+    /// <summary>Builds the selected unit's default tactical readout before the player commits an action.</summary>
+    private string BuildTacticalCommandPreview()
+    {
+        string recommendation = BuildRecommendedCommandLabel();
+        string threat = BuildIncomingThreatLabel();
+        string apLabel = player != null ? $"AP {player.currentAp}/{player.maxAp}" : "AP --";
+        string breakLabel = enemy != null ? $"Break {enemy.currentBreakGauge}/{enemy.maxBreakGauge}" : "Break --";
+        return $"<b>COMMAND WINDOW</b> | {apLabel} | {breakLabel}\nRecommended: {recommendation}\nEnemy next: {threat}";
+    }
+
+    private string BuildRecommendedCommandLabel()
+    {
+        if (enemy == null || player == null)
+            return "Read intent, then choose a safe action";
+
+        bool strongAttackIncoming = enemyPattern != null && enemyPattern.IsStrongAttackTurn(enemyTurnCount + 1);
+        if (strongAttackIncoming)
+            return $"Guard first — {enemyPattern.strongAttackName} is incoming";
+
+        SkillData weaknessSkill = GetWeaknessSkill();
+        if (weaknessSkill != null && IsSkillAvailable(weaknessSkill) && player.HasEnoughAp(weaknessSkill.apCost) && !enemy.isBroken)
+            return $"{weaknessSkill.skillName} to pressure weakness and Break";
+
+        if (IsSkillAvailable(lightningSkill) && player.HasEnoughAp(lightningSkill.apCost))
+            return $"{lightningSkill.skillName} for burst damage";
+
+        return "Basic attack or Guard to manage AP and tempo";
+    }
+
+    private string BuildIncomingThreatLabel()
+    {
+        if (enemyPattern == null)
+            return "Unknown";
+
+        int nextTurn = enemyTurnCount + 1;
+        bool isStrongTurn = enemyPattern.IsStrongAttackTurn(nextTurn);
+        string incomingName = isStrongTurn ? enemyPattern.strongAttackName : "Normal Attack";
+        int incomingDamage = isStrongTurn ? enemyPattern.strongAttackDamage : enemyPattern.normalAttackDamage;
+        int reducedDamage = CalculateGuardedDamage(incomingDamage);
+        return $"{incomingName} {incomingDamage} dmg -> Guard {reducedDamage}";
+    }
+
+    private int CalculateGuardedDamage(int incomingDamage)
+    {
+        return Mathf.Max(1, incomingDamage * (100 - CfgGuardReductionPercent) / 100);
+    }
+
     /// <summary>Shows a detailed command preview for a skill in the preview panel.</summary>
     private void UpdateCommandPreviewForSkill(SkillData skill)
     {
@@ -611,7 +658,7 @@ public class BattleManager : MonoBehaviour
         bool isStrongTurn = enemyPattern.IsStrongAttackTurn(nextTurn);
         string incomingName = isStrongTurn ? enemyPattern.strongAttackName : "Normal Attack";
         int incomingDmg = isStrongTurn ? enemyPattern.strongAttackDamage : enemyPattern.normalAttackDamage;
-        int reducedDmg = Mathf.RoundToInt(incomingDmg * (100 - CfgGuardReductionPercent) / 100f);
+        int reducedDmg = CalculateGuardedDamage(incomingDmg);
 
         string preview = "<b>GUARD</b>\n";
         preview += $"Next attack: {incomingDmg} dmg → Reduced to {reducedDmg} dmg\n";
