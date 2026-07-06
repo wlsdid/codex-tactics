@@ -35,6 +35,23 @@ Recommended next tasks:
 1. After Unity activation: regenerate BattleScene, validate, run battle auto-test, and refresh captures.
 2. If still crowded in contact-sheet QA: further reduce side-panel density and enhance skill impact VFX.
 
+## Follow-up autonomous run — 2026-07-06 Skill Cast Anticipation VFX Pass
+
+Completed:
+- Added element-colored cast anticipation flares before skill projectiles travel.
+- Extended `SkillProjectile.DebugImpactProfile` with `Cast=` sizing so VFX profile changes are testable.
+- Updated `BattleAutoTestRunner` expectations for Fire, Lightning, and Ice impact profiles.
+- Added `Docs/Devlog/2026-07-06_skill-cast-anticipation-vfx.md`.
+
+Verification completed:
+- C# brace/parenthesis balance check: PASS.
+- `git diff --check`: PASS.
+- Unity visual validation/capture refresh remains blocked until Windows Unity license activation is restored.
+
+Recommended next tasks:
+1. Continue art-only polish that can be statically verified, such as skill-card/icon presentation and battle microcopy density.
+2. After Unity activation: rerun battle auto-test and capture refresh to visually judge the new anticipation -> projectile -> hit loop.
+
 ## Previous autonomous run — 2026-06-09 Batch 99: UI Overlap Cleanup & Background UI Polish
 
 Completed:

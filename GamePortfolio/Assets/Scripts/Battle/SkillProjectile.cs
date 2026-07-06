@@ -72,7 +72,52 @@ public class SkillProjectile : MonoBehaviour
         proj.projectileRect = rt;
         proj.trailRect = trailRt;
         proj.trailImage = trailImg;
+        SpawnCastAnticipation(start, element);
         proj.StartCoroutine(proj.MoveRoutine(start, end));
+    }
+
+    private static void SpawnCastAnticipation(Vector3 position, ElementType element)
+    {
+        GetOrCacheCanvas();
+        if (cachedCanvasTransform == null) return;
+
+        GameObject flare = new GameObject($"Cast Anticipation {element}", typeof(RectTransform), typeof(Image));
+        flare.transform.SetParent(cachedCanvasTransform, false);
+        flare.transform.position = position;
+
+        Image flareImg = flare.GetComponent<Image>();
+        Color color = GetElementColor(element);
+        color.a = GetCastAnticipationAlpha(element);
+        flareImg.color = color;
+        flareImg.raycastTarget = false;
+
+        RectTransform flareRt = flare.GetComponent<RectTransform>();
+        float size = GetCastAnticipationSize(element);
+        flareRt.sizeDelta = new Vector2(size, size);
+
+        flare.AddComponent<SkillProjectile>().StartCoroutine(CastAnticipationRoutine(flare, flareRt, element));
+    }
+
+    private static IEnumerator CastAnticipationRoutine(GameObject flare, RectTransform rt, ElementType element)
+    {
+        Image img = flare.GetComponent<Image>();
+        float startSize = GetCastAnticipationSize(element);
+        float endSize = startSize * 1.45f;
+        float duration = GetCastAnticipationDuration(element);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            float pulse = Mathf.Sin(t * Mathf.PI);
+            float size = Mathf.Lerp(startSize, endSize, pulse);
+            rt.sizeDelta = new Vector2(size, size);
+            img.color = new Color(img.color.r, img.color.g, img.color.b, Mathf.Lerp(GetCastAnticipationAlpha(element), 0f, t));
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(flare);
     }
 
     private IEnumerator MoveRoutine(Vector3 start, Vector3 end)
@@ -350,6 +395,9 @@ public class SkillProjectile : MonoBehaviour
     private static float GetShakeDuration(ElementType element) => element == ElementType.Lightning ? 0.12f : element == ElementType.Earth ? 0.11f : 0.09f;
     private static float GetShakeMagnitude(ElementType element) => element == ElementType.Lightning ? 0.14f : element == ElementType.Fire ? 0.11f : element == ElementType.Earth ? 0.10f : 0.07f;
     private static float GetSubSparkDistance(ElementType element) => element == ElementType.Lightning ? 32f : element == ElementType.Fire ? 28f : 22f;
+    private static float GetCastAnticipationSize(ElementType element) => element == ElementType.Lightning ? 58f : element == ElementType.Fire ? 50f : element == ElementType.Earth ? 46f : 42f;
+    private static float GetCastAnticipationAlpha(ElementType element) => element == ElementType.Lightning ? 0.34f : 0.28f;
+    private static float GetCastAnticipationDuration(ElementType element) => element == ElementType.Lightning ? 0.11f : 0.14f;
 
     private static int GetBurstSparkCount(ElementType element) => element switch
     {
@@ -362,6 +410,6 @@ public class SkillProjectile : MonoBehaviour
 
     public static string DebugImpactProfile(ElementType element)
     {
-        return $"Element={element}; Projectile={GetProjectileSize(element)}; Trail={GetTrailPadding(element)}; Sparks={GetBurstSparkCount(element)}; Ring={GetImpactRingSize(element)}; Shake={GetShakeMagnitude(element):0.00}";
+        return $"Element={element}; Projectile={GetProjectileSize(element)}; Trail={GetTrailPadding(element)}; Cast={GetCastAnticipationSize(element)}; Sparks={GetBurstSparkCount(element)}; Ring={GetImpactRingSize(element)}; Shake={GetShakeMagnitude(element):0.00}";
     }
 }
