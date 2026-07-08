@@ -1,6 +1,25 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-07-06 Bottom Resource Command Strip Pass
+## Latest autonomous run — 2026-07-08 Enemy Card Chip Hierarchy Pass
+
+Completed:
+- Continued visual-only polish with no new mechanics and no Deep handoff.
+- Framed enemy HP as a compact red-edged chip.
+- Framed enemy status, intent, and break rows as tinted chips so the right panel reads more like authored tactical-RPG UI.
+- Added a pink break edge accent and lowered enemy label font sizes to reduce side-column density.
+- Added BattleScene validator checks for the enemy chip hierarchy and included enemy labels in runtime raycast optimization checks.
+- Added `Docs/Devlog/2026-07-08_enemy-card-chip-hierarchy-pass.md`.
+
+Verification completed:
+- C# delimiter/static check: PASS.
+- `git diff --check`: PASS.
+- Unity regeneration/capture QA remains pending if Windows Unity license is inactive.
+
+Recommended next tasks:
+1. Continue visual-only polish on enemy-card portrait/material depth or central battlefield character lighting.
+2. Once Unity license is active, regenerate scenes/captures and visually judge the enemy chip hierarchy at screenshot size.
+
+## Previous autonomous run — 2026-07-06 Bottom Resource Command Strip Pass
 
 Completed:
 - Continued visual-only polish with no new mechanics.
