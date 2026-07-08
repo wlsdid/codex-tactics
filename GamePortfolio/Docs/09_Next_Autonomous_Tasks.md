@@ -1,6 +1,26 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-07-08 Enemy Card Chip Hierarchy Pass
+## Latest autonomous run — 2026-07-08 Battlefield Rim & Contact Lighting Pass
+
+Completed:
+- Continued visual-only polish with no new mechanics and no Deep handoff.
+- Added hero/enemy contact glows on the battlefield landing tiles.
+- Added subtle standee rim-light strips to improve sprite separation from the dark background.
+- Added a restrained center action slash trail so the central battlefield reads less static in screenshots.
+- Disabled raycast targets on the new decorative lighting panels.
+- Added BattleScene validator checks for contact glow, rim lighting, and center action trail.
+- Added `Docs/Devlog/2026-07-08_battlefield_rim_contact_lighting_pass.md`.
+
+Verification completed:
+- C# delimiter/static check: PASS.
+- `git diff --check`: PASS.
+- Unity regeneration/capture QA remains pending if Windows Unity license is inactive.
+
+Recommended next tasks:
+1. Continue visual-only polish on stage/background contrast, portrait card depth, or capture-size HUD density.
+2. Once Unity license is active, regenerate scenes/captures and visually judge the center battlefield first impression.
+
+## Previous autonomous run — 2026-07-08 Enemy Card Chip Hierarchy Pass
 
 Completed:
 - Continued visual-only polish with no new mechanics and no Deep handoff.
