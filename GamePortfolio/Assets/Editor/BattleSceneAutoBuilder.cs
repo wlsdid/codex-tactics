@@ -39,6 +39,7 @@ public static class BattleSceneAutoBuilder
         CreateBattlefieldDepthLayers(canvas.transform);
         CreateCinematicBattlefieldLighting(canvas.transform);
         CreateBattlefieldForegroundFraming(canvas.transform);
+        CreateBattlefieldWeatherAndParallax(canvas.transform);
         CreateFieldVignette(canvas.transform);
         CreateCommercialBattlefieldComposition(canvas.transform);
         CreateTacticalGrid(canvas.transform);
@@ -57,6 +58,7 @@ public static class BattleSceneAutoBuilder
         CreatePartyRosterSlots(canvas.transform);
         CreateProgressReferenceSkillCards(canvas.transform);
         CreateProgressReferenceBottomHud(canvas.transform);
+        CreateCommercialCombatReadouts(canvas.transform);
         Image playerSelectionHighlight = CreatePanel(canvas.transform, "Player Selection Highlight", new Vector2(-508, 160), new Vector2(292, 70), new Color(0.95f, 0.86f, 0.64f, 0.24f));
         playerSelectionHighlight.gameObject.SetActive(false);
         Button playerSelectButton = CreateCenteredButton(canvas.transform, "Player Select Button", "Click Hero", new Vector2(-508, 160), new Vector2(292, 70));
@@ -594,6 +596,15 @@ public static class BattleSceneAutoBuilder
         Image enemyIntentChipPanel = FindImage("Enemy Intent Chip Panel");
         Image enemyBreakChipPanel = FindImage("Enemy Break Chip Panel");
         Image enemyBreakChipPinkEdge = FindImage("Enemy Break Chip Pink Edge");
+        Image rainStreak1 = FindImage("Battle Rain Streak 1");
+        Image parallaxLeaf3 = FindImage("Battle Parallax Leaf 3");
+        Image bossPhasePanel = FindImage("Boss Phase Telegraph Panel");
+        TMP_Text bossPhaseText = FindText("Boss Phase Telegraph Text");
+        Image comboMeterPanel = FindImage("Combo Meter Panel");
+        Image comboMeterFill = FindImage("Combo Meter Fill Panel");
+        Image turnTimelineRail = FindImage("Turn Timeline Rail Panel");
+        Image turnTimelineNode1 = FindImage("Turn Timeline Node 1");
+        TMP_Text damagePreviewText = FindText("Damage Preview Text");
 
         AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
         AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 1100f, 560f));
@@ -609,6 +620,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield has cinematic character spotlights", IsReadableContrastAccent(heroCinematicSpotlight, 0.08f, 0.14f) && IsReadableContrastAccent(enemyCinematicSpotlight, 0.08f, 0.14f));
         AppendCheck(ref passed, ref report, "Battlefield has restrained clash and floor highlights", IsReadableContrastAccent(centerClashGlow, 0.08f, 0.14f) && IsReadableContrastAccent(floorSpecularHighlight, 0.10f, 0.14f));
         AppendCheck(ref passed, ref report, "Battlefield has foreground framing depth", IsReadableContrastAccent(foregroundTreeLeft, 0.22f, 0.34f) && IsReadableContrastAccent(foregroundTreeRight, 0.22f, 0.34f) && IsReadableContrastAccent(lowerFogBand, 0.14f, 0.24f) && IsReadableContrastAccent(upperCanopyShadow, 0.14f, 0.24f));
+        AppendCheck(ref passed, ref report, "Battlefield has weather/parallax polish layer", IsReadableContrastAccent(rainStreak1, 0.08f, 0.16f) && IsReadableContrastAccent(parallaxLeaf3, 0.16f, 0.28f));
         AppendCheck(ref passed, ref report, "Battlefield unit base rings align to landing tiles", IsDecorativePanelLikelyConfigured(heroBaseRing, 100f, 16f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 112f, 18f));
         AppendCheck(ref passed, ref report, "Battlefield contrast polish keeps rings readable but not debug-bright", IsReadableContrastAccent(heroBaseRing, 0.38f, 0.48f) && IsReadableContrastAccent(enemyBaseRing, 0.38f, 0.48f));
         AppendCheck(ref passed, ref report, "Battlefield standee grounding shadows are readable", IsReadableContrastAccent(heroStandeeShadow, 0.40f, 0.50f) && IsReadableContrastAccent(enemyStandeeShadow, 0.42f, 0.52f));
@@ -698,6 +710,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Bottom command hint is framed as a subdued chip", IsReadableContrastAccent(commandHintChipPanel, 0.30f, 0.40f));
         AppendCheck(ref passed, ref report, "Reference-style skill detail card exists", IsDecorativePanelLikelyConfigured(referenceSkillDetailPanel, 140f, 62f) && IsNameplateTextLikelyConfigured(referenceSkillDetailText, "SKILL", "AP2"));
         AppendCheck(ref passed, ref report, "Reference-style enemy intent card exists", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 136f, 38f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
+        AppendCheck(ref passed, ref report, "Commercial combat readouts add boss phase/combo/timeline", IsDecorativePanelLikelyConfigured(bossPhasePanel, 250f, 42f) && IsNameplateTextLikelyConfigured(bossPhaseText, "BOSS", "BREAK") && IsDecorativePanelLikelyConfigured(comboMeterPanel, 210f, 28f) && IsReadableContrastAccent(comboMeterFill, 0.54f, 0.70f) && IsDecorativePanelLikelyConfigured(turnTimelineRail, 250f, 20f) && IsReadableContrastAccent(turnTimelineNode1, 0.62f, 0.80f) && IsNameplateTextLikelyConfigured(damagePreviewText, "DMG", "CRIT"));
         AppendCheck(ref passed, ref report, "Progress-reference right skill cards use compact density", IsDecorativePanelLikelyConfigured(progressSkillCard1, 160f, 54f));
         AppendCheck(ref passed, ref report, "Progress-reference skill icons have authored frames", IsDecorativePanelLikelyConfigured(progressSkillIconFrame1, 48f, 48f) && IsReadableContrastAccent(progressSkillCardTopHighlight1, 0.24f, 0.36f));
         AppendCheck(ref passed, ref report, "Bottom right duplicate battle-start CTA removed", FindImage("Progress Battle Start Panel") == null && FindText("Progress Battle Start Text") == null);
@@ -1493,6 +1506,32 @@ public static class BattleSceneAutoBuilder
         enemyTile.rectTransform.localRotation = Quaternion.Euler(0, 0, 4f);
     }
 
+    private static void CreateBattlefieldWeatherAndParallax(Transform parent)
+    {
+        for (int i = 0; i < 7; i++)
+        {
+            float x = -330f + i * 110f;
+            float y = 178f - (i % 3) * 84f;
+            Image streak = CreatePanel(parent, $"Battle Rain Streak {i + 1}", new Vector2(x, y), new Vector2(3, 72), new Color(0.58f, 0.74f, 1.0f, 0.10f + i * 0.006f));
+            streak.rectTransform.localRotation = Quaternion.Euler(0, 0, -14f);
+            streak.raycastTarget = false;
+        }
+
+        Color[] leafColors =
+        {
+            new Color(0.42f, 0.78f, 0.38f, 0.20f),
+            new Color(0.72f, 0.54f, 0.24f, 0.22f),
+            new Color(0.28f, 0.62f, 0.42f, 0.24f),
+            new Color(0.86f, 0.70f, 0.34f, 0.18f)
+        };
+        for (int i = 0; i < leafColors.Length; i++)
+        {
+            Image leaf = CreatePanel(parent, $"Battle Parallax Leaf {i + 1}", new Vector2(-270 + i * 180, 126 - i * 34), new Vector2(24, 10), leafColors[i]);
+            leaf.rectTransform.localRotation = Quaternion.Euler(0, 0, 18f + i * 17f);
+            leaf.raycastTarget = false;
+        }
+    }
+
     private static void CreateFieldVignette(Transform parent)
     {
         CreatePanel(parent, "Forest Shadow Left", new Vector2(-382, -6), new Vector2(86, 510), new Color(0.005f, 0.012f, 0.016f, 0.44f));
@@ -1606,6 +1645,55 @@ public static class BattleSceneAutoBuilder
         if (motion == null)
             motion = image.gameObject.AddComponent<BattleSpriteMotion>();
         motion.Configure(bobPixels, bobSpeed, phaseOffset, hitPixels, squashAmount, moveLeftOnHit);
+    }
+
+    private static void CreateCommercialCombatReadouts(Transform parent)
+    {
+        Image bossPhase = CreatePanel(parent, "Boss Phase Telegraph Panel", new Vector2(0, 182), new Vector2(272, 46), new Color(0.075f, 0.024f, 0.035f, 0.52f));
+        Image bossEdge = CreatePanel(parent, "Boss Phase Telegraph Gold Edge", new Vector2(0, 204), new Vector2(232, 2), new Color(1.0f, 0.72f, 0.36f, 0.40f));
+        TMP_Text bossText = CreateText(parent, "Boss Phase Telegraph Text", "BOSS BREAK WINDOW / 2 TURNS", new Vector2(0, 182), new Vector2(244, 24), TextAlignmentOptions.Center);
+        bossText.fontSize = 11;
+        bossText.fontStyle = FontStyles.Bold;
+        bossText.color = new Color(1.0f, 0.84f, 0.58f, 0.88f);
+
+        Image comboPanel = CreatePanel(parent, "Combo Meter Panel", new Vector2(0, 136), new Vector2(232, 30), new Color(0.018f, 0.024f, 0.040f, 0.46f));
+        Image comboFill = CreatePanel(parent, "Combo Meter Fill Panel", new Vector2(-36, 136), new Vector2(142, 8), new Color(0.96f, 0.50f, 0.28f, 0.62f));
+        TMP_Text comboText = CreateText(parent, "Combo Meter Text", "CHAIN 3 / AP BURST", new Vector2(0, 146), new Vector2(210, 15), TextAlignmentOptions.Center);
+        comboText.fontSize = 8;
+        comboText.color = new Color(0.96f, 0.92f, 0.80f, 0.84f);
+
+        Image damagePreview = CreatePanel(parent, "Damage Preview Panel", new Vector2(0, 96), new Vector2(204, 26), new Color(0.050f, 0.026f, 0.014f, 0.42f));
+        TMP_Text damagePreviewText = CreateText(parent, "Damage Preview Text", "DMG 42-57 / CRIT 18%", new Vector2(0, 96), new Vector2(184, 18), TextAlignmentOptions.Center);
+        damagePreviewText.fontSize = 9;
+        damagePreviewText.color = new Color(1.0f, 0.78f, 0.46f, 0.88f);
+
+        Image timelineRail = CreatePanel(parent, "Turn Timeline Rail Panel", new Vector2(314, 252), new Vector2(270, 22), new Color(0.010f, 0.018f, 0.030f, 0.40f));
+        TMP_Text timelineLabel = CreateText(parent, "Turn Timeline Label Text", "TURN ORDER", new Vector2(200, 252), new Vector2(82, 16), TextAlignmentOptions.Left);
+        timelineLabel.fontSize = 8;
+        timelineLabel.color = new Color(0.76f, 0.88f, 1.0f, 0.74f);
+        Color[] nodeColors =
+        {
+            new Color(0.44f, 0.82f, 1.0f, 0.72f),
+            new Color(1.0f, 0.58f, 0.36f, 0.66f),
+            new Color(0.52f, 0.92f, 0.56f, 0.62f),
+            new Color(0.94f, 0.74f, 0.34f, 0.62f)
+        };
+        for (int i = 0; i < nodeColors.Length; i++)
+        {
+            Image node = CreatePanel(parent, $"Turn Timeline Node {i + 1}", new Vector2(268 + i * 42, 252), new Vector2(20, 20), nodeColors[i]);
+            node.raycastTarget = false;
+        }
+
+        bossPhase.raycastTarget = false;
+        bossEdge.raycastTarget = false;
+        comboPanel.raycastTarget = false;
+        comboFill.raycastTarget = false;
+        damagePreview.raycastTarget = false;
+        timelineRail.raycastTarget = false;
+        bossText.raycastTarget = false;
+        comboText.raycastTarget = false;
+        damagePreviewText.raycastTarget = false;
+        timelineLabel.raycastTarget = false;
     }
 
     private static void CreatePremiumCommandFrame(Transform parent)

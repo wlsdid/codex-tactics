@@ -43,6 +43,7 @@ public static class GameFlowSceneAutoBuilder
         bgPanel.raycastTarget = false;
         CreateTitleShowcaseFrame(canvas.transform);
         CreateTitleCommercialAccents(canvas.transform);
+        CreateTitleTrailerStoryboard(canvas.transform);
 
         TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Codex Tactics", new Vector2(0, 135), new Vector2(860, 92), TextAlignmentOptions.Center);
         titleText.fontSize = 64;
@@ -83,6 +84,7 @@ public static class GameFlowSceneAutoBuilder
 
         CreateStageSelectShowcaseFrame(canvas.transform);
         CreateStageSelectPremiumPreview(canvas.transform);
+        CreateStageSelectCampaignBriefing(canvas.transform);
         CreateStageSelectStrategicInfoStrip(canvas.transform);
 
         TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 305), new Vector2(600, 54), TextAlignmentOptions.Center);
@@ -250,6 +252,7 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "TitleScene has party silhouette", HasSceneObject("Title Party Silhouette Hero"));
             AppendCheck(ref passed, ref report, "TitleScene has reviewer pitch text", HasSceneObject("Title Pitch Text"));
             AppendCheck(ref passed, ref report, "TitleScene has commercial logo crest and feature chips", HasSceneObject("Title Logo Crest Panel") && HasSceneObject("Title Feature Chip 1 Panel") && HasSceneObject("Title Feature Chip 3 Text"));
+            AppendCheck(ref passed, ref report, "TitleScene has trailer storyboard carousel", HasSceneObject("Title Trailer Shot 1 Panel") && HasSceneObject("Title Trailer Shot 3 Text") && HasSceneObject("Title Demo Pillar 2 Panel"));
             if (startBtn != null)
                 AppendCheck(ref passed, ref report, "Start Game Button has LoadStageSelect persistent listener", VerifyButtonPersistentListener(startBtn, "LoadStageSelect"));
         }
@@ -269,6 +272,7 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "StageSelect has premium map preview rail", HasSceneObject("Stage Select Map Preview Panel") && HasSceneObject("Stage Select Route Line Panel"));
             AppendCheck(ref passed, ref report, "StageSelect has reward chip row", HasSceneObject("Stage Select Reward Gold Chip") && HasSceneObject("Stage Select Reward XP Chip"));
             AppendCheck(ref passed, ref report, "StageSelect has strategic info strip", HasSceneObject("Stage Select Strategy Strip Panel") && HasSceneObject("Stage Select Party Loadout Chip") && HasSceneObject("Stage Select Enemy Forecast Chip"));
+            AppendCheck(ref passed, ref report, "StageSelect has commercial campaign briefing", HasSceneObject("Stage Select Campaign Briefing Panel") && HasSceneObject("Stage Select Risk Gauge Fill Panel") && HasSceneObject("Stage Select Sponsor Tag Text"));
             AppendCheck(ref passed, ref report, "StageSelect primary buttons have premium bevel material", HasSceneObject("Start Battle Button Top Highlight") && HasSceneObject("Start Battle Button Gold Edge"));
             AppendCheck(ref passed, ref report, "StageSelect cards have premium bevel material", HasSceneObject("Stage Card 1 Top Highlight") && HasSceneObject("Stage Card 1 Gold Edge"));
             AppendCheck(ref passed, ref report, "StageSelect cards have thumbnail art frames", HasSceneObject("Stage 1 Thumbnail Frame Panel") && HasSceneObject("Stage 1 Thumbnail Sky Panel"));
@@ -464,6 +468,43 @@ public static class GameFlowSceneAutoBuilder
         }
     }
 
+    private static void CreateTitleTrailerStoryboard(Transform parent)
+    {
+        Image rail = CreatePanel(parent, "Title Trailer Storyboard Rail Panel", new Vector2(0, -238), new Vector2(760, 74), new Color(0.010f, 0.016f, 0.028f, 0.62f));
+        Image railEdge = CreatePanel(parent, "Title Trailer Storyboard Gold Edge", new Vector2(0, -202), new Vector2(680, 2), new Color(0.92f, 0.70f, 0.34f, 0.42f));
+        rail.raycastTarget = false;
+        railEdge.raycastTarget = false;
+
+        string[] shots = { "01 SELECT", "02 BREAK", "03 RANK" };
+        string[] captions = { "Pick route", "Chain AP burst", "Claim reward" };
+        Color[] colors =
+        {
+            new Color(0.25f, 0.54f, 1.0f, 0.22f),
+            new Color(1.0f, 0.42f, 0.26f, 0.24f),
+            new Color(0.95f, 0.76f, 0.34f, 0.24f)
+        };
+
+        for (int i = 0; i < shots.Length; i++)
+        {
+            float x = -248f + i * 248f;
+            Image shot = CreatePanel(parent, $"Title Trailer Shot {i + 1} Panel", new Vector2(x, -238), new Vector2(202, 52), new Color(0.018f, 0.024f, 0.040f, 0.78f));
+            Image glow = CreatePanel(parent, $"Title Trailer Shot {i + 1} Glow Panel", new Vector2(x - 56, -238), new Vector2(54, 38), colors[i]);
+            TMP_Text label = CreateText(parent, $"Title Trailer Shot {i + 1} Text", shots[i] + " / " + captions[i], new Vector2(x + 12, -238), new Vector2(164, 22), TextAlignmentOptions.Center);
+            label.fontSize = 10;
+            label.fontStyle = FontStyles.Bold;
+            label.color = new Color(0.88f, 0.94f, 1.0f, 0.86f);
+            shot.raycastTarget = false;
+            glow.raycastTarget = false;
+            label.raycastTarget = false;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            Image pillar = CreatePanel(parent, $"Title Demo Pillar {i + 1} Panel", new Vector2(-84 + i * 84, -74), new Vector2(38, 76 + i * 10), new Color(0.95f, 0.70f, 0.30f, 0.10f));
+            pillar.raycastTarget = false;
+        }
+    }
+
     private static void CreateStageCardThumbnail(Transform parent, int index, string elementLabel, bool unlocked)
     {
         Color elementColor = GetStageElementColor(elementLabel);
@@ -554,6 +595,29 @@ public static class GameFlowSceneAutoBuilder
         goldChip.raycastTarget = false;
         xpChip.raycastTarget = false;
         modifierChip.raycastTarget = false;
+    }
+
+    private static void CreateStageSelectCampaignBriefing(Transform parent)
+    {
+        Image panel = CreatePanel(parent, "Stage Select Campaign Briefing Panel", new Vector2(0, -105), new Vector2(812, 34), new Color(0.012f, 0.018f, 0.032f, 0.58f));
+        Image leftEdge = CreatePanel(parent, "Stage Select Campaign Briefing Left Edge", new Vector2(-404, -105), new Vector2(3, 28), new Color(0.90f, 0.68f, 0.32f, 0.52f));
+        TMP_Text label = CreateText(parent, "Stage Select Sponsor Tag Text", "CLIENT BRIEF / polished short demo: tactical choice -> break -> ranked reward", new Vector2(-136, -105), new Vector2(500, 18), TextAlignmentOptions.Left);
+        label.fontSize = 11;
+        label.fontStyle = FontStyles.Bold;
+        label.color = new Color(0.86f, 0.92f, 1.0f, 0.84f);
+
+        Image riskBack = CreatePanel(parent, "Stage Select Risk Gauge Back Panel", new Vector2(292, -105), new Vector2(170, 10), new Color(0.04f, 0.04f, 0.052f, 0.82f));
+        Image riskFill = CreatePanel(parent, "Stage Select Risk Gauge Fill Panel", new Vector2(248, -105), new Vector2(82, 6), new Color(1.0f, 0.58f, 0.30f, 0.78f));
+        TMP_Text riskText = CreateText(parent, "Stage Select Risk Gauge Text", "RISK 48%", new Vector2(388, -105), new Vector2(82, 16), TextAlignmentOptions.Left);
+        riskText.fontSize = 10;
+        riskText.color = new Color(1.0f, 0.78f, 0.52f, 0.90f);
+
+        panel.raycastTarget = false;
+        leftEdge.raycastTarget = false;
+        riskBack.raycastTarget = false;
+        riskFill.raycastTarget = false;
+        label.raycastTarget = false;
+        riskText.raycastTarget = false;
     }
 
     private static void CreateStageSelectStrategicInfoStrip(Transform parent)

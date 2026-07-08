@@ -1731,3 +1731,8 @@ Recommended next tasks:
 1. Convert enemy AI pattern numbers into a small data class or ScriptableObject-style config.
 2. Add a compact result summary text: turns taken, damage dealt, and result.
 3. Add hover/click tooltip polish later if the UI needs more detail.
+
+## Next after large commercial UI readout pass
+- Regenerate TitleScene/StageSelectScene/BattleScene in Unity once license is available.
+- Capture screenshots specifically checking trailer rail, campaign briefing, boss break readout, combo meter, and turn order rail.
+- If screenshots feel cluttered, reduce opacity before adding new mechanics.
