@@ -38,6 +38,7 @@ public static class BattleSceneAutoBuilder
         commandGoldDividerPanel.raycastTarget = false;
         CreateBattlefieldDepthLayers(canvas.transform);
         CreateCinematicBattlefieldLighting(canvas.transform);
+        CreateBattlefieldForegroundFraming(canvas.transform);
         CreateFieldVignette(canvas.transform);
         CreateCommercialBattlefieldComposition(canvas.transform);
         CreateTacticalGrid(canvas.transform);
@@ -553,6 +554,10 @@ public static class BattleSceneAutoBuilder
         Image enemyCinematicSpotlight = FindImage("Enemy Cinematic Spotlight");
         Image centerClashGlow = FindImage("Center Clash Glow Panel");
         Image floorSpecularHighlight = FindImage("Floor Specular Highlight Panel");
+        Image foregroundTreeLeft = FindImage("Foreground Tree Pillar Left Panel");
+        Image foregroundTreeRight = FindImage("Foreground Tree Pillar Right Panel");
+        Image lowerFogBand = FindImage("Lower Battle Fog Band Panel");
+        Image upperCanopyShadow = FindImage("Upper Canopy Shadow Panel");
         Image heroBaseRing = FindImage("Hero Base Ring Panel");
         Image enemyBaseRing = FindImage("Enemy Base Ring Panel");
         Image heroStandeeShadow = FindImage("Hero Standee Shadow");
@@ -603,6 +608,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield has foreground fog layer", IsReadableContrastAccent(foregroundFog, 0.18f, 0.24f));
         AppendCheck(ref passed, ref report, "Battlefield has cinematic character spotlights", IsReadableContrastAccent(heroCinematicSpotlight, 0.08f, 0.14f) && IsReadableContrastAccent(enemyCinematicSpotlight, 0.08f, 0.14f));
         AppendCheck(ref passed, ref report, "Battlefield has restrained clash and floor highlights", IsReadableContrastAccent(centerClashGlow, 0.08f, 0.14f) && IsReadableContrastAccent(floorSpecularHighlight, 0.10f, 0.14f));
+        AppendCheck(ref passed, ref report, "Battlefield has foreground framing depth", IsReadableContrastAccent(foregroundTreeLeft, 0.22f, 0.34f) && IsReadableContrastAccent(foregroundTreeRight, 0.22f, 0.34f) && IsReadableContrastAccent(lowerFogBand, 0.14f, 0.24f) && IsReadableContrastAccent(upperCanopyShadow, 0.14f, 0.24f));
         AppendCheck(ref passed, ref report, "Battlefield unit base rings align to landing tiles", IsDecorativePanelLikelyConfigured(heroBaseRing, 100f, 16f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 112f, 18f));
         AppendCheck(ref passed, ref report, "Battlefield contrast polish keeps rings readable but not debug-bright", IsReadableContrastAccent(heroBaseRing, 0.38f, 0.48f) && IsReadableContrastAccent(enemyBaseRing, 0.38f, 0.48f));
         AppendCheck(ref passed, ref report, "Battlefield standee grounding shadows are readable", IsReadableContrastAccent(heroStandeeShadow, 0.40f, 0.50f) && IsReadableContrastAccent(enemyStandeeShadow, 0.42f, 0.52f));
@@ -1526,6 +1532,20 @@ public static class BattleSceneAutoBuilder
         floorSpecular.raycastTarget = false;
         heroSpotlight.rectTransform.localRotation = Quaternion.Euler(0, 0, -8f);
         enemySpotlight.rectTransform.localRotation = Quaternion.Euler(0, 0, 8f);
+    }
+
+    private static void CreateBattlefieldForegroundFraming(Transform parent)
+    {
+        Image leftTree = CreatePanel(parent, "Foreground Tree Pillar Left Panel", new Vector2(-455, -18), new Vector2(70, 500), new Color(0.0f, 0.010f, 0.012f, 0.28f));
+        Image rightTree = CreatePanel(parent, "Foreground Tree Pillar Right Panel", new Vector2(462, -20), new Vector2(74, 500), new Color(0.0f, 0.010f, 0.012f, 0.30f));
+        Image lowerFog = CreatePanel(parent, "Lower Battle Fog Band Panel", new Vector2(0, -198), new Vector2(820, 42), new Color(0.36f, 0.50f, 0.46f, 0.18f));
+        Image canopy = CreatePanel(parent, "Upper Canopy Shadow Panel", new Vector2(0, 176), new Vector2(840, 54), new Color(0.0f, 0.014f, 0.012f, 0.18f));
+        leftTree.raycastTarget = false;
+        rightTree.raycastTarget = false;
+        lowerFog.raycastTarget = false;
+        canopy.raycastTarget = false;
+        leftTree.rectTransform.localRotation = Quaternion.Euler(0, 0, -2f);
+        rightTree.rectTransform.localRotation = Quaternion.Euler(0, 0, 2f);
     }
 
     private static void CreateBattlefieldUnitStandees(Transform parent)

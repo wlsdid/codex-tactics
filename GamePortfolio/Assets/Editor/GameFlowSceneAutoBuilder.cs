@@ -42,6 +42,7 @@ public static class GameFlowSceneAutoBuilder
         Image bgPanel = CreatePanel(canvas.transform, "Background Panel", Vector2.zero, new Vector2(1200, 800), new Color(0.025f, 0.026f, 0.045f, 1f));
         bgPanel.raycastTarget = false;
         CreateTitleShowcaseFrame(canvas.transform);
+        CreateTitleCommercialAccents(canvas.transform);
 
         TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Codex Tactics", new Vector2(0, 135), new Vector2(860, 92), TextAlignmentOptions.Center);
         titleText.fontSize = 64;
@@ -82,6 +83,7 @@ public static class GameFlowSceneAutoBuilder
 
         CreateStageSelectShowcaseFrame(canvas.transform);
         CreateStageSelectPremiumPreview(canvas.transform);
+        CreateStageSelectStrategicInfoStrip(canvas.transform);
 
         TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 305), new Vector2(600, 54), TextAlignmentOptions.Center);
         headerText.fontSize = 36;
@@ -247,6 +249,7 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "TitleScene has battlefield silhouette", HasSceneObject("Title Battlefield Silhouette Panel"));
             AppendCheck(ref passed, ref report, "TitleScene has party silhouette", HasSceneObject("Title Party Silhouette Hero"));
             AppendCheck(ref passed, ref report, "TitleScene has reviewer pitch text", HasSceneObject("Title Pitch Text"));
+            AppendCheck(ref passed, ref report, "TitleScene has commercial logo crest and feature chips", HasSceneObject("Title Logo Crest Panel") && HasSceneObject("Title Feature Chip 1 Panel") && HasSceneObject("Title Feature Chip 3 Text"));
             if (startBtn != null)
                 AppendCheck(ref passed, ref report, "Start Game Button has LoadStageSelect persistent listener", VerifyButtonPersistentListener(startBtn, "LoadStageSelect"));
         }
@@ -265,6 +268,7 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "StageSelect chapter label exists", HasSceneObject("Stage Select Chapter Label Text"));
             AppendCheck(ref passed, ref report, "StageSelect has premium map preview rail", HasSceneObject("Stage Select Map Preview Panel") && HasSceneObject("Stage Select Route Line Panel"));
             AppendCheck(ref passed, ref report, "StageSelect has reward chip row", HasSceneObject("Stage Select Reward Gold Chip") && HasSceneObject("Stage Select Reward XP Chip"));
+            AppendCheck(ref passed, ref report, "StageSelect has strategic info strip", HasSceneObject("Stage Select Strategy Strip Panel") && HasSceneObject("Stage Select Party Loadout Chip") && HasSceneObject("Stage Select Enemy Forecast Chip"));
             AppendCheck(ref passed, ref report, "StageSelect primary buttons have premium bevel material", HasSceneObject("Start Battle Button Top Highlight") && HasSceneObject("Start Battle Button Gold Edge"));
             AppendCheck(ref passed, ref report, "StageSelect cards have premium bevel material", HasSceneObject("Stage Card 1 Top Highlight") && HasSceneObject("Stage Card 1 Gold Edge"));
             AppendCheck(ref passed, ref report, "StageSelect cards have thumbnail art frames", HasSceneObject("Stage 1 Thumbnail Frame Panel") && HasSceneObject("Stage 1 Thumbnail Sky Panel"));
@@ -431,6 +435,35 @@ public static class GameFlowSceneAutoBuilder
         enemy.raycastTarget = false;
     }
 
+    private static void CreateTitleCommercialAccents(Transform parent)
+    {
+        Image logoGlow = CreatePanel(parent, "Title Logo Glow Panel", new Vector2(0, 134), new Vector2(620, 86), new Color(0.95f, 0.62f, 0.20f, 0.12f));
+        Image crest = CreatePanel(parent, "Title Logo Crest Panel", new Vector2(0, 202), new Vector2(118, 30), new Color(0.90f, 0.66f, 0.24f, 0.72f));
+        Image crestShade = CreatePanel(parent, "Title Logo Crest Shade Panel", new Vector2(0, 196), new Vector2(92, 6), new Color(0.0f, 0.0f, 0.0f, 0.28f));
+        Image leftOrnament = CreatePanel(parent, "Title Left Ornament Line", new Vector2(-292, 118), new Vector2(180, 3), new Color(0.78f, 0.54f, 0.20f, 0.52f));
+        Image rightOrnament = CreatePanel(parent, "Title Right Ornament Line", new Vector2(292, 118), new Vector2(180, 3), new Color(0.78f, 0.54f, 0.20f, 0.52f));
+        logoGlow.raycastTarget = false;
+        crest.raycastTarget = false;
+        crestShade.raycastTarget = false;
+        leftOrnament.raycastTarget = false;
+        rightOrnament.raycastTarget = false;
+
+        string[] chipLabels = { "TACTICAL COMMAND", "5 MIN VERTICAL SLICE", "PORTFOLIO READY LOOP" };
+        for (int i = 0; i < chipLabels.Length; i++)
+        {
+            float x = -250f + i * 250f;
+            Image chip = CreatePanel(parent, $"Title Feature Chip {i + 1} Panel", new Vector2(x, -164), new Vector2(210, 28), new Color(0.018f, 0.028f, 0.046f, 0.72f));
+            Image edge = CreatePanel(parent, $"Title Feature Chip {i + 1} Gold Edge", new Vector2(x, -150), new Vector2(168, 2), new Color(0.92f, 0.70f, 0.34f, 0.48f));
+            TMP_Text label = CreateText(parent, $"Title Feature Chip {i + 1} Text", chipLabels[i], new Vector2(x, -164), new Vector2(194, 20), TextAlignmentOptions.Center);
+            label.fontSize = 10;
+            label.fontStyle = FontStyles.Bold;
+            label.color = new Color(0.86f, 0.92f, 1.0f, 0.86f);
+            label.raycastTarget = false;
+            chip.raycastTarget = false;
+            edge.raycastTarget = false;
+        }
+    }
+
     private static void CreateStageCardThumbnail(Transform parent, int index, string elementLabel, bool unlocked)
     {
         Color elementColor = GetStageElementColor(elementLabel);
@@ -521,6 +554,31 @@ public static class GameFlowSceneAutoBuilder
         goldChip.raycastTarget = false;
         xpChip.raycastTarget = false;
         modifierChip.raycastTarget = false;
+    }
+
+    private static void CreateStageSelectStrategicInfoStrip(Transform parent)
+    {
+        Image strip = CreatePanel(parent, "Stage Select Strategy Strip Panel", new Vector2(0, -285), new Vector2(760, 44), new Color(0.014f, 0.020f, 0.034f, 0.78f));
+        Image topEdge = CreatePanel(parent, "Stage Select Strategy Strip Top Edge", new Vector2(0, -263), new Vector2(680, 2), new Color(0.86f, 0.64f, 0.28f, 0.46f));
+        strip.raycastTarget = false;
+        topEdge.raycastTarget = false;
+
+        CreateStrategyChip(parent, "Stage Select Party Loadout", "PARTY / PALADIN + MAGE + GUARD", new Vector2(-250, -285), new Color(0.06f, 0.12f, 0.20f, 0.86f), new Color(0.42f, 0.74f, 1.0f, 0.52f));
+        CreateStrategyChip(parent, "Stage Select Enemy Forecast", "ENEMY / SLIME KING + BREAK", new Vector2(0, -285), new Color(0.16f, 0.06f, 0.08f, 0.86f), new Color(1.0f, 0.44f, 0.52f, 0.52f));
+        CreateStrategyChip(parent, "Stage Select Clear Target", "TARGET / A RANK + 150G", new Vector2(250, -285), new Color(0.15f, 0.10f, 0.04f, 0.86f), new Color(1.0f, 0.76f, 0.34f, 0.52f));
+    }
+
+    private static void CreateStrategyChip(Transform parent, string baseName, string label, Vector2 position, Color bgColor, Color edgeColor)
+    {
+        Image chip = CreatePanel(parent, baseName + " Chip", position, new Vector2(224, 28), bgColor);
+        Image edge = CreatePanel(parent, baseName + " Edge", new Vector2(position.x - 108, position.y), new Vector2(3, 20), edgeColor);
+        TMP_Text text = CreateText(parent, baseName + " Text", label, position, new Vector2(204, 18), TextAlignmentOptions.Center);
+        text.fontSize = 9;
+        text.fontStyle = FontStyles.Bold;
+        text.color = new Color(0.88f, 0.92f, 1.0f, 0.88f);
+        text.raycastTarget = false;
+        chip.raycastTarget = false;
+        edge.raycastTarget = false;
     }
 
     private static TMP_Text CreateText(Transform parent, string name, string content, Vector2 position, Vector2 size, TextAlignmentOptions alignment)

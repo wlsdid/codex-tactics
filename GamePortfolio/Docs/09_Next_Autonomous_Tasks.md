@@ -1,6 +1,26 @@
 # Next Autonomous Tasks
 
-## Latest autonomous run — 2026-07-08 Battlefield Rim & Contact Lighting Pass
+## Latest autonomous run — 2026-07-08 Extended Flow & Battle Visual Polish
+
+Completed:
+- Ran a longer visual-only polish batch across generated Title, Stage Select, and Battle scenes.
+- Added Title logo glow, gold crest, ornament lines, and three feature chips.
+- Added Stage Select strategic info strip with party loadout, enemy forecast, and clear target chips.
+- Added Battle foreground tree pillars, lower fog band, and upper canopy shadow for stronger battlefield depth.
+- Added validator coverage for the new Title, Stage Select, and Battle visual objects.
+- Added `Docs/Devlog/2026-07-08_extended_flow_battle_visual_polish.md`.
+
+Verification completed:
+- C# delimiter/static check: PASS.
+- `git diff --check`: PASS.
+- Unity regeneration/capture QA remains pending if Windows Unity license is inactive.
+
+Recommended next tasks:
+1. Once Unity license is active, regenerate Title/Stage/Battle scenes and contact-sheet captures.
+2. Visually judge whether Title/Stage Select now match the same professional direction as the Battle screen.
+3. If captures still look flat, continue with generated background art/thumbnail density rather than mechanics.
+
+## Previous autonomous run — 2026-07-08 Battlefield Rim & Contact Lighting Pass
 
 Completed:
 - Continued visual-only polish with no new mechanics and no Deep handoff.
