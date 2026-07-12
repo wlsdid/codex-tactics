@@ -1,5 +1,18 @@
 # Next Autonomous Tasks
 
+## Latest polish — 2026-07-12 Battlefield Readability & Character Presence
+
+Completed:
+- Removed the Party-header/squad-chip collision in the left rail.
+- Reduced rectangular landing-tile and aura overlays so pixel standees, base rings, shadows, and rim lights remain the central combat read.
+- Regenerated BattleScene and refreshed battle/result capture media.
+- Unity Battle Scene validation and Battle Logic Auto Test: PASS.
+- `git diff --check`: PASS.
+- Details: `Docs/Devlog/2026-07-12_battlefield-readability-character-presence.md`.
+
+Recommended next task:
+1. Replace remaining abstract battlefield slab/spotlight geometry with authored forest-ruins terrain silhouettes and prop layers while preserving the compact HUD.
+
 ## First Complete Build — 2026-07-12
 
 Completed:

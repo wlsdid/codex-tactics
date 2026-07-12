@@ -72,9 +72,9 @@ public static class BattleSceneAutoBuilder
             playerSelectLabel.alignment = TextAlignmentOptions.BottomRight;
         }
         CreateEnemyRosterSlots(canvas.transform);
-        Image companionSystemChip = CreatePanel(canvas.transform, "Companion System Chip Panel", new Vector2(-430, 252), new Vector2(190, 24), new Color(0.018f, 0.024f, 0.034f, 0.48f));
+        Image companionSystemChip = CreatePanel(canvas.transform, "Companion System Chip Panel", new Vector2(-398, 252), new Vector2(118, 24), new Color(0.018f, 0.024f, 0.034f, 0.48f));
         companionSystemChip.raycastTarget = false;
-        TMP_Text companionSystemText = CreateText(canvas.transform, "Companion System Text", "PARTY x5  /  HERO ACTIVE", new Vector2(-430, 252), new Vector2(176, 18), TextAlignmentOptions.Center);
+        TMP_Text companionSystemText = CreateText(canvas.transform, "Companion System Text", "5-UNIT SQUAD", new Vector2(-398, 252), new Vector2(108, 18), TextAlignmentOptions.Center);
         companionSystemText.fontSize = 9;
         companionSystemText.fontStyle = FontStyles.Bold;
         companionSystemText.color = new Color(0.86f, 0.96f, 1.0f, 0.90f);
@@ -128,7 +128,7 @@ public static class BattleSceneAutoBuilder
         playerHpChipEdge.raycastTarget = false;
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-326, -560), new Vector2(160, 18), TextAlignmentOptions.Left);
         playerHpText.fontSize = 9;
-        TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "ALLY UNIT  /  HERO", new Vector2(-530, 250), new Vector2(210, 24), TextAlignmentOptions.Center);
+        TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "PARTY", new Vector2(-505, 250), new Vector2(92, 24), TextAlignmentOptions.Center);
         playerCardTitleText.fontSize = 16;
         playerCardTitleText.fontStyle = FontStyles.Bold;
         playerCardTitleText.color = new Color(0.92f, 0.86f, 0.55f);
@@ -620,7 +620,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battle stage floor glow is readable", IsDecorativePanelLikelyConfigured(battleStageFloorPanel, 820f, 220f));
         AppendCheck(ref passed, ref report, "Battle screen has cinematic letterbox framing", IsDecorativePanelLikelyConfigured(battleLetterboxTop, 1180f, 28f) && IsDecorativePanelLikelyConfigured(battleLetterboxBottom, 1180f, 28f));
         AppendCheck(ref passed, ref report, "Battlefield has premium inner gold frame", IsReadableContrastAccent(battlefieldInnerFrame, 0.24f, 0.34f));
-        AppendCheck(ref passed, ref report, "Premium landing tiles are visible but restrained", IsReadableContrastAccent(heroLandingTile, 0.18f, 0.28f) && IsReadableContrastAccent(enemyLandingTile, 0.18f, 0.28f));
+        AppendCheck(ref passed, ref report, "Premium landing tiles stay subtle beneath the units", IsReadableContrastAccent(heroLandingTile, 0.12f, 0.18f) && IsReadableContrastAccent(enemyLandingTile, 0.12f, 0.18f));
         AppendCheck(ref passed, ref report, "Field depth bloom adds commercial lighting layer", IsReadableContrastAccent(fieldDepthBloom, 0.08f, 0.16f));
         AppendCheck(ref passed, ref report, "Battlefield has layered forest silhouette", IsDecorativePanelLikelyConfigured(distantForestSilhouette, 680f, 70f));
         AppendCheck(ref passed, ref report, "Battlefield has moonlight beam depth", IsReadableContrastAccent(moonlightBeam, 0.06f, 0.12f));
@@ -632,7 +632,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield unit base rings align to landing tiles", IsDecorativePanelLikelyConfigured(heroBaseRing, 100f, 16f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 112f, 18f));
         AppendCheck(ref passed, ref report, "Battlefield contrast polish keeps rings readable but not debug-bright", IsReadableContrastAccent(heroBaseRing, 0.38f, 0.48f) && IsReadableContrastAccent(enemyBaseRing, 0.38f, 0.48f));
         AppendCheck(ref passed, ref report, "Battlefield standee grounding shadows are readable", IsReadableContrastAccent(heroStandeeShadow, 0.40f, 0.50f) && IsReadableContrastAccent(enemyStandeeShadow, 0.42f, 0.52f));
-        AppendCheck(ref passed, ref report, "Battlefield standee aura stays subtle", IsReadableContrastAccent(heroStandeeAura, 0.10f, 0.16f) && IsReadableContrastAccent(enemyStandeeAura, 0.10f, 0.16f));
+        AppendCheck(ref passed, ref report, "Battlefield standee aura stays nearly transparent behind readable sprites", IsReadableContrastAccent(heroStandeeAura, 0.04f, 0.07f) && IsReadableContrastAccent(enemyStandeeAura, 0.04f, 0.07f));
         AppendCheck(ref passed, ref report, "Battlefield units have contact glow and rim lighting", IsReadableContrastAccent(heroContactGlow, 0.22f, 0.30f) && IsReadableContrastAccent(enemyContactGlow, 0.20f, 0.30f) && IsReadableContrastAccent(heroStandeeRimLight, 0.16f, 0.24f) && IsReadableContrastAccent(enemyStandeeRimLight, 0.16f, 0.24f));
         AppendCheck(ref passed, ref report, "Battlefield has restrained center action slash trail", IsReadableContrastAccent(centerActionSlashTrail, 0.12f, 0.20f));
         AppendCheck(ref passed, ref report, "Top gold divider exists", topGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(topGoldDividerPanel, 1000f, 3f));
@@ -657,7 +657,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Selected unit prompt starts hidden with command UI", selectedUnitText != null && !selectedUnitText.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Enemy roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(enemyRosterMiniSprite1, 32f, 40f));
         AppendCheck(ref passed, ref report, "Enemy roster mini-sprite crop frame and shadow are readable", IsReadableContrastAccent(enemyRosterMiniSpriteShadow1, 0.36f, 0.52f) && IsReadableContrastAccent(enemyRosterMiniSpriteEdge1, 0.62f, 0.82f));
-        AppendCheck(ref passed, ref report, "Player card title exists", IsNameplateTextLikelyConfigured(playerCardTitleText, "ALLY", "HERO"));
+        AppendCheck(ref passed, ref report, "Player card title is a compact party header", playerCardTitleText != null && playerCardTitleText.text.Contains("PARTY"));
         AppendCheck(ref passed, ref report, "Enemy card title exists", IsNameplateTextLikelyConfigured(enemyCardTitleText, "ENEMY", "ENEMY"));
         AppendCheck(ref passed, ref report, "Battle line divider text removed from center field", versusDividerText != null && string.IsNullOrEmpty(versusDividerText.text));
         AppendCheck(ref passed, ref report, "Player portrait pixel accents exist", IsPortraitAccentLikelyConfigured(playerPortraitPixelAccent1) && IsPortraitAccentLikelyConfigured(playerPortraitPixelAccent4));
@@ -1544,8 +1544,8 @@ public static class BattleSceneAutoBuilder
         Image bottomLetterbox = CreatePanel(parent, "Battle Letterbox Bottom Panel", new Vector2(0, -252), new Vector2(1220, 34), new Color(0.0f, 0.0f, 0.0f, 0.38f));
         Image innerFrame = CreatePanel(parent, "Battlefield Inner Gold Frame Panel", new Vector2(0, -22), new Vector2(840, 3), new Color(1.0f, 0.78f, 0.38f, 0.28f));
         Image bloom = CreatePanel(parent, "Field Depth Bloom Panel", new Vector2(8, -54), new Vector2(430, 118), new Color(0.36f, 0.62f, 0.86f, 0.12f));
-        Image heroTile = CreatePanel(parent, "Hero Premium Landing Tile Panel", new Vector2(-206, -104), new Vector2(166, 42), new Color(0.30f, 0.74f, 1.0f, 0.22f));
-        Image enemyTile = CreatePanel(parent, "Enemy Premium Landing Tile Panel", new Vector2(230, -102), new Vector2(178, 44), new Color(1.0f, 0.36f, 0.72f, 0.22f));
+        Image heroTile = CreatePanel(parent, "Hero Premium Landing Tile Panel", new Vector2(-206, -104), new Vector2(132, 28), new Color(0.30f, 0.74f, 1.0f, 0.14f));
+        Image enemyTile = CreatePanel(parent, "Enemy Premium Landing Tile Panel", new Vector2(230, -102), new Vector2(142, 30), new Color(1.0f, 0.36f, 0.72f, 0.14f));
         Image centerRule = CreatePanel(parent, "Center Field Composition Rule Panel", new Vector2(12, -102), new Vector2(238, 2), new Color(0.92f, 0.72f, 0.36f, 0.18f));
 
         topLetterbox.raycastTarget = false;
@@ -1649,7 +1649,7 @@ public static class BattleSceneAutoBuilder
         Image heroBaseRing = CreatePanel(parent, "Hero Base Ring Panel", new Vector2(-206, -101), new Vector2(132, 22), new Color(0.46f, 0.82f, 1.0f, 0.42f));
         Image heroContactGlow = CreatePanel(parent, "Hero Contact Glow Panel", new Vector2(-206, -98), new Vector2(86, 8), new Color(0.60f, 0.95f, 1.0f, 0.26f));
         Image heroRimLight = CreatePanel(parent, "Hero Standee Rim Light", new Vector2(-148, -16), new Vector2(7, 156), new Color(0.70f, 0.94f, 1.0f, 0.20f));
-        Image heroAura = CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -34), new Vector2(110, 150), new Color(0.28f, 0.64f, 1.0f, 0.12f));
+        Image heroAura = CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -34), new Vector2(88, 126), new Color(0.28f, 0.64f, 1.0f, 0.055f));
         Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/ReferenceSprites/reference_paladin_full.png", new Vector2(-204, -22), new Vector2(150, 190));
         ConfigureBattleSpriteMotion(heroBody, 3f, 1.1f, 0.15f, 12f, 0.03f, false);
         Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-176, -18), new Vector2(5, 54), new Color(0.92f, 0.96f, 1.0f, 0.36f));
@@ -1671,7 +1671,7 @@ public static class BattleSceneAutoBuilder
         Image enemyBaseRing = CreatePanel(parent, "Enemy Base Ring Panel", new Vector2(230, -99), new Vector2(146, 23), new Color(1.0f, 0.42f, 0.76f, 0.42f));
         Image enemyContactGlow = CreatePanel(parent, "Enemy Contact Glow Panel", new Vector2(230, -96), new Vector2(94, 8), new Color(1.0f, 0.48f, 0.84f, 0.24f));
         Image enemyRimLight = CreatePanel(parent, "Enemy Standee Rim Light", new Vector2(166, -14), new Vector2(7, 164), new Color(1.0f, 0.62f, 0.88f, 0.20f));
-        Image enemyAura = CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -32), new Vector2(118, 154), new Color(0.86f, 0.24f, 1.0f, 0.12f));
+        Image enemyAura = CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -32), new Vector2(94, 130), new Color(0.86f, 0.24f, 1.0f, 0.055f));
         Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/ReferenceSprites/reference_goblin_full.png", new Vector2(232, -23), new Vector2(166, 196));
         ConfigureBattleSpriteMotion(enemyBody, 3.4f, 0.95f, 0.45f, 14f, 0.04f, true);
         Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 54), new Vector2(48, 7), new Color(1.0f, 0.70f, 0.24f, 0.28f));
