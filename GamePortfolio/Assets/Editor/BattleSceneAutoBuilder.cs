@@ -48,11 +48,11 @@ public static class BattleSceneAutoBuilder
 
         // Premium dark panels — slim overlay style, leaving the battlefield visible.
         Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 330), new Vector2(1220, 54), new Color(0.010f, 0.014f, 0.024f, 0.66f));
-        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-508, 54), new Vector2(300, 455), new Color(0.010f, 0.012f, 0.020f, 0.66f));
+        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-514, 54), new Vector2(276, 420), new Color(0.010f, 0.012f, 0.020f, 0.66f));
         Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(526, 56), new Vector2(245, 390), new Color(0.014f, 0.012f, 0.018f, 0.58f));
         Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, 244), new Vector2(520, 60), new Color(0.010f, 0.014f, 0.024f, 0.35f));
         Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -318), new Vector2(1220, 96), new Color(0.010f, 0.012f, 0.018f, 0.88f));
-        Image partyRosterPanel = CreatePanel(canvas.transform, "Party Roster Panel", new Vector2(-508, 28), new Vector2(296, 386), new Color(0.006f, 0.008f, 0.014f, 0.48f));
+        Image partyRosterPanel = CreatePanel(canvas.transform, "Party Roster Panel", new Vector2(-514, 12), new Vector2(270, 324), new Color(0.006f, 0.008f, 0.014f, 0.48f));
         partyRosterPanel.raycastTarget = false;
         CreateProfessionalPanelMaterialOverlays(canvas.transform);
         CreateProfessionalTopHudAccents(canvas.transform);
@@ -60,9 +60,9 @@ public static class BattleSceneAutoBuilder
         CreateProgressReferenceSkillCards(canvas.transform);
         CreateProgressReferenceBottomHud(canvas.transform);
         CreateCommercialCombatReadouts(canvas.transform);
-        Image playerSelectionHighlight = CreatePanel(canvas.transform, "Player Selection Highlight", new Vector2(-508, 160), new Vector2(292, 70), new Color(0.95f, 0.86f, 0.64f, 0.24f));
+        Image playerSelectionHighlight = CreatePanel(canvas.transform, "Player Selection Highlight", new Vector2(-514, 132), new Vector2(266, 56), new Color(0.95f, 0.86f, 0.64f, 0.24f));
         playerSelectionHighlight.gameObject.SetActive(false);
-        Button playerSelectButton = CreateCenteredButton(canvas.transform, "Player Select Button", "Click Hero", new Vector2(-508, 160), new Vector2(292, 70));
+        Button playerSelectButton = CreateCenteredButton(canvas.transform, "Player Select Button", "Click Hero", new Vector2(-514, 132), new Vector2(266, 56));
         playerSelectButton.GetComponent<Image>().color = new Color(0.10f, 0.18f, 0.24f, 0.12f);
         TMP_Text playerSelectLabel = playerSelectButton.GetComponentInChildren<TMP_Text>();
         if (playerSelectLabel != null)
@@ -73,9 +73,9 @@ public static class BattleSceneAutoBuilder
             playerSelectLabel.alignment = TextAlignmentOptions.BottomRight;
         }
         CreateEnemyRosterSlots(canvas.transform);
-        Image companionSystemChip = CreatePanel(canvas.transform, "Companion System Chip Panel", new Vector2(-398, 252), new Vector2(118, 24), new Color(0.018f, 0.024f, 0.034f, 0.48f));
+        Image companionSystemChip = CreatePanel(canvas.transform, "Companion System Chip Panel", new Vector2(-420, 240), new Vector2(102, 22), new Color(0.018f, 0.024f, 0.034f, 0.48f));
         companionSystemChip.raycastTarget = false;
-        TMP_Text companionSystemText = CreateText(canvas.transform, "Companion System Text", "5-UNIT SQUAD", new Vector2(-398, 252), new Vector2(108, 18), TextAlignmentOptions.Center);
+        TMP_Text companionSystemText = CreateText(canvas.transform, "Companion System Text", "5-UNIT SQUAD", new Vector2(-420, 240), new Vector2(94, 16), TextAlignmentOptions.Center);
         companionSystemText.fontSize = 9;
         companionSystemText.fontStyle = FontStyles.Bold;
         companionSystemText.color = new Color(0.86f, 0.96f, 1.0f, 0.90f);
@@ -129,14 +129,14 @@ public static class BattleSceneAutoBuilder
         playerHpChipEdge.raycastTarget = false;
         TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-326, -560), new Vector2(160, 18), TextAlignmentOptions.Left);
         playerHpText.fontSize = 9;
-        TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "PARTY", new Vector2(-505, 250), new Vector2(92, 24), TextAlignmentOptions.Center);
+        TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "PARTY", new Vector2(-532, 240), new Vector2(72, 22), TextAlignmentOptions.Center);
         playerCardTitleText.fontSize = 16;
         playerCardTitleText.fontStyle = FontStyles.Bold;
         playerCardTitleText.color = new Color(0.92f, 0.86f, 0.55f);
         // Portrait border frames — subtle dark outline
-        CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-592, 200), new Vector2(72, 72));
-        CreatePortraitPixelAccent(canvas.transform, "Player", new Vector2(-592, 200), new Color(0.38f, 0.78f, 1.0f, 0.88f));
-        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-592, 200), new Vector2(58, 58), "Assets/Art/ReferenceSprites/reference_paladin_full.png");
+        CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-608, 204), new Vector2(64, 64));
+        CreatePortraitPixelAccent(canvas.transform, "Player", new Vector2(-608, 204), new Color(0.38f, 0.78f, 1.0f, 0.88f));
+        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-608, 204), new Vector2(52, 52), "Assets/Art/ReferenceSprites/reference_paladin_full.png");
         ConfigureBattleSpriteMotion(playerSpriteImage, 3.5f, 1.45f, 0f, 14f, 0.06f, false);
         Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-330, -578), new Vector2(170, 8), new Color(0.22f, 0.72f, 0.38f));
         Image playerApChipPanel = CreatePanel(canvas.transform, "Player AP Chip Panel", new Vector2(-160, -560), new Vector2(184, 24), new Color(0.012f, 0.020f, 0.038f, 0.42f));
@@ -652,10 +652,9 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield standees have idle bob motion", HasBattleSpriteMotion(heroStandeeBody) && HasBattleSpriteMotion(enemyStandeeBody));
         AppendCheck(ref passed, ref report, "Premium command header exists", IsDecorativePanelLikelyConfigured(commandHeaderPanel, 240f, 24f) && IsNameplateTextLikelyConfigured(commandHeaderText, "COMMAND", "CHAIN"));
         AppendCheck(ref passed, ref report, "Skill tier badge exists", IsDecorativePanelLikelyConfigured(skillTierBadge, 56f, 20f));
-        AppendCheck(ref passed, ref report, "Party roster panel exists", partyRosterPanel != null && IsDecorativePanelLikelyConfigured(partyRosterPanel, 280f, 360f));
-        AppendCheck(ref passed, ref report, "Party roster slots exist", IsDecorativePanelLikelyConfigured(partyRosterSlot1, 280f, 66f));
+        AppendCheck(ref passed, ref report, "Party roster uses compact five-unit tactical density", IsCompactPartyRosterLikelyConfigured(partyRosterPanel, partyRosterSlot1, partyRosterMiniSprite1));
         AppendCheck(ref passed, ref report, "Enemy roster slots exist", IsDecorativePanelLikelyConfigured(enemyRosterSlot1, 150f, 50f));
-        AppendCheck(ref passed, ref report, "Party roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(partyRosterMiniSprite1, 48f, 56f));
+        AppendCheck(ref passed, ref report, "Party roster mini sprites remain readable at compact scale", IsSpriteImageLikelyConfigured(partyRosterMiniSprite1, 44f, 52f));
         AppendCheck(ref passed, ref report, "Party roster mini-sprite crop frame and shadow are readable", IsReadableContrastAccent(partyRosterMiniSpriteShadow1, 0.36f, 0.52f) && IsReadableContrastAccent(partyRosterMiniSpriteEdge1, 0.62f, 0.82f));
         AppendCheck(ref passed, ref report, "Player roster select button exists", IsButtonLikelyConfigured(playerSelectButton));
         AppendCheck(ref passed, ref report, "Player selection highlight starts hidden", playerSelectionHighlight != null && !playerSelectionHighlight.gameObject.activeSelf);
@@ -673,7 +672,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Panel material overlays add subtle gloss/rim hierarchy", IsReadableContrastAccent(topStatusPanelTopGloss, 0.18f, 0.30f) && IsReadableContrastAccent(playerCardPanelLeftRim, 0.28f, 0.40f) && IsReadableContrastAccent(commandBarPanelTopShade, 0.22f, 0.34f));
         AppendCheck(ref passed, ref report, "Top runtime labels are framed as compact HUD chips", IsReadableContrastAccent(runStatusChip, 0.30f, 0.40f) && IsReadableContrastAccent(stageChip, 0.36f, 0.46f));
         AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
-        AppendCheck(ref passed, ref report, "Player Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 280f, 420f));
+        AppendCheck(ref passed, ref report, "Player Card panel has compact premium dark RPG styling", IsProfessionalPanelLikelyConfigured(playerCardPanel, 270f, 400f));
         AppendCheck(ref passed, ref report, "Enemy Card panel exists", enemyCardPanel != null);
         AppendCheck(ref passed, ref report, "Enemy Card panel has premium dark RPG styling", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 230f, 360f));
         AppendCheck(ref passed, ref report, "Battle Center panel exists", battleCenterPanel != null);
@@ -993,6 +992,33 @@ public static class BattleSceneAutoBuilder
             && rectTransform.sizeDelta.x >= minimumWidth
             && rectTransform.sizeDelta.y >= minimumHeight
             && color.a >= 0.35f;
+    }
+
+    private static bool IsCompactPartyRosterLikelyConfigured(Image rosterPanel, Image rosterSlot, Image miniSprite)
+    {
+        if (rosterPanel == null || rosterSlot == null || miniSprite == null)
+        {
+            return false;
+        }
+
+        RectTransform panelRect = rosterPanel.GetComponent<RectTransform>();
+        RectTransform slotRect = rosterSlot.GetComponent<RectTransform>();
+        RectTransform spriteRect = miniSprite.GetComponent<RectTransform>();
+        return panelRect != null
+            && slotRect != null
+            && spriteRect != null
+            && panelRect.sizeDelta.x >= 260f
+            && panelRect.sizeDelta.x <= 275f
+            && panelRect.sizeDelta.y >= 310f
+            && panelRect.sizeDelta.y <= 335f
+            && slotRect.sizeDelta.x >= 255f
+            && slotRect.sizeDelta.x <= 270f
+            && slotRect.sizeDelta.y >= 52f
+            && slotRect.sizeDelta.y <= 60f
+            && spriteRect.sizeDelta.x >= 44f
+            && spriteRect.sizeDelta.x <= 60f
+            && spriteRect.sizeDelta.y >= 52f
+            && spriteRect.sizeDelta.y <= 68f;
     }
 
     private static bool IsHiddenForCapture(Graphic graphic)
@@ -1967,29 +1993,27 @@ public static class BattleSceneAutoBuilder
 
         for (int i = 0; i < names.Length; i++)
         {
-            float y = 160 - i * 76;
+            float y = 132 - i * 62;
             Color slotColor = i == 0 ? new Color(0.12f, 0.10f, 0.055f, 0.70f) : new Color(0.010f, 0.012f, 0.020f, 0.48f);
-            Image slot = CreatePanel(parent, $"Party Roster Slot {i + 1}", new Vector2(-508, y), new Vector2(292, 70), slotColor);
+            Image slot = CreatePanel(parent, $"Party Roster Slot {i + 1}", new Vector2(-514, y), new Vector2(266, 56), slotColor);
             slot.raycastTarget = false;
-            CreatePanel(parent, $"Party Roster Portrait Chip {i + 1}", new Vector2(-610, y), new Vector2(76, 66), new Color(0.014f, 0.018f, 0.026f, 0.88f));
-            CreatePanel(parent, $"Party Roster Mini Sprite Shadow {i + 1}", new Vector2(-606, y - 4), new Vector2(58, 52), new Color(0.0f, 0.0f, 0.0f, 0.44f));
-            CreatePanel(parent, $"Party Roster Mini Sprite Crop Frame {i + 1}", new Vector2(-610, y), new Vector2(74, 64), new Color(0.04f, 0.055f, 0.075f, 0.36f));
-            if (i == 0) CreatePanel(parent, "Party Roster Selected Gold Rim", new Vector2(-508, y + 35), new Vector2(286, 3), new Color(1.0f, 0.78f, 0.38f, 0.72f));
-            Image miniSprite = CreateSpritePanel(parent, $"Party Roster Mini Sprite {i + 1}", sprites[i], new Vector2(-608, y + 3), new Vector2(58, 66));
+            CreatePanel(parent, $"Party Roster Portrait Chip {i + 1}", new Vector2(-610, y), new Vector2(62, 52), new Color(0.014f, 0.018f, 0.026f, 0.88f));
+            CreatePanel(parent, $"Party Roster Mini Sprite Shadow {i + 1}", new Vector2(-607, y - 3), new Vector2(48, 42), new Color(0.0f, 0.0f, 0.0f, 0.44f));
+            CreatePanel(parent, $"Party Roster Mini Sprite Crop Frame {i + 1}", new Vector2(-610, y), new Vector2(60, 50), new Color(0.04f, 0.055f, 0.075f, 0.36f));
+            if (i == 0) CreatePanel(parent, "Party Roster Selected Gold Rim", new Vector2(-514, y + 28), new Vector2(260, 3), new Color(1.0f, 0.78f, 0.38f, 0.72f));
+            Image miniSprite = CreateSpritePanel(parent, $"Party Roster Mini Sprite {i + 1}", sprites[i], new Vector2(-608, y + 2), new Vector2(48, 56));
             miniSprite.raycastTarget = false;
-            CreatePanel(parent, $"Party Roster Mini Sprite Edge Accent {i + 1}", new Vector2(-610, y + 31), new Vector2(68, 3), i == 0 ? new Color(1.0f, 0.78f, 0.38f, 0.74f) : new Color(0.45f, 0.86f, 1.0f, 0.66f));
-            TMP_Text level = CreateText(parent, $"Party Roster Level {i + 1}", (i == 0 ? 13 : 114 + i * 47).ToString(), new Vector2(-644, y - 24), new Vector2(34, 20), TextAlignmentOptions.Center);
-            level.fontSize = 14;
-            level.fontStyle = FontStyles.Bold;
-            TMP_Text label = CreateText(parent, $"Party Roster Label {i + 1}", names[i], new Vector2(-512, y + 18), new Vector2(126, 24), TextAlignmentOptions.Left);
-            label.fontSize = 18;
+            CreatePanel(parent, $"Party Roster Mini Sprite Edge Accent {i + 1}", new Vector2(-610, y + 25), new Vector2(56, 3), i == 0 ? new Color(1.0f, 0.78f, 0.38f, 0.74f) : new Color(0.45f, 0.86f, 1.0f, 0.66f));
+            // Levels are intentionally omitted here: character name plus HP/MP is the tactical information that remains legible at capture size.
+            TMP_Text label = CreateText(parent, $"Party Roster Label {i + 1}", names[i], new Vector2(-512, y + 13), new Vector2(118, 18), TextAlignmentOptions.Left);
+            label.fontSize = 15;
             label.fontStyle = FontStyles.Bold;
             label.color = i == 0 ? new Color(0.96f, 0.88f, 0.64f) : new Color(0.86f, 0.84f, 0.76f);
-            TMP_Text stat = CreateText(parent, $"Party Roster Stat {i + 1}", $"HP {hp[i]}/190\nMP {mp[i]}", new Vector2(-498, y - 12), new Vector2(88, 36), TextAlignmentOptions.Left);
-            stat.fontSize = 10;
+            TMP_Text stat = CreateText(parent, $"Party Roster Stat {i + 1}", $"HP {hp[i]}/190\nMP {mp[i]}", new Vector2(-504, y - 11), new Vector2(80, 28), TextAlignmentOptions.Left);
+            stat.fontSize = 8;
             stat.color = new Color(0.82f, 0.82f, 0.76f);
-            CreatePanel(parent, $"Party Roster HP Bar {i + 1}", new Vector2(-420, y - 4), new Vector2(72, 5), new Color(0.36f, 0.86f, 0.38f, 0.90f));
-            CreatePanel(parent, $"Party Roster MP Bar {i + 1}", new Vector2(-420, y - 22), new Vector2(82, 5), new Color(0.38f, 0.62f, 1.0f, 0.90f));
+            CreatePanel(parent, $"Party Roster HP Bar {i + 1}", new Vector2(-424, y - 4), new Vector2(64, 4), new Color(0.36f, 0.86f, 0.38f, 0.90f));
+            CreatePanel(parent, $"Party Roster MP Bar {i + 1}", new Vector2(-424, y - 18), new Vector2(70, 4), new Color(0.38f, 0.62f, 1.0f, 0.90f));
         }
     }
 

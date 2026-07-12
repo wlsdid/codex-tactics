@@ -1,5 +1,19 @@
 # Next Autonomous Tasks
 
+## Latest polish — 2026-07-12 Compact Five-Unit Party Roster
+
+Completed:
+- Compressed the left party-card/roster footprint while preserving all five tactical unit rows.
+- Kept readable character names plus HP/MP, removed clipped nonessential level numerals, and moved the Party header/squad chip/portrait clear of the first row.
+- Added validator coverage for intentional compact roster geometry rather than retaining the previous large-panel thresholds.
+- Regenerated BattleScene and refreshed all eight 1920x1080 capture PNGs, README GIF, runtime-motion storyboard GIF, and contact sheet.
+- Unity Battle Scene validation and Battle Logic Auto Test: PASS.
+- `git diff --check`: PASS after Unity YAML trailing-whitespace cleanup.
+- Details: `Docs/Devlog/2026-07-12_compact-five-unit-party-roster.md`.
+
+Recommended next task:
+1. Add one restrained authored forest-ruins silhouette/prop detail that improves the central battlefield composition without adding UI, mechanics, or rectangular capture clutter.
+
 ## Latest polish — 2026-07-12 Battlefield Readability & Character Presence
 
 Completed:
