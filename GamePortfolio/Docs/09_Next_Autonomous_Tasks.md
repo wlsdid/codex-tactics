@@ -1,5 +1,24 @@
 # Next Autonomous Tasks
 
+## First Complete Build — 2026-07-12
+
+Completed:
+- Regenerated Title, Stage Select, and Battle scenes from the current builders.
+- Passed Game Flow validation, Battle Scene validation, and Battle Logic Auto Test in Unity batchmode.
+- Fixed the battle-log regression assertion to verify action order instead of stale absolute entry numbers.
+- Rebuilt the standalone capture runner; refreshed all eight 1920x1080 captures, README GIF, runtime storyboard GIF, and contact sheet.
+- Reduced nonessential capture-only battle overlays while preserving the real tactical HUD and result flow.
+- Removed Unity YAML/TMP trailing whitespace; `git diff --check` passes.
+
+First-complete decision:
+- The vertical slice is now stable and presentable as a 1st-complete build.
+- Detailed evidence: `Docs/Devlog/2026-07-12_first-complete-verification.md`.
+
+Optional later polish (not required for first completion):
+1. Replace abstract battlefield geometry with authored background art.
+2. Further reduce side-rail density after a fresh reviewer play session.
+3. Record a true 8–15 second runtime MP4/GIF; current GIFs are verified deterministic capture/storyboard media.
+
 ## Latest autonomous run — 2026-07-08 Extended Flow & Battle Visual Polish
 
 Completed:

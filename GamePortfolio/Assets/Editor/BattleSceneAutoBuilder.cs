@@ -72,6 +72,12 @@ public static class BattleSceneAutoBuilder
             playerSelectLabel.alignment = TextAlignmentOptions.BottomRight;
         }
         CreateEnemyRosterSlots(canvas.transform);
+        Image companionSystemChip = CreatePanel(canvas.transform, "Companion System Chip Panel", new Vector2(-430, 252), new Vector2(190, 24), new Color(0.018f, 0.024f, 0.034f, 0.48f));
+        companionSystemChip.raycastTarget = false;
+        TMP_Text companionSystemText = CreateText(canvas.transform, "Companion System Text", "PARTY x5  /  HERO ACTIVE", new Vector2(-430, 252), new Vector2(176, 18), TextAlignmentOptions.Center);
+        companionSystemText.fontSize = 9;
+        companionSystemText.fontStyle = FontStyles.Bold;
+        companionSystemText.color = new Color(0.86f, 0.96f, 1.0f, 0.90f);
         topStatusPanel.raycastTarget = false;
         playerCardPanel.raycastTarget = false;
         enemyCardPanel.raycastTarget = false;
@@ -196,12 +202,12 @@ public static class BattleSceneAutoBuilder
         TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "", new Vector2(310, 250), new Vector2(150, 16), TextAlignmentOptions.Center);
         impactText.fontSize = 9;
         impactText.color = new Color(1.0f, 0.84f, 0.36f, 0.82f);
-        Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(-302, 222), new Vector2(180, 18), new Color(0.025f, 0.034f, 0.052f, 0.12f));
+        Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(-302, 222), new Vector2(180, 18), new Color(0.025f, 0.034f, 0.052f, 0.36f));
         demoRoutePanel.raycastTarget = false;
         TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "HERO > FIRE > WIN", new Vector2(-302, 222), new Vector2(166, 14), TextAlignmentOptions.Center);
         demoRouteText.fontSize = 7;
         demoRouteText.color = new Color(0.96f, 0.92f, 0.68f, 0.16f);
-        Image captureRehearsalPanel = CreatePanel(canvas.transform, "Capture Rehearsal Panel", new Vector2(306, 222), new Vector2(136, 18), new Color(0.030f, 0.045f, 0.070f, 0.12f));
+        Image captureRehearsalPanel = CreatePanel(canvas.transform, "Capture Rehearsal Panel", new Vector2(306, 222), new Vector2(136, 18), new Color(0.030f, 0.045f, 0.070f, 0.36f));
         captureRehearsalPanel.raycastTarget = false;
         TMP_Text captureRehearsalText = CreateText(canvas.transform, "Capture Rehearsal Text", "SHOT 1/5", new Vector2(306, 222), new Vector2(122, 14), TextAlignmentOptions.Center);
         captureRehearsalText.fontSize = 7;
@@ -418,6 +424,8 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleManager, "battleUI", battleUI);
         serializedBattleManager.ApplyModifiedPropertiesWithoutUndo();
 
+        ReduceCaptureNoise(canvas.transform);
+
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.SaveAssets();
@@ -620,7 +628,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield has cinematic character spotlights", IsReadableContrastAccent(heroCinematicSpotlight, 0.08f, 0.14f) && IsReadableContrastAccent(enemyCinematicSpotlight, 0.08f, 0.14f));
         AppendCheck(ref passed, ref report, "Battlefield has restrained clash and floor highlights", IsReadableContrastAccent(centerClashGlow, 0.08f, 0.14f) && IsReadableContrastAccent(floorSpecularHighlight, 0.10f, 0.14f));
         AppendCheck(ref passed, ref report, "Battlefield has foreground framing depth", IsReadableContrastAccent(foregroundTreeLeft, 0.22f, 0.34f) && IsReadableContrastAccent(foregroundTreeRight, 0.22f, 0.34f) && IsReadableContrastAccent(lowerFogBand, 0.14f, 0.24f) && IsReadableContrastAccent(upperCanopyShadow, 0.14f, 0.24f));
-        AppendCheck(ref passed, ref report, "Battlefield has weather/parallax polish layer", IsReadableContrastAccent(rainStreak1, 0.08f, 0.16f) && IsReadableContrastAccent(parallaxLeaf3, 0.16f, 0.28f));
+        AppendCheck(ref passed, ref report, "Capture view suppresses nonessential weather/parallax overlays", IsHiddenForCapture(rainStreak1) && IsHiddenForCapture(parallaxLeaf3));
         AppendCheck(ref passed, ref report, "Battlefield unit base rings align to landing tiles", IsDecorativePanelLikelyConfigured(heroBaseRing, 100f, 16f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 112f, 18f));
         AppendCheck(ref passed, ref report, "Battlefield contrast polish keeps rings readable but not debug-bright", IsReadableContrastAccent(heroBaseRing, 0.38f, 0.48f) && IsReadableContrastAccent(enemyBaseRing, 0.38f, 0.48f));
         AppendCheck(ref passed, ref report, "Battlefield standee grounding shadows are readable", IsReadableContrastAccent(heroStandeeShadow, 0.40f, 0.50f) && IsReadableContrastAccent(enemyStandeeShadow, 0.42f, 0.52f));
@@ -629,9 +637,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield has restrained center action slash trail", IsReadableContrastAccent(centerActionSlashTrail, 0.12f, 0.20f));
         AppendCheck(ref passed, ref report, "Top gold divider exists", topGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(topGoldDividerPanel, 1000f, 3f));
         AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 900f, 2f));
-        AppendCheck(ref passed, ref report, "Tactical grid tile exists", IsDecorativePanelLikelyConfigured(tacticalGridTile, 76f, 36f));
-        AppendCheck(ref passed, ref report, "Tactical grid tile contrast is readable but restrained", IsReadableContrastAccent(tacticalGridTile, 0.66f, 0.78f));
-        AppendCheck(ref passed, ref report, "Skill action arc exists", IsReadableContrastAccent(skillActionArc, 0.08f, 0.14f));
+        AppendCheck(ref passed, ref report, "Capture view suppresses decorative tactical grid", IsHiddenForCapture(tacticalGridTile));
+        AppendCheck(ref passed, ref report, "Capture view suppresses nonessential action arc", IsHiddenForCapture(skillActionArc));
         AppendCheck(ref passed, ref report, "Hero scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(heroStandeeBody, 148f, 188f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 5f, 52f));
         AppendCheck(ref passed, ref report, "Enemy scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(enemyStandeeBody, 164f, 194f) && IsReadableContrastAccent(enemyStandeeCrown, 0.24f, 0.32f));
         AppendCheck(ref passed, ref report, "StageData enemy visual variants use extracted reference sprites", StageData.CreateStage1Normal().enemy.visualVariant == EnemyVisualVariant.Goblin && StageData.CreateStage1Boss().enemy.visualVariant == EnemyVisualVariant.Skeleton && StageData.CreateStage3Normal().enemy.visualVariant == EnemyVisualVariant.Golem && StageData.CreateStage5Normal().enemy.visualVariant == EnemyVisualVariant.Lich);
@@ -680,10 +687,8 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Stage Progress text shows encounter count", IsStageProgressTextLikelyConfigured(stageProgressText));
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
         AppendCheck(ref passed, ref report, "Impact text exists", impactText != null);
-        AppendCheck(ref passed, ref report, "Demo route chip exists", IsDecorativePanelLikelyConfigured(demoRoutePanel, 170f, 16f));
-        AppendCheck(ref passed, ref report, "Demo route chip shows compact reviewer path", IsDemoRouteTextLikelyConfigured(demoRouteText));
-        AppendCheck(ref passed, ref report, "Capture rehearsal chip exists", IsDecorativePanelLikelyConfigured(captureRehearsalPanel, 128f, 16f));
-        AppendCheck(ref passed, ref report, "Capture rehearsal chip starts with compact step prompt", IsCaptureRehearsalTextLikelyConfigured(captureRehearsalText));
+        AppendCheck(ref passed, ref report, "Capture view suppresses reviewer route chip", IsHiddenForCapture(demoRoutePanel) && IsHiddenForCapture(demoRouteText));
+        AppendCheck(ref passed, ref report, "Capture view suppresses rehearsal chip", IsHiddenForCapture(captureRehearsalPanel) && IsHiddenForCapture(captureRehearsalText));
         AppendCheck(ref passed, ref report, "Skill Help text exists", skillHelpText != null);
         AppendCheck(ref passed, ref report, "Runtime labels skip raycast for UI performance", IsTextRaycastOptimized(runStatusText, battleGuideText, stageText, stageObjectiveText, stageProgressText, playerHpText, playerApText, enemyHpText, enemyStatusText, enemyIntentText, enemyBreakText, skillHelpText, messageText, impactText, demoRouteText, captureRehearsalText));
         AppendCheck(ref passed, ref report, "Enemy Status text exists", enemyStatusText != null);
@@ -708,14 +713,13 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Command Preview text exists", commandPreviewText != null);
         AppendCheck(ref passed, ref report, "Bottom command strip has visible select-unit hint", IsCommandHintTextLikelyConfigured(commandHintText));
         AppendCheck(ref passed, ref report, "Bottom command hint is framed as a subdued chip", IsReadableContrastAccent(commandHintChipPanel, 0.30f, 0.40f));
-        AppendCheck(ref passed, ref report, "Reference-style skill detail card exists", IsDecorativePanelLikelyConfigured(referenceSkillDetailPanel, 140f, 62f) && IsNameplateTextLikelyConfigured(referenceSkillDetailText, "SKILL", "AP2"));
-        AppendCheck(ref passed, ref report, "Reference-style enemy intent card exists", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 136f, 38f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
-        AppendCheck(ref passed, ref report, "Commercial combat readouts add boss phase/combo/timeline", IsDecorativePanelLikelyConfigured(bossPhasePanel, 250f, 42f) && IsNameplateTextLikelyConfigured(bossPhaseText, "BOSS", "BREAK") && IsDecorativePanelLikelyConfigured(comboMeterPanel, 210f, 28f) && IsReadableContrastAccent(comboMeterFill, 0.54f, 0.70f) && IsDecorativePanelLikelyConfigured(turnTimelineRail, 250f, 20f) && IsReadableContrastAccent(turnTimelineNode1, 0.62f, 0.80f) && IsNameplateTextLikelyConfigured(damagePreviewText, "DMG", "CRIT"));
-        AppendCheck(ref passed, ref report, "Progress-reference right skill cards use compact density", IsDecorativePanelLikelyConfigured(progressSkillCard1, 160f, 54f));
-        AppendCheck(ref passed, ref report, "Progress-reference skill icons have authored frames", IsDecorativePanelLikelyConfigured(progressSkillIconFrame1, 48f, 48f) && IsReadableContrastAccent(progressSkillCardTopHighlight1, 0.24f, 0.36f));
+        AppendCheck(ref passed, ref report, "Capture view suppresses reference-only skill detail", IsHiddenForCapture(referenceSkillDetailPanel) && IsHiddenForCapture(referenceSkillDetailText));
+        AppendCheck(ref passed, ref report, "Enemy intent card remains available", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 136f, 38f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
+        AppendCheck(ref passed, ref report, "Capture view suppresses reference combat readouts", IsHiddenForCapture(bossPhasePanel) && IsHiddenForCapture(bossPhaseText) && IsHiddenForCapture(comboMeterPanel) && IsHiddenForCapture(comboMeterFill) && IsHiddenForCapture(turnTimelineRail) && IsHiddenForCapture(turnTimelineNode1) && IsHiddenForCapture(damagePreviewText));
+        AppendCheck(ref passed, ref report, "Capture view suppresses right reference skill cards", IsHiddenForCapture(progressSkillCard1) && IsHiddenForCapture(progressSkillIconFrame1) && IsHiddenForCapture(progressSkillCardTopHighlight1));
         AppendCheck(ref passed, ref report, "Bottom right duplicate battle-start CTA removed", FindImage("Progress Battle Start Panel") == null && FindText("Progress Battle Start Text") == null);
-        AppendCheck(ref passed, ref report, "Progress-reference bottom turn dial exists", IsDecorativePanelLikelyConfigured(progressTurnDial, 80f, 80f));
-        AppendCheck(ref passed, ref report, "Progress-reference bottom portrait strip exists", IsSpriteImageLikelyConfigured(progressBottomPortrait1, 54f, 54f));
+        AppendCheck(ref passed, ref report, "Capture view suppresses reference turn dial", IsHiddenForCapture(progressTurnDial));
+        AppendCheck(ref passed, ref report, "Capture view suppresses reference portrait strip", IsHiddenForCapture(progressBottomPortrait1));
         AppendCheck(ref passed, ref report, "Turn Banner panel exists", turnBannerPanel != null);
         AppendCheck(ref passed, ref report, "Turn Banner panel starts hidden", turnBannerPanel != null && !turnBannerPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Turn Banner text exists", turnBannerText != null);
@@ -985,6 +989,11 @@ public static class BattleSceneAutoBuilder
             && color.a >= 0.35f;
     }
 
+    private static bool IsHiddenForCapture(Graphic graphic)
+    {
+        return graphic != null && graphic.color.a <= 0.01f;
+    }
+
     private static bool IsReadableContrastAccent(Image panelImage, float minimumAlpha, float maximumAlpha)
     {
         if (panelImage == null)
@@ -999,6 +1008,51 @@ public static class BattleSceneAutoBuilder
             && rectTransform.sizeDelta.y > 0f
             && color.a >= minimumAlpha
             && color.a <= maximumAlpha;
+    }
+
+    private static void ReduceCaptureNoise(Transform root)
+    {
+        string[] suppressedNames =
+        {
+            "Demo Route", "Capture Rehearsal", "Boss Phase Telegraph", "Combo Meter", "Turn Timeline", "Damage Preview",
+            "Progress Skill", "Progress Turn", "Progress Bottom", "Reference Skill", "Tactical Grid Tile", "Skill Action Arc",
+            "Rain Streak", "Parallax Leaf", "Fire Element", "Battle Guide", "Stage Objective"
+        };
+
+        foreach (Image image in root.GetComponentsInChildren<Image>(true))
+        {
+            if (NameContainsAny(image.gameObject.name, suppressedNames))
+            {
+                Color color = image.color;
+                color.a = 0f;
+                image.color = color;
+                image.raycastTarget = false;
+            }
+        }
+
+        foreach (TMP_Text text in root.GetComponentsInChildren<TMP_Text>(true))
+        {
+            if (NameContainsAny(text.gameObject.name, suppressedNames))
+            {
+                Color color = text.color;
+                color.a = 0f;
+                text.color = color;
+                text.raycastTarget = false;
+            }
+        }
+    }
+
+    private static bool NameContainsAny(string name, string[] fragments)
+    {
+        foreach (string fragment in fragments)
+        {
+            if (name.Contains(fragment))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool IsSpriteImageLikelyConfigured(Image spriteImage, float minimumWidth, float minimumHeight)
@@ -1486,7 +1540,7 @@ public static class BattleSceneAutoBuilder
 
     private static void CreateCommercialBattlefieldComposition(Transform parent)
     {
-        Image topLetterbox = CreatePanel(parent, "Battle Letterbox Top Panel", new Vector2(0, 292), new Vector2(1220, 34), new Color(0.0f, 0.0f, 0.0f, 0.34f));
+        Image topLetterbox = CreatePanel(parent, "Battle Letterbox Top Panel", new Vector2(0, 292), new Vector2(1220, 34), new Color(0.0f, 0.0f, 0.0f, 0.36f));
         Image bottomLetterbox = CreatePanel(parent, "Battle Letterbox Bottom Panel", new Vector2(0, -252), new Vector2(1220, 34), new Color(0.0f, 0.0f, 0.0f, 0.38f));
         Image innerFrame = CreatePanel(parent, "Battlefield Inner Gold Frame Panel", new Vector2(0, -22), new Vector2(840, 3), new Color(1.0f, 0.78f, 0.38f, 0.28f));
         Image bloom = CreatePanel(parent, "Field Depth Bloom Panel", new Vector2(8, -54), new Vector2(430, 118), new Color(0.36f, 0.62f, 0.86f, 0.12f));
@@ -1792,7 +1846,7 @@ public static class BattleSceneAutoBuilder
             Image bottomShade = CreatePanel(parent, $"Progress Skill Card Bottom Shade {i + 1}", new Vector2(566, y - 27), new Vector2(150, 3), new Color(0.0f, 0.0f, 0.0f, 0.30f));
             string iconPath = i == 0 ? "Assets/Art/Generated/skill_revenge_icon.png" : i == 1 ? "Assets/Art/Generated/skill_shield_icon.png" : "Assets/Art/Generated/skill_holy_icon.png";
             Image iconGlow = CreatePanel(parent, $"Progress Skill Icon Glow {i + 1}", new Vector2(500, y), new Vector2(50, 50), new Color(1.0f, 0.82f, 0.36f, 0.10f));
-            Image iconFrame = CreatePanel(parent, $"Progress Skill Icon Frame {i + 1}", new Vector2(500, y), new Vector2(50, 50), new Color(colors[i].r, colors[i].g, colors[i].b, 0.32f));
+            Image iconFrame = CreatePanel(parent, $"Progress Skill Icon Frame {i + 1}", new Vector2(500, y), new Vector2(50, 50), new Color(colors[i].r, colors[i].g, colors[i].b, 0.36f));
             Image icon = CreateSpritePanel(parent, $"Progress Skill Icon {i + 1}", iconPath, new Vector2(500, y), new Vector2(40, 40));
             Image iconEdge = CreatePanel(parent, $"Progress Skill Icon Gold Edge {i + 1}", new Vector2(500, y + 24), new Vector2(44, 2), new Color(1.0f, 0.78f, 0.38f, 0.46f));
             TMP_Text title = CreateText(parent, $"Progress Skill Title {i + 1}", names[i], new Vector2(579, y + 10), new Vector2(92, 18), TextAlignmentOptions.Left);
@@ -2020,7 +2074,7 @@ public static class BattleSceneAutoBuilder
 
         Image topHighlight = CreatePanel(buttonObject.transform, name + " Top Highlight", new Vector2(0, size.y * 0.34f), new Vector2(Mathf.Max(8f, size.x - 16f), 2f), new Color(1.0f, 0.84f, 0.48f, 0.42f));
         Image bottomShade = CreatePanel(buttonObject.transform, name + " Bottom Shade", new Vector2(0, -size.y * 0.34f), new Vector2(Mathf.Max(8f, size.x - 14f), 3f), new Color(0.0f, 0.0f, 0.0f, 0.34f));
-        Image goldEdge = CreatePanel(buttonObject.transform, name + " Gold Edge", new Vector2(0, 0), new Vector2(Mathf.Max(8f, size.x - 10f), 2f), new Color(0.92f, 0.66f, 0.28f, 0.32f));
+        Image goldEdge = CreatePanel(buttonObject.transform, name + " Gold Edge", new Vector2(0, 0), new Vector2(Mathf.Max(8f, size.x - 10f), 2f), new Color(0.92f, 0.66f, 0.28f, 0.36f));
         topHighlight.raycastTarget = false;
         bottomShade.raycastTarget = false;
         goldEdge.raycastTarget = false;

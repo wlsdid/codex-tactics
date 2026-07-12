@@ -22,6 +22,7 @@ Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현�
 - Batch 95 top guide 축소: `Break -> flank.`, `Push = +25% HP dmg.`, `Enc 1/2 | Active`처럼 상단/진행 microcopy를 더 짧게 줄이고 CaptureRunner/contact sheet로 중앙 전장 가독성을 재검증했습니다.
 - Batch 100 우측 레일 여백 보정: 전투 화면의 우측 스킬 카드와 하단 detail/intent 카드 폭을 줄이고 오른쪽으로 밀어 적 캐릭터/중앙 전장을 더 비우도록 조정한 뒤 CaptureRunner PNG/GIF/contact sheet를 재생성했습니다.
 - Batch 101 Ice Lance 캡처 증거: deterministic capture run에서 진행도를 일시 세팅해 Ice Lance/Stun 장면을 추가 캡처하고 README GIF/runtime storyboard/contact sheet를 8프레임 증거로 갱신했습니다.
+- 1차 완성 검증(2026-07-12): Unity Game Flow/Battle/Logic 자동 검증을 모두 통과하고, 최신 1920×1080 캡처 8장·README GIF·runtime storyboard·contact sheet를 재생성했습니다. 상세 근거는 [`Docs/Devlog/2026-07-12_first-complete-verification.md`](Docs/Devlog/2026-07-12_first-complete-verification.md)에 있습니다.
 
 ---
 

@@ -166,7 +166,10 @@ public static class BattleAutoTestRunner
         AppendCheck(ref passed, ref report, "Player HP bar follows guard damage", battleManager.DebugPlayerHpBarValue == 93f && battleManager.DebugPlayerHpBarMaxValue == 100f);
         AppendCheck(ref passed, ref report, "Guard message is shown", battleManager.DebugMessageText == "Slime attacks! Hero guards and takes 7 damage.");
         AppendCheck(ref passed, ref report, "Impact text summarizes guarded enemy damage", battleManager.DebugImpactText == "Impact: Guard reduced incoming damage to 7");
-        AppendCheck(ref passed, ref report, "Battle log keeps recent actions in order", battleManager.DebugBattleLogText.Contains("4. Hero guards. Next enemy attack damage is reduced.") && battleManager.DebugBattleLogText.Contains("5. Slime attacks! Hero guards and takes 7 damage."));
+        string battleLogAfterGuard = battleManager.DebugBattleLogText;
+        int guardActionIndex = battleLogAfterGuard.IndexOf("Hero guards. Next enemy attack damage is reduced.");
+        int guardedHitIndex = battleLogAfterGuard.IndexOf("Slime attacks! Hero guards and takes 7 damage.");
+        AppendCheck(ref passed, ref report, "Battle log keeps recent actions in order", guardActionIndex >= 0 && guardedHitIndex > guardActionIndex);
 
         battleManager.DebugStartBattleForTest();
         battleManager.DebugResolveEnemyAttackForTest();
