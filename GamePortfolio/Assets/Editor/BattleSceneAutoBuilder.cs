@@ -37,6 +37,7 @@ public static class BattleSceneAutoBuilder
         topGoldDividerPanel.raycastTarget = false;
         commandGoldDividerPanel.raycastTarget = false;
         CreateBattlefieldDepthLayers(canvas.transform);
+        CreateForestRuinsTerrainProps(canvas.transform);
         CreateCinematicBattlefieldLighting(canvas.transform);
         CreateBattlefieldForegroundFraming(canvas.transform);
         CreateBattlefieldWeatherAndParallax(canvas.transform);
@@ -558,6 +559,10 @@ public static class BattleSceneAutoBuilder
         Image captureRehearsalPanel = FindImage("Capture Rehearsal Panel");
         TMP_Text captureRehearsalText = FindText("Capture Rehearsal Text");
         Image distantForestSilhouette = FindImage("Distant Forest Silhouette Panel");
+        Image forestRuinsGroundRidge = FindImage("Forest Ruins Ground Ridge");
+        Image forestRuinsLeftPillar = FindImage("Forest Ruins Left Pillar");
+        Image forestRuinsRightObelisk = FindImage("Forest Ruins Right Obelisk");
+        Image forestRuinsFallenSlab = FindImage("Forest Ruins Fallen Slab");
         Image moonlightBeam = FindImage("Moonlight Beam Panel");
         Image foregroundFog = FindImage("Foreground Fog Panel");
         Image heroCinematicSpotlight = FindImage("Hero Cinematic Spotlight");
@@ -620,26 +625,27 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battle stage floor glow is readable", IsDecorativePanelLikelyConfigured(battleStageFloorPanel, 820f, 220f));
         AppendCheck(ref passed, ref report, "Battle screen has cinematic letterbox framing", IsDecorativePanelLikelyConfigured(battleLetterboxTop, 1180f, 28f) && IsDecorativePanelLikelyConfigured(battleLetterboxBottom, 1180f, 28f));
         AppendCheck(ref passed, ref report, "Battlefield has premium inner gold frame", IsReadableContrastAccent(battlefieldInnerFrame, 0.24f, 0.34f));
-        AppendCheck(ref passed, ref report, "Premium landing tiles stay subtle beneath the units", IsReadableContrastAccent(heroLandingTile, 0.12f, 0.18f) && IsReadableContrastAccent(enemyLandingTile, 0.12f, 0.18f));
-        AppendCheck(ref passed, ref report, "Field depth bloom adds commercial lighting layer", IsReadableContrastAccent(fieldDepthBloom, 0.08f, 0.16f));
+        AppendCheck(ref passed, ref report, "Capture view suppresses rectangular landing tiles", IsHiddenForCapture(heroLandingTile) && IsHiddenForCapture(enemyLandingTile));
+        AppendCheck(ref passed, ref report, "Capture view suppresses rectangular depth-bloom overlay", IsHiddenForCapture(fieldDepthBloom));
         AppendCheck(ref passed, ref report, "Battlefield has layered forest silhouette", IsDecorativePanelLikelyConfigured(distantForestSilhouette, 680f, 70f));
-        AppendCheck(ref passed, ref report, "Battlefield has moonlight beam depth", IsReadableContrastAccent(moonlightBeam, 0.06f, 0.12f));
+        AppendCheck(ref passed, ref report, "Battlefield has authored forest-ruins terrain props", IsDecorativePanelLikelyConfigured(forestRuinsGroundRidge, 700f, 24f) && IsDecorativePanelLikelyConfigured(forestRuinsLeftPillar, 30f, 160f) && IsDecorativePanelLikelyConfigured(forestRuinsRightObelisk, 34f, 140f) && IsDecorativePanelLikelyConfigured(forestRuinsFallenSlab, 100f, 12f));
+        AppendCheck(ref passed, ref report, "Capture view suppresses rectangular moonlight beam", IsHiddenForCapture(moonlightBeam));
         AppendCheck(ref passed, ref report, "Battlefield has foreground fog layer", IsReadableContrastAccent(foregroundFog, 0.18f, 0.24f));
-        AppendCheck(ref passed, ref report, "Battlefield has cinematic character spotlights", IsReadableContrastAccent(heroCinematicSpotlight, 0.08f, 0.14f) && IsReadableContrastAccent(enemyCinematicSpotlight, 0.08f, 0.14f));
-        AppendCheck(ref passed, ref report, "Battlefield has restrained clash and floor highlights", IsReadableContrastAccent(centerClashGlow, 0.08f, 0.14f) && IsReadableContrastAccent(floorSpecularHighlight, 0.10f, 0.14f));
+        AppendCheck(ref passed, ref report, "Capture view suppresses rectangular character spotlights", IsHiddenForCapture(heroCinematicSpotlight) && IsHiddenForCapture(enemyCinematicSpotlight));
+        AppendCheck(ref passed, ref report, "Capture view suppresses rectangular clash highlights", IsHiddenForCapture(centerClashGlow) && IsHiddenForCapture(floorSpecularHighlight));
         AppendCheck(ref passed, ref report, "Battlefield has foreground framing depth", IsReadableContrastAccent(foregroundTreeLeft, 0.22f, 0.34f) && IsReadableContrastAccent(foregroundTreeRight, 0.22f, 0.34f) && IsReadableContrastAccent(lowerFogBand, 0.14f, 0.24f) && IsReadableContrastAccent(upperCanopyShadow, 0.14f, 0.24f));
         AppendCheck(ref passed, ref report, "Capture view suppresses nonessential weather/parallax overlays", IsHiddenForCapture(rainStreak1) && IsHiddenForCapture(parallaxLeaf3));
         AppendCheck(ref passed, ref report, "Battlefield unit base rings align to landing tiles", IsDecorativePanelLikelyConfigured(heroBaseRing, 100f, 16f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 112f, 18f));
         AppendCheck(ref passed, ref report, "Battlefield contrast polish keeps rings readable but not debug-bright", IsReadableContrastAccent(heroBaseRing, 0.38f, 0.48f) && IsReadableContrastAccent(enemyBaseRing, 0.38f, 0.48f));
         AppendCheck(ref passed, ref report, "Battlefield standee grounding shadows are readable", IsReadableContrastAccent(heroStandeeShadow, 0.40f, 0.50f) && IsReadableContrastAccent(enemyStandeeShadow, 0.42f, 0.52f));
         AppendCheck(ref passed, ref report, "Battlefield standee aura stays nearly transparent behind readable sprites", IsReadableContrastAccent(heroStandeeAura, 0.04f, 0.07f) && IsReadableContrastAccent(enemyStandeeAura, 0.04f, 0.07f));
-        AppendCheck(ref passed, ref report, "Battlefield units have contact glow and rim lighting", IsReadableContrastAccent(heroContactGlow, 0.22f, 0.30f) && IsReadableContrastAccent(enemyContactGlow, 0.20f, 0.30f) && IsReadableContrastAccent(heroStandeeRimLight, 0.16f, 0.24f) && IsReadableContrastAccent(enemyStandeeRimLight, 0.16f, 0.24f));
-        AppendCheck(ref passed, ref report, "Battlefield has restrained center action slash trail", IsReadableContrastAccent(centerActionSlashTrail, 0.12f, 0.20f));
+        AppendCheck(ref passed, ref report, "Battlefield units retain contact glow without rectangular rim bars", IsReadableContrastAccent(heroContactGlow, 0.22f, 0.30f) && IsReadableContrastAccent(enemyContactGlow, 0.20f, 0.30f) && IsHiddenForCapture(heroStandeeRimLight) && IsHiddenForCapture(enemyStandeeRimLight));
+        AppendCheck(ref passed, ref report, "Capture view suppresses rectangular center slash trail", IsHiddenForCapture(centerActionSlashTrail));
         AppendCheck(ref passed, ref report, "Top gold divider exists", topGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(topGoldDividerPanel, 1000f, 3f));
         AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 900f, 2f));
         AppendCheck(ref passed, ref report, "Capture view suppresses decorative tactical grid", IsHiddenForCapture(tacticalGridTile));
         AppendCheck(ref passed, ref report, "Capture view suppresses nonessential action arc", IsHiddenForCapture(skillActionArc));
-        AppendCheck(ref passed, ref report, "Hero scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(heroStandeeBody, 148f, 188f) && IsDecorativePanelLikelyConfigured(heroStandeeBlade, 5f, 52f));
+        AppendCheck(ref passed, ref report, "Hero scaled pixel standee remains readable without blade bar overlay", IsSpriteImageLikelyConfigured(heroStandeeBody, 148f, 188f) && IsHiddenForCapture(heroStandeeBlade));
         AppendCheck(ref passed, ref report, "Enemy scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(enemyStandeeBody, 164f, 194f) && IsReadableContrastAccent(enemyStandeeCrown, 0.24f, 0.32f));
         AppendCheck(ref passed, ref report, "StageData enemy visual variants use extracted reference sprites", StageData.CreateStage1Normal().enemy.visualVariant == EnemyVisualVariant.Goblin && StageData.CreateStage1Boss().enemy.visualVariant == EnemyVisualVariant.Skeleton && StageData.CreateStage3Normal().enemy.visualVariant == EnemyVisualVariant.Golem && StageData.CreateStage5Normal().enemy.visualVariant == EnemyVisualVariant.Lich);
         AppendCheck(ref passed, ref report, "Battle portraits have idle bob and hit reaction motion", HasBattleSpriteMotion(playerSpriteImage) && HasBattleSpriteMotion(enemySpriteImage));
@@ -1016,7 +1022,9 @@ public static class BattleSceneAutoBuilder
         {
             "Demo Route", "Capture Rehearsal", "Boss Phase Telegraph", "Combo Meter", "Turn Timeline", "Damage Preview",
             "Progress Skill", "Progress Turn", "Progress Bottom", "Reference Skill", "Tactical Grid Tile", "Skill Action Arc",
-            "Rain Streak", "Parallax Leaf", "Fire Element", "Battle Guide", "Stage Objective"
+            "Rain Streak", "Parallax Leaf", "Fire Element", "Battle Guide", "Stage Objective",
+            "Hero Cinematic Spotlight", "Enemy Cinematic Spotlight", "Field Depth Bloom", "Center Clash Glow", "Floor Specular Highlight",
+            "Moonlight Beam", "Center Action Slash Trail", "Hero Premium Landing Tile", "Enemy Premium Landing Tile", "Hero Standee Blade", "Hero Standee Rim Light", "Enemy Standee Rim Light"
         };
 
         foreach (Image image in root.GetComponentsInChildren<Image>(true))
@@ -1606,6 +1614,30 @@ public static class BattleSceneAutoBuilder
         fog.raycastTarget = false;
         rearHorizon.raycastTarget = false;
         moonlight.rectTransform.localRotation = Quaternion.Euler(0, 0, -11f);
+    }
+
+    private static void CreateForestRuinsTerrainProps(Transform parent)
+    {
+        // Low-contrast environmental props break the flat test-board silhouette without obscuring tactical units.
+        Color stone = new Color(0.055f, 0.090f, 0.096f, 0.70f);
+        Color stoneLight = new Color(0.14f, 0.22f, 0.20f, 0.42f);
+        Color moss = new Color(0.16f, 0.36f, 0.26f, 0.34f);
+
+        Image groundRidge = CreatePanel(parent, "Forest Ruins Ground Ridge", new Vector2(0, -150), new Vector2(760, 30), new Color(0.020f, 0.070f, 0.064f, 0.62f));
+        Image leftPillar = CreatePanel(parent, "Forest Ruins Left Pillar", new Vector2(-336, -32), new Vector2(38, 194), stone);
+        Image leftCap = CreatePanel(parent, "Forest Ruins Left Pillar Cap", new Vector2(-336, 70), new Vector2(66, 20), stoneLight);
+        Image leftMoss = CreatePanel(parent, "Forest Ruins Left Moss", new Vector2(-351, 14), new Vector2(7, 112), moss);
+        Image rightObelisk = CreatePanel(parent, "Forest Ruins Right Obelisk", new Vector2(346, -20), new Vector2(42, 168), stone);
+        Image rightCap = CreatePanel(parent, "Forest Ruins Right Obelisk Cap", new Vector2(346, 70), new Vector2(70, 18), stoneLight);
+        Image rightMoss = CreatePanel(parent, "Forest Ruins Right Moss", new Vector2(330, 6), new Vector2(8, 98), moss);
+        Image fallenSlab = CreatePanel(parent, "Forest Ruins Fallen Slab", new Vector2(70, -142), new Vector2(124, 18), stoneLight);
+        fallenSlab.rectTransform.localRotation = Quaternion.Euler(0, 0, -7f);
+
+        Image[] props = { groundRidge, leftPillar, leftCap, leftMoss, rightObelisk, rightCap, rightMoss, fallenSlab };
+        foreach (Image prop in props)
+        {
+            prop.raycastTarget = false;
+        }
     }
 
     private static void CreateCinematicBattlefieldLighting(Transform parent)
