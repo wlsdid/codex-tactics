@@ -45,6 +45,7 @@ public static class BattleSceneAutoBuilder
         CreateCommercialBattlefieldComposition(canvas.transform);
         CreateTacticalGrid(canvas.transform);
         CreateBattlefieldUnitStandees(canvas.transform);
+        CreateBattlefieldSupportFormation(canvas.transform);
 
         // Premium dark panels — slim overlay style, leaving the battlefield visible.
         Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 330), new Vector2(1220, 54), new Color(0.010f, 0.014f, 0.024f, 0.66f));
@@ -538,6 +539,10 @@ public static class BattleSceneAutoBuilder
         Image heroStandeeBody = FindImage("Hero Standee Body");
         Image heroStandeeBlade = FindImage("Hero Standee Blade");
         Image enemyStandeeBody = FindImage("Enemy Standee Body");
+        Image allyFormationUnit1 = FindImage("Ally Formation Unit 1 Body");
+        Image allyFormationUnit2 = FindImage("Ally Formation Unit 2 Body");
+        Image enemyFormationUnit1 = FindImage("Enemy Formation Unit 1 Body");
+        Image enemyFormationUnit2 = FindImage("Enemy Formation Unit 2 Body");
         Image enemyStandeeCrown = FindImage("Enemy Standee Crown");
         Image commandHeaderPanel = FindImageIncludingInactive("Command Header Panel");
         TMP_Text commandHeaderText = FindTextIncludingInactive("Command Header Text");
@@ -645,6 +650,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 900f, 2f));
         AppendCheck(ref passed, ref report, "Capture view suppresses decorative tactical grid", IsHiddenForCapture(tacticalGridTile));
         AppendCheck(ref passed, ref report, "Capture view suppresses nonessential action arc", IsHiddenForCapture(skillActionArc));
+        AppendCheck(ref passed, ref report, "Battlefield presents a 3v3 formation while retaining live Hero and Enemy anchors", IsSpriteImageLikelyConfigured(heroStandeeBody, 148f, 188f) && IsSpriteImageLikelyConfigured(enemyStandeeBody, 164f, 194f) && IsSpriteImageLikelyConfigured(allyFormationUnit1, 56f, 74f) && IsSpriteImageLikelyConfigured(allyFormationUnit2, 56f, 74f) && IsSpriteImageLikelyConfigured(enemyFormationUnit1, 56f, 74f) && IsSpriteImageLikelyConfigured(enemyFormationUnit2, 56f, 74f));
         AppendCheck(ref passed, ref report, "Hero scaled pixel standee remains readable without blade bar overlay", IsSpriteImageLikelyConfigured(heroStandeeBody, 148f, 188f) && IsHiddenForCapture(heroStandeeBlade));
         AppendCheck(ref passed, ref report, "Enemy scaled pixel standee is grounded on tile", IsSpriteImageLikelyConfigured(enemyStandeeBody, 164f, 194f) && IsReadableContrastAccent(enemyStandeeCrown, 0.24f, 0.32f));
         AppendCheck(ref passed, ref report, "StageData enemy visual variants use extracted reference sprites", StageData.CreateStage1Normal().enemy.visualVariant == EnemyVisualVariant.Goblin && StageData.CreateStage1Boss().enemy.visualVariant == EnemyVisualVariant.Skeleton && StageData.CreateStage3Normal().enemy.visualVariant == EnemyVisualVariant.Golem && StageData.CreateStage5Normal().enemy.visualVariant == EnemyVisualVariant.Lich);
@@ -1741,6 +1747,42 @@ public static class BattleSceneAutoBuilder
         enemyAura.raycastTarget = false;
         enemyBody.raycastTarget = false;
         enemyCrown.raycastTarget = false;
+    }
+
+    private static void CreateBattlefieldSupportFormation(Transform parent)
+    {
+        // Visual battle formation: the existing Hero/Goblin remain the live logic anchors;
+        // these allies/enemies make the central battlefield read as a party encounter.
+        // Two visual supports plus the live Hero make a readable three-unit party.
+        string[] allySprites =
+        {
+            "Assets/Art/ReferenceSprites/reference_cleric_full.png",
+            "Assets/Art/ReferenceSprites/reference_archmage_full.png"
+        };
+        Vector2[] allyPositions = { new Vector2(-294, 72), new Vector2(-92, 92) };
+        // Two visual supports plus the live stage enemy make a readable three-unit enemy formation.
+        string[] enemySprites =
+        {
+            "Assets/Art/ReferenceSprites/reference_skeleton_full.png",
+            "Assets/Art/ReferenceSprites/reference_dark_knight_full.png"
+        };
+        Vector2[] enemyPositions = { new Vector2(318, 76), new Vector2(102, 92) };
+
+        for (int i = 0; i < allySprites.Length; i++)
+            CreateFormationUnit(parent, $"Ally Formation Unit {i + 1}", allySprites[i], allyPositions[i], new Color(0.36f, 0.80f, 1f, 0.30f), false, i);
+        for (int i = 0; i < enemySprites.Length; i++)
+            CreateFormationUnit(parent, $"Enemy Formation Unit {i + 1}", enemySprites[i], enemyPositions[i], new Color(1f, 0.40f, 0.60f, 0.30f), true, i + 3);
+    }
+
+    private static void CreateFormationUnit(Transform parent, string name, string spritePath, Vector2 position, Color accent, bool moveLeftOnHit, int phase)
+    {
+        Image shadow = CreatePanel(parent, name + " Shadow", position + new Vector2(0, -32), new Vector2(44, 8), new Color(0f, 0f, 0f, 0.34f));
+        Image ring = CreatePanel(parent, name + " Ring", position + new Vector2(0, -29), new Vector2(50, 8), accent);
+        Image body = CreateSpritePanel(parent, name + " Body", spritePath, position, new Vector2(58, 76));
+        ConfigureBattleSpriteMotion(body, 2.1f, 1.0f, phase * 0.22f, 8f, 0.025f, moveLeftOnHit);
+        shadow.raycastTarget = false;
+        ring.raycastTarget = false;
+        body.raycastTarget = false;
     }
 
     private static Image CreatePixelBlock(Transform parent, string name, Vector2 anchoredPosition, Vector2 size, Color color)
