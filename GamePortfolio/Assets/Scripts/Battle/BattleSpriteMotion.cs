@@ -72,26 +72,35 @@ public class BattleSpriteMotion : MonoBehaviour
 
     public void PlayHitReaction()
     {
+        PlayMotion(hitMovesLeft ? -1f : 1f, hitMovePixels, hitSquashAmount, 0.18f);
+    }
+
+    /// <summary>Short directional lunge for the two live battlefield anchors only.</summary>
+    public void PlayAttackLunge(bool towardRight)
+    {
+        PlayMotion(towardRight ? 1f : -1f, hitMovePixels * 0.72f, hitSquashAmount * 0.7f, 0.16f);
+    }
+
+    private void PlayMotion(float direction, float pixels, float squash, float duration)
+    {
         if (!isActiveAndEnabled)
             return;
         if (hitRoutine != null)
             StopCoroutine(hitRoutine);
-        hitRoutine = StartCoroutine(HitReactionRoutine());
+        hitRoutine = StartCoroutine(MotionRoutine(direction, pixels, squash, duration));
     }
 
-    private IEnumerator HitReactionRoutine()
+    private IEnumerator MotionRoutine(float direction, float pixels, float squash, float duration)
     {
-        float direction = hitMovesLeft ? -1f : 1f;
-        float duration = 0.18f;
         float elapsed = 0f;
 
         while (elapsed < duration)
         {
             float t = elapsed / duration;
             float punch = Mathf.Sin(t * Mathf.PI);
-            hitOffset = direction * hitMovePixels * punch;
+            hitOffset = direction * pixels * punch;
             if (rectTransform != null)
-                rectTransform.localScale = new Vector3(baseScale.x * (1f + hitSquashAmount * punch), baseScale.y * (1f - hitSquashAmount * punch), baseScale.z);
+                rectTransform.localScale = new Vector3(baseScale.x * (1f + squash * punch), baseScale.y * (1f - squash * punch), baseScale.z);
             elapsed += Time.deltaTime;
             yield return null;
         }

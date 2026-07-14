@@ -1,5 +1,18 @@
 # Next Autonomous Tasks
 
+## Latest polish — 2026-07-14 Typography & 3v3 Formation Presentation
+
+Completed:
+- Generated and applied `NotoSansKR-Regular SDF` from the OFL Noto Sans KR source across generated Title, Stage Select, and Battle TMP UI, retaining the default TMP fallback.
+- Kept Hero/live enemy as the existing 1v1 logic anchors while making two visual supports per side read as a centered 3v3 formation; selection, target, attack, hit, and status feedback now animate the central anchors.
+- Removed the Stage Select strategic chip strip that overlapped the lower detail panel.
+- Regenerated Title/Stage/Battle, passed Game Flow, Battle Scene, and Battle Logic validations, rebuilt CaptureRunner, and refreshed eight nonblank 1920×1080 captures.
+- Cleaned generated Unity YAML trailing whitespace; `git diff --check` passes.
+- Details: `Docs/Devlog/2026-07-14_typography-formation-presentation.md`.
+
+Recommended next task:
+1. Only after new transparent authored character art is available, replace the remaining platform slabs embedded in the current reference sprites; do not add units, rules, rectangular HUD overlays, or abstract props.
+
 ## Latest polish — 2026-07-12 Compact Five-Unit Party Roster
 
 Completed:

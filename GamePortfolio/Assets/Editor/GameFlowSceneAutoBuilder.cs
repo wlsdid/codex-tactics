@@ -66,6 +66,7 @@ public static class GameFlowSceneAutoBuilder
         GameSceneFlow flow = flowObject.AddComponent<GameSceneFlow>();
         UnityEventTools.AddPersistentListener(startButton.onClick, flow.LoadStageSelect);
 
+        TacticalTypography.ApplyToLoadedScene();
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, TitleScenePath);
     }
@@ -85,7 +86,6 @@ public static class GameFlowSceneAutoBuilder
         CreateStageSelectShowcaseFrame(canvas.transform);
         CreateStageSelectPremiumPreview(canvas.transform);
         CreateStageSelectCampaignBriefing(canvas.transform);
-        CreateStageSelectStrategicInfoStrip(canvas.transform);
 
         TMP_Text headerText = CreateText(canvas.transform, "Header Text", "Select Stage", new Vector2(0, 305), new Vector2(600, 54), TextAlignmentOptions.Center);
         headerText.fontSize = 36;
@@ -219,6 +219,7 @@ public static class GameFlowSceneAutoBuilder
         GameObject flowObject = new GameObject("GameSceneFlow");
         flowObject.AddComponent<GameSceneFlow>();
 
+        TacticalTypography.ApplyToLoadedScene();
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, StageSelectScenePath);
     }
@@ -271,7 +272,7 @@ public static class GameFlowSceneAutoBuilder
             AppendCheck(ref passed, ref report, "StageSelect chapter label exists", HasSceneObject("Stage Select Chapter Label Text"));
             AppendCheck(ref passed, ref report, "StageSelect has premium map preview rail", HasSceneObject("Stage Select Map Preview Panel") && HasSceneObject("Stage Select Route Line Panel"));
             AppendCheck(ref passed, ref report, "StageSelect has reward chip row", HasSceneObject("Stage Select Reward Gold Chip") && HasSceneObject("Stage Select Reward XP Chip"));
-            AppendCheck(ref passed, ref report, "StageSelect has strategic info strip", HasSceneObject("Stage Select Strategy Strip Panel") && HasSceneObject("Stage Select Party Loadout Chip") && HasSceneObject("Stage Select Enemy Forecast Chip"));
+            AppendCheck(ref passed, ref report, "StageSelect keeps the lower detail panel clear of overlapping strategic chips", !HasSceneObject("Stage Select Strategy Strip Panel") && !HasSceneObject("Stage Select Party Loadout Chip") && !HasSceneObject("Stage Select Enemy Forecast Chip"));
             AppendCheck(ref passed, ref report, "StageSelect has commercial campaign briefing", HasSceneObject("Stage Select Campaign Briefing Panel") && HasSceneObject("Stage Select Risk Gauge Fill Panel") && HasSceneObject("Stage Select Sponsor Tag Text"));
             AppendCheck(ref passed, ref report, "StageSelect primary buttons have premium bevel material", HasSceneObject("Start Battle Button Top Highlight") && HasSceneObject("Start Battle Button Gold Edge"));
             AppendCheck(ref passed, ref report, "StageSelect cards have premium bevel material", HasSceneObject("Stage Card 1 Top Highlight") && HasSceneObject("Stage Card 1 Gold Edge"));

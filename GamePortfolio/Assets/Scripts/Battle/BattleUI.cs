@@ -30,6 +30,11 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Slider enemyBreakSlider;
     [SerializeField] private Image enemySpriteImage;
     [SerializeField] private Image enemyStandeeImage;
+    [SerializeField] private Image heroStandeeImage;
+    [SerializeField] private Image[] allyFormationImages;
+    [SerializeField] private Image[] enemyFormationImages;
+    [SerializeField] private Image heroFormationFocusRing;
+    [SerializeField] private Image enemyFormationTargetRing;
     [SerializeField] private Image[] enemyRosterMiniSprites;
     [SerializeField] private TMP_Text[] enemyRosterLabels;
     [SerializeField] private Sprite referenceEnemySprite;
@@ -261,6 +266,7 @@ public class BattleUI : MonoBehaviour
         ClearCommandPreview();
         HideCharacterCommandMenu();
         ResetCaptureRehearsal();
+        SetFormationFocus(false);
         // Cache continue button's child text component if not yet set
         if (continueButtonText == null && continueButton != null)
             continueButtonText = continueButton.GetComponentInChildren<TMP_Text>();
@@ -489,6 +495,7 @@ public class BattleUI : MonoBehaviour
         if (selectedUnitText != null)
             SetGameObjectActiveIfChanged(selectedUnitText.gameObject, true);
         SetTextIfChanged(selectedUnitText, string.IsNullOrWhiteSpace(unitName) ? "Selected: Hero" : $"Selected: {unitName}");
+        SetFormationFocus(true);
     }
 
     public void HideCharacterCommandMenu()
@@ -501,6 +508,7 @@ public class BattleUI : MonoBehaviour
         if (selectedUnitText != null)
             SetGameObjectActiveIfChanged(selectedUnitText.gameObject, false);
         SetTextIfChanged(selectedUnitText, "Click an ally to command");
+        SetFormationFocus(false);
     }
 
     public void ResetCaptureRehearsal()
@@ -983,12 +991,13 @@ public class BattleUI : MonoBehaviour
     /// <summary>Brief flash effect on enemy sprite when damage is dealt.</summary>
     public void FlashEnemyDamage()
     {
+        EnsureSpriteMotions();
+        enemySpriteMotion?.PlayHitReaction();
+        PlayStandeeMotion(heroStandeeImage, true);
+        PlayStandeeMotion(enemyStandeeImage, false, true);
+        PulseTargetRing(enemyFormationTargetRing, new Color(1f, 0.34f, 0.44f, 0.82f));
         if (enemySpriteImage != null)
-        {
-            EnsureSpriteMotions();
-            enemySpriteMotion?.PlayHitReaction();
             StartCoroutine(FlashRoutine(enemySpriteImage, Color.white, 0.1f));
-        }
     }
 
     public Vector3 GetPlayerSpriteWorldPosition()
@@ -1024,12 +1033,44 @@ public class BattleUI : MonoBehaviour
     /// <summary>Brief flash effect on player sprite when damaged.</summary>
     public void FlashPlayerDamage()
     {
+        EnsureSpriteMotions();
+        playerSpriteMotion?.PlayHitReaction();
+        PlayStandeeMotion(enemyStandeeImage, false);
+        PlayStandeeMotion(heroStandeeImage, true, true);
+        PulseTargetRing(heroFormationFocusRing, new Color(0.34f, 0.82f, 1f, 0.82f));
         if (playerSpriteImage != null)
-        {
-            EnsureSpriteMotions();
-            playerSpriteMotion?.PlayHitReaction();
             StartCoroutine(FlashRoutine(playerSpriteImage, Color.red, 0.15f));
-        }
+    }
+
+    private void SetFormationFocus(bool isFocused)
+    {
+        SetRingColor(heroFormationFocusRing, new Color(0.38f, 0.82f, 1f, isFocused ? 0.80f : 0.42f));
+        SetRingColor(enemyFormationTargetRing, new Color(1f, 0.42f, 0.60f, isFocused ? 0.58f : 0.42f));
+        if (isFocused)
+            PlayStandeeMotion(heroStandeeImage, true);
+    }
+
+    private static void SetRingColor(Image ring, Color color)
+    {
+        if (ring != null)
+            ring.color = color;
+    }
+
+    private void PulseTargetRing(Image ring, Color color)
+    {
+        if (ring != null)
+            StartCoroutine(FlashRoutine(ring, color, 0.14f));
+    }
+
+    private static void PlayStandeeMotion(Image standee, bool towardRight, bool hitReaction = false)
+    {
+        BattleSpriteMotion motion = standee != null ? standee.GetComponent<BattleSpriteMotion>() : null;
+        if (motion == null)
+            return;
+        if (hitReaction)
+            motion.PlayHitReaction();
+        else
+            motion.PlayAttackLunge(towardRight);
     }
 
     private void EnsureSpriteMotions()

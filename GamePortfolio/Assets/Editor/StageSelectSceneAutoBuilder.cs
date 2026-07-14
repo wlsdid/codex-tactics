@@ -110,6 +110,7 @@ public static class StageSelectSceneAutoBuilder
         SetRef(serialized, "backButton", backButton);
         serialized.ApplyModifiedPropertiesWithoutUndo();
 
+        TacticalTypography.ApplyToLoadedScene();
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.SaveAssets();

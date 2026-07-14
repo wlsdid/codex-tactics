@@ -360,6 +360,13 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "enemyBreakSlider", enemyBreakSlider);
         SetObjectReference(serializedBattleUI, "enemySpriteImage", enemySpriteImage);
         SetObjectReference(serializedBattleUI, "enemyStandeeImage", FindImage("Enemy Standee Body"));
+        SetObjectReference(serializedBattleUI, "heroStandeeImage", FindImage("Hero Standee Body"));
+        SetObjectArrayReferences(serializedBattleUI, "allyFormationImages",
+            FindImage("Ally Formation Unit 1 Body"), FindImage("Ally Formation Unit 2 Body"));
+        SetObjectArrayReferences(serializedBattleUI, "enemyFormationImages",
+            FindImage("Enemy Formation Unit 1 Body"), FindImage("Enemy Formation Unit 2 Body"));
+        SetObjectReference(serializedBattleUI, "heroFormationFocusRing", FindImage("Hero Base Ring Panel"));
+        SetObjectReference(serializedBattleUI, "enemyFormationTargetRing", FindImage("Enemy Base Ring Panel"));
         SetObjectArrayReferences(serializedBattleUI, "enemyRosterMiniSprites",
             FindImageIncludingInactive("Enemy Roster Mini Sprite 1"),
             FindImageIncludingInactive("Enemy Roster Mini Sprite 2"),
@@ -427,6 +434,7 @@ public static class BattleSceneAutoBuilder
         serializedBattleManager.ApplyModifiedPropertiesWithoutUndo();
 
         ReduceCaptureNoise(canvas.transform);
+        TacticalTypography.ApplyToLoadedScene();
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, ScenePath);
@@ -1759,14 +1767,14 @@ public static class BattleSceneAutoBuilder
             "Assets/Art/ReferenceSprites/reference_cleric_full.png",
             "Assets/Art/ReferenceSprites/reference_archmage_full.png"
         };
-        Vector2[] allyPositions = { new Vector2(-294, 72), new Vector2(-92, 92) };
+        Vector2[] allyPositions = { new Vector2(-326, 38), new Vector2(-84, 58) };
         // Two visual supports plus the live stage enemy make a readable three-unit enemy formation.
         string[] enemySprites =
         {
             "Assets/Art/ReferenceSprites/reference_skeleton_full.png",
             "Assets/Art/ReferenceSprites/reference_dark_knight_full.png"
         };
-        Vector2[] enemyPositions = { new Vector2(318, 76), new Vector2(102, 92) };
+        Vector2[] enemyPositions = { new Vector2(338, 40), new Vector2(106, 58) };
 
         for (int i = 0; i < allySprites.Length; i++)
             CreateFormationUnit(parent, $"Ally Formation Unit {i + 1}", allySprites[i], allyPositions[i], new Color(0.36f, 0.80f, 1f, 0.30f), false, i);
@@ -1776,10 +1784,11 @@ public static class BattleSceneAutoBuilder
 
     private static void CreateFormationUnit(Transform parent, string name, string spritePath, Vector2 position, Color accent, bool moveLeftOnHit, int phase)
     {
-        Image shadow = CreatePanel(parent, name + " Shadow", position + new Vector2(0, -32), new Vector2(44, 8), new Color(0f, 0f, 0f, 0.34f));
-        Image ring = CreatePanel(parent, name + " Ring", position + new Vector2(0, -29), new Vector2(50, 8), accent);
-        Image body = CreateSpritePanel(parent, name + " Body", spritePath, position, new Vector2(58, 76));
-        ConfigureBattleSpriteMotion(body, 2.1f, 1.0f, phase * 0.22f, 8f, 0.025f, moveLeftOnHit);
+        Image shadow = CreatePanel(parent, name + " Shadow", position + new Vector2(0, -39), new Vector2(56, 9), new Color(0f, 0f, 0f, 0.34f));
+        Image ring = CreatePanel(parent, name + " Ring", position + new Vector2(0, -35), new Vector2(66, 9), accent);
+        Image body = CreateSpritePanel(parent, name + " Body", spritePath, position, new Vector2(72, 96));
+        body.color = new Color(0.92f, 0.96f, 1f, 0.96f);
+        ConfigureBattleSpriteMotion(body, 2.35f, 1.0f, phase * 0.22f, 9f, 0.025f, moveLeftOnHit);
         shadow.raycastTarget = false;
         ring.raycastTarget = false;
         body.raycastTarget = false;
