@@ -549,14 +549,16 @@ public class BattleUI : MonoBehaviour
 
     private void SetActionCommandButtonsVisible(bool isVisible)
     {
+        // The bounded strip intentionally exposes the three immediate tactical decisions.
+        // Other retained controls remain callable by game logic/test paths but do not inflate the capture HUD.
         SetGameObjectActiveIfChanged(attackButton != null ? attackButton.gameObject : null, isVisible);
         SetGameObjectActiveIfChanged(fireSkillButton != null ? fireSkillButton.gameObject : null, isVisible);
-        SetGameObjectActiveIfChanged(iceSkillButton != null ? iceSkillButton.gameObject : null, isVisible);
-        SetGameObjectActiveIfChanged(lightningSkillButton != null ? lightningSkillButton.gameObject : null, isVisible);
-        SetGameObjectActiveIfChanged(earthSkillButton != null ? earthSkillButton.gameObject : null, isVisible);
         SetGameObjectActiveIfChanged(guardButton != null ? guardButton.gameObject : null, isVisible);
-        SetGameObjectActiveIfChanged(endTurnButton != null ? endTurnButton.gameObject : null, isVisible);
-        SetGameObjectActiveIfChanged(itemButton != null ? itemButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(iceSkillButton != null ? iceSkillButton.gameObject : null, false);
+        SetGameObjectActiveIfChanged(lightningSkillButton != null ? lightningSkillButton.gameObject : null, false);
+        SetGameObjectActiveIfChanged(earthSkillButton != null ? earthSkillButton.gameObject : null, false);
+        SetGameObjectActiveIfChanged(endTurnButton != null ? endTurnButton.gameObject : null, false);
+        SetGameObjectActiveIfChanged(itemButton != null ? itemButton.gameObject : null, false);
     }
 
     public void SetActionButtonsInteractable(bool isInteractable)
@@ -957,6 +959,10 @@ public class BattleUI : MonoBehaviour
                 impactText.color = new Color(0.92f, 0.28f, 0.28f); // Red for damage
             else
                 impactText.color = Color.white;
+
+            // Keep the visual top lane limited to stage, current turn, and queue.
+            // The event string remains available to the debug API and battle log.
+            impactText.color = Color.clear;
         }
     }
 

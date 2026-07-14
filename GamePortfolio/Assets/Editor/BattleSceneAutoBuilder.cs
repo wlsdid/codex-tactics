@@ -24,13 +24,13 @@ public static class BattleSceneAutoBuilder
         Canvas canvas = CreateCanvas(camera);
         CreateEventSystem();
 
-        // Reference-inspired tactical RPG layout: left party stack, open center stage, right enemy stack, compact bottom commands.
-        Image battleStageBackdropPanel = CreateSpritePanel(canvas.transform, "Battle Stage Backdrop Panel", "Assets/Art/Generated/polished_forest_battle_bg.png", new Vector2(0, 18), new Vector2(1220, 600));
+        // Tactical Requiem information architecture: a wide, uncluttered central field framed by two narrow roster rails.
+        Image battleStageBackdropPanel = CreateSpritePanel(canvas.transform, "Battle Stage Backdrop Panel", "Assets/Art/Generated/polished_forest_battle_bg.png", new Vector2(0, 6), new Vector2(1220, 584));
         battleStageBackdropPanel.color = new Color(0.82f, 0.92f, 1.0f, 1.0f);
         Image battleStageColorGradePanel = CreatePanel(canvas.transform, "Battle Stage Color Grade Panel", new Vector2(0, 18), new Vector2(1220, 600), new Color(0.004f, 0.008f, 0.020f, 0.34f));
-        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -118), new Vector2(930, 230), new Color(0.018f, 0.070f, 0.074f, 0.56f));
-        Image topGoldDividerPanel = CreatePanel(canvas.transform, "Top Gold Divider Panel", new Vector2(0, 276), new Vector2(1220, 3), new Color(1.0f, 0.78f, 0.42f, 0.50f));
-        Image commandGoldDividerPanel = CreatePanel(canvas.transform, "Command Gold Divider Panel", new Vector2(80, -258), new Vector2(990, 2), new Color(1.0f, 0.80f, 0.45f, 0.42f));
+        Image battleStageFloorPanel = CreatePanel(canvas.transform, "Battle Stage Floor Panel", new Vector2(0, -92), new Vector2(900, 200), new Color(0.018f, 0.070f, 0.074f, 0.42f));
+        Image topGoldDividerPanel = CreatePanel(canvas.transform, "Top Gold Divider Panel", new Vector2(0, 278), new Vector2(900, 2), new Color(1.0f, 0.78f, 0.42f, 0.42f));
+        Image commandGoldDividerPanel = CreatePanel(canvas.transform, "Command Gold Divider Panel", new Vector2(0, -218), new Vector2(1120, 2), new Color(1.0f, 0.80f, 0.45f, 0.42f));
         battleStageBackdropPanel.raycastTarget = false;
         battleStageColorGradePanel.raycastTarget = false;
         battleStageFloorPanel.raycastTarget = false;
@@ -47,23 +47,24 @@ public static class BattleSceneAutoBuilder
         CreateBattlefieldUnitStandees(canvas.transform);
         CreateBattlefieldSupportFormation(canvas.transform);
 
-        // Combat-focus layout: keep HUD rails quiet so the central 3v3 owns the composition.
-        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 334), new Vector2(1220, 44), new Color(0.010f, 0.014f, 0.024f, 0.62f));
-        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-540, 20), new Vector2(202, 360), new Color(0.010f, 0.012f, 0.020f, 0.46f));
-        Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(540, 112), new Vector2(186, 220), new Color(0.014f, 0.012f, 0.018f, 0.44f));
-        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, 270), new Vector2(500, 38), new Color(0.010f, 0.014f, 0.024f, 0.28f));
-        Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -290), new Vector2(1220, 126), new Color(0.010f, 0.012f, 0.018f, 0.84f));
-        Image partyRosterPanel = CreatePanel(canvas.transform, "Party Roster Panel", new Vector2(-540, 6), new Vector2(198, 260), new Color(0.006f, 0.008f, 0.014f, 0.32f));
+        // The rails deliberately stay narrow; they report state rather than compete with the formation.
+        Image topStatusPanel = CreatePanel(canvas.transform, "Top Status Panel", new Vector2(0, 334), new Vector2(1220, 42), new Color(0.010f, 0.014f, 0.024f, 0.70f));
+        Image playerCardPanel = CreatePanel(canvas.transform, "Player Card Panel", new Vector2(-540, 20), new Vector2(160, 318), new Color(0.010f, 0.012f, 0.020f, 0.54f));
+        Image enemyCardPanel = CreatePanel(canvas.transform, "Enemy Card Panel", new Vector2(540, 52), new Vector2(160, 270), new Color(0.014f, 0.012f, 0.018f, 0.54f));
+        Image battleCenterPanel = CreatePanel(canvas.transform, "Battle Center Panel", new Vector2(0, 284), new Vector2(620, 28), new Color(0.010f, 0.014f, 0.024f, 0.48f));
+        Image commandBarPanel = CreatePanel(canvas.transform, "Command Bar Panel", new Vector2(0, -278), new Vector2(1220, 112), new Color(0.010f, 0.012f, 0.018f, 0.90f));
+        Image partyRosterPanel = CreatePanel(canvas.transform, "Party Roster Panel", new Vector2(-540, 4), new Vector2(156, 250), new Color(0.006f, 0.008f, 0.014f, 0.22f));
         partyRosterPanel.raycastTarget = false;
         CreateProfessionalPanelMaterialOverlays(canvas.transform);
         CreateProfessionalTopHudAccents(canvas.transform);
         CreatePartyRosterSlots(canvas.transform);
+        // Legacy proof widgets remain generated-but-suppressed so old scene references stay stable; they never enter the capture composition.
         CreateProgressReferenceSkillCards(canvas.transform);
         CreateProgressReferenceBottomHud(canvas.transform);
         CreateCommercialCombatReadouts(canvas.transform);
-        Image playerSelectionHighlight = CreatePanel(canvas.transform, "Player Selection Highlight", new Vector2(-540, 108), new Vector2(194, 42), new Color(0.95f, 0.86f, 0.64f, 0.18f));
+        Image playerSelectionHighlight = CreatePanel(canvas.transform, "Player Selection Highlight", new Vector2(-540, 92), new Vector2(150, 46), new Color(0.95f, 0.86f, 0.64f, 0.18f));
         playerSelectionHighlight.gameObject.SetActive(false);
-        Button playerSelectButton = CreateCenteredButton(canvas.transform, "Player Select Button", "Click Hero", new Vector2(-540, 108), new Vector2(194, 42));
+        Button playerSelectButton = CreateCenteredButton(canvas.transform, "Player Select Button", "Click Hero", new Vector2(-540, 92), new Vector2(150, 46));
         playerSelectButton.GetComponent<Image>().color = new Color(0.10f, 0.18f, 0.24f, 0.12f);
         TMP_Text playerSelectLabel = playerSelectButton.GetComponentInChildren<TMP_Text>();
         if (playerSelectLabel != null)
@@ -90,45 +91,45 @@ public static class BattleSceneAutoBuilder
         titleText.fontSize = 16;
         titleText.fontStyle = FontStyles.Bold;
 
-        Image runStatusChip = CreatePanel(canvas.transform, "Run Status Chip Panel", new Vector2(-190, 334), new Vector2(180, 20), new Color(0.006f, 0.018f, 0.026f, 0.30f));
-        Image runStatusChipEdge = CreatePanel(canvas.transform, "Run Status Chip Gold Edge", new Vector2(-278, 334), new Vector2(3, 16), new Color(0.86f, 0.74f, 0.42f, 0.36f));
+        Image runStatusChip = CreatePanel(canvas.transform, "Run Status Chip Panel", new Vector2(-190, 334), new Vector2(180, 20), Color.clear);
+        Image runStatusChipEdge = CreatePanel(canvas.transform, "Run Status Chip Gold Edge", new Vector2(-278, 334), new Vector2(3, 16), Color.clear);
         runStatusChip.raycastTarget = false;
         runStatusChipEdge.raycastTarget = false;
         TMP_Text runStatusText = CreateText(canvas.transform, "Run Status Text", "Run: Active", new Vector2(-182, 334), new Vector2(160, 16), TextAlignmentOptions.Left);
         runStatusText.fontSize = 9;
-        runStatusText.color = new Color(0.76f, 1.0f, 0.82f, 0.92f);
+        runStatusText.color = Color.clear;
 
-        Image battleGuideChip = CreatePanel(canvas.transform, "Battle Guide Chip Panel", new Vector2(35, 270), new Vector2(210, 18), new Color(0.010f, 0.018f, 0.032f, 0.18f));
+        Image battleGuideChip = CreatePanel(canvas.transform, "Battle Guide Chip Panel", new Vector2(35, 270), new Vector2(210, 18), Color.clear);
         battleGuideChip.raycastTarget = false;
         TMP_Text battleGuideText = CreateText(canvas.transform, "Battle Guide Text", "Push +25% HP break", new Vector2(35, 270), new Vector2(200, 14), TextAlignmentOptions.Center);
         battleGuideText.fontSize = 8;
-        battleGuideText.color = new Color(0.90f, 0.95f, 1.0f, 0.72f);
+        battleGuideText.color = Color.clear;
 
-        Image stageChip = CreatePanel(canvas.transform, "Stage Chip Panel", new Vector2(-185, 270), new Vector2(230, 24), new Color(0.032f, 0.026f, 0.014f, 0.30f));
-        Image stageChipEdge = CreatePanel(canvas.transform, "Stage Chip Top Edge", new Vector2(-185, 282), new Vector2(204, 2), new Color(1.0f, 0.78f, 0.38f, 0.28f));
+        Image stageChip = CreatePanel(canvas.transform, "Stage Chip Panel", new Vector2(-235, 284), new Vector2(270, 24), new Color(0.032f, 0.026f, 0.014f, 0.54f));
+        Image stageChipEdge = CreatePanel(canvas.transform, "Stage Chip Top Edge", new Vector2(-235, 296), new Vector2(248, 2), new Color(1.0f, 0.78f, 0.38f, 0.32f));
         stageChip.raycastTarget = false;
         stageChipEdge.raycastTarget = false;
-        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "BATTLE PREP", new Vector2(-185, 270), new Vector2(220, 20), TextAlignmentOptions.Center);
+        TMP_Text stageText = CreateText(canvas.transform, "Stage Text", "BATTLE PREP", new Vector2(-235, 284), new Vector2(250, 20), TextAlignmentOptions.Center);
         stageText.fontSize = 12;
         stageText.fontStyle = FontStyles.Bold;
         stageText.color = new Color(0.92f, 0.86f, 0.55f);
-        Image objectiveChip = CreatePanel(canvas.transform, "Objective Chip Panel", new Vector2(255, 270), new Vector2(160, 18), new Color(0.026f, 0.028f, 0.040f, 0.22f));
+        Image objectiveChip = CreatePanel(canvas.transform, "Objective Chip Panel", new Vector2(255, 270), new Vector2(160, 18), Color.clear);
         objectiveChip.raycastTarget = false;
         TMP_Text stageObjectiveText = CreateText(canvas.transform, "Stage Objective Text", "Grid intent", new Vector2(255, 270), new Vector2(150, 16), TextAlignmentOptions.Left);
         stageObjectiveText.fontSize = 9;
-        stageObjectiveText.color = new Color(1.0f, 0.94f, 0.72f, 0.82f);
-        Image stageProgressChip = CreatePanel(canvas.transform, "Stage Progress Chip Panel", new Vector2(490, 270), new Vector2(126, 18), new Color(0.018f, 0.026f, 0.040f, 0.20f));
+        stageObjectiveText.color = Color.clear;
+        Image stageProgressChip = CreatePanel(canvas.transform, "Stage Progress Chip Panel", new Vector2(235, 284), new Vector2(150, 20), new Color(0.018f, 0.026f, 0.040f, 0.42f));
         stageProgressChip.raycastTarget = false;
-        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "Cost Chain", new Vector2(490, 270), new Vector2(116, 16), TextAlignmentOptions.Right);
+        TMP_Text stageProgressText = CreateText(canvas.transform, "Stage Progress Text", "TURN QUEUE", new Vector2(235, 284), new Vector2(136, 16), TextAlignmentOptions.Center);
         stageProgressText.fontSize = 8;
-        stageProgressText.color = new Color(0.72f, 0.90f, 1.0f, 0.76f);
+        stageProgressText.color = new Color(0.72f, 0.90f, 1.0f, 0.86f);
 
         CreateBottomResourceStrip(canvas.transform);
-        Image playerHpChipPanel = CreatePanel(canvas.transform, "Player HP Chip Panel", new Vector2(-330, -330), new Vector2(184, 20), new Color(0.012f, 0.026f, 0.018f, 0.30f));
-        Image playerHpChipEdge = CreatePanel(canvas.transform, "Player HP Chip Green Edge", new Vector2(-420, -330), new Vector2(3, 14), new Color(0.34f, 0.92f, 0.46f, 0.38f));
+        Image playerHpChipPanel = CreatePanel(canvas.transform, "Player HP Chip Panel", new Vector2(-410, -300), new Vector2(156, 20), new Color(0.012f, 0.026f, 0.018f, 0.30f));
+        Image playerHpChipEdge = CreatePanel(canvas.transform, "Player HP Chip Green Edge", new Vector2(-486, -300), new Vector2(3, 14), new Color(0.34f, 0.92f, 0.46f, 0.38f));
         playerHpChipPanel.raycastTarget = false;
         playerHpChipEdge.raycastTarget = false;
-        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-326, -330), new Vector2(160, 16), TextAlignmentOptions.Left);
+        TMP_Text playerHpText = CreateText(canvas.transform, "Player HP Text", "Hero HP: 100/100 (100%)", new Vector2(-408, -300), new Vector2(140, 16), TextAlignmentOptions.Left);
         playerHpText.fontSize = 9;
         TMP_Text playerCardTitleText = CreateText(canvas.transform, "Player Card Title Text", "PARTY", new Vector2(-540, 178), new Vector2(90, 18), TextAlignmentOptions.Left);
         playerCardTitleText.fontSize = 12;
@@ -137,22 +138,22 @@ public static class BattleSceneAutoBuilder
         // Portrait border frames — subtle dark outline
         CreatePortraitFrame(canvas.transform, "Player Portrait Frame", new Vector2(-606, 172), new Vector2(38, 38));
         CreatePortraitPixelAccent(canvas.transform, "Player", new Vector2(-606, 172), new Color(0.38f, 0.78f, 1.0f, 0.32f));
-        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-606, 172), new Vector2(32, 32), "Assets/Art/ReferenceSprites/reference_paladin_full.png");
+        Image playerSpriteImage = CreatePortrait(canvas.transform, "Player Sprite", new Vector2(-606, 172), new Vector2(32, 32), "Assets/Art/Generated/chibi_hero_original.png");
         ConfigureBattleSpriteMotion(playerSpriteImage, 3.5f, 1.45f, 0f, 14f, 0.06f, false);
-        Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-330, -344), new Vector2(170, 6), new Color(0.22f, 0.72f, 0.38f));
-        Image playerApChipPanel = CreatePanel(canvas.transform, "Player AP Chip Panel", new Vector2(-160, -330), new Vector2(184, 20), new Color(0.012f, 0.020f, 0.038f, 0.30f));
-        Image playerApChipEdge = CreatePanel(canvas.transform, "Player AP Chip Blue Edge", new Vector2(-250, -330), new Vector2(3, 14), new Color(0.38f, 0.64f, 1.0f, 0.40f));
+        Slider playerHpSlider = CreateHpSlider(canvas.transform, "Player HP Slider", new Vector2(-410, -314), new Vector2(144, 6), new Color(0.22f, 0.72f, 0.38f));
+        Image playerApChipPanel = CreatePanel(canvas.transform, "Player AP Chip Panel", new Vector2(-240, -300), new Vector2(126, 20), new Color(0.012f, 0.020f, 0.038f, 0.30f));
+        Image playerApChipEdge = CreatePanel(canvas.transform, "Player AP Chip Blue Edge", new Vector2(-301, -300), new Vector2(3, 14), new Color(0.38f, 0.64f, 1.0f, 0.40f));
         playerApChipPanel.raycastTarget = false;
         playerApChipEdge.raycastTarget = false;
-        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-156, -330), new Vector2(160, 16), TextAlignmentOptions.Left);
+        TMP_Text playerApText = CreateText(canvas.transform, "Player AP Text", "AP: 3/3 (100%)", new Vector2(-237, -300), new Vector2(112, 16), TextAlignmentOptions.Left);
         playerApText.fontSize = 9;
-        Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-160, -344), new Vector2(170, 6), new Color(0.26f, 0.56f, 1.0f));
-        Image playerStatusChipPanel = CreatePanel(canvas.transform, "Player Status Chip Panel", new Vector2(-245, -358), new Vector2(312, 16), new Color(0.014f, 0.030f, 0.020f, 0.26f));
+        Slider playerApSlider = CreateHpSlider(canvas.transform, "Player AP Slider", new Vector2(-240, -314), new Vector2(116, 6), new Color(0.26f, 0.56f, 1.0f));
+        Image playerStatusChipPanel = CreatePanel(canvas.transform, "Player Status Chip Panel", new Vector2(-365, -326), new Vector2(250, 16), new Color(0.014f, 0.030f, 0.020f, 0.26f));
         playerStatusChipPanel.raycastTarget = false;
-        TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-245, -358), new Vector2(300, 14), TextAlignmentOptions.Left);
+        TMP_Text playerStatusText = CreateText(canvas.transform, "Player Status Text", "Status: Ready", new Vector2(-365, -326), new Vector2(238, 14), TextAlignmentOptions.Left);
         playerStatusText.fontSize = 8;
         playerStatusText.color = new Color(0.78f, 1.0f, 0.76f);
-        TMP_Text playerShieldText = CreateText(canvas.transform, "Player Shield Text", "", new Vector2(-245, -370), new Vector2(300, 14), TextAlignmentOptions.Left);
+        TMP_Text playerShieldText = CreateText(canvas.transform, "Player Shield Text", "", new Vector2(-365, -338), new Vector2(238, 14), TextAlignmentOptions.Left);
         playerShieldText.fontSize = 10;
         playerShieldText.color = new Color(0.45f, 0.78f, 1.0f);
         Image enemyHpChipPanel = CreatePanel(canvas.transform, "Enemy HP Chip Panel", new Vector2(552, 184), new Vector2(150, 18), new Color(0.040f, 0.014f, 0.016f, 0.30f));
@@ -172,7 +173,7 @@ public static class BattleSceneAutoBuilder
         // Portrait border frames — subtle dark outline
         CreatePortraitFrame(canvas.transform, "Enemy Portrait Frame", new Vector2(488, 146), new Vector2(54, 54));
         CreatePortraitPixelAccent(canvas.transform, "Enemy", new Vector2(488, 146), new Color(1.0f, 0.45f, 0.24f, 0.42f));
-        Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(488, 146), new Vector2(42, 42), "Assets/Art/ReferenceSprites/reference_goblin_full.png");
+        Image enemySpriteImage = CreatePortrait(canvas.transform, "Enemy Sprite", new Vector2(488, 146), new Vector2(42, 42), "Assets/Art/Generated/chibi_enemy_original.png");
         ConfigureBattleSpriteMotion(enemySpriteImage, 4.5f, 1.25f, 0.35f, 18f, 0.08f, true);
         Image burnOverlay = CreateStatusOverlay(canvas.transform, "Burn Overlay", new Vector2(488, 146), new Vector2(42, 42));
         Image stunOverlay = CreateStatusOverlay(canvas.transform, "Stun Overlay", new Vector2(488, 146), new Vector2(42, 42));
@@ -203,7 +204,7 @@ public static class BattleSceneAutoBuilder
         messageText.color = new Color(1.0f, 0.94f, 0.72f, 0.86f);
         TMP_Text impactText = CreateText(canvas.transform, "Impact Text", "", new Vector2(462, 304), new Vector2(210, 16), TextAlignmentOptions.Right);
         impactText.fontSize = 8;
-        impactText.color = new Color(1.0f, 0.84f, 0.36f, 0.82f);
+        impactText.color = Color.clear;
         Image demoRoutePanel = CreatePanel(canvas.transform, "Demo Route Panel", new Vector2(-302, 222), new Vector2(180, 18), new Color(0.025f, 0.034f, 0.052f, 0.36f));
         demoRoutePanel.raycastTarget = false;
         TMP_Text demoRouteText = CreateText(canvas.transform, "Demo Route Text", "HERO > FIRE > WIN", new Vector2(-302, 222), new Vector2(166, 14), TextAlignmentOptions.Center);
@@ -214,10 +215,10 @@ public static class BattleSceneAutoBuilder
         TMP_Text captureRehearsalText = CreateText(canvas.transform, "Capture Rehearsal Text", "SHOT 1/5", new Vector2(306, 222), new Vector2(122, 14), TextAlignmentOptions.Center);
         captureRehearsalText.fontSize = 7;
         captureRehearsalText.color = new Color(0.72f, 0.90f, 1.0f, 0.16f);
-        Image skillDetailPanel = CreatePanel(canvas.transform, "Skill Detail Panel", new Vector2(-215, -286), new Vector2(430, 74), new Color(0.018f, 0.026f, 0.040f, 0.82f));
+        Image skillDetailPanel = CreatePanel(canvas.transform, "Skill Detail Panel", new Vector2(295, -276), new Vector2(500, 54), new Color(0.018f, 0.026f, 0.040f, 0.82f));
         skillDetailPanel.raycastTarget = false;
-        TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(-215, -286), new Vector2(404, 60), TextAlignmentOptions.TopLeft);
-        skillHelpText.fontSize = 10;
+        TMP_Text skillHelpText = CreateText(canvas.transform, "Skill Help Text", "Skill Help", new Vector2(295, -276), new Vector2(476, 42), TextAlignmentOptions.Left);
+        skillHelpText.fontSize = 8;
         skillHelpText.color = new Color(0.72f, 0.90f, 1.0f);
         Image resultSummaryPanel = CreatePanel(canvas.transform, "Result Summary Panel", new Vector2(0, -42), new Vector2(620, 230), new Color(0.03f, 0.04f, 0.06f, 0.92f));
         resultSummaryPanel.gameObject.SetActive(false);
@@ -226,10 +227,10 @@ public static class BattleSceneAutoBuilder
         resultSummaryText.color = new Color(1.0f, 0.92f, 0.58f);
         resultSummaryText.gameObject.SetActive(false);
         // ── Command Preview Panel ──
-        Image commandPreviewPanel = CreatePanel(canvas.transform, "Command Preview Panel", new Vector2(0, -258), new Vector2(520, 66), new Color(0.04f, 0.06f, 0.12f, 0.94f));
+        Image commandPreviewPanel = CreatePanel(canvas.transform, "Command Preview Panel", new Vector2(300, -276), new Vector2(500, 54), new Color(0.04f, 0.06f, 0.12f, 0.94f));
         commandPreviewPanel.gameObject.SetActive(false);
-        TMP_Text commandPreviewText = CreateText(canvas.transform, "Command Preview Text", "Select a skill to preview", new Vector2(0, -258), new Vector2(490, 58), TextAlignmentOptions.TopLeft);
-        commandPreviewText.fontSize = 12;
+        TMP_Text commandPreviewText = CreateText(canvas.transform, "Command Preview Text", "Select a skill to preview", new Vector2(300, -276), new Vector2(476, 42), TextAlignmentOptions.Left);
+        commandPreviewText.fontSize = 9;
         commandPreviewText.color = new Color(0.92f, 0.88f, 0.82f);
         commandPreviewText.gameObject.SetActive(false);
         Image battleLogPanel = CreatePanel(canvas.transform, "Battle Log Panel", new Vector2(-95, -80), new Vector2(520, 150), new Color(0.05f, 0.06f, 0.09f, 0.88f));
@@ -265,19 +266,19 @@ public static class BattleSceneAutoBuilder
         enemyIntentCardText.fontSize = 9;
         enemyIntentCardText.color = new Color(1.0f, 0.70f, 0.42f);
 
-        Image actionCommandPanel = CreatePanel(canvas.transform, "Action Command Panel", new Vector2(245, -286), new Vector2(440, 74), new Color(0.030f, 0.038f, 0.060f, 0.94f));
-        TMP_Text selectedUnitText = CreateText(canvas.transform, "Selected Unit Text", "Selected: Hero / AP 3", new Vector2(70, -254), new Vector2(210, 18), TextAlignmentOptions.Left);
+        Image actionCommandPanel = CreatePanel(canvas.transform, "Action Command Panel", new Vector2(15, -270), new Vector2(330, 72), new Color(0.030f, 0.038f, 0.060f, 0.94f));
+        TMP_Text selectedUnitText = CreateText(canvas.transform, "Selected Unit Text", "Selected: Hero / AP 3", new Vector2(15, -244), new Vector2(300, 18), TextAlignmentOptions.Left);
         selectedUnitText.fontSize = 10;
         selectedUnitText.color = new Color(0.96f, 0.92f, 0.68f);
         selectedUnitText.gameObject.SetActive(false);
 
-        Button attackButton = CreateCenteredButton(canvas.transform, "Attack Button", "ATK", new Vector2(74, -288), new Vector2(54, 26));
-        Button fireSkillButton = CreateCenteredButton(canvas.transform, "Fire Skill Button", "FIRE", new Vector2(134, -288), new Vector2(54, 26));
-        Button iceSkillButton = CreateCenteredButton(canvas.transform, "Ice Lance Button", "ICE", new Vector2(194, -288), new Vector2(54, 26));
-        Button lightningSkillButton = CreateCenteredButton(canvas.transform, "Lightning Strike Button", "LIT", new Vector2(254, -288), new Vector2(54, 26));
-        Button earthSkillButton = CreateCenteredButton(canvas.transform, "Earth Wall Button", "EARTH", new Vector2(314, -288), new Vector2(62, 26));
-        Button guardButton = CreateCenteredButton(canvas.transform, "Guard Button", "GUARD", new Vector2(382, -288), new Vector2(62, 26));
-        Button endTurnButton = CreateCenteredButton(canvas.transform, "End Turn Button", "END", new Vector2(382, -254), new Vector2(62, 22));
+        Button attackButton = CreateCenteredButton(canvas.transform, "Attack Button", "ATK", new Vector2(-92, -280), new Vector2(88, 28));
+        Button fireSkillButton = CreateCenteredButton(canvas.transform, "Fire Skill Button", "FIRE", new Vector2(8, -280), new Vector2(88, 28));
+        Button iceSkillButton = CreateCenteredButton(canvas.transform, "Ice Lance Button", "ICE", new Vector2(194, -430), new Vector2(54, 26));
+        Button lightningSkillButton = CreateCenteredButton(canvas.transform, "Lightning Strike Button", "LIT", new Vector2(194, -430), new Vector2(54, 26));
+        Button earthSkillButton = CreateCenteredButton(canvas.transform, "Earth Wall Button", "EARTH", new Vector2(194, -430), new Vector2(62, 26));
+        Button guardButton = CreateCenteredButton(canvas.transform, "Guard Button", "GUARD", new Vector2(108, -280), new Vector2(88, 28));
+        Button endTurnButton = CreateCenteredButton(canvas.transform, "End Turn Button", "END", new Vector2(194, -430), new Vector2(62, 22));
         actionCommandPanel.gameObject.SetActive(false);
         attackButton.gameObject.SetActive(false);
         fireSkillButton.gameObject.SetActive(false);
@@ -301,6 +302,10 @@ public static class BattleSceneAutoBuilder
         Button battleLogToggleButton = CreateButton(canvas.transform, "Battle Log Toggle Button", "Log", new Vector2(360, 674), new Vector2(60, 24));
         TMP_Text battleLogToggleLabel = battleLogToggleButton.GetComponentInChildren<TMP_Text>();
         stageSelectButton.gameObject.SetActive(false);
+        speedToggleButton.gameObject.SetActive(false);
+        autoBattleButton.gameObject.SetActive(false);
+        pauseButton.gameObject.SetActive(false);
+        battleLogToggleButton.gameObject.SetActive(false);
 
         // Screen flash image (hidden by default, used by BattleUI for impact feedback)
         Image screenFlashImage = CreateScreenFlashImage(canvas.transform, "Screen Flash Image");
@@ -353,7 +358,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "playerStatusText", playerStatusText);
         SetObjectReference(serializedBattleUI, "playerShieldText", playerShieldText);
         SetObjectReference(serializedBattleUI, "playerSpriteImage", playerSpriteImage);
-        SetObjectReference(serializedBattleUI, "referencePlayerSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_paladin_full.png"));
+        SetObjectReference(serializedBattleUI, "referencePlayerSprite", LoadPixelSprite("Assets/Art/Generated/chibi_hero_original.png"));
         SetObjectReference(serializedBattleUI, "enemyHpText", enemyHpText);
         SetObjectReference(serializedBattleUI, "enemyHpSlider", enemyHpSlider);
         SetObjectReference(serializedBattleUI, "enemyStatusText", enemyStatusText);
@@ -377,13 +382,13 @@ public static class BattleSceneAutoBuilder
             FindTextIncludingInactive("Enemy Roster Label 1"),
             FindTextIncludingInactive("Enemy Roster Label 2"),
             FindTextIncludingInactive("Enemy Roster Label 3"));
-        SetObjectReference(serializedBattleUI, "referenceEnemySprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_goblin_full.png"));
-        SetObjectReference(serializedBattleUI, "referenceGoblinSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_goblin_full.png"));
-        SetObjectReference(serializedBattleUI, "referenceSkeletonSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_skeleton_full.png"));
-        SetObjectReference(serializedBattleUI, "referenceOrcSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_orc_full.png"));
-        SetObjectReference(serializedBattleUI, "referenceLichSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_lich_full.png"));
-        SetObjectReference(serializedBattleUI, "referenceGolemSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_golem_full.png"));
-        SetObjectReference(serializedBattleUI, "referenceDarkKnightSprite", LoadPixelSprite("Assets/Art/ReferenceSprites/reference_dark_knight_full.png"));
+        SetObjectReference(serializedBattleUI, "referenceEnemySprite", LoadPixelSprite("Assets/Art/Generated/chibi_enemy_original.png"));
+        SetObjectReference(serializedBattleUI, "referenceGoblinSprite", LoadPixelSprite("Assets/Art/Generated/chibi_enemy_original.png"));
+        SetObjectReference(serializedBattleUI, "referenceSkeletonSprite", LoadPixelSprite("Assets/Art/Generated/chibi_enemy_raider.png"));
+        SetObjectReference(serializedBattleUI, "referenceOrcSprite", LoadPixelSprite("Assets/Art/Generated/chibi_enemy_raider.png"));
+        SetObjectReference(serializedBattleUI, "referenceLichSprite", LoadPixelSprite("Assets/Art/Generated/chibi_enemy_original.png"));
+        SetObjectReference(serializedBattleUI, "referenceGolemSprite", LoadPixelSprite("Assets/Art/Generated/chibi_enemy_raider.png"));
+        SetObjectReference(serializedBattleUI, "referenceDarkKnightSprite", LoadPixelSprite("Assets/Art/Generated/chibi_enemy_raider.png"));
         SetObjectReference(serializedBattleUI, "burnOverlay", burnOverlay);
         SetObjectReference(serializedBattleUI, "stunOverlay", stunOverlay);
         SetObjectReference(serializedBattleUI, "brokenOverlay", brokenOverlay);
@@ -638,18 +643,18 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battle stage backdrop exists", battleStageBackdropPanel != null);
         AppendCheck(ref passed, ref report, "Battle stage backdrop has premium dark RPG styling", IsDecorativePanelLikelyConfigured(battleStageBackdropPanel, 1100f, 560f));
         AppendCheck(ref passed, ref report, "Battle stage floor glow exists", battleStageFloorPanel != null);
-        AppendCheck(ref passed, ref report, "Battle stage floor glow is readable", IsDecorativePanelLikelyConfigured(battleStageFloorPanel, 820f, 220f));
+        AppendCheck(ref passed, ref report, "Central battlefield floor remains broad without a blocky board", IsDecorativePanelLikelyConfigured(battleStageFloorPanel, 820f, 180f));
         AppendCheck(ref passed, ref report, "Battle screen has cinematic letterbox framing", IsDecorativePanelLikelyConfigured(battleLetterboxTop, 1180f, 28f) && IsDecorativePanelLikelyConfigured(battleLetterboxBottom, 1180f, 28f));
         AppendCheck(ref passed, ref report, "Battlefield has premium inner gold frame", IsReadableContrastAccent(battlefieldInnerFrame, 0.24f, 0.34f));
         AppendCheck(ref passed, ref report, "Capture view suppresses rectangular landing tiles", IsHiddenForCapture(heroLandingTile) && IsHiddenForCapture(enemyLandingTile));
         AppendCheck(ref passed, ref report, "Capture view suppresses rectangular depth-bloom overlay", IsHiddenForCapture(fieldDepthBloom));
         AppendCheck(ref passed, ref report, "Battlefield has layered forest silhouette", IsDecorativePanelLikelyConfigured(distantForestSilhouette, 680f, 70f));
-        AppendCheck(ref passed, ref report, "Battlefield has authored forest-ruins terrain props", IsDecorativePanelLikelyConfigured(forestRuinsGroundRidge, 700f, 24f) && IsDecorativePanelLikelyConfigured(forestRuinsLeftPillar, 30f, 160f) && IsDecorativePanelLikelyConfigured(forestRuinsRightObelisk, 34f, 140f) && IsDecorativePanelLikelyConfigured(forestRuinsFallenSlab, 100f, 12f));
+        AppendCheck(ref passed, ref report, "Capture avoids blocky foreground prop overlays", IsHiddenForCapture(forestRuinsGroundRidge) && IsHiddenForCapture(forestRuinsLeftPillar) && IsHiddenForCapture(forestRuinsRightObelisk) && IsHiddenForCapture(forestRuinsFallenSlab));
         AppendCheck(ref passed, ref report, "Capture view suppresses rectangular moonlight beam", IsHiddenForCapture(moonlightBeam));
         AppendCheck(ref passed, ref report, "Battlefield has foreground fog layer", IsReadableContrastAccent(foregroundFog, 0.18f, 0.24f));
         AppendCheck(ref passed, ref report, "Capture view suppresses rectangular character spotlights", IsHiddenForCapture(heroCinematicSpotlight) && IsHiddenForCapture(enemyCinematicSpotlight));
         AppendCheck(ref passed, ref report, "Capture view suppresses rectangular clash highlights", IsHiddenForCapture(centerClashGlow) && IsHiddenForCapture(floorSpecularHighlight));
-        AppendCheck(ref passed, ref report, "Battlefield has foreground framing depth", IsReadableContrastAccent(foregroundTreeLeft, 0.22f, 0.34f) && IsReadableContrastAccent(foregroundTreeRight, 0.22f, 0.34f) && IsReadableContrastAccent(lowerFogBand, 0.14f, 0.24f) && IsReadableContrastAccent(upperCanopyShadow, 0.14f, 0.24f));
+        AppendCheck(ref passed, ref report, "Capture avoids side prop overlays that compete with the formation", IsHiddenForCapture(foregroundTreeLeft) && IsHiddenForCapture(foregroundTreeRight) && IsHiddenForCapture(lowerFogBand) && IsReadableContrastAccent(upperCanopyShadow, 0.14f, 0.24f));
         AppendCheck(ref passed, ref report, "Capture view suppresses nonessential weather/parallax overlays", IsHiddenForCapture(rainStreak1) && IsHiddenForCapture(parallaxLeaf3));
         AppendCheck(ref passed, ref report, "Battlefield unit base rings align to landing tiles", IsDecorativePanelLikelyConfigured(heroBaseRing, 100f, 16f) && IsDecorativePanelLikelyConfigured(enemyBaseRing, 112f, 18f));
         AppendCheck(ref passed, ref report, "Battlefield contrast polish keeps rings readable but not debug-bright", IsReadableContrastAccent(heroBaseRing, 0.38f, 0.48f) && IsReadableContrastAccent(enemyBaseRing, 0.38f, 0.48f));
@@ -657,7 +662,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield standee aura stays nearly transparent behind readable sprites", IsReadableContrastAccent(heroStandeeAura, 0.04f, 0.07f) && IsReadableContrastAccent(enemyStandeeAura, 0.04f, 0.07f));
         AppendCheck(ref passed, ref report, "Battlefield units retain contact glow without rectangular rim bars", IsReadableContrastAccent(heroContactGlow, 0.22f, 0.30f) && IsReadableContrastAccent(enemyContactGlow, 0.20f, 0.30f) && IsHiddenForCapture(heroStandeeRimLight) && IsHiddenForCapture(enemyStandeeRimLight));
         AppendCheck(ref passed, ref report, "Capture view suppresses rectangular center slash trail", IsHiddenForCapture(centerActionSlashTrail));
-        AppendCheck(ref passed, ref report, "Top gold divider exists", topGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(topGoldDividerPanel, 1000f, 3f));
+        AppendCheck(ref passed, ref report, "Top lane divider is restrained", topGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(topGoldDividerPanel, 860f, 2f));
         AppendCheck(ref passed, ref report, "Command gold divider exists", commandGoldDividerPanel != null && IsDecorativePanelLikelyConfigured(commandGoldDividerPanel, 900f, 2f));
         AppendCheck(ref passed, ref report, "Capture view suppresses decorative tactical grid", IsHiddenForCapture(tacticalGridTile));
         AppendCheck(ref passed, ref report, "Capture view suppresses nonessential action arc", IsHiddenForCapture(skillActionArc));
@@ -669,13 +674,13 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Battlefield standees have idle bob motion", HasBattleSpriteMotion(heroStandeeBody) && HasBattleSpriteMotion(enemyStandeeBody));
         AppendCheck(ref passed, ref report, "Premium command header exists", IsDecorativePanelLikelyConfigured(commandHeaderPanel, 240f, 24f) && IsNameplateTextLikelyConfigured(commandHeaderText, "COMMAND", "CHAIN"));
         AppendCheck(ref passed, ref report, "Skill tier badge exists", IsDecorativePanelLikelyConfigured(skillTierBadge, 56f, 20f));
-        AppendCheck(ref passed, ref report, "Party roster stays compact and secondary to the battlefield", IsCompactPartyRosterLikelyConfigured(partyRosterPanel, partyRosterSlot1, partyRosterMiniSprite1));
+        AppendCheck(ref passed, ref report, "Left ally rail stays compact with portrait and short status", partyRosterPanel != null && partyRosterPanel.rectTransform.sizeDelta.x <= 160f && partyRosterSlot1 != null && partyRosterSlot1.rectTransform.sizeDelta.x <= 152f && partyRosterMiniSprite1 != null && partyRosterMiniSprite1.rectTransform.sizeDelta.x <= 40f);
         AppendCheck(ref passed, ref report, "Enemy roster slots exist", IsDecorativePanelLikelyConfigured(enemyRosterSlot1, 150f, 50f));
         AppendCheck(ref passed, ref report, "Party roster mini sprites remain readable at compact scale", IsSpriteImageLikelyConfigured(partyRosterMiniSprite1, 32f, 38f));
         AppendCheck(ref passed, ref report, "Party roster mini-sprite crop frame and shadow are readable", IsReadableContrastAccent(partyRosterMiniSpriteShadow1, 0.26f, 0.34f) && IsReadableContrastAccent(partyRosterMiniSpriteEdge1, 0.30f, 0.48f));
         AppendCheck(ref passed, ref report, "Player roster select button exists", IsButtonLikelyConfigured(playerSelectButton));
         AppendCheck(ref passed, ref report, "Player selection highlight starts hidden", playerSelectionHighlight != null && !playerSelectionHighlight.gameObject.activeSelf);
-        AppendCheck(ref passed, ref report, "Action command panel starts hidden until ally click", IsOverlayPanelLikelyConfigured(actionCommandPanel, 430f, 70f) && actionCommandPanel != null && !actionCommandPanel.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Bounded three-action command strip starts hidden until ally click", IsOverlayPanelLikelyConfigured(actionCommandPanel, 320f, 70f) && actionCommandPanel != null && !actionCommandPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Selected unit prompt starts hidden with command UI", selectedUnitText != null && !selectedUnitText.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Enemy roster high-density mini sprites exist", IsSpriteImageLikelyConfigured(enemyRosterMiniSprite1, 32f, 40f));
         AppendCheck(ref passed, ref report, "Enemy roster mini-sprite crop frame and shadow are readable", IsReadableContrastAccent(enemyRosterMiniSpriteShadow1, 0.36f, 0.52f) && IsReadableContrastAccent(enemyRosterMiniSpriteEdge1, 0.62f, 0.82f));
@@ -687,16 +692,16 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Top Status panel exists", topStatusPanel != null);
         AppendCheck(ref passed, ref report, "Top Status panel has compact premium dark RPG styling", IsProfessionalPanelLikelyConfigured(topStatusPanel, 1150f, 42f));
         AppendCheck(ref passed, ref report, "Panel material overlays add subtle gloss/rim hierarchy", IsReadableContrastAccent(topStatusPanelTopGloss, 0.18f, 0.30f) && IsReadableContrastAccent(playerCardPanelLeftRim, 0.18f, 0.30f) && IsReadableContrastAccent(commandBarPanelTopShade, 0.18f, 0.28f));
-        AppendCheck(ref passed, ref report, "Top runtime labels are framed as compact HUD chips", IsReadableContrastAccent(runStatusChip, 0.28f, 0.34f) && IsReadableContrastAccent(stageChip, 0.28f, 0.34f));
+        AppendCheck(ref passed, ref report, "Top lane hides redundant run chips and retains stage lane", IsHiddenForCapture(runStatusChip) && IsReadableContrastAccent(stageChip, 0.50f, 0.58f));
         AppendCheck(ref passed, ref report, "Player Card panel exists", playerCardPanel != null);
-        AppendCheck(ref passed, ref report, "Player Card panel remains a subdued secondary rail", IsProfessionalPanelLikelyConfigured(playerCardPanel, 190f, 340f));
+        AppendCheck(ref passed, ref report, "Player Card panel remains a narrow secondary rail", IsProfessionalPanelLikelyConfigured(playerCardPanel, 150f, 300f) && playerCardPanel.rectTransform.sizeDelta.x <= 160f);
         AppendCheck(ref passed, ref report, "Enemy Card panel exists", enemyCardPanel != null);
-        AppendCheck(ref passed, ref report, "Enemy Card panel remains a subdued secondary rail", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 180f, 210f));
+        AppendCheck(ref passed, ref report, "Enemy Card panel remains a narrow secondary rail", IsProfessionalPanelLikelyConfigured(enemyCardPanel, 150f, 250f) && enemyCardPanel.rectTransform.sizeDelta.x <= 160f);
         AppendCheck(ref passed, ref report, "Battle Center panel exists", battleCenterPanel != null);
-        AppendCheck(ref passed, ref report, "Top combat information is consolidated above the formation", battleCenterPanel != null && battleCenterPanel.rectTransform.sizeDelta.x >= 480f && battleCenterPanel.rectTransform.sizeDelta.y >= 36f && battleCenterPanel.color.a >= 0.20f && battleCenterPanel.color.a <= 0.35f);
+        AppendCheck(ref passed, ref report, "Top lane consolidates stage, current turn, and queue above formation", battleCenterPanel != null && battleCenterPanel.rectTransform.sizeDelta.x >= 600f && battleCenterPanel.rectTransform.sizeDelta.y <= 30f && battleCenterPanel.color.a >= 0.45f);
         AppendCheck(ref passed, ref report, "Command Bar panel exists", commandBarPanel != null);
-        AppendCheck(ref passed, ref report, "Command Bar panel keeps skill detail and commands inside the viewport", IsProfessionalPanelLikelyConfigured(commandBarPanel, 1100f, 120f));
-        AppendCheck(ref passed, ref report, "Bottom resource strip stays subordinate to current skill detail", IsReadableContrastAccent(bottomResourceStrip, 0.20f, 0.30f) && IsReadableContrastAccent(playerHpChipPanel, 0.28f, 0.34f) && IsReadableContrastAccent(playerApChipPanel, 0.28f, 0.34f));
+        AppendCheck(ref passed, ref report, "Command Bar panel is bounded inside a 1080 capture", IsProfessionalPanelLikelyConfigured(commandBarPanel, 1100f, 100f) && commandBarPanel.rectTransform.anchoredPosition.y >= -280f);
+        AppendCheck(ref passed, ref report, "Bottom strip prioritizes selected unit resources without overflow", IsHiddenForCapture(bottomResourceStrip) && IsReadableContrastAccent(playerHpChipPanel, 0.28f, 0.34f) && IsReadableContrastAccent(playerApChipPanel, 0.28f, 0.34f));
         AppendCheck(ref passed, ref report, "Battle Guide text exists", battleGuideText != null);
         AppendCheck(ref passed, ref report, "Battle Guide text is compact for capture readability", IsBattleGuideTextLikelyConfigured(battleGuideText));
         AppendCheck(ref passed, ref report, "Run Status text exists", runStatusText != null);
@@ -706,7 +711,7 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Stage Objective text exists", stageObjectiveText != null);
         AppendCheck(ref passed, ref report, "Stage Objective text explains the first objective", IsStageObjectiveTextLikelyConfigured(stageObjectiveText));
         AppendCheck(ref passed, ref report, "Stage Progress text exists", stageProgressText != null);
-        AppendCheck(ref passed, ref report, "Stage Progress text shows encounter count", IsStageProgressTextLikelyConfigured(stageProgressText));
+        AppendCheck(ref passed, ref report, "Stage Progress text serves as a compact turn queue", stageProgressText != null && stageProgressText.text.Contains("TURN") && stageProgressText.rectTransform.sizeDelta.x >= 130f);
         AppendCheck(ref passed, ref report, "Player Status text exists", playerStatusText != null);
         AppendCheck(ref passed, ref report, "Impact text exists", impactText != null);
         AppendCheck(ref passed, ref report, "Capture view suppresses reviewer route chip", IsHiddenForCapture(demoRoutePanel) && IsHiddenForCapture(demoRouteText));
@@ -731,13 +736,13 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "Result Summary panel exists", resultSummaryPanel != null);
         AppendCheck(ref passed, ref report, "Result Summary panel is configured but initially hidden", IsOverlayPanelLikelyConfigured(resultSummaryPanel, 600f, 200f) && resultSummaryPanel != null && !resultSummaryPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Command Preview panel exists", commandPreviewPanel != null);
-        AppendCheck(ref passed, ref report, "Command Preview panel starts hidden and fits current skill detail", IsOverlayPanelLikelyConfigured(commandPreviewPanel, 510f, 64f) && commandPreviewPanel != null && commandPreviewPanel.rectTransform.anchoredPosition.y >= -300f && !commandPreviewPanel.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "Command Preview panel starts hidden and fits current skill detail", IsOverlayPanelLikelyConfigured(commandPreviewPanel, 490f, 50f) && commandPreviewPanel != null && commandPreviewPanel.rectTransform.anchoredPosition.y >= -280f && !commandPreviewPanel.gameObject.activeSelf);
         AppendCheck(ref passed, ref report, "Command Preview text exists", commandPreviewText != null);
         AppendCheck(ref passed, ref report, "Bottom command strip has visible select-unit hint", IsCommandHintTextLikelyConfigured(commandHintText));
         AppendCheck(ref passed, ref report, "Bottom command hint is framed as a subdued chip", IsReadableContrastAccent(commandHintChipPanel, 0.20f, 0.30f));
-        AppendCheck(ref passed, ref report, "Current skill detail stays inside the bottom viewport", IsOverlayPanelLikelyConfigured(skillDetailPanel, 420f, 70f) && skillDetailPanel.rectTransform.anchoredPosition.y >= -320f);
+        AppendCheck(ref passed, ref report, "Current skill detail stays inside the bottom viewport", IsOverlayPanelLikelyConfigured(skillDetailPanel, 490f, 50f) && skillDetailPanel.rectTransform.anchoredPosition.y >= -280f);
         AppendCheck(ref passed, ref report, "Capture view suppresses reference-only skill detail", IsHiddenForCapture(referenceSkillDetailPanel) && IsHiddenForCapture(referenceSkillDetailText));
-        AppendCheck(ref passed, ref report, "Enemy intent card remains available", IsDecorativePanelLikelyConfigured(enemyIntentCardPanel, 136f, 38f) && IsNameplateTextLikelyConfigured(enemyIntentCardText, "INTENT", "Shield"));
+        AppendCheck(ref passed, ref report, "Right rail uses the live intent row instead of a duplicate intent card", IsHiddenForCapture(enemyIntentCardPanel) && IsHiddenForCapture(enemyIntentCardText));
         AppendCheck(ref passed, ref report, "Capture view suppresses reference combat readouts", IsHiddenForCapture(bossPhasePanel) && IsHiddenForCapture(bossPhaseText) && IsHiddenForCapture(comboMeterPanel) && IsHiddenForCapture(comboMeterFill) && IsHiddenForCapture(turnTimelineRail) && IsHiddenForCapture(turnTimelineNode1) && IsHiddenForCapture(damagePreviewText));
         AppendCheck(ref passed, ref report, "Capture view suppresses right reference skill cards", IsHiddenForCapture(progressSkillCard1) && IsHiddenForCapture(progressSkillIconFrame1) && IsHiddenForCapture(progressSkillCardTopHighlight1));
         AppendCheck(ref passed, ref report, "Bottom right duplicate battle-start CTA removed", FindImage("Progress Battle Start Panel") == null && FindText("Progress Battle Start Text") == null);
@@ -1068,7 +1073,10 @@ public static class BattleSceneAutoBuilder
             "Progress Skill", "Progress Turn", "Progress Bottom", "Reference Skill", "Tactical Grid Tile", "Skill Action Arc",
             "Rain Streak", "Parallax Leaf", "Fire Element", "Battle Guide", "Stage Objective",
             "Hero Cinematic Spotlight", "Enemy Cinematic Spotlight", "Field Depth Bloom", "Center Clash Glow", "Floor Specular Highlight",
-            "Moonlight Beam", "Center Action Slash Trail", "Hero Premium Landing Tile", "Enemy Premium Landing Tile", "Hero Standee Blade", "Hero Standee Rim Light", "Enemy Standee Rim Light"
+            "Moonlight Beam", "Center Action Slash Trail", "Hero Premium Landing Tile", "Enemy Premium Landing Tile", "Hero Standee Blade", "Hero Standee Rim Light", "Enemy Standee Rim Light",
+            "Forest Ruins", "Cinematic Left", "Cinematic Right", "Foreground Tree", "Lower Battle Fog", "Tactical Grid", "Skill Action Arc",
+            "Professional Top", "Companion System", "Enemy Intent Card", "Reference Skill", "Command Glow", "Bottom Resource Strip", "Progress Chain",
+            "Ally Formation Marker", "Enemy Formation Marker"
         };
 
         foreach (Image image in root.GetComponentsInChildren<Image>(true))
@@ -1725,7 +1733,7 @@ public static class BattleSceneAutoBuilder
         Image heroContactGlow = CreatePanel(parent, "Hero Contact Glow Panel", new Vector2(-206, -98), new Vector2(86, 8), new Color(0.60f, 0.95f, 1.0f, 0.26f));
         Image heroRimLight = CreatePanel(parent, "Hero Standee Rim Light", new Vector2(-148, -16), new Vector2(7, 156), new Color(0.70f, 0.94f, 1.0f, 0.20f));
         Image heroAura = CreatePanel(parent, "Hero Standee Aura", new Vector2(-205, -34), new Vector2(88, 126), new Color(0.28f, 0.64f, 1.0f, 0.055f));
-        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/ReferenceSprites/reference_paladin_full.png", new Vector2(-204, -22), new Vector2(150, 190));
+        Image heroBody = CreateSpritePanel(parent, "Hero Standee Body", "Assets/Art/Generated/chibi_hero_original.png", new Vector2(-204, -22), new Vector2(150, 190));
         ConfigureBattleSpriteMotion(heroBody, 3f, 1.1f, 0.15f, 12f, 0.03f, false);
         Image heroBlade = CreatePanel(parent, "Hero Standee Blade", new Vector2(-176, -18), new Vector2(5, 54), new Color(0.92f, 0.96f, 1.0f, 0.36f));
         heroBlade.rectTransform.localRotation = Quaternion.Euler(0, 0, -18f);
@@ -1747,7 +1755,7 @@ public static class BattleSceneAutoBuilder
         Image enemyContactGlow = CreatePanel(parent, "Enemy Contact Glow Panel", new Vector2(230, -96), new Vector2(94, 8), new Color(1.0f, 0.48f, 0.84f, 0.24f));
         Image enemyRimLight = CreatePanel(parent, "Enemy Standee Rim Light", new Vector2(166, -14), new Vector2(7, 164), new Color(1.0f, 0.62f, 0.88f, 0.20f));
         Image enemyAura = CreatePanel(parent, "Enemy Standee Aura", new Vector2(232, -32), new Vector2(94, 130), new Color(0.86f, 0.24f, 1.0f, 0.055f));
-        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/ReferenceSprites/reference_goblin_full.png", new Vector2(232, -23), new Vector2(166, 196));
+        Image enemyBody = CreateSpritePanel(parent, "Enemy Standee Body", "Assets/Art/Generated/chibi_enemy_original.png", new Vector2(232, -23), new Vector2(166, 196));
         ConfigureBattleSpriteMotion(enemyBody, 3.4f, 0.95f, 0.45f, 14f, 0.04f, true);
         Image enemyCrown = CreatePanel(parent, "Enemy Standee Crown", new Vector2(232, 54), new Vector2(48, 7), new Color(1.0f, 0.70f, 0.24f, 0.28f));
         enemyRimLight.rectTransform.localRotation = Quaternion.Euler(0, 0, 6f);
@@ -1762,22 +1770,19 @@ public static class BattleSceneAutoBuilder
 
     private static void CreateBattlefieldSupportFormation(Transform parent)
     {
-        // Visual battle formation: the existing Hero/Goblin remain the live logic anchors;
-        // these allies/enemies make the central battlefield read as a party encounter.
-        // Two visual supports plus the live Hero make a readable three-unit party.
+        // The live Hero/Enemy retain all 1v1 logic. These original-art supports establish 3v3 visual depth.
         string[] allySprites =
         {
-            "Assets/Art/ReferenceSprites/reference_cleric_full.png",
-            "Assets/Art/ReferenceSprites/reference_archmage_full.png"
+            "Assets/Art/Generated/chibi_ally_guardian.png",
+            "Assets/Art/Generated/chibi_hero_original.png"
         };
-        Vector2[] allyPositions = { new Vector2(-326, 38), new Vector2(-84, 58) };
-        // Two visual supports plus the live stage enemy make a readable three-unit enemy formation.
+        Vector2[] allyPositions = { new Vector2(-318, 36), new Vector2(-78, 54) };
         string[] enemySprites =
         {
-            "Assets/Art/ReferenceSprites/reference_skeleton_full.png",
-            "Assets/Art/ReferenceSprites/reference_dark_knight_full.png"
+            "Assets/Art/Generated/chibi_enemy_raider.png",
+            "Assets/Art/Generated/chibi_enemy_original.png"
         };
-        Vector2[] enemyPositions = { new Vector2(338, 40), new Vector2(106, 58) };
+        Vector2[] enemyPositions = { new Vector2(320, 36), new Vector2(92, 54) };
 
         for (int i = 0; i < allySprites.Length; i++)
             CreateFormationUnit(parent, $"Ally Formation Unit {i + 1}", allySprites[i], allyPositions[i], new Color(0.36f, 0.80f, 1f, 0.30f), false, i);
@@ -1789,7 +1794,7 @@ public static class BattleSceneAutoBuilder
     {
         Image shadow = CreatePanel(parent, name + " Shadow", position + new Vector2(0, -39), new Vector2(56, 9), new Color(0f, 0f, 0f, 0.34f));
         Image ring = CreatePanel(parent, name + " Ring", position + new Vector2(0, -35), new Vector2(66, 9), accent);
-        Image body = CreateSpritePanel(parent, name + " Body", spritePath, position, new Vector2(72, 96));
+        Image body = CreateSpritePanel(parent, name + " Body", spritePath, position, new Vector2(76, 100));
         body.color = new Color(0.92f, 0.96f, 1f, 0.96f);
         ConfigureBattleSpriteMotion(body, 2.35f, 1.0f, phase * 0.22f, 9f, 0.025f, moveLeftOnHit);
         shadow.raycastTarget = false;
@@ -1996,10 +2001,10 @@ public static class BattleSceneAutoBuilder
 
         string[] portraitPaths =
         {
-            "Assets/Art/ReferenceSprites/reference_cleric_full.png",
-            "Assets/Art/ReferenceSprites/reference_archmage_full.png",
-            "Assets/Art/ReferenceSprites/reference_bard_full.png",
-            "Assets/Art/ReferenceSprites/reference_ranger_full.png"
+            "Assets/Art/Generated/chibi_ally_guardian.png",
+            "Assets/Art/Generated/chibi_hero_original.png",
+            "Assets/Art/Generated/chibi_ally_guardian.png",
+            "Assets/Art/Generated/chibi_hero_original.png"
         };
 
         for (int i = 0; i < portraitPaths.Length; i++)
@@ -2033,37 +2038,33 @@ public static class BattleSceneAutoBuilder
 
     private static void CreatePartyRosterSlots(Transform parent)
     {
-        string[] names = { "PALADIN", "CLERIC", "ARCHMAGE", "BARD", "RANGER" };
-        int[] hp = { 253, 139, 253, 252, 254 };
-        int[] mp = { 130, 94, 180, 170, 150 };
+        string[] names = { "HERO", "GUARDIAN", "SCOUT" };
+        int[] hp = { 100, 92, 86 };
         string[] sprites =
         {
-            "Assets/Art/ReferenceSprites/reference_paladin_full.png",
-            "Assets/Art/ReferenceSprites/reference_cleric_full.png",
-            "Assets/Art/ReferenceSprites/reference_archmage_full.png",
-            "Assets/Art/ReferenceSprites/reference_bard_full.png",
-            "Assets/Art/ReferenceSprites/reference_ranger_full.png"
+            "Assets/Art/Generated/chibi_hero_original.png",
+            "Assets/Art/Generated/chibi_ally_guardian.png",
+            "Assets/Art/Generated/chibi_hero_original.png"
         };
 
         for (int i = 0; i < names.Length; i++)
         {
-            float y = 108 - i * 46;
-            Color slotColor = i == 0 ? new Color(0.12f, 0.10f, 0.055f, 0.46f) : new Color(0.010f, 0.012f, 0.020f, 0.26f);
-            Image slot = CreatePanel(parent, $"Party Roster Slot {i + 1}", new Vector2(-540, y), new Vector2(194, 42), slotColor);
+            float y = 92 - i * 62;
+            Color slotColor = i == 0 ? new Color(0.12f, 0.10f, 0.055f, 0.46f) : new Color(0.010f, 0.012f, 0.020f, 0.34f);
+            Image slot = CreatePanel(parent, $"Party Roster Slot {i + 1}", new Vector2(-540, y), new Vector2(150, 52), slotColor);
             slot.raycastTarget = false;
-            CreatePanel(parent, $"Party Roster Portrait Chip {i + 1}", new Vector2(-610, y), new Vector2(38, 38), new Color(0.014f, 0.018f, 0.026f, 0.60f));
-            CreatePanel(parent, $"Party Roster Mini Sprite Shadow {i + 1}", new Vector2(-607, y - 2), new Vector2(30, 28), new Color(0.0f, 0.0f, 0.0f, 0.30f));
-            CreatePanel(parent, $"Party Roster Mini Sprite Crop Frame {i + 1}", new Vector2(-610, y), new Vector2(36, 36), new Color(0.04f, 0.055f, 0.075f, 0.24f));
-            if (i == 0) CreatePanel(parent, "Party Roster Selected Gold Rim", new Vector2(-540, y + 21), new Vector2(188, 2), new Color(1.0f, 0.78f, 0.38f, 0.46f));
-            Image miniSprite = CreateSpritePanel(parent, $"Party Roster Mini Sprite {i + 1}", sprites[i], new Vector2(-608, y + 1), new Vector2(34, 40));
+            CreatePanel(parent, $"Party Roster Portrait Chip {i + 1}", new Vector2(-599, y), new Vector2(40, 40), new Color(0.014f, 0.018f, 0.026f, 0.60f));
+            CreatePanel(parent, $"Party Roster Mini Sprite Shadow {i + 1}", new Vector2(-599, y - 2), new Vector2(32, 30), new Color(0.0f, 0.0f, 0.0f, 0.30f));
+            CreatePanel(parent, $"Party Roster Mini Sprite Crop Frame {i + 1}", new Vector2(-599, y), new Vector2(38, 38), new Color(0.04f, 0.055f, 0.075f, 0.24f));
+            if (i == 0) CreatePanel(parent, "Party Roster Selected Gold Rim", new Vector2(-540, y + 25), new Vector2(144, 2), new Color(1.0f, 0.78f, 0.38f, 0.46f));
+            Image miniSprite = CreateSpritePanel(parent, $"Party Roster Mini Sprite {i + 1}", sprites[i], new Vector2(-599, y + 1), new Vector2(34, 40));
             miniSprite.raycastTarget = false;
-            CreatePanel(parent, $"Party Roster Mini Sprite Edge Accent {i + 1}", new Vector2(-610, y + 19), new Vector2(34, 2), i == 0 ? new Color(1.0f, 0.78f, 0.38f, 0.42f) : new Color(0.45f, 0.86f, 1.0f, 0.34f));
-            // Levels are intentionally omitted here: character name plus HP/MP is the tactical information that remains legible at capture size.
-            TMP_Text label = CreateText(parent, $"Party Roster Label {i + 1}", names[i], new Vector2(-520, y + 7), new Vector2(120, 14), TextAlignmentOptions.Left);
-            label.fontSize = 11;
+            CreatePanel(parent, $"Party Roster Mini Sprite Edge Accent {i + 1}", new Vector2(-599, y + 20), new Vector2(36, 2), i == 0 ? new Color(1.0f, 0.78f, 0.38f, 0.42f) : new Color(0.45f, 0.86f, 1.0f, 0.34f));
+            TMP_Text label = CreateText(parent, $"Party Roster Label {i + 1}", names[i], new Vector2(-530, y + 8), new Vector2(92, 14), TextAlignmentOptions.Left);
+            label.fontSize = 9;
             label.fontStyle = FontStyles.Bold;
             label.color = i == 0 ? new Color(0.96f, 0.88f, 0.64f) : new Color(0.86f, 0.84f, 0.76f);
-            TMP_Text stat = CreateText(parent, $"Party Roster Stat {i + 1}", $"{hp[i]} HP  |  {mp[i]} MP", new Vector2(-510, y - 9), new Vector2(132, 12), TextAlignmentOptions.Left);
+            TMP_Text stat = CreateText(parent, $"Party Roster Stat {i + 1}", $"HP {hp[i]}  READY", new Vector2(-530, y - 9), new Vector2(92, 12), TextAlignmentOptions.Left);
             stat.fontSize = 7;
             stat.color = new Color(0.82f, 0.82f, 0.76f);
 
@@ -2080,10 +2081,8 @@ public static class BattleSceneAutoBuilder
             slot.raycastTarget = false;
             Image chip = CreatePanel(parent, $"Enemy Roster Portrait Chip {i + 1}", new Vector2(485, y), new Vector2(46, 44), new Color(0.035f, 0.018f, 0.045f, 0.92f));
             string spritePath = i == 0
-                ? "Assets/Art/ReferenceSprites/reference_goblin_full.png"
-                : i == 1
-                    ? "Assets/Art/ReferenceSprites/reference_skeleton_full.png"
-                    : "Assets/Art/ReferenceSprites/reference_dark_knight_full.png";
+                ? "Assets/Art/Generated/chibi_enemy_original.png"
+                : "Assets/Art/Generated/chibi_enemy_raider.png";
             Image shadow = CreatePanel(parent, $"Enemy Roster Mini Sprite Shadow {i + 1}", new Vector2(488, y - 3), new Vector2(36, 36), new Color(0.0f, 0.0f, 0.0f, 0.44f));
             Image cropFrame = CreatePanel(parent, $"Enemy Roster Mini Sprite Crop Frame {i + 1}", new Vector2(485, y), new Vector2(44, 42), new Color(0.12f, 0.045f, 0.09f, 0.36f));
             Image miniSprite = CreateSpritePanel(parent, $"Enemy Roster Mini Sprite {i + 1}", spritePath, new Vector2(486, y + 2), new Vector2(34, 42));

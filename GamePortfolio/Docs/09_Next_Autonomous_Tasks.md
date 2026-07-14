@@ -1,5 +1,18 @@
 # Next Autonomous Tasks
 
+## Latest polish — 2026-07-14 Tactical Requiem Battle Layout Redesign
+
+Completed:
+- Rebuilt the BattleScene around a wide central 3v3 visual formation while preserving the live 1v1 Hero/Enemy logic anchors.
+- Replaced reference-sprite presentation usage with original generated Tactical Requiem unit assets.
+- Reduced the left/right rails to compact portrait/state information, consolidated the top lane, and bounded the contextual three-action command/detail strip above the 1080 capture edge.
+- Suppressed legacy proof widgets, generic rectangular prop overlays, and redundant visual controls from the capture composition.
+- Regenerated BattleScene, passed Game Flow/BattleScene/Battle Logic validations, rebuilt CaptureRunner, and refreshed checked 1920×1080 battle-start and Fire-skill captures.
+- Details: `Docs/Devlog/2026-07-14_tactical-requiem-battle-layout-redesign.md`.
+
+Recommended next task:
+1. Run a focused playtest of the contextual three-command selection state and, only if needed, improve command-label clarity without expanding the bottom strip or reintroducing rail density.
+
 ## Latest polish — 2026-07-14 Typography & 3v3 Formation Presentation
 
 Completed:
