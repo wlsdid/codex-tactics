@@ -964,6 +964,10 @@ public class BattleUI : MonoBehaviour
     public void UpdateCommandPreview(string text, Color? textColor = null)
     {
         SetGameObjectActiveIfChanged(commandPreviewPanel, true);
+        // The current skill card owns the bottom focus area while it is displayed.
+        // Keep the long reference help from competing with its final lines.
+        if (skillHelpText != null)
+            SetGameObjectActiveIfChanged(skillHelpText.gameObject, false);
         if (commandPreviewText != null)
         {
             SetGameObjectActiveIfChanged(commandPreviewText.gameObject, true);
@@ -981,6 +985,8 @@ public class BattleUI : MonoBehaviour
         SetGameObjectActiveIfChanged(commandPreviewPanel, false);
         if (commandPreviewText != null)
             SetGameObjectActiveIfChanged(commandPreviewText.gameObject, false);
+        if (skillHelpText != null)
+            SetGameObjectActiveIfChanged(skillHelpText.gameObject, true);
     }
 
     public void SetPlayerShieldText(int shieldAmount)
