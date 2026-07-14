@@ -13,7 +13,7 @@ public static class StageSelectSceneAutoBuilder
 {
     private const string ScenePath = "Assets/Scenes/StageSelectScene.unity";
 
-    [MenuItem("Tools/Codex Tactics/Create Stage Select Scene")]
+    [MenuItem("Tools/Tactical Requiem/Create Stage Select Scene")]
     public static void CreateStageSelectScene()
     {
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);

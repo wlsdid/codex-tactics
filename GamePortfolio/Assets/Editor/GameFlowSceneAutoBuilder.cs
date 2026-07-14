@@ -17,7 +17,7 @@ public static class GameFlowSceneAutoBuilder
 
     // ── Create ──
 
-    [MenuItem("Tools/Codex Tactics/Create Game Flow Scenes")]
+    [MenuItem("Tools/Tactical Requiem/Create Game Flow Scenes")]
     public static void CreateGameFlowScenes()
     {
         CreateTitleScene();
@@ -45,7 +45,7 @@ public static class GameFlowSceneAutoBuilder
         CreateTitleCommercialAccents(canvas.transform);
         CreateTitleTrailerStoryboard(canvas.transform);
 
-        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Codex Tactics", new Vector2(0, 135), new Vector2(860, 92), TextAlignmentOptions.Center);
+        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "Tactical Requiem", new Vector2(0, 135), new Vector2(860, 92), TextAlignmentOptions.Center);
         titleText.fontSize = 64;
         titleText.fontStyle = FontStyles.Bold;
         titleText.color = new Color(0.96f, 0.78f, 0.34f);
@@ -225,7 +225,7 @@ public static class GameFlowSceneAutoBuilder
 
     // ── Validate ──
 
-    [MenuItem("Tools/Codex Tactics/Validate Game Flow Scenes")]
+    [MenuItem("Tools/Tactical Requiem/Validate Game Flow Scenes")]
     public static void ValidateGameFlowScenes()
     {
         bool passed = true;

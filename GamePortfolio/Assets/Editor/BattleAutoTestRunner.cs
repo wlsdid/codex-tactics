@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public static class BattleAutoTestRunner
 {
-    [MenuItem("Tools/Codex Tactics/Run Battle Logic Auto Test")]
+    [MenuItem("Tools/Tactical Requiem/Run Battle Logic Auto Test")]
     public static void RunBattleLogicAutoTest()
     {
         bool passed = true;

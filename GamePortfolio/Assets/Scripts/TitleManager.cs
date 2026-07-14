@@ -48,7 +48,7 @@ public class TitleManager : MonoBehaviour
         GameObject titleObj = new GameObject("Title Text");
         titleObj.transform.SetParent(canvasObj.transform, false);
         TMP_Text title = titleObj.AddComponent<TextMeshProUGUI>();
-        title.text = "Codex Tactics";
+        title.text = "Tactical Requiem";
         title.fontSize = 56;
         title.fontStyle = FontStyles.Bold;
         title.alignment = TextAlignmentOptions.Center;

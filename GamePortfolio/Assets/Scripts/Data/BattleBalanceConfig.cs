@@ -4,7 +4,7 @@ using UnityEngine;
 /// Central balance configuration for the battle system.
 /// All magic numbers are collected here for easy tuning.
 /// </summary>
-[CreateAssetMenu(fileName = "BattleBalanceConfig", menuName = "Codex Tactics/Battle Balance Config")]
+[CreateAssetMenu(fileName = "BattleBalanceConfig", menuName = "Tactical Requiem/Battle Balance Config")]
 public class BattleBalanceConfig : ScriptableObject
 {
     [Header("Player Stats")]

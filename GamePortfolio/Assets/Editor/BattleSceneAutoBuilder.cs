@@ -13,7 +13,7 @@ public static class BattleSceneAutoBuilder
 {
     private const string ScenePath = "Assets/Scenes/BattleScene.unity";
 
-    [MenuItem("Tools/Codex Tactics/Create Battle Test Scene")]
+    [MenuItem("Tools/Tactical Requiem/Create Battle Test Scene")]
     public static void CreateBattleTestScene()
     {
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -86,7 +86,7 @@ public static class BattleSceneAutoBuilder
         battleCenterPanel.raycastTarget = false;
         commandBarPanel.raycastTarget = false;
 
-        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "CODEX TACTICS", new Vector2(-470, 330), new Vector2(310, 34), TextAlignmentOptions.Left);
+        TMP_Text titleText = CreateText(canvas.transform, "Title Text", "TACTICAL REQUIEM", new Vector2(-470, 330), new Vector2(310, 34), TextAlignmentOptions.Left);
         titleText.fontSize = 19;
         titleText.fontStyle = FontStyles.Bold;
 
@@ -441,12 +441,12 @@ public static class BattleSceneAutoBuilder
         );
     }
 
-    [MenuItem("Tools/Codex Tactics/Validate Battle Test Scene")]
+    [MenuItem("Tools/Tactical Requiem/Validate Battle Test Scene")]
     public static void ValidateBattleTestScene()
     {
         if (!System.IO.File.Exists(ScenePath))
         {
-            EditorUtility.DisplayDialog("BattleScene Test Failed", "BattleScene file does not exist.\n\nRun Tools > Codex Tactics > Create Battle Test Scene first.", "OK");
+            EditorUtility.DisplayDialog("BattleScene Test Failed", "BattleScene file does not exist.\n\nRun Tools > Tactical Requiem > Create Battle Test Scene first.", "OK");
             return;
         }
 

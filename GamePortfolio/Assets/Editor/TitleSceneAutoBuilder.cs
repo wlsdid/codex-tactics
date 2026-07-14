@@ -8,7 +8,7 @@ public static class TitleSceneAutoBuilder
     private const string TitleScenePath = "Assets/Scenes/TitleScene.unity";
     private const string BattleScenePath = "Assets/Scenes/BattleScene.unity";
 
-    [MenuItem("Tools/Codex Tactics/Create Title Scene")]
+    [MenuItem("Tools/Tactical Requiem/Create Title Scene")]
     public static void CreateTitleScene()
     {
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);

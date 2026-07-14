@@ -1,4 +1,4 @@
-# GamePortfolio — Codex Tactics
+# GamePortfolio — Tactical Requiem
 
 Unity 2D 턴제 RPG 포트폴리오용 전투 수직 슬라이스입니다. 현재 Batch 101 기준으로 타이틀/스테이지 선택/전투 배경 전문화 패스, Battle HUD 밀도 축소, 우측 스킬 레일 여백 보정, Ice Lance 캡처 증거, 최신 자동 캡처/시각 QA까지 반영한 2D 턴제 RPG 수직 슬라이스입니다. 6개 스테이지/12개 encounter, 치비 픽셀 전투 스탠디, 전투, 결과, 저장/진행도, 전장 기믹, UI/VFX/SFX, 자동 검증/캡처, README GIF와 쇼케이스 근거 문서까지 포함합니다.
 

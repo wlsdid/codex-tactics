@@ -3,7 +3,7 @@ using UnityEditor;
 
 public static class CreateBalanceConfigAsset
 {
-    [MenuItem("Tools/Codex Tactics/Create Battle Balance Config Asset")]
+    [MenuItem("Tools/Tactical Requiem/Create Battle Balance Config Asset")]
     public static void CreateAsset()
     {
         var config = ScriptableObject.CreateInstance<BattleBalanceConfig>();

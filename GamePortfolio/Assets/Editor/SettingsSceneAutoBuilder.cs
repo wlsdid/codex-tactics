@@ -7,13 +7,13 @@ using TMPro;
 
 /// <summary>
 /// Editor tool to create or update the Settings scene with volume sliders and controls.
-/// Access: Tools > Codex Tactics > Create Settings Scene
+/// Access: Tools > Tactical Requiem > Create Settings Scene
 /// </summary>
 public class SettingsSceneAutoBuilder
 {
     private const string ScenePath = "Assets/Scenes/SettingsScene.unity";
 
-    [MenuItem("Tools/Codex Tactics/Create Settings Scene")]
+    [MenuItem("Tools/Tactical Requiem/Create Settings Scene")]
     public static void CreateSettingsScene()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
