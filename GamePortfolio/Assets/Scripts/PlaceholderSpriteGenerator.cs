@@ -21,7 +21,7 @@ public static class PlaceholderSpriteGenerator
     // ── Enemy identity per stage ──
     public static readonly string[] StageEnemyNames =
     {
-        "Slime",           // Stage 1
+        "Goblin",          // Stage 1
         "Wolf",            // Stage 2
         "Golem",           // Stage 3
         "Storm Hawk",      // Stage 4
@@ -31,7 +31,7 @@ public static class PlaceholderSpriteGenerator
 
     public static readonly string[] StageBossNames =
     {
-        "Slime King",
+        "Orc Berserker",
         "Alpha Wolf",
         "Ancient Golem",
         "Thunder Phoenix",

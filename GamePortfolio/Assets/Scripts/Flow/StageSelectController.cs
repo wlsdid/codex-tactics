@@ -46,7 +46,7 @@ public class StageSelectController : MonoBehaviour
 
     // Stage metadata for descriptions
     private static readonly string[] StageNames = {
-        "Slime Scout Route",
+        "Ruins Patrol",
         "Wolf Ambush",
         "Golem Depths",
         "Storm Peaks",
@@ -64,8 +64,8 @@ public class StageSelectController : MonoBehaviour
     };
 
     private static readonly string[] StageDescriptions = {
-        "A basic encounter against slimes.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Slime Scout to advance.",
-        "Wolf packs hunt in the moonlit clearing.\nRequires completing Slime Scout Route first.\nBeware of coordinated attacks.",
+        "A mixed patrol guards the moonlit ruins.\nLearn the combat basics: Attack, Guard, Fire Skill, and Break.\nDefeat the Ruins Patrol to advance.",
+        "Wolf packs hunt in the moonlit clearing.\nRequires completing Ruins Patrol first.\nBeware of coordinated attacks.",
         "Ancient golems guard the underground depths.\nTougher enemies with stronger defenses.\nRequires completing Wolf Ambush first.",
         "Lightning birds rule the high peaks.\nFast, powerful enemies with devastating aerial attacks.\nRequires completing Golem Depths first.",
         "Darkness consumes the Shadow Realm.\nOnly the strongest can face the void.\nRequires completing Storm Peaks first.",
@@ -73,7 +73,7 @@ public class StageSelectController : MonoBehaviour
     };
 
     private static readonly string[] StageStageNames = {
-        "Stage 1-1: Slime Scout",
+        "Stage 1-1: Ruins Patrol",
         "Stage 1-2: Wolf Ambush",
         "Stage 2-1: Golem Depths",
         "Stage 2-2: Storm Peaks",

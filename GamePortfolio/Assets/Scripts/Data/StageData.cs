@@ -4,405 +4,70 @@ using UnityEngine;
 [System.Serializable]
 public enum StageModifierType
 {
-    None = 0,
-    TutorialField,
-    PackPressure,
-    Stoneguard,
-    StormSurge,
-    VoidDrain,
-    RadiantTrial
+    None = 0, TutorialField, PackPressure, Stoneguard, StormSurge, VoidDrain, RadiantTrial
 }
 
 [System.Serializable]
 public class StageData
 {
     public string stageName = "Stage 1-1";
-    public string encounterName = "Slime Scout";
-    [TextArea(2, 4)]
-    public string encounterDescription = "";
-    public EnemyData enemy = new EnemyData();
+    public string encounterName = "Ruins Patrol";
+    [TextArea(2, 4)] public string encounterDescription = "";
+    // Each encounter owns three independent definitions. Runtime copies are made by BattleManager.
+    public List<EnemyData> enemies = new List<EnemyData>();
     public StageModifierType stageModifier = StageModifierType.None;
-    [TextArea(2, 4)]
-    public string stageModifierDescription = "";
+    [TextArea(2, 4)] public string stageModifierDescription = "";
 
-    public string BuildDisplayName()
+    public string BuildDisplayName() => $"{stageName}: {encounterName}";
+    public string BuildObjectiveText() => $"Goal: Defeat all enemies in {encounterName}";
+
+    private static EnemyPatternData Pattern(string verb, int normal, string strong, int strongDamage)
     {
-        return $"{stageName}: {encounterName}";
+        return new EnemyPatternData { normalAttackMessageVerb = verb, normalAttackDamage = normal, strongAttackName = strong, strongAttackDamage = strongDamage, strongAttackEveryTurns = 3 };
     }
 
-    public string BuildObjectiveText()
+    // Creates distinct data objects so no flanker's HP, break gauge, or status can alias the leader.
+    private static List<EnemyData> CreateFormation(string name, int hp, ElementType weakness, EnemyPatternData leaderPattern, EnemyVisualVariant visual)
     {
-        return $"Goal: Defeat {encounterName}";
+        // This is intentionally explicit rather than list-position-derived: each live enemy owns its sprite identity.
+        EnemyData leader = new EnemyData(name, hp, weakness, leaderPattern, visual, BattleVisualId.Goblin);
+        EnemyData left = new EnemyData(name + " Left", Mathf.Max(1, hp * 2 / 3), weakness,
+            Pattern("strikes", Mathf.Max(1, leaderPattern.normalAttackDamage - 3), leaderPattern.strongAttackName + " Feint", Mathf.Max(1, leaderPattern.strongAttackDamage - 7)), visual, BattleVisualId.Skeleton);
+        EnemyData right = new EnemyData(name + " Right", Mathf.Max(1, hp * 3 / 4), weakness,
+            Pattern("attacks", Mathf.Max(1, leaderPattern.normalAttackDamage - 1), leaderPattern.strongAttackName + " Rush", Mathf.Max(1, leaderPattern.strongAttackDamage - 4)), visual, BattleVisualId.Orc);
+        return new List<EnemyData> { leader, left, right };
     }
 
-    public static StageData CreateStage1Normal()
+    private static List<EnemyData> CreateRuinsPatrolFormation()
     {
-        return new StageData
+        EnemyPatternData goblinPattern = Pattern("attacks", 15, "Heavy Slam", 30);
+        return new List<EnemyData>
         {
-            stageName = "Stage 1-1",
-            encounterName = "Slime Scout",
-            encounterDescription = "A small slime scout patrols the area.\nA good opportunity to test your skills.",
-            stageModifier = StageModifierType.TutorialField,
-            stageModifierDescription = "A safe training ground. No special hazards.",
-            enemy = new EnemyData(
-                "Slime",
-                80,
-                ElementType.Fire,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "attacks",
-                    normalAttackDamage = 15,
-                    strongAttackName = "Heavy Slam",
-                    strongAttackDamage = 30,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Goblin
-            )
+            new EnemyData("Goblin", 80, ElementType.Fire, goblinPattern, EnemyVisualVariant.Goblin, BattleVisualId.Goblin),
+            new EnemyData("Skeleton", 53, ElementType.Fire, Pattern("strikes", 12, "Heavy Slam Feint", 23), EnemyVisualVariant.Skeleton, BattleVisualId.Skeleton),
+            new EnemyData("Orc Berserker", 60, ElementType.Fire, Pattern("attacks", 14, "Heavy Slam Rush", 26), EnemyVisualVariant.Orc, BattleVisualId.Orc)
         };
     }
 
-    public static StageData CreateStage1Boss()
+    private static StageData Make(string stage, string encounter, string description, StageModifierType modifier, string modifierDescription, string enemy, int hp, ElementType weakness, string verb, int normal, string strong, int strongDamage, EnemyVisualVariant visual)
     {
-        return new StageData
-        {
-            stageName = "Stage 1-2",
-            encounterName = "Slime King",
-            encounterDescription = "The Slime King emerges!\nThis towering blob commands respect.",
-            stageModifier = StageModifierType.TutorialField,
-            stageModifierDescription = "A safe training ground. No special hazards.",
-            enemy = new EnemyData(
-                "Slime King",
-                140,
-                ElementType.Fire,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "commands royal slime waves",
-                    normalAttackDamage = 18,
-                    strongAttackName = "Royal Slam",
-                    strongAttackDamage = 36,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Skeleton
-            )
-        };
+        return new StageData { stageName = stage, encounterName = encounter, encounterDescription = description, stageModifier = modifier, stageModifierDescription = modifierDescription, enemies = CreateFormation(enemy, hp, weakness, Pattern(verb, normal, strong, strongDamage), visual) };
     }
 
-    public static StageData CreateStage2Normal()
-    {
-        return new StageData
-        {
-            stageName = "Stage 2-1",
-            encounterName = "Wolf Scout",
-            encounterDescription = "A wolf scout prowls the moonlit clearing.\nIts pack may be nearby...",
-            stageModifier = StageModifierType.PackPressure,
-            stageModifierDescription = "Enemy strong attacks come more frequently!",
-            enemy = new EnemyData(
-                "Wolf Scout",
-                100,
-                ElementType.Nature,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "lunges",
-                    normalAttackDamage = 18,
-                    strongAttackName = "Pack Howl",
-                    strongAttackDamage = 35,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Orc
-            )
-        };
-    }
+    public static StageData CreateStage1Normal() => new StageData { stageName = "Stage 1-1", encounterName = "Ruins Patrol", encounterDescription = "A mixed patrol guards the moonlit ruins.", stageModifier = StageModifierType.TutorialField, stageModifierDescription = "A safe training ground. No special hazards.", enemies = CreateRuinsPatrolFormation() };
+    public static StageData CreateStage1Boss() => Make("Stage 1-2", "Ruins Warden", "The Ruins Warden blocks the inner gate.", StageModifierType.TutorialField, "A safe training ground. No special hazards.", "Ruins Warden", 140, ElementType.Fire, "commands the patrol", 18, "Warden Slam", 36, EnemyVisualVariant.Skeleton);
+    public static StageData CreateStage2Normal() => Make("Stage 2-1", "Wolf Pack", "A wolf pack prowls the clearing.", StageModifierType.PackPressure, "Enemy strong attacks come more frequently!", "Wolf Scout", 100, ElementType.Nature, "lunges", 18, "Pack Howl", 35, EnemyVisualVariant.Orc);
+    public static StageData CreateStage2Boss() => Make("Stage 2-2", "Alpha Wolf", "The Alpha Wolf leads the charge.", StageModifierType.PackPressure, "Enemy strong attacks come more frequently!", "Alpha Wolf", 180, ElementType.Nature, "leads the pack", 22, "Alpha Strike", 42, EnemyVisualVariant.DarkKnight);
+    public static StageData CreateStage3Normal() => Make("Stage 3-1", "Golem Sentries", "Stone sentries block the path.", StageModifierType.Stoneguard, "Enemy starts with reinforced break defense.", "Golem Sentry", 120, ElementType.Earth, "pounds", 20, "Bedrock Slam", 38, EnemyVisualVariant.Golem);
+    public static StageData CreateStage3Boss() => Make("Stage 3-2", "Ancient Golem", "The Ancient Golem awakens.", StageModifierType.Stoneguard, "Enemy starts with reinforced break defense.", "Ancient Golem", 220, ElementType.Earth, "crumbles earth", 25, "Cataclysm", 48, EnemyVisualVariant.Golem);
+    public static StageData CreateStage4Normal() => Make("Stage 4-1", "Storm Hawks", "Storm Hawks circle overhead.", StageModifierType.StormSurge, "Every 3 turns, residual lightning strikes.", "Storm Hawk", 140, ElementType.Lightning, "swoops", 22, "Thunder Dive", 40, EnemyVisualVariant.Orc);
+    public static StageData CreateStage4Boss() => Make("Stage 4-2", "Thunder Phoenix", "The Thunder Phoenix rises.", StageModifierType.StormSurge, "Every 3 turns, residual lightning strikes.", "Thunder Phoenix", 250, ElementType.Lightning, "calls lightning", 28, "Skyfall", 55, EnemyVisualVariant.DarkKnight);
+    public static StageData CreateStage5Normal() => Make("Stage 5-1", "Shadow Wraiths", "Wraiths drift through the darkness.", StageModifierType.VoidDrain, "Shadow energy drains AP over time.", "Shadow Wraith", 160, ElementType.Dark, "lashes out with shadow", 25, "Void Grasp", 45, EnemyVisualVariant.Lich);
+    public static StageData CreateStage5Boss() => Make("Stage 5-2", "Shadow Lord", "The Shadow Lord descends from the void.", StageModifierType.VoidDrain, "Shadow energy drains AP over time.", "Shadow Lord", 280, ElementType.Dark, "commands shadow tendrils", 30, "Oblivion Strike", 55, EnemyVisualVariant.Lich);
+    public static StageData CreateStage6Normal() => Make("Stage 6-1", "Light Wardens", "Radiant wardens stand guard.", StageModifierType.RadiantTrial, "The ultimate trial. Enemies are relentless.", "Light Warden", 180, ElementType.Light, "strikes with holy light", 28, "Radiance Blast", 50, EnemyVisualVariant.Golem);
+    public static StageData CreateStage6Boss() => Make("Stage 6-2", "Holy Sentinel", "The Holy Sentinel descends.", StageModifierType.RadiantTrial, "The ultimate trial. Enemies are relentless.", "Holy Sentinel", 320, ElementType.Light, "commands divine judgment", 32, "Heavenly Wrath", 60, EnemyVisualVariant.DarkKnight);
 
-    public static StageData CreateStage2Boss()
-    {
-        return new StageData
-        {
-            stageName = "Stage 2-2",
-            encounterName = "Alpha Wolf",
-            encounterDescription = "The Alpha Wolf leads the charge!\nIts howl echoes through the night.",
-            stageModifier = StageModifierType.PackPressure,
-            stageModifierDescription = "Enemy strong attacks come more frequently!",
-            enemy = new EnemyData(
-                "Alpha Wolf",
-                180,
-                ElementType.Nature,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "leads the pack",
-                    normalAttackDamage = 22,
-                    strongAttackName = "Alpha Strike",
-                    strongAttackDamage = 42,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.DarkKnight
-            )
-        };
-    }
-
-    public static StageData CreateStage3Normal()
-    {
-        return new StageData
-        {
-            stageName = "Stage 3-1",
-            encounterName = "Golem Sentry",
-            encounterDescription = "A stone golem blocks the path ahead.\nIts rocky hide shrugs off weak attacks.",
-            stageModifier = StageModifierType.Stoneguard,
-            stageModifierDescription = "Enemy starts with reinforced break defense.",
-            enemy = new EnemyData(
-                "Golem Sentry",
-                120,
-                ElementType.Earth,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "pounds",
-                    normalAttackDamage = 20,
-                    strongAttackName = "Bedrock Slam",
-                    strongAttackDamage = 38,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Golem
-            )
-        };
-    }
-
-    public static StageData CreateStage3Boss()
-    {
-        return new StageData
-        {
-            stageName = "Stage 3-2",
-            encounterName = "Ancient Golem",
-            encounterDescription = "The Ancient Golem awakens from its slumber!\nThe ground trembles with each step.",
-            stageModifier = StageModifierType.Stoneguard,
-            stageModifierDescription = "Enemy starts with reinforced break defense.",
-            enemy = new EnemyData(
-                "Ancient Golem",
-                220,
-                ElementType.Earth,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "crumbles earth",
-                    normalAttackDamage = 25,
-                    strongAttackName = "Cataclysm",
-                    strongAttackDamage = 48,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Golem
-            )
-        };
-    }
-
-    public static StageData CreateStage4Normal()
-    {
-        return new StageData
-        {
-            stageName = "Stage 4-1",
-            encounterName = "Storm Hawk",
-            encounterDescription = "A Storm Hawk circles overhead.\nLightning crackles in its feathers.",
-            stageModifier = StageModifierType.StormSurge,
-            stageModifierDescription = "Every 3 turns, residual lightning strikes.",
-            enemy = new EnemyData(
-                "Storm Hawk",
-                140,
-                ElementType.Lightning,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "swoops",
-                    normalAttackDamage = 22,
-                    strongAttackName = "Thunder Dive",
-                    strongAttackDamage = 40,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Orc
-            )
-        };
-    }
-
-    public static StageData CreateStage4Boss()
-    {
-        return new StageData
-        {
-            stageName = "Stage 4-2",
-            encounterName = "Thunder Phoenix",
-            encounterDescription = "The legendary Thunder Phoenix rises!\nThe sky darkens as it spreads its wings.",
-            stageModifier = StageModifierType.StormSurge,
-            stageModifierDescription = "Every 3 turns, residual lightning strikes.",
-            enemy = new EnemyData(
-                "Thunder Phoenix",
-                250,
-                ElementType.Lightning,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "calls lightning",
-                    normalAttackDamage = 28,
-                    strongAttackName = "Skyfall",
-                    strongAttackDamage = 55,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.DarkKnight
-            )
-        };
-    }
-
-    public static StageData CreateStage5Normal()
-    {
-        return new StageData
-        {
-            stageName = "Stage 5-1",
-            encounterName = "Shadow Wraith",
-            encounterDescription = "A shadowy wraith drifts through the darkness.\nThe chill of void emanates from its form.",
-            stageModifier = StageModifierType.VoidDrain,
-            stageModifierDescription = "Shadow energy drains AP over time.",
-            enemy = new EnemyData(
-                "Shadow Wraith",
-                160,
-                ElementType.Dark,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "lashes out with shadow",
-                    normalAttackDamage = 25,
-                    strongAttackName = "Void Grasp",
-                    strongAttackDamage = 45,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Lich
-            )
-        };
-    }
-
-    public static StageData CreateStage5Boss()
-    {
-        return new StageData
-        {
-            stageName = "Stage 5-2",
-            encounterName = "Shadow Lord",
-            encounterDescription = "The Shadow Lord descends from the void!\nDarkness pulses with malevolent intent.",
-            stageModifier = StageModifierType.VoidDrain,
-            stageModifierDescription = "Shadow energy drains AP over time.",
-            enemy = new EnemyData(
-                "Shadow Lord",
-                280,
-                ElementType.Dark,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "commands shadow tendrils",
-                    normalAttackDamage = 30,
-                    strongAttackName = "Oblivion Strike",
-                    strongAttackDamage = 55,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Lich
-            )
-        };
-    }
-
-    public static StageData CreateStage6Normal()
-    {
-        return new StageData
-        {
-            stageName = "Stage 6-1",
-            encounterName = "Light Warden",
-            encounterDescription = "A radiant warden stands guard.\nLight pulses with protective energy.",
-            stageModifier = StageModifierType.RadiantTrial,
-            stageModifierDescription = "The ultimate trial. Enemies are relentless.",
-            enemy = new EnemyData(
-                "Light Warden",
-                180,
-                ElementType.Light,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "strikes with holy light",
-                    normalAttackDamage = 28,
-                    strongAttackName = "Radiance Blast",
-                    strongAttackDamage = 50,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.Golem
-            )
-        };
-    }
-
-    public static StageData CreateStage6Boss()
-    {
-        return new StageData
-        {
-            stageName = "Stage 6-2",
-            encounterName = "Holy Sentinel",
-            encounterDescription = "The Holy Sentinel descends in a pillar of light!\nIts divine power is unmatched.",
-            stageModifier = StageModifierType.RadiantTrial,
-            stageModifierDescription = "The ultimate trial. Enemies are relentless.",
-            enemy = new EnemyData(
-                "Holy Sentinel",
-                320,
-                ElementType.Light,
-                new EnemyPatternData
-                {
-                    normalAttackMessageVerb = "commands divine judgment",
-                    normalAttackDamage = 32,
-                    strongAttackName = "Heavenly Wrath",
-                    strongAttackDamage = 60,
-                    strongAttackEveryTurns = 3
-                },
-                EnemyVisualVariant.DarkKnight
-            )
-        };
-    }
-
-    public static string GetModifierDisplayName(StageModifierType type)
-    {
-        return type switch
-        {
-            StageModifierType.TutorialField => "Tutorial Field",
-            StageModifierType.PackPressure => "Pack Pressure",
-            StageModifierType.Stoneguard => "Stoneguard",
-            StageModifierType.StormSurge => "Storm Surge",
-            StageModifierType.VoidDrain => "Void Drain",
-            StageModifierType.RadiantTrial => "Radiant Trial",
-            _ => "None"
-        };
-    }
-
-    public string BuildModifierSummaryText()
-    {
-        string name = GetModifierDisplayName(stageModifier);
-        return string.IsNullOrWhiteSpace(stageModifierDescription)
-            ? $"Modifier: {name}"
-            : $"Modifier: {name}\nEffect: {stageModifierDescription}";
-    }
-
-    public static List<StageData> GetEncountersForStage(int stageIndex)
-    {
-        var list = new List<StageData>();
-        switch (stageIndex)
-        {
-            case 0:
-                list.Add(CreateStage1Normal());
-                list.Add(CreateStage1Boss());
-                break;
-            case 1:
-                list.Add(CreateStage2Normal());
-                list.Add(CreateStage2Boss());
-                break;
-            case 2:
-                list.Add(CreateStage3Normal());
-                list.Add(CreateStage3Boss());
-                break;
-            case 3:
-                list.Add(CreateStage4Normal());
-                list.Add(CreateStage4Boss());
-                break;
-            case 4:
-                list.Add(CreateStage5Normal());
-                list.Add(CreateStage5Boss());
-                break;
-            case 5:
-                list.Add(CreateStage6Normal());
-                list.Add(CreateStage6Boss());
-                break;
-            default:
-                list.Add(CreateStage1Normal());
-                list.Add(CreateStage1Boss());
-                break;
-        }
-        return list;
-    }
+    public static string GetModifierDisplayName(StageModifierType type) => type switch { StageModifierType.TutorialField => "Tutorial Field", StageModifierType.PackPressure => "Pack Pressure", StageModifierType.Stoneguard => "Stoneguard", StageModifierType.StormSurge => "Storm Surge", StageModifierType.VoidDrain => "Void Drain", StageModifierType.RadiantTrial => "Radiant Trial", _ => "None" };
+    public string BuildModifierSummaryText() => string.IsNullOrWhiteSpace(stageModifierDescription) ? $"Modifier: {GetModifierDisplayName(stageModifier)}" : $"Modifier: {GetModifierDisplayName(stageModifier)}\nEffect: {stageModifierDescription}";
+    public static List<StageData> GetEncountersForStage(int stageIndex) => stageIndex switch { 0 => new List<StageData> { CreateStage1Normal(), CreateStage1Boss() }, 1 => new List<StageData> { CreateStage2Normal(), CreateStage2Boss() }, 2 => new List<StageData> { CreateStage3Normal(), CreateStage3Boss() }, 3 => new List<StageData> { CreateStage4Normal(), CreateStage4Boss() }, 4 => new List<StageData> { CreateStage5Normal(), CreateStage5Boss() }, 5 => new List<StageData> { CreateStage6Normal(), CreateStage6Boss() }, _ => new List<StageData> { CreateStage1Normal(), CreateStage1Boss() } };
 }

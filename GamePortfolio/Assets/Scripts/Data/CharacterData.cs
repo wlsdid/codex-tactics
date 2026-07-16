@@ -1,9 +1,22 @@
 using UnityEngine;
 
 [System.Serializable]
+public enum BattleVisualId
+{
+    HeroPaladin = 0,
+    GuardianCleric,
+    ScoutRanger,
+    Goblin,
+    Skeleton,
+    Orc
+}
+
+[System.Serializable]
 public class CharacterData
 {
     public string characterName;
+    // Stable presentation identity. Names and party list order may change without changing the unit art.
+    public BattleVisualId visualId;
     public int maxHp;
     public int currentHp;
     public int attackPower;
@@ -22,9 +35,10 @@ public class CharacterData
     public int currentBreakGauge = 2;
     public bool isBroken;
 
-    public CharacterData(string name, int hp, int attack)
+    public CharacterData(string name, int hp, int attack, BattleVisualId visualId = BattleVisualId.HeroPaladin)
     {
         characterName = name;
+        this.visualId = visualId;
         maxHp = hp;
         currentHp = hp;
         attackPower = attack;
@@ -38,9 +52,10 @@ public class CharacterData
         isBroken = false;
     }
 
-    public CharacterData(string name, int hp, int attack, ElementType weakness)
+    public CharacterData(string name, int hp, int attack, ElementType weakness, BattleVisualId visualId = BattleVisualId.HeroPaladin)
     {
         characterName = name;
+        this.visualId = visualId;
         maxHp = hp;
         currentHp = hp;
         attackPower = attack;
@@ -54,9 +69,10 @@ public class CharacterData
         isBroken = false;
     }
 
-    public CharacterData(string name, int hp, int attack, ElementType weakness, int ap)
+    public CharacterData(string name, int hp, int attack, ElementType weakness, int ap, BattleVisualId visualId = BattleVisualId.HeroPaladin)
     {
         characterName = name;
+        this.visualId = visualId;
         maxHp = hp;
         currentHp = hp;
         attackPower = attack;

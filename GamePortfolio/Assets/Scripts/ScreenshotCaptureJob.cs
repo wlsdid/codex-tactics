@@ -145,6 +145,10 @@ public class ScreenshotCaptureJob : MonoBehaviour
         PreparePortfolioCaptureProgress();
         Debug.Log("[Capture] BattleManager found. Starting capture with showcase skill unlocks.");
 
+        // Select real battlefield slots so the start capture proves both selection/target rings survived the HUD cleanup.
+        manager.SelectPlayerUnit(0);
+        manager.SelectEnemyTarget(0);
+        yield return new WaitForSeconds(0.5f);
         yield return Capture("01_battle_start.png");
         yield return new WaitForSeconds(1.0f);
 

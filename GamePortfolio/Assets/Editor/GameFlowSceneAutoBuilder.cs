@@ -100,7 +100,7 @@ public static class GameFlowSceneAutoBuilder
         Vector2 cardSize = new Vector2(220, 135);
 
         string[] cardNames = {
-            "Slime Scout Route",
+            "Ruins Patrol",
             "Wolf Ambush",
             "Golem Depths",
             "Storm Peaks",
@@ -109,7 +109,7 @@ public static class GameFlowSceneAutoBuilder
         };
 
         string[] cardDescs = {
-            "Basic slime encounter",
+            "Mixed ruins patrol",
             "Wolf pack ambush",
             "Ancient golem depths",
             "Lightning storm peaks",
@@ -170,11 +170,11 @@ public static class GameFlowSceneAutoBuilder
         // Description panel — expanded for rich info
         Image descPanel = CreatePanel(canvas.transform, "Description Panel", new Vector2(0, -200), new Vector2(760, 135), new Color(0.06f, 0.06f, 0.10f, 0.88f));
         descPanel.raycastTarget = false;
-        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Stage 1-1: Slime Scout", new Vector2(0, -155), new Vector2(710, 26), TextAlignmentOptions.Center);
+        TMP_Text stageNameText = CreateText(canvas.transform, "Stage Name Text", "Stage 1-1: Ruins Patrol", new Vector2(0, -155), new Vector2(710, 26), TextAlignmentOptions.Center);
         stageNameText.fontSize = 20;
         stageNameText.color = new Color(0.92f, 0.78f, 0.38f);
         TMP_Text descText = CreateText(canvas.transform, "Stage Description Text",
-            "A basic encounter against slimes.\nEncounters: Slime -> Slime King\nElement: FIRE Fire | Difficulty: D1\nReward: Rank 100-150G / 80 XP\nModifier: Tutorial Field\nGear: ATK +15\nStatus: NEXT - Click Start Battle",
+            "A mixed patrol guards the moonlit ruins.\nEncounters: Goblin / Skeleton / Orc Berserker\nElement: FIRE Fire | Difficulty: D1\nReward: Rank 100-150G / 80 XP\nModifier: Tutorial Field\nGear: ATK +15\nStatus: NEXT - Click Start Battle",
             new Vector2(0, -212), new Vector2(710, 96), TextAlignmentOptions.TopLeft);
         descText.fontSize = 13;
         descText.color = new Color(0.82f, 0.82f, 0.92f);

@@ -1,1421 +1,190 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// Core battle state machine and turn flow.
-/// UI rendering is handled by BattleUI. Data loading by StageData helpers.
-/// </summary>
+/// <summary>Runtime 3v3 battle state. Every combatant has independent CharacterData state.</summary>
 public class BattleManager : MonoBehaviour
 {
-    [Header("Battle State")]
     [SerializeField] private BattleState currentState;
-
-    [Header("Balance Config (optional)")]
     [SerializeField] private BattleBalanceConfig balanceConfig;
-
-    [Header("Player")]
-    [SerializeField] private string playerName = "Hero";
-
-    [Header("Skills")]
-    [SerializeField] private string basicSkillName = "Slash";
-    [SerializeField] private string fireSkillName = "Fire Bolt";
-    [SerializeField] private string iceSkillName = "Ice Lance";
-    [SerializeField] private string lightningSkillName = "Lightning Strike";
-    [SerializeField] private string earthSkillName = "Earth Wall";
-
-    [Header("Stage Encounters")]
     [SerializeField] private List<StageData> stageEncounters = new List<StageData>();
-
-    [Header("UI (assigned via Inspector)")]
     [SerializeField] private BattleUI battleUI;
 
-    [NonSerialized] private int currentStageIndex;
+    // No singleton player/enemy compatibility state: these are the combat model.
+    public List<CharacterData> playerParty { get; private set; } = new List<CharacterData>();
+    public List<CharacterData> enemyParty { get; private set; } = new List<CharacterData>();
+    public int SelectedPlayerIndex { get; private set; } = -1;
+    public int SelectedEnemyIndex { get; private set; } = -1;
+    public IReadOnlyCollection<int> ActedPlayerIndices => actedPlayerIndices;
 
-    // Runtime state (overwritten by stage data)
-    private string enemyName = "Slime";
-    private int enemyMaxHp = 80;
-    private ElementType enemyWeakness = ElementType.Fire;
-    private EnemyPatternData enemyPattern = new EnemyPatternData();
+    private readonly HashSet<int> actedPlayerIndices = new HashSet<int>();
+    private readonly Dictionary<CharacterData, bool> guarding = new Dictionary<CharacterData, bool>();
+    private readonly Dictionary<CharacterData, int> earthShield = new Dictionary<CharacterData, int>();
+    private readonly List<EnemyPatternData> enemyPatterns = new List<EnemyPatternData>();
+    private int currentStageIndex, enemyTurnCount, totalGoldEarned, totalDamageDealt, totalDamageTaken, guardUseCount, skillsUsedCount;
+    private bool rewardClaimed;
+    private string message = "";
+    private string resultSummary = "";
+    private SkillData slash, fire, ice, lightning, earth;
 
-    private CharacterData player;
-    private CharacterData enemy;
-    private SkillData basicAttackSkill;
-    private SkillData fireSkill;
-    private SkillData iceSkill;
-    private SkillData lightningSkill;
-    private SkillData earthSkill;
-    private bool playerIsGuarding;
-    private int enemyTurnCount;
-    private int speedState = 1;
-    private bool autoBattleEnabled;
-    private ScreenFade screenFade;
-    private ScreenShake cachedShake;
-    public bool DebugAutoBattleEnabled => autoBattleEnabled;
-    public int DebugPlayerLevel => playerLevel;
-    public int DebugPlayerXp => playerXp; // 1=1x, 2=2x
-    private int totalDamageDealt;
-    private int totalDamageTaken;
-    private int guardUseCount;
-    private int skillsUsedCount;
-    private int totalGoldEarned;
-    private int playerShieldAmount;
-    private List<ItemData> playerItems;
-    private int selectedItemIndex = -1;
-    private int playerLevel = 1;
-    private int playerXp;
-    private int xpToNextLevel = 100;
-    private bool currentBattleRewardClaimed;
-    private readonly HashSet<int> rewardedStageIndexes = new HashSet<int>();
-    private readonly HashSet<int> bonusRewardedStageIndexes = new HashSet<int>();
-    private bool loadedProgressState;
-
-    // Bonus tracking
-    private readonly HashSet<string> skillsUsedNames = new HashSet<string>();
-    private bool guardedStrongAttack;
-    private bool usedItems;
-
-    // Enrage state
-    private bool isEnraged;
-
-    // --- Debug pass-throughs (for auto-tester) ---
-    public string DebugPlayerHpText => battleUI != null ? battleUI.DebugPlayerHpText : "";
-    public string DebugPlayerApText => battleUI != null ? battleUI.DebugPlayerApText : "";
-    public string DebugEnemyHpText => battleUI != null ? battleUI.DebugEnemyHpText : "";
-    public float DebugPlayerHpBarValue => battleUI != null ? battleUI.DebugPlayerHpBarValue : -1f;
-    public float DebugPlayerHpBarMaxValue => battleUI != null ? battleUI.DebugPlayerHpBarMaxValue : -1f;
-    public float DebugPlayerApBarValue => battleUI != null ? battleUI.DebugPlayerApBarValue : -1f;
-    public float DebugPlayerApBarMaxValue => battleUI != null ? battleUI.DebugPlayerApBarMaxValue : -1f;
-    public float DebugEnemyHpBarValue => battleUI != null ? battleUI.DebugEnemyHpBarValue : -1f;
-    public float DebugEnemyHpBarMaxValue => battleUI != null ? battleUI.DebugEnemyHpBarMaxValue : -1f;
-    public string DebugMessageText => battleUI != null ? battleUI.DebugMessageText : "";
-    public string DebugSkillHelpText => battleUI != null ? battleUI.DebugSkillHelpText : "";
-    public string DebugBattleLogText => battleUI != null ? battleUI.DebugBattleLogText : "";
-    public string DebugResultSummaryText => battleUI != null ? battleUI.DebugResultSummaryText : "";
-    public string DebugPlayerStatusText => battleUI != null ? battleUI.DebugPlayerStatusText : "";
-    public string DebugEnemyStatusText => battleUI != null ? battleUI.DebugEnemyStatusText : "";
-    public string DebugEnemyIntentText => battleUI != null ? battleUI.DebugEnemyIntentText : "";
-    public string DebugEnemyBreakText => battleUI != null ? battleUI.DebugEnemyBreakText : "";
-    public string DebugEnemySpriteName => battleUI != null ? battleUI.DebugEnemySpriteName : "";
-    public string DebugEnemyStandeeSpriteName => battleUI != null ? battleUI.DebugEnemyStandeeSpriteName : "";
-    public string DebugEnemyRosterFirstSpriteName => battleUI != null ? battleUI.DebugEnemyRosterFirstSpriteName : "";
-    public string DebugEnemyRosterFirstLabel => battleUI != null ? battleUI.DebugEnemyRosterFirstLabel : "";
-    public float DebugEnemyBreakBarValue => battleUI != null ? battleUI.DebugEnemyBreakBarValue : -1f;
-    public float DebugEnemyBreakBarMaxValue => battleUI != null ? battleUI.DebugEnemyBreakBarMaxValue : -1f;
-    public string DebugImpactText => battleUI != null ? battleUI.DebugImpactText : "";
-    public string DebugCaptureRehearsalText => battleUI != null ? battleUI.DebugCaptureRehearsalText : "";
-    public string DebugRunStatusText => battleUI != null ? battleUI.DebugRunStatusText : "";
-    public string DebugStageText => battleUI != null ? battleUI.DebugStageText : "";
-    public string DebugStageObjectiveText => battleUI != null ? battleUI.DebugStageObjectiveText : "";
-    public string DebugStageProgressText => battleUI != null ? battleUI.DebugStageProgressText : "";
-    public bool DebugRetryButtonVisible => battleUI != null && battleUI.DebugRetryButtonVisible;
-    public bool DebugRetryButtonInteractable => battleUI != null && battleUI.DebugRetryButtonInteractable;
-    public bool DebugContinueButtonVisible => battleUI != null && battleUI.DebugContinueButtonVisible;
-    public bool DebugContinueButtonInteractable => battleUI != null && battleUI.DebugContinueButtonInteractable;
-    public bool DebugStageSelectButtonVisible => battleUI != null && battleUI.DebugStageSelectButtonVisible;
-    public bool DebugStageSelectButtonInteractable => battleUI != null && battleUI.DebugStageSelectButtonInteractable;
-    public bool DebugResultSummaryPanelVisible => battleUI != null && battleUI.DebugResultSummaryPanelVisible;
+    public BattleState DebugState => currentState;
+    public int DebugPlayerPartyCount => playerParty.Count;
+    public int DebugEnemyPartyCount => enemyParty.Count;
+    public int DebugSelectedPlayerIndex => SelectedPlayerIndex;
+    public int DebugSelectedEnemyIndex => SelectedEnemyIndex;
+    public bool DebugHasActed(int index) => actedPlayerIndices.Contains(index);
+    public int DebugTotalGoldEarned => totalGoldEarned;
     public int DebugTotalDamageDealt => totalDamageDealt;
     public int DebugTotalDamageTaken => totalDamageTaken;
     public int DebugGuardUseCount => guardUseCount;
     public int DebugSkillsUsedCount => skillsUsedCount;
-    public int DebugTotalGoldEarned => totalGoldEarned;
-    public string DebugItemsText => playerItems != null ? string.Join(" | ", playerItems.ConvertAll(i => $"{i.itemName}x{i.quantity}")) : "";
+    public string DebugMessageText => battleUI != null ? battleUI.DebugMessageText : message;
+    public string DebugResultSummaryText => battleUI != null && !string.IsNullOrEmpty(battleUI.DebugResultSummaryText) ? battleUI.DebugResultSummaryText : resultSummary;
+    public string DebugPartyState => battleUI != null ? battleUI.DebugPartyState : "";
+    public string DebugTargetState => battleUI != null ? battleUI.DebugTargetState : "";
+    public string DebugStageText => battleUI != null ? battleUI.DebugStageText : "";
 
-    // --- Config helpers ---
-    private ScreenShake GetOrCacheShake()
-    {
-        if (cachedShake == null && Camera.main != null)
-            cachedShake = Camera.main.GetComponent<ScreenShake>();
-        return cachedShake;
-    }
-
-    private int CfgPlayerMaxHp => balanceConfig != null ? balanceConfig.playerMaxHp : 100;
+    private int CfgPlayerHp => balanceConfig != null ? balanceConfig.playerMaxHp : 100;
     private int CfgPlayerAttack => balanceConfig != null ? balanceConfig.playerAttack : 20;
-    private int CfgPlayerMaxAp => balanceConfig != null ? balanceConfig.playerMaxAp : 3;
-    private int CfgPlayerApRecovery => balanceConfig != null ? balanceConfig.playerApRecoveryPerTurn : 2;
-    private int CfgBasicSkillPower => balanceConfig != null ? balanceConfig.basicSkillPower : 20;
-    private int CfgBasicSkillApCost => balanceConfig != null ? balanceConfig.basicSkillApCost : 0;
-    private int CfgFireSkillPower => balanceConfig != null ? balanceConfig.fireSkillPower : 30;
-    private int CfgFireSkillApCost => balanceConfig != null ? balanceConfig.fireSkillApCost : 2;
-    private int CfgIceSkillPower => balanceConfig != null ? balanceConfig.iceSkillPower : 25;
-    private int CfgIceSkillApCost => balanceConfig != null ? balanceConfig.iceSkillApCost : 1;
-    private int CfgStunTurnDuration => balanceConfig != null ? balanceConfig.stunTurnDuration : 1;
-    private int CfgLightningSkillPower => balanceConfig != null ? balanceConfig.lightningSkillPower : 40;
-    private int CfgLightningSkillApCost => balanceConfig != null ? balanceConfig.lightningSkillApCost : 3;
-    private int CfgEarthSkillPower => balanceConfig != null ? balanceConfig.earthSkillPower : 22;
-    private int CfgEarthSkillApCost => balanceConfig != null ? balanceConfig.earthSkillApCost : 2;
-    private int CfgEarthSkillShieldAmount => balanceConfig != null ? balanceConfig.earthSkillShieldAmount : 20;
-    private int CfgBurnDamagePerTurn => balanceConfig != null ? balanceConfig.burnDamagePerTurn : 5;
-    private int CfgBurnTurnDuration => balanceConfig != null ? balanceConfig.burnTurnDuration : 2;
-    private int CfgGuardReductionPercent => balanceConfig != null ? balanceConfig.guardDamageReductionPercent : 50;
-    private int CfgSRankRewardGold => balanceConfig != null ? balanceConfig.sRankRewardGold : 150;
-    private int CfgARankRewardGold => balanceConfig != null ? balanceConfig.aRankRewardGold : 120;
-    private int CfgBRankRewardGold => balanceConfig != null ? balanceConfig.bRankRewardGold : 100;
-    private int CfgDefeatRewardGold => balanceConfig != null ? balanceConfig.defeatRewardGold : 0;
-    private int CfgMaxBattleLogEntries => balanceConfig != null ? balanceConfig.maxBattleLogEntries : 6;
-    private float CfgWeaknessMultiplier => balanceConfig != null ? balanceConfig.weaknessDamageMultiplier : 1.5f;
-    private float CfgNeutralMultiplier => balanceConfig != null ? balanceConfig.neutralDamageMultiplier : 1.0f;
-    private float CfgBattleSpeed => balanceConfig != null ? balanceConfig.battleSpeedMultiplier : 1.0f;
-
-    // --- Lifecycle ---
+    private int CfgPlayerAp => balanceConfig != null ? balanceConfig.playerMaxAp : 3;
+    private int CfgRecover => balanceConfig != null ? balanceConfig.playerApRecoveryPerTurn : 2;
+    private int CfgGuard => balanceConfig != null ? balanceConfig.guardDamageReductionPercent : 50;
+    private int CfgShield => balanceConfig != null ? balanceConfig.earthSkillShieldAmount : 20;
+    private int CfgBurn => balanceConfig != null ? balanceConfig.burnDamagePerTurn : 5;
+    private int CfgBurnTurns => balanceConfig != null ? balanceConfig.burnTurnDuration : 2;
+    private int CfgStunTurns => balanceConfig != null ? balanceConfig.stunTurnDuration : 1;
 
     private void Start()
     {
-        if (battleUI != null)
+        if (stageEncounters == null || stageEncounters.Count == 0)
         {
-            battleUI.SetupButtonListeners(
-                OnClickAttackButton, OnClickFireSkillButton, OnClickIceSkillButton, OnClickLightningSkillButton,
-                OnClickEarthSkillButton,
-                OnClickEndTurnButton, OnClickGuardButton,
-                OnClickRetryButton, OnClickContinueButton,
-                OnClickStageSelectButton, OnClickSpeedToggle, OnClickAutoBattleToggle,
-                OnClickItemButton,
-                OnClickPauseButton,
-                OnClickPlayerUnit);
-            battleUI.SetupPauseListeners(OnResumeGame, OnClickStageSelectButton);
+            int selectedStage = StageSelectController.SelectedStageIndex;
+            stageEncounters = StageData.GetEncountersForStage(selectedStage >= 0 ? selectedStage : 0);
         }
-        InitializeFromStageSelection();
-        LoadProgressFromState();
         StartBattle();
     }
-
-    public void DebugLoadEncountersForStage(int stageIndex)
-    {
-        int clamped = stageIndex < 0 ? 0 : stageIndex;
-        stageEncounters = StageData.GetEncountersForStage(clamped);
-        currentStageIndex = 0;
-    }
-
-    private void InitializeFromStageSelection()
-    {
-        int idx = StageSelectController.SelectedStageIndex;
-        if (idx < 0) idx = 0; // fallback
-        stageEncounters = StageData.GetEncountersForStage(idx);
-        currentStageIndex = 0;
-    }
-
-    public void DebugStartBattleForTest() => StartBattle();
-    public void DebugEndBattleForTest(BattleState resultState) => EndBattle(resultState);
-    public void DebugResolveEnemyAttackForTest() => ResolveEnemyAttack();
-    public void DebugSetPlayerApForTest(int value)
-    {
-        if (player == null) return;
-        player.currentAp = Mathf.Clamp(value, 0, player.maxAp);
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Debug: AP adjusted",
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-    }
-    public void DebugForceEnemyBrokenForTest()
-    {
-        if (enemy == null) return;
-        enemy.currentBreakGauge = 0;
-        enemy.isBroken = true;
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, "Debug: Forced BROKEN",
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-    }
-
-    // --- Battle flow ---
+    public void DebugStartBattleForTest() { StartBattle(); }
+    public void DebugLoadEncountersForStage(int stageIndex) { stageEncounters = StageData.GetEncountersForStage(stageIndex); currentStageIndex = 0; }
+    public void DebugSetCurrentHpForTest(bool isPlayer, int index, int hp) { List<CharacterData> list = isPlayer ? playerParty : enemyParty; if (index >= 0 && index < list.Count) { list[index].currentHp = Mathf.Max(0, hp); RefreshUI(); } }
+    public void DebugSetPlayerApForTest(int index, int ap) { if (index >= 0 && index < playerParty.Count) playerParty[index].currentAp = Mathf.Clamp(ap, 0, playerParty[index].maxAp); RefreshUI(); }
+    public bool DebugIsGuarding(int index) => index >= 0 && index < playerParty.Count && guarding.TryGetValue(playerParty[index], out bool value) && value;
+    public int DebugShield(int index) => index >= 0 && index < playerParty.Count && earthShield.TryGetValue(playerParty[index], out int value) ? value : 0;
 
     private void StartBattle()
     {
-        currentState = BattleState.Start;
-        if (!loadedProgressState) LoadProgressFromState();
-        EnsureStageEncounters();
-        ApplyCurrentStageData();
-        EnsureEnemyPattern();
-
-        player = new CharacterData(playerName, CfgPlayerMaxHp + EquipmentManager.TotalHpBonus, CfgPlayerAttack + EquipmentManager.TotalAttackBonus, ElementType.None, CfgPlayerMaxAp + EquipmentManager.TotalApBonus);
-        int diffHp = Mathf.RoundToInt(enemyMaxHp * ProgressState.DifficultyHpMultiplier);
-        int diffAtk = Mathf.RoundToInt(enemyPattern.normalAttackDamage * ProgressState.DifficultyDamageMultiplier);
-        enemy = new CharacterData(enemyName, diffHp, diffAtk, enemyWeakness);
-        enemy.maxBreakGauge = 2 * ProgressState.DifficultyBreakGaugeMultiplier;
-        enemy.currentBreakGauge = enemy.maxBreakGauge;
-        basicAttackSkill = new SkillData(basicSkillName, CfgBasicSkillPower, CfgBasicSkillApCost, ElementType.Physical, StatusEffectType.None);
-        fireSkill = new SkillData(fireSkillName, CfgFireSkillPower, CfgFireSkillApCost, ElementType.Fire, StatusEffectType.Burn);
-        iceSkill = new SkillData(iceSkillName, CfgIceSkillPower, CfgIceSkillApCost, ElementType.Ice, StatusEffectType.Stun);
-        lightningSkill = new SkillData(lightningSkillName, CfgLightningSkillPower, CfgLightningSkillApCost, ElementType.Lightning, StatusEffectType.None);
-        earthSkill = new SkillData(earthSkillName, CfgEarthSkillPower, CfgEarthSkillApCost, ElementType.Earth, StatusEffectType.None);
-        basicAttackSkill.description = "Reliable no-cost physical attack.";
-        fireSkill.description = "Costs AP, hits the enemy weakness, and applies Burn.";
-        iceSkill.description = "1 AP, Ice element, applies Stun for 1 turn.";
-        lightningSkill.description = "3 AP, Lightning element, high damage.";
-        earthSkill.description = "2 AP, Earth element, applies Shield reducing next incoming damage.";
-
-        playerIsGuarding = false;
-        enemyTurnCount = 0;
-        totalDamageDealt = 0;
-        totalDamageTaken = 0;
-        guardUseCount = 0;
-        skillsUsedCount = 0;
-        currentBattleRewardClaimed = false;
-        playerShieldAmount = 0;
-        selectedItemIndex = -1;
-        skillsUsedNames.Clear();
-        guardedStrongAttack = false;
-        usedItems = false;
-        isEnraged = false;
-
-        // Initialize player inventory
-        playerItems = new List<ItemData>
-        {
-            new ItemData { itemName = "Potion", description = "Restore 30 HP.", effectType = ItemEffectType.HealHp, effectValue = 30, quantity = 3 },
-            new ItemData { itemName = "Hi-Potion", description = "Restore 60 HP.", effectType = ItemEffectType.HealHp, effectValue = 60, quantity = 2 },
-            new ItemData { itemName = "Ether", description = "Restore 2 AP.", effectType = ItemEffectType.RestoreAp, effectValue = 2, quantity = 2 },
-            new ItemData { itemName = "Full Ether", description = "Restore all AP.", effectType = ItemEffectType.RestoreAp, effectValue = 99, quantity = 1 }
-        };
-
-        // Set up element-aware sprites
-        bool isBossEncounter = stageEncounters != null && currentStageIndex == 1;
-        EnemyVisualVariant enemyVisualVariant = GetCurrentStageData()?.enemy?.visualVariant ?? EnemyVisualVariant.Goblin;
-        battleUI?.ClearCachedSprites();
-        battleUI?.SetupPlaceholderSprites(enemyWeakness, isBossEncounter, enemyVisualVariant);
-
-        battleUI?.StartNewBattle();
-        battleUI?.SetImpactText("Impact: Ready");
-        battleUI?.SetPlayerShieldText(0);
-
-        // Apply stage modifier after UI is ready (enemy/player already created)
-        ApplyStageModifier();
-
-        // Screen fade in
-        if (screenFade == null) screenFade = FindObjectOfType<ScreenFade>();
-        if (screenFade != null) screenFade.FadeIn(0.3f, null);
-
-        // Start BGM
-        AudioManager.Instance?.PlayBattleBgm();
-
-        var stageData = GetCurrentStageData();
-        string startMsg = stageData != null && !string.IsNullOrEmpty(stageData.encounterDescription)
-            ? $"Battle Start!\n{stageData.encounterDescription}"
-            : "Battle Start!";
-        if (!string.IsNullOrEmpty(stageModifierActivationMessage))
-            startMsg += $"\n\nWARN: {stageModifierActivationMessage}";
-
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, startMsg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-
-        battleUI?.ShowTurnBanner("BATTLE START", new Color(0.92f, 0.78f, 0.38f), 1.0f);
-        StartPlayerTurn();
+        if (stageEncounters == null || stageEncounters.Count == 0) stageEncounters = StageData.GetEncountersForStage(0);
+        currentStageIndex = Mathf.Clamp(currentStageIndex, 0, stageEncounters.Count - 1);
+        StageData stage = stageEncounters[currentStageIndex];
+        playerParty = new List<CharacterData> {
+            MakePlayer("Paladin", CfgPlayerHp, CfgPlayerAttack, BattleVisualId.HeroPaladin), MakePlayer("Cleric", CfgPlayerHp + 20, Mathf.Max(1, CfgPlayerAttack - 4), BattleVisualId.GuardianCleric), MakePlayer("Ranger", Mathf.Max(1, CfgPlayerHp - 15), CfgPlayerAttack + 3, BattleVisualId.ScoutRanger) };
+        enemyParty = new List<CharacterData>(); enemyPatterns.Clear();
+        foreach (EnemyData definition in stage.enemies.Take(3)) { enemyParty.Add(new CharacterData(definition.enemyName, definition.maxHp, definition.pattern.normalAttackDamage, definition.weakness, 0, definition.visualId)); enemyPatterns.Add(definition.pattern); }
+        guarding.Clear(); earthShield.Clear(); actedPlayerIndices.Clear(); SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty);
+        enemyTurnCount = totalDamageDealt = totalDamageTaken = guardUseCount = skillsUsedCount = 0; rewardClaimed = false; resultSummary = "";
+        slash = new SkillData("Slash", balanceConfig != null ? balanceConfig.basicSkillPower : 20, balanceConfig != null ? balanceConfig.basicSkillApCost : 0, ElementType.Physical, StatusEffectType.None);
+        fire = new SkillData("Fire Bolt", balanceConfig != null ? balanceConfig.fireSkillPower : 30, balanceConfig != null ? balanceConfig.fireSkillApCost : 2, ElementType.Fire, StatusEffectType.Burn);
+        ice = new SkillData("Ice Lance", balanceConfig != null ? balanceConfig.iceSkillPower : 25, balanceConfig != null ? balanceConfig.iceSkillApCost : 1, ElementType.Ice, StatusEffectType.Stun);
+        lightning = new SkillData("Lightning Strike", balanceConfig != null ? balanceConfig.lightningSkillPower : 40, balanceConfig != null ? balanceConfig.lightningSkillApCost : 3, ElementType.Lightning, StatusEffectType.None);
+        earth = new SkillData("Earth Wall", balanceConfig != null ? balanceConfig.earthSkillPower : 22, balanceConfig != null ? balanceConfig.earthSkillApCost : 2, ElementType.Earth, StatusEffectType.None);
+        currentState = BattleState.PlayerTurn; message = "Player phase: select a living party unit and target.";
+        if (battleUI != null) { battleUI.BindBattleManager(this); battleUI.StartNewBattle(); } RefreshUI();
     }
+    private CharacterData MakePlayer(string name, int hp, int attack, BattleVisualId visualId) { return new CharacterData(name, hp, attack, ElementType.None, CfgPlayerAp, visualId); }
 
-    private void StartPlayerTurn()
+    public bool SelectPlayerUnit(int index)
     {
-        currentState = BattleState.PlayerTurn;
-        if (player != null) player.RecoverAp(CfgPlayerApRecovery);
-        battleUI?.HideCharacterCommandMenu();
-        battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-            $"Player Turn: recovered {CfgPlayerApRecovery} AP. Click Hero to choose an action.",
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-        battleUI?.ShowTurnBanner("PLAYER TURN", new Color(0.30f, 0.70f, 1.0f), 0.9f);
-        if (autoBattleEnabled) ExecuteAutoAction();
+        if (currentState != BattleState.PlayerTurn || index < 0 || index >= playerParty.Count || playerParty[index].IsDead() || actedPlayerIndices.Contains(index)) return false;
+        SelectedPlayerIndex = index; message = $"Selected {playerParty[index].characterName}."; RefreshUI(); return true;
     }
-
-    private void LoadProgressFromState()
+    public bool SelectEnemyTarget(int index)
     {
-        playerLevel = Mathf.Max(1, ProgressState.PlayerLevel);
-        playerXp = Mathf.Max(0, ProgressState.PlayerXp);
-        totalGoldEarned = Mathf.Max(0, ProgressState.TotalGold);
-        loadedProgressState = true;
+        if (currentState != BattleState.PlayerTurn || index < 0 || index >= enemyParty.Count || enemyParty[index].IsDead()) return false;
+        SelectedEnemyIndex = index; message = $"Target: {enemyParty[index].characterName}"; RefreshUI(); return true;
     }
-
-    private void SyncProgressToState()
-    {
-        ProgressState.PlayerLevel = Mathf.Max(1, playerLevel);
-        ProgressState.PlayerXp = Mathf.Max(0, playerXp);
-        ProgressState.TotalGold = Mathf.Max(0, totalGoldEarned);
-    }
-
-    // --- Player actions (public for button binding & testing) ---
-
-
-    public void OnClickPlayerUnit()
-    {
-        if (currentState != BattleState.PlayerTurn || player == null) return;
-        AudioManager.Instance?.PlayButtonClick();
-        battleUI?.ShowCharacterCommandMenu(player.characterName);
-        battleUI?.MarkCaptureRehearsalHeroSelected();
-        battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
-        battleUI?.UpdateCommandPreview(BuildTacticalCommandPreview(), new Color(0.92f, 0.86f, 0.55f));
-    }
-
-    public void OnClickAttackButton()
-    {
-        UpdateCommandPreviewForSkill(basicAttackSkill);
-        AudioManager.Instance?.PlayButtonClick();
-        UsePlayerSkill(basicAttackSkill);
-    }
-    public void OnClickFireSkillButton()
-    {
-        UpdateCommandPreviewForSkill(fireSkill);
-        AudioManager.Instance?.PlayButtonClick();
-        UsePlayerSkill(fireSkill);
-    }
-    public void OnClickIceSkillButton()
-    {
-        UpdateCommandPreviewForSkill(iceSkill);
-        AudioManager.Instance?.PlayButtonClick();
-        UsePlayerSkill(iceSkill);
-    }
-    public void OnClickLightningSkillButton()
-    {
-        UpdateCommandPreviewForSkill(lightningSkill);
-        AudioManager.Instance?.PlayButtonClick();
-        UsePlayerSkill(lightningSkill);
-    }
-    public void OnClickEarthSkillButton()
-    {
-        UpdateCommandPreviewForSkill(earthSkill);
-        AudioManager.Instance?.PlayButtonClick();
-        UsePlayerSkill(earthSkill);
-    }
-    public void OnClickEndTurnButton()
-    {
-        AudioManager.Instance?.PlayButtonClick();
-        EndPlayerTurn();
-    }
+    public void OnClickPlayerUnit() { SelectPlayerUnit(FirstAvailablePlayer()); }
+    public void OnClickAttackButton() { UseSkill(slash); }
+    public void OnClickFireSkillButton() { UseSkill(fire); }
+    public void OnClickIceSkillButton() { UseSkill(ice); }
+    public void OnClickLightningSkillButton() { UseSkill(lightning); }
+    public void OnClickEarthSkillButton() { UseSkill(earth); }
     public void OnClickGuardButton()
     {
-        UpdateCommandPreviewForGuard();
-        AudioManager.Instance?.PlayButtonClick();
-        GuardAndEndPlayerTurn();
+        if (!CanAct()) return;
+        CharacterData actor = playerParty[SelectedPlayerIndex]; guarding[actor] = true; guardUseCount++; FinishPlayerAction($"{actor.characterName} guards.");
+    }
+    public void OnClickEndTurnButton() { if (currentState == BattleState.PlayerTurn) EndPlayerPhase(); }
+    public void OnClickRetryButton() { StartBattle(); }
+    public void OnClickContinueButton() { if (currentState == BattleState.Victory && currentStageIndex + 1 < stageEncounters.Count) { currentStageIndex++; StartBattle(); } }
+    public void OnClickAutoBattleToggle() { if (SelectPlayerUnit(FirstAvailablePlayer())) UseSkill(slash); }
+    public void OnClickSpeedToggle() { }
+    public void OnClickItemButton() { }
+    public void OnClickPauseButton() { }
+    public void OnResumeGame() { }
+    public void OnClickStageSelectButton() { }
+
+    private bool CanAct() => currentState == BattleState.PlayerTurn && SelectedPlayerIndex >= 0 && SelectedEnemyIndex >= 0 && SelectedPlayerIndex < playerParty.Count && SelectedEnemyIndex < enemyParty.Count && !playerParty[SelectedPlayerIndex].IsDead() && !enemyParty[SelectedEnemyIndex].IsDead() && !actedPlayerIndices.Contains(SelectedPlayerIndex);
+    private void UseSkill(SkillData skill)
+    {
+        if (!CanAct()) return; CharacterData actor = playerParty[SelectedPlayerIndex]; CharacterData target = enemyParty[SelectedEnemyIndex];
+        if (!actor.SpendAp(skill.apCost)) { message = $"{actor.characterName} lacks AP."; RefreshUI(); return; }
+        if (skill == earth) { earthShield[actor] = CfgShield; FinishPlayerAction($"{actor.characterName} raises an Earth Wall."); return; }
+        int damage = skill.power;
+        if (skill.elementType == target.weaknessElement) { damage = Mathf.RoundToInt(damage * (balanceConfig != null ? balanceConfig.weaknessDamageMultiplier : 1.5f)); target.ReduceBreakGauge(1); }
+        if (target.isBroken) { damage *= 2; target.ResetBreakGauge(); }
+        target.TakeDamage(damage); totalDamageDealt += damage; if (skill.statusEffectType == StatusEffectType.Burn) target.ApplyStatusEffect(StatusEffectType.Burn, CfgBurnTurns); if (skill.statusEffectType == StatusEffectType.Stun) target.ApplyStatusEffect(StatusEffectType.Stun, CfgStunTurns); if (skill != slash) skillsUsedCount++;
+        FinishPlayerAction($"{actor.characterName} used {skill.skillName} on {target.characterName} for {damage}.");
+    }
+    private void FinishPlayerAction(string text)
+    {
+        actedPlayerIndices.Add(SelectedPlayerIndex); message = text; if (AllDead(enemyParty)) { EndBattle(BattleState.Victory); return; }
+        SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty); if (FirstAvailablePlayer() < 0) EndPlayerPhase(); else RefreshUI();
+    }
+    private void EndPlayerPhase() { if (currentState != BattleState.PlayerTurn) return; currentState = BattleState.EnemyTurn; ResolveEnemyTurn(); }
+    private void ResolveEnemyTurn()
+    {
+        if (AllDead(playerParty)) { EndBattle(BattleState.Defeat); return; }
+        enemyTurnCount++;
+        foreach (CharacterData enemy in enemyParty)
+        {
+            if (enemy.IsDead()) continue;
+            if (enemy.HasStatusEffect(StatusEffectType.Burn)) { enemy.TakeDamage(CfgBurn); enemy.ReduceStatusTurn(); if (enemy.IsDead()) continue; }
+            if (enemy.HasStatusEffect(StatusEffectType.Stun)) { enemy.ReduceStatusTurn(); continue; }
+            int targetIndex = FirstLiving(playerParty); if (targetIndex < 0) break; CharacterData target = playerParty[targetIndex]; int damage = enemy.attackPower;
+            if (earthShield.TryGetValue(target, out int shield) && shield > 0) { int absorbed = Mathf.Min(shield, damage); damage -= absorbed; earthShield[target] = shield - absorbed; }
+            if (guarding.TryGetValue(target, out bool isGuarding) && isGuarding) { damage = Mathf.FloorToInt(damage * (100 - CfgGuard) / 100f); guarding[target] = false; }
+            target.TakeDamage(damage); totalDamageTaken += damage; message = $"{enemy.characterName} attacks {target.characterName} for {damage}.";
+            if (AllDead(playerParty)) { EndBattle(BattleState.Defeat); return; }
+        }
+        if (AllDead(enemyParty)) { EndBattle(BattleState.Victory); return; }
+        currentState = BattleState.PlayerTurn; actedPlayerIndices.Clear(); foreach (CharacterData unit in playerParty) if (!unit.IsDead()) unit.RecoverAp(CfgRecover); SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty); message = "Player phase: select a living party unit and target."; RefreshUI();
+    }
+    public void DebugResolveEnemyAttackForTest() { currentState = BattleState.EnemyTurn; ResolveEnemyTurn(); }
+    private static bool AllDead(List<CharacterData> party) => party.Count > 0 && party.All(c => c.IsDead());
+    private static int FirstLiving(List<CharacterData> party) => party.FindIndex(c => !c.IsDead());
+    private int FirstAvailablePlayer()
+    {
+        for (int i = 0; i < playerParty.Count; i++)
+            if (!playerParty[i].IsDead() && !actedPlayerIndices.Contains(i)) return i;
+        return -1;
     }
 
-    public void OnClickRetryButton()
+    private void EndBattle(BattleState result)
     {
-        if (currentState != BattleState.Victory && currentState != BattleState.Defeat) return;
-        AudioManager.Instance?.PlayButtonClick();
-        StopAllCoroutines();
-        StartBattle();
-        battleUI?.MarkCaptureRehearsalRetryDone();
-    }
-
-    public void OnClickAutoBattleToggle()
-    {
-        AudioManager.Instance?.PlayButtonClick();
-        autoBattleEnabled = !autoBattleEnabled;
-        battleUI?.SetAutoBattleIndicator(autoBattleEnabled);
-        if (autoBattleEnabled && currentState == BattleState.PlayerTurn)
-            ExecuteAutoAction();
-    }
-
-    private void ExecuteAutoAction()
-    {
-        if (currentState != BattleState.PlayerTurn || player == null || enemy == null) return;
-        if (enemy.IsDead()) { EndBattle(BattleState.Victory); return; }
-
-        // AI decision tree (ordered by priority):
-        // 1. Guard if incoming strong attack
-        bool strongAttackIncoming = enemyPattern.IsStrongAttackTurn(enemyTurnCount + 1);
-        if (strongAttackIncoming && playerIsGuarding == false)
-        {
-            GuardAndEndPlayerTurn();
-            return;
-        }
-
-        // 2. Use Potion if HP is critical (< 30%)
-        var potion = playerItems?.Find(i => i.itemName == "Potion" && i.quantity > 0);
-        if (potion != null && player != null && player.currentHp < player.maxHp * 0.3f)
-        {
-            UseItem(potion);
-            return;
-        }
-
-        // 3. Use Ether if no AP for any elemental skill
-        var ether = playerItems?.Find(i => i.itemName == "Ether" && i.quantity > 0);
-        if (ether != null && player != null && player.currentAp < 1 && !player.HasEnoughAp(fireSkill.apCost))
-        {
-            UseItem(ether);
-            return;
-        }
-
-        // 4. Use weakness skill if enemy has break gauge remaining
-        SkillData weaknessSkill = GetWeaknessSkill();
-        if (weaknessSkill != null && IsSkillAvailable(weaknessSkill) && !enemy.isBroken && player.HasEnoughAp(weaknessSkill.apCost))
-        {
-            UsePlayerSkill(weaknessSkill);
-            return;
-        }
-
-        // 3. Use Lightning Strike if enough AP
-        if (IsSkillAvailable(lightningSkill) && player.HasEnoughAp(lightningSkill.apCost))
-        {
-            UsePlayerSkill(lightningSkill);
-            return;
-        }
-
-        // 4. Use Ice Lance if enough AP
-        if (IsSkillAvailable(iceSkill) && player.HasEnoughAp(iceSkill.apCost))
-        {
-            UsePlayerSkill(iceSkill);
-            return;
-        }
-
-        // 5. Use Earth Wall if shield not active and HP is low (defensive)
-        if (IsSkillAvailable(earthSkill) && playerShieldAmount <= 0 && player != null && player.currentHp < player.maxHp * 0.6f && player.HasEnoughAp(earthSkill.apCost))
-        {
-            UsePlayerSkill(earthSkill);
-            return;
-        }
-
-        // 6. Use Fire Bolt if enough AP
-        if (IsSkillAvailable(fireSkill) && player.HasEnoughAp(fireSkill.apCost))
-        {
-            UsePlayerSkill(fireSkill);
-            return;
-        }
-
-        // 7. Default: basic attack
-        OnClickAttackButton();
-    }
-
-    private SkillData GetWeaknessSkill()
-    {
-        if (enemy == null) return null;
-        ElementType weak = enemy.weaknessElement;
-        if (weak == ElementType.None) return null;
-        if (iceSkill.elementType == weak) return iceSkill;
-        if (fireSkill.elementType == weak) return fireSkill;
-        if (lightningSkill.elementType == weak) return lightningSkill;
-        if (earthSkill.elementType == weak) return earthSkill;
-        return null;
-    }
-
-    public void OnClickSpeedToggle()
-    {
-        AudioManager.Instance?.PlayButtonClick();
-        speedState = speedState >= 2 ? 1 : 2;
-        battleUI?.UpdateSpeedLabel(speedState);
-    }
-
-    private bool IsSkillAvailable(SkillData skill)
-    {
-        return skill != null && ProgressState.IsSkillUnlocked(skill.skillName);
-    }
-
-    public void OnClickItemButton()
-    {
-        if (currentState != BattleState.PlayerTurn || player == null) return;
-        AudioManager.Instance?.PlayButtonClick();
-        if (playerItems == null || playerItems.Count == 0 || playerItems.TrueForAll(i => i.quantity <= 0))
-        {
-            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-                "No items available.",
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-            return;
-        }
-        // Cycle to next available item
-        selectedItemIndex = (selectedItemIndex + 1) % playerItems.Count;
-        int attempts = 0;
-        while (playerItems[selectedItemIndex].quantity <= 0 && attempts < playerItems.Count)
-        {
-            selectedItemIndex = (selectedItemIndex + 1) % playerItems.Count;
-            attempts++;
-        }
-        if (playerItems[selectedItemIndex].quantity <= 0)
-        {
-            selectedItemIndex = -1;
-            return;
-        }
-        UseItem(playerItems[selectedItemIndex]);
-    }
-
-    public void OnClickPauseButton()
-    {
-        if (currentState == BattleState.Victory || currentState == BattleState.Defeat) return;
-        AudioManager.Instance?.PlayButtonClick();
-        battleUI?.SetPauseVisible(true);
-        battleUI?.SetActionButtonsInteractable(false);
-    }
-
-    public void OnResumeGame()
-    {
-        AudioManager.Instance?.PlayButtonClick();
-        battleUI?.SetPauseVisible(false);
-        if (currentState == BattleState.PlayerTurn && battleUI != null && battleUI.DebugPlayerUnitSelected)
-            battleUI.SetActionButtonsInteractable(true);
-    }
-
-    public void OnClickContinueButton()
-    {
-        if (currentState != BattleState.Victory || !HasNextStage()) return;
-        AudioManager.Instance?.PlayButtonClick();
-        StopAllCoroutines();
-        if (screenFade == null) screenFade = FindObjectOfType<ScreenFade>();
-        if (screenFade != null)
-            screenFade.FadeOut(0.3f, () => { currentStageIndex++; StartBattle(); });
-        else
-        {
-            currentStageIndex++;
-            StartBattle();
-        }
-    }
-
-    public void OnClickStageSelectButton()
-    {
-        AudioManager.Instance?.PlayBack();
-        StopAllCoroutines();
-        battleUI?.SetPauseVisible(false);
-        UnityEngine.SceneManagement.SceneManager.LoadScene("StageSelectScene");
-    }
-
-    // ── Command Preview ──
-
-    /// <summary>Builds the selected unit's default tactical readout before the player commits an action.</summary>
-    private string BuildTacticalCommandPreview()
-    {
-        string recommendation = BuildRecommendedCommandLabel();
-        string threat = BuildIncomingThreatLabel();
-        string apLabel = player != null ? $"AP {player.currentAp}/{player.maxAp}" : "AP --";
-        string breakLabel = enemy != null ? $"Break {enemy.currentBreakGauge}/{enemy.maxBreakGauge}" : "Break --";
-        return $"<b>COMMAND WINDOW</b> | {apLabel} | {breakLabel}\nRecommended: {recommendation}\nEnemy next: {threat}";
-    }
-
-    private string BuildRecommendedCommandLabel()
-    {
-        if (enemy == null || player == null)
-            return "Read intent, then choose a safe action";
-
-        bool strongAttackIncoming = enemyPattern != null && enemyPattern.IsStrongAttackTurn(enemyTurnCount + 1);
-        if (strongAttackIncoming)
-            return $"Guard first — {enemyPattern.strongAttackName} is incoming";
-
-        SkillData weaknessSkill = GetWeaknessSkill();
-        if (weaknessSkill != null && IsSkillAvailable(weaknessSkill) && player.HasEnoughAp(weaknessSkill.apCost) && !enemy.isBroken)
-            return $"{weaknessSkill.skillName} to pressure weakness and Break";
-
-        if (IsSkillAvailable(lightningSkill) && player.HasEnoughAp(lightningSkill.apCost))
-            return $"{lightningSkill.skillName} for burst damage";
-
-        return "Basic attack or Guard to manage AP and tempo";
-    }
-
-    private string BuildIncomingThreatLabel()
-    {
-        if (enemyPattern == null)
-            return "Unknown";
-
-        int nextTurn = enemyTurnCount + 1;
-        bool isStrongTurn = enemyPattern.IsStrongAttackTurn(nextTurn);
-        string incomingName = isStrongTurn ? enemyPattern.strongAttackName : "Normal Attack";
-        int incomingDamage = CalculateIncomingDamageForTurn(nextTurn);
-        int reducedDamage = CalculateGuardedDamage(incomingDamage);
-        string enragePrefix = isEnraged ? "ENRAGED " : "";
-        return $"{enragePrefix}{incomingName} {incomingDamage} dmg -> Guard {reducedDamage}";
-    }
-
-    private int CalculateIncomingDamageForTurn(int turnNumber)
-    {
-        if (enemyPattern == null)
-            return 0;
-        int baseDamage = enemyPattern.GetDamageForTurn(turnNumber);
-        int damage = Mathf.RoundToInt(baseDamage * ProgressState.DifficultyDamageMultiplier);
-        if (isEnraged)
-            damage = Mathf.RoundToInt(damage * 1.5f);
-        return damage;
-    }
-
-    private int CalculateGuardedDamage(int incomingDamage)
-    {
-        return Mathf.Max(1, incomingDamage * (100 - CfgGuardReductionPercent) / 100);
-    }
-
-    /// <summary>Shows a detailed command preview for a skill in the preview panel.</summary>
-    private void UpdateCommandPreviewForSkill(SkillData skill)
-    {
-        if (skill == null || battleUI == null) return;
-
-        bool isUnlocked = ProgressState.IsSkillUnlocked(skill.skillName);
-        bool canAfford = player != null && player.HasEnoughAp(skill.apCost);
-        bool isWeakness = enemy != null && enemy.weaknessElement == skill.elementType && skill.elementType != ElementType.Physical && skill.elementType != ElementType.None;
-        int estimatedDamage = isWeakness ? Mathf.RoundToInt(skill.power * 1.5f) : skill.power;
-
-        string preview = $"<b>{skill.skillName}</b>\n";
-        preview += $"AP Cost: {skill.apCost}  |  Power: {skill.power}";
-        if (isWeakness)
-            preview += $"  |  WEAKNESS (~{estimatedDamage})";
-        else
-            preview += $"  |  ~{estimatedDamage} dmg";
-
-        if (skill.HasStatusEffect())
-            preview += $"\nEffect: {skill.statusEffectType}";
-
-        if (!isUnlocked)
-            preview += "\n<color=#ff6666>LOCKED</color>";
-        else if (!canAfford)
-            preview += "\n<color=#ff8844>WARN: Not enough AP</color>";
-
-        Color previewColor = isWeakness ? new Color(1f, 0.85f, 0.3f) :
-                             !canAfford ? new Color(1f, 0.53f, 0.27f) :
-                             new Color(0.92f, 0.88f, 0.82f);
-        battleUI.UpdateCommandPreview(preview, previewColor);
-    }
-
-    /// <summary>Shows a guard preview in the command preview panel.</summary>
-    private void UpdateCommandPreviewForGuard()
-    {
-        if (battleUI == null || enemyPattern == null) return;
-        int nextTurn = enemyTurnCount + 1;
-        bool isStrongTurn = enemyPattern.IsStrongAttackTurn(nextTurn);
-        string incomingName = isStrongTurn ? enemyPattern.strongAttackName : "Normal Attack";
-        int incomingDmg = CalculateIncomingDamageForTurn(nextTurn);
-        int reducedDmg = CalculateGuardedDamage(incomingDmg);
-
-        string preview = "<b>GUARD</b>\n";
-        preview += $"Next attack: {(isEnraged ? "ENRAGED " : "")}{incomingName} {incomingDmg} dmg → Reduced to {reducedDmg} dmg\n";
-        preview += $"({CfgGuardReductionPercent}% reduction)";
-        if (isStrongTurn)
-            preview += "\n<color=#ff8844>WARN: Strong attack incoming!</color>";
-
-        battleUI.UpdateCommandPreview(preview, new Color(0.3f, 0.7f, 1f));
-    }
-
-    private void EndPlayerTurn()
-    {
-        if (currentState != BattleState.PlayerTurn) return;
-        battleUI?.HideCharacterCommandMenu();
-        battleUI?.SetActionButtonsInteractable(false);
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-            $"{player?.characterName} skipped the turn. You can recover more AP next turn.",
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-        if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
-    }
-
-    private void UseItem(ItemData item)
-    {
-        if (currentState != BattleState.PlayerTurn || player == null || item == null) return;
-        item.quantity--;
-        usedItems = true;
-        AudioManager.Instance?.PlayItemSfx();
-
-        string msg;
-        switch (item.effectType)
-        {
-            case ItemEffectType.HealHp:
-                int heal = Mathf.Min(item.effectValue, player.maxHp - player.currentHp);
-                player.currentHp += heal;
-                msg = $"{player.characterName} uses {item.itemName}! Restores {heal} HP.";
-                // Heal popup on player
-                battleUI?.ShowHealNumber(heal);
-                AudioManager.Instance?.PlayHealSfx();
-                break;
-            case ItemEffectType.RestoreAp:
-                int apGain = Mathf.Min(item.effectValue, player.maxAp - player.currentAp);
-                player.currentAp += apGain;
-                msg = $"{player.characterName} uses {item.itemName}! Restores {apGain} AP.";
-                // AP restore buff popup on player
-                if (battleUI != null)
-                    battleUI.ShowBuffOnPlayer($"+{apGain} AP", new Color(0.3f, 0.6f, 1f));
-                break;
-            default:
-                msg = $"{player.characterName} uses {item.itemName}.";
-                break;
-        }
-
-        battleUI?.HideCharacterCommandMenu();
-        battleUI?.SetActionButtonsInteractable(false);
-        battleUI?.SetImpactText($"Impact: Used {item.itemName}");
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-
-        if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
-    }
-
-    private void GuardAndEndPlayerTurn()
-    {
-        if (currentState != BattleState.PlayerTurn) return;
-        playerIsGuarding = true;
-        guardUseCount++;
-        battleUI?.HideCharacterCommandMenu();
-        battleUI?.MarkCaptureRehearsalGuardUsed();
-        battleUI?.SetActionButtonsInteractable(false);
-        // Guard visual feedback: screen flash + guard icon flash
-        battleUI?.ScreenFlash(0.08f);
-        battleUI?.FlashPlayerDamage(); // reuse flash routine to give a blue/white shimmer
-        string guardMsg = $"{player?.characterName} guards. Next enemy attack damage is reduced.";
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, guardMsg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-        if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
-    }
-
-    private void UsePlayerSkill(SkillData skill)
-    {
-        if (currentState != BattleState.PlayerTurn || player == null || enemy == null || skill == null) return;
-        if (!IsSkillAvailable(skill))
-        {
-            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-                $"{skill.skillName} is locked. Clear earlier stages to unlock it.",
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-            battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
-            return;
-        }
-        if (!player.SpendAp(skill.apCost))
-        {
-            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-                $"Not enough AP. {skill.skillName} needs {skill.apCost} AP.",
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-            battleUI?.UpdateActionButtons(player, basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, currentState);
-            return;
-        }
-
-        battleUI?.HideCharacterCommandMenu();
-        if (skill == fireSkill) battleUI?.MarkCaptureRehearsalFireUsed();
-        battleUI?.SetActionButtonsInteractable(false);
-        skillsUsedCount++;
-        if (skill != null) skillsUsedNames.Add(skill.skillName);
-        int damage = CalculateSkillDamage(enemy, skill);
-        bool wasBroken = enemy != null && enemy.isBroken;
-        if (wasBroken)
-        {
-            damage = Mathf.RoundToInt(damage * 1.5f);
-        }
-        int before = enemy.currentHp;
-        enemy.TakeDamage(damage);
-        TrackDamageDealt(before);
-
-        if (skill.statusEffectType == StatusEffectType.Burn)
-        {
-            enemy.ApplyStatusEffect(StatusEffectType.Burn, CfgBurnTurnDuration);
-            AudioManager.Instance?.PlayBurnSfx();
-        }
-        else if (skill.statusEffectType == StatusEffectType.Stun)
-        {
-            enemy.ApplyStatusEffect(StatusEffectType.Stun, CfgStunTurnDuration);
-            AudioManager.Instance?.PlayStunSfx();
-        }
-
-        // Break gauge: reduce on weakness hit
-        if (!wasBroken && skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
-        {
-            enemy.ReduceBreakGauge(1);
-        }
-
-        // Reset Break after consuming it with an attack
-        if (wasBroken)
-        {
-            enemy.ResetBreakGauge();
-        }
-
-        // Earth Wall: apply Shield to player
-        if (skill == earthSkill)
-        {
-            playerShieldAmount = CfgEarthSkillShieldAmount;
-            AudioManager.Instance?.PlayShieldSfx();
-            // Show shield buff popup on player
-            if (battleUI != null)
-                battleUI.ShowBuffOnPlayer($"Shield +{CfgEarthSkillShieldAmount}", new Color(0.3f, 0.7f, 1f));
-        }
-
-        // Check enrage: enemy enrages when HP drops below 30%
-        if (!isEnraged && enemy != null && !enemy.IsDead() && enemy.currentHp < enemy.maxHp * 0.3f)
-        {
-            isEnraged = true;
-            string enrageMsg = $"{enemy.characterName} is ENRAGED! Its attacks intensify!";
-            // Add to battle log via the message
-            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, enrageMsg,
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-        }
-
-        string msg = BuildSkillMessage(skill, damage);
-        // Append shield info for Earth Wall
-        if (skill == earthSkill)
-        {
-            msg += $" Shield active! ({CfgEarthSkillShieldAmount} damage absorbed next hit).";
-        }
-
-        // Set impact text based on skill - pass wasBroken for correct text before reset
-        string impact = BuildImpactText(skill, damage, wasBroken);
-        // Append shield info for Earth Wall
-        if (skill == earthSkill)
-        {
-            impact += $" | Shield {CfgEarthSkillShieldAmount} applied";
-        }
-        battleUI?.SetImpactText(impact);
-        battleUI?.SetPlayerShieldText(playerShieldAmount);
-        battleUI?.FlashEnemyDamage();
-
-        // VFX: damage popup
-        bool isWeaknessHit = skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement;
-        battleUI?.ShowDamageNumber(damage, isWeaknessHit);
-
-        // VFX: screen shake on skill use (stronger for lightning/high-damage)
-        var shake = GetOrCacheShake();
-        if (shake != null)
-        {
-            float shMag = skill == lightningSkill ? 0.12f : 0.06f;
-            shake.Shake(0.12f, shMag);
-        }
-
-        // VFX: screen flash on break or weakness hit
-        if (wasBroken || isWeaknessHit)
-        {
-            battleUI?.ScreenFlash(0.12f);
-        }
-        if (wasBroken)
-        {
-            battleUI?.ShowBreakPopup();
-            AudioManager.Instance?.PlayBreakSfx();
-        }
-
-        // Skill projectile
+        currentState = result; message = result == BattleState.Victory ? "Victory: all enemies defeated." : "Defeat: all party members defeated.";
+        if (result == BattleState.Victory && !rewardClaimed) { totalGoldEarned += 150; rewardClaimed = true; }
         if (battleUI != null)
         {
-            Vector3 start = battleUI.GetPlayerSpriteWorldPosition();
-            Vector3 end = battleUI.GetEnemySpriteWorldPosition();
-            SkillProjectile.Spawn(skill.elementType, start, end, battleUI.GetProjectileParent());
+            CharacterData hero = playerParty.Count > 0 ? playerParty[0] : new CharacterData("Paladin", 1, 0);
+            CharacterData firstEnemy = enemyParty.Count > 0 ? enemyParty[0] : new CharacterData("Enemy", 1, 0);
+            resultSummary = new BattleResultData { resultLabel = result == BattleState.Victory ? "Victory" : "Defeat", enemyTurns = enemyTurnCount, playerName = hero.characterName, playerCurrentHp = hero.currentHp, playerMaxHp = hero.maxHp, playerCurrentAp = hero.currentAp, playerMaxAp = hero.maxAp, enemyName = firstEnemy.characterName, enemyCurrentHp = firstEnemy.currentHp, enemyMaxHp = firstEnemy.maxHp, damageDealt = totalDamageDealt, damageTaken = totalDamageTaken, guardUses = guardUseCount, skillsUsed = skillsUsedCount, paceLabel = "Party", survivalLabel = $"{playerParty.Count(c => !c.IsDead())}/{playerParty.Count}", rank = result == BattleState.Victory ? "S" : "C", rewardGold = result == BattleState.Victory ? 150 : 0, totalGold = totalGoldEarned, resultTip = result == BattleState.Victory ? "All enemies defeated." : "Keep the party alive.", lastEnemyPattern = "Party turn" }.BuildSummaryText();
+            battleUI.SetResultSummaryVisible(true, resultSummary); battleUI.SetRetryButtonVisible(true); battleUI.SetContinueButtonVisible(result == BattleState.Victory && currentStageIndex + 1 < stageEncounters.Count); battleUI.SetStageSelectButtonVisible(true);
         }
-        // Play sound effects
-        if (skill == basicAttackSkill)
-            AudioManager.Instance?.PlayAttackSfx();
-        else
-            AudioManager.Instance?.PlaySkillSfx();
-
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-
-        if (enemy.IsDead()) { EndBattle(BattleState.Victory); return; }
-        if (Application.isPlaying) StartCoroutine(EnemyTurnRoutine());
+        RefreshUI();
     }
-
-    private WaitForSeconds WaitForBattleTick(float seconds = 1.0f)
+    private void RefreshUI()
     {
-        return new WaitForSeconds(seconds / Mathf.Max(0.1f, CfgBattleSpeed * speedState));
-    }
-
-    private IEnumerator EnemyTurnRoutine()
-    {
-        currentState = BattleState.EnemyTurn;
-        battleUI?.ShowTurnBanner("ENEMY TURN", new Color(1.0f, 0.50f, 0.20f), 0.7f);
-        yield return WaitForBattleTick();
-
-        // Check Stun first - if stunned, enemy skips this turn
-        if (enemy != null && enemy.HasStatusEffect(StatusEffectType.Stun))
-        {
-            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-                $"{enemy.characterName} is STUNNED! Skips this turn.",
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-            enemy.ReduceStatusTurn();
-            yield return WaitForBattleTick();
-            StartPlayerTurn();
-            yield break;
-        }
-
-        if (enemy != null && enemy.HasStatusEffect(StatusEffectType.Burn))
-        {
-            int before = enemy.currentHp;
-            enemy.TakeDamage(CfgBurnDamagePerTurn);
-            TrackDamageDealt(before);
-            enemy.ReduceStatusTurn();
-            battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding,
-                $"{enemy.characterName} takes {CfgBurnDamagePerTurn} burn damage.",
-                basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-            // VFX: burn damage popup
-            battleUI?.ShowDamageNumber(CfgBurnDamagePerTurn);
-            if (enemy.IsDead()) { yield return WaitForBattleTick(); EndBattle(BattleState.Victory); yield break; }
-            yield return WaitForBattleTick();
-        }
-        yield return WaitForBattleTick();
-
-        ResolveEnemyAttack();
-        if (player != null && player.IsDead()) { EndBattle(BattleState.Defeat); yield break; }
-        yield return WaitForBattleTick();
-        StartPlayerTurn();
-    }
-
-    private void ResolveEnemyAttack()
-    {
-        EnsureEnemyPattern();
-        enemyTurnCount++;
-        int baseDamage = enemyPattern.GetDamageForTurn(enemyTurnCount);
-        int damage = Mathf.RoundToInt(baseDamage * ProgressState.DifficultyDamageMultiplier);
-        if (isEnraged) damage = Mathf.RoundToInt(damage * 1.5f);
-        bool isStrong = enemyPattern.IsStrongAttackTurn(enemyTurnCount);
-
-        bool wasGuarding = playerIsGuarding;
-        if (wasGuarding)
-        {
-            damage = Mathf.Max(1, damage * (100 - CfgGuardReductionPercent) / 100);
-            playerIsGuarding = false;
-            if (isStrong) guardedStrongAttack = true;
-        }
-
-        // Shield absorbs damage before it reaches the player
-        bool shieldAbsorbed = playerShieldAmount > 0;
-        if (shieldAbsorbed)
-        {
-            int absorbed = Mathf.Min(playerShieldAmount, damage);
-            damage = Mathf.Max(0, damage - absorbed);
-            playerShieldAmount = 0;
-        }
-
-        int before = player != null ? player.currentHp : 0;
-        player?.TakeDamage(damage);
-        TrackDamageTaken(before);
-
-        string msg;
-        if (isStrong)
-            msg = $"{(isEnraged ? "ENRAGED! " : "")}{enemy?.characterName} uses {enemyPattern.strongAttackName} on turn {enemyTurnCount}! {player?.characterName}{(wasGuarding ? " guards and" : "")}{(shieldAbsorbed ? " shield absorbs some damage and" : "")} takes {damage} damage.";
-        else
-            msg = $"{(isEnraged ? "ENRAGED! " : "")}{enemy?.characterName} {enemyPattern.normalAttackMessageVerb}! {player?.characterName}{(wasGuarding ? " guards and" : "")}{(shieldAbsorbed ? " shield absorbs some damage and" : "")} takes {damage} damage.";
-
-        string impactText = wasGuarding
-            ? $"Impact: Guard reduced incoming damage to {damage}"
-            : shieldAbsorbed
-                ? $"Impact: Shield absorbed damage, reduced to {damage}"
-                : $"Impact: {enemy?.characterName} dealt {damage} damage{(isEnraged ? " (ENRAGED!)" : "")}";
-        battleUI?.SetImpactText(impactText);
-        battleUI?.SetPlayerShieldText(playerShieldAmount);
-        battleUI?.FlashPlayerDamage();
-        AudioManager.Instance?.PlayDamageSfx();
-        if (wasGuarding) AudioManager.Instance?.PlayGuardSfx();
-
-        // Screen flash on all enemy attacks
-        battleUI?.ScreenFlash(wasGuarding ? 0.06f : isStrong ? 0.15f : 0.10f);
-
-        if (isStrong)
-        {
-            var shake = GetOrCacheShake();
-            if (shake != null) shake.Shake();
-        }
-        // Damage popup on player (not enemy)
-        battleUI?.ShowDamageNumberOnPlayer(damage);
-
-        // Guard visual feedback in impact text
-        if (wasGuarding)
-        {
-            battleUI?.ShowBuffOnPlayer("GUARDED", new Color(0.3f, 0.7f, 1f));
-        }
-
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-
-        // Storm Surge: periodic hazard damage every 3 enemy turns
-        if (enemyTurnCount > 0 && enemyTurnCount % 3 == 0 && player != null)
-        {
-            var currentStageData = GetCurrentStageData();
-            if (currentStageData != null && currentStageData.stageModifier == StageModifierType.StormSurge)
-            {
-                int surgeDamage = 8;
-                int beforeSurge = player.currentHp;
-                player.TakeDamage(surgeDamage);
-                totalDamageTaken += Mathf.Min(surgeDamage, beforeSurge > 0 ? beforeSurge : surgeDamage);
-
-                string surgeMsg = $"Storm Surge strikes! Player takes {surgeDamage} lightning damage.";
-                battleUI?.SetImpactText($"Impact: Storm Surge dealt {surgeDamage} hazard damage");
-                battleUI?.ScreenFlash(0.12f);
-                battleUI?.ShowDamageNumberOnPlayer(surgeDamage);
-
-                battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                    currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                    CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, surgeMsg,
-                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-
-                if (player.currentHp <= 0)
-                {
-                    EndBattle(BattleState.Defeat);
-                    return;
-                }
-            }
-        }
-
-        // Void Drain: drain AP every 2 enemy turns
-        if (enemyTurnCount > 0 && enemyTurnCount % 2 == 0 && player != null)
-        {
-            var currentStageData = GetCurrentStageData();
-            if (currentStageData != null && currentStageData.stageModifier == StageModifierType.VoidDrain)
-            {
-                string drainMsg;
-                string drainImpact;
-                if (player.currentAp >= 1)
-                {
-                    player.currentAp -= 1;
-                    drainMsg = $"Void Drain saps 1 AP from {playerName}.";
-                    drainImpact = "Impact: Void Drain reduced AP";
-                }
-                else
-                {
-                    int beforeDrain = player.currentHp;
-                    player.TakeDamage(5);
-                    totalDamageTaken += Mathf.Min(5, beforeDrain > 0 ? beforeDrain : 5);
-                    drainMsg = $"Void Drain lashes out! {playerName} takes 5 shadow damage.";
-                    drainImpact = "Impact: Void Drain dealt 5 hazard damage";
-                    battleUI?.ShowDamageNumberOnPlayer(5);
-                }
-
-                battleUI?.SetImpactText(drainImpact);
-                battleUI?.ScreenFlash(0.1f);
-                battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                    currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                    CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, drainMsg,
-                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-
-                if (player.currentHp <= 0)
-                {
-                    EndBattle(BattleState.Defeat);
-                    return;
-                }
-            }
-        }
-    }
-
-    private void EndBattle(BattleState resultState)
-    {
-        currentState = resultState;
-        battleUI?.SetActionButtonsInteractable(false);
-        battleUI?.SetRetryButtonVisible(true);
-        // Screen fade + brief delay for dramatic effect
-        if (screenFade == null) screenFade = FindObjectOfType<ScreenFade>();
-        if (screenFade != null)
-        {
-            screenFade.FadeOut(0.2f, () =>
-            {
-                ShowBattleResult(resultState);
-                if (screenFade != null) screenFade.FadeIn(0.15f, null);
-            });
-        }
-        else
-        {
-            ShowBattleResult(resultState);
-        }
-    }
-
-    private void ShowBattleResult(BattleState resultState)
-    {
-        // Audio feedback
-        if (resultState == BattleState.Victory)
-        {
-            AudioManager.Instance?.PlayVictoryBgm();
-            AudioManager.Instance?.PlayVictorySfx();
-            battleUI?.ShowTurnBanner("VICTORY!", new Color(1.0f, 0.85f, 0.30f), 1.5f);
-        }
-        else
-        {
-            AudioManager.Instance?.StopBgm();
-            AudioManager.Instance?.PlayDefeatSfx();
-            battleUI?.ShowTurnBanner("DEFEAT", new Color(1.0f, 0.30f, 0.30f), 1.5f);
-        }
-        bool hasNext = HasNextStage();
-        battleUI?.SetContinueButtonVisible(resultState == BattleState.Victory && hasNext);
-        if (resultState == BattleState.Victory && hasNext)
-        {
-            battleUI?.SetContinueButtonLabel("Continue to Next Encounter");
-        }
-        battleUI?.SetStageSelectButtonVisible(true);
-
-        // Mark stage as completed when all encounters are cleared
-        // Award XP on stage clear
-        bool finalStageCleared = resultState == BattleState.Victory && !HasNextStage();
-        if (finalStageCleared)
-        {
-            int gainedXp = 50 + (StageSelectController.SelectedStageIndex + 1) * 30;
-            playerXp += gainedXp;
-            if (playerXp >= xpToNextLevel)
-            {
-                playerXp -= xpToNextLevel;
-                playerLevel++;
-                AudioManager.Instance?.PlayLevelUpSfx();
-                xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * 1.5f);
-                if (player != null) player.maxHp += 20;
-                string lvlMsg = $"Level Up! Now Level {playerLevel}. Max HP increased to {player?.maxHp}.";
-                battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                    currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                    CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, lvlMsg,
-                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-            }
-            int stageIdx = StageSelectController.SelectedStageIndex;
-            if (stageIdx >= 0) ProgressState.MarkStageCompleted(stageIdx);
-        }
-
-        // Evaluate stage bonuses on victory
-        if (resultState == BattleState.Victory && !currentBattleRewardClaimed && !bonusRewardedStageIndexes.Contains(currentStageIndex))
-        {
-            var (bonuses, bonusGold) = StageBonusEvaluator.Evaluate(
-                totalDamageTaken, enemyTurnCount, skillsUsedNames,
-                guardedStrongAttack, usedItems, 5);
-            totalGoldEarned += bonusGold;
-            bonusRewardedStageIndexes.Add(currentStageIndex);
-            if (bonuses.Count > 0 && battleUI != null)
-            {
-                string bonusMsg = "Bonuses: " + string.Join(", ", bonuses.ConvertAll(b => $"{StageBonusEvaluator.GetBonusName(b)}(+{StageBonusEvaluator.GetBonusGold(b)}g)"));
-                battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-                    currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-                    CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, bonusMsg,
-                    basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-            }
-        }
-
-        string resultSummary = BuildResultSummaryText(resultState);
-        battleUI?.SetResultSummaryVisible(true, resultSummary);
-        battleUI?.MarkCaptureRehearsalResultShown();
-        SyncProgressToState();
-        if (finalStageCleared) SaveManager.Save();
-
-        string msg = resultState == BattleState.Victory
-            ? battleUI?.BuildVictoryGuideMessage(currentStageIndex, stageEncounters) ?? "Victory!"
-            : "Defeat... Try again.";
-        battleUI?.UpdateAllUI(currentState, player, enemy, enemyPattern, enemyTurnCount,
-            currentStageIndex, stageEncounters, playerName, enemyName, totalGoldEarned,
-            CfgGuardReductionPercent, CfgBurnTurnDuration, playerIsGuarding, msg,
-            basicAttackSkill, fireSkill, iceSkill, lightningSkill, earthSkill, CfgMaxBattleLogEntries);
-    }
-
-    // --- Damage tracking ---
-
-    private int CalculateSkillDamage(CharacterData target, SkillData skill)
-    {
-        float multiplier = CfgNeutralMultiplier;
-        if (skill.elementType != ElementType.None && skill.elementType == target.weaknessElement)
-            multiplier = CfgWeaknessMultiplier;
-        return Mathf.RoundToInt(skill.power * multiplier);
-    }
-
-    /// <summary>Returns a short label and the calculated multiplier for the given skill/target pair.</summary>
-    private (string label, float multiplier) GetElementEffectiveness(CharacterData target, SkillData skill)
-    {
-        if (skill.elementType == ElementType.None)
-            return ("Physical", 1f);
-        if (skill.elementType == target.weaknessElement)
-            return ("Weakness", CfgWeaknessMultiplier);
-        return ("Neutral", CfgNeutralMultiplier);
-    }
-
-    private void TrackDamageDealt(int beforeHp)
-    {
-        if (enemy == null) return;
-        totalDamageDealt += Mathf.Max(0, beforeHp - enemy.currentHp);
-    }
-
-    private void TrackDamageTaken(int beforeHp)
-    {
-        if (player == null) return;
-        totalDamageTaken += Mathf.Max(0, beforeHp - player.currentHp);
-    }
-
-    private string BuildSkillMessage(SkillData skill, int damage)
-    {
-        if (player == null || enemy == null) return "";
-        var (effLabel, _) = GetElementEffectiveness(enemy, skill);
-        string msg = $"{player.characterName} uses {skill.skillName}! {enemy.characterName} takes {damage} damage. ({skill.elementType} | {effLabel})";
-        if (skill.HasStatusEffect())
-        {
-            int dur = skill.statusEffectType == StatusEffectType.Burn ? CfgBurnTurnDuration : CfgStunTurnDuration;
-            msg += $" Extra effect: {skill.statusEffectType} for {dur} turns.";
-        }
-        return msg;
-    }
-
-    private string BuildImpactText(SkillData skill, int damage, bool wasBrokenBeforeHit = false)
-    {
-        if (skill == null) return "Impact: Ready";
-        var (effLabel, effMultiplier) = GetElementEffectiveness(enemy, skill);
-        string impact = $"Impact: {skill.skillName} dealt {damage} damage";
-        if (wasBrokenBeforeHit)
-        {
-            impact += " | Break bonus consumed";
-        }
-        else if (skill.elementType != ElementType.None && enemy != null && skill.elementType == enemy.weaknessElement)
-        {
-            impact += $" | Weakness x{effMultiplier:0.0}";
-            if (enemy.isBroken)
-                impact += " | BREAK!";
-            else
-                impact += $" | Break {enemy.currentBreakGauge}/{enemy.maxBreakGauge}";
-        }
-        else if (skill.elementType != ElementType.None && skill.elementType != ElementType.Physical && Mathf.Abs(effMultiplier - 1.0f) < 0.01f)
-        {
-            impact += $" | Neutral x{effMultiplier:0.0}";
-        }
-        else if (skill.elementType == ElementType.Physical)
-        {
-            impact += " | Physical";
-        }
-        if (skill.HasStatusEffect())
-            impact += $" | {skill.statusEffectType} applied";
-        return impact;
-    }
-
-    // --- Results ---
-
-    private string BuildResultSummaryText(BattleState resultState)
-    {
-        if (player == null || enemy == null) return "";
-        EnsureEnemyPattern();
-
-        var data = BuildBattleResultData(resultState);
-        if (resultState == BattleState.Victory) ClaimBattleReward(data.rewardGold);
-        data.totalGold = totalGoldEarned;
-        return BattleResultPresenter.BuildSummaryText(data);
-    }
-
-    private BattleResultData BuildBattleResultData(BattleState resultState)
-    {
-        EnsureEnemyPattern();
-        string rank = BattleResultEvaluator.BuildRank(resultState, enemyTurnCount, totalDamageTaken, balanceConfig);
-        string lastPattern = BattleResultEvaluator.BuildLastEnemyPatternLabel(enemyTurnCount, enemyPattern);
-        string pace = BattleResultEvaluator.BuildPaceLabel(resultState, enemyTurnCount, balanceConfig);
-
-        return new BattleResultData
-        {
-            resultLabel = resultState == BattleState.Victory ? "Victory" : "Defeat",
-            enemyTurns = enemyTurnCount,
-            playerName = player.characterName,
-            playerCurrentHp = player.currentHp,
-            playerMaxHp = player.maxHp,
-            playerCurrentAp = player.currentAp,
-            playerMaxAp = player.maxAp,
-            enemyName = enemy.characterName,
-            enemyCurrentHp = enemy.currentHp,
-            enemyMaxHp = enemy.maxHp,
-            damageDealt = totalDamageDealt,
-            damageTaken = totalDamageTaken,
-            guardUses = guardUseCount,
-            skillsUsed = skillsUsedCount,
-            paceLabel = pace,
-            survivalLabel = BattleResultEvaluator.BuildSurvivalLabel(player.currentHp, player.maxHp),
-            rank = rank,
-            rewardGold = BattleResultEvaluator.BuildRewardGold(rank, CfgSRankRewardGold, CfgARankRewardGold, CfgBRankRewardGold, CfgDefeatRewardGold),
-            totalGold = totalGoldEarned,
-            resultTip = BattleResultEvaluator.BuildResultTip(rank, lastPattern, enemyPattern.strongAttackName),
-            lastEnemyPattern = lastPattern
-        };
-    }
-
-    private void ClaimBattleReward(int rewardGold)
-    {
-        if (currentBattleRewardClaimed || rewardedStageIndexes.Contains(currentStageIndex)) return;
-        totalGoldEarned += Mathf.Max(0, rewardGold);
-        rewardedStageIndexes.Add(currentStageIndex);
-        currentBattleRewardClaimed = true;
-    }
-
-    // --- Stage data ---
-
-    private void EnsureStageEncounters()
-    {
-        if (stageEncounters == null) stageEncounters = new List<StageData>();
-        if (stageEncounters.Count == 0)
-        {
-            stageEncounters.Add(StageData.CreateStage1Normal());
-            stageEncounters.Add(StageData.CreateStage1Boss());
-        }
-        currentStageIndex = Mathf.Clamp(currentStageIndex, 0, stageEncounters.Count - 1);
-    }
-
-    private void ApplyCurrentStageData()
-    {
-        var stage = GetCurrentStageData();
-        if (stage?.enemy == null) return;
-        enemyName = stage.enemy.enemyName;
-        enemyMaxHp = stage.enemy.maxHp;
-        enemyWeakness = stage.enemy.weakness;
-        enemyPattern = stage.enemy.pattern;
-    }
-
-    private void ApplyStageModifier()
-    {
-        var stage = GetCurrentStageData();
-        if (stage == null) return;
-        StageModifierType modifier = stage.stageModifier;
-        string modifierMsg = "";
-
-        switch (modifier)
-        {
-            case StageModifierType.PackPressure:
-                if (enemyPattern != null)
-                {
-                    enemyPattern.strongAttackEveryTurns = Mathf.Max(2, enemyPattern.strongAttackEveryTurns - 1);
-                }
-                modifierMsg = "WARN: Stage Modifier: Pack Pressure — Enemy uses strong attacks more frequently!";
-                break;
-
-            case StageModifierType.Stoneguard:
-                if (enemy != null)
-                {
-                    enemy.maxBreakGauge += 1;
-                    enemy.currentBreakGauge = enemy.maxBreakGauge;
-                }
-                modifierMsg = "WARN: Stage Modifier: Stoneguard — Enemy starts with reinforced break defense!";
-                break;
-
-            case StageModifierType.TutorialField:
-                modifierMsg = "Stage Modifier: Tutorial Field — A safe training ground.";
-                break;
-
-            case StageModifierType.StormSurge:
-                modifierMsg = "WARN: Stage Modifier: Storm Surge — Residual lightning strikes every 3 turns.";
-                break;
-
-            case StageModifierType.VoidDrain:
-                modifierMsg = "WARN: Stage Modifier: Void Drain — Shadow energy drains AP over time.";
-                break;
-
-            case StageModifierType.RadiantTrial:
-                if (enemyPattern != null)
-                    enemyPattern.strongAttackEveryTurns = Mathf.Max(2, enemyPattern.strongAttackEveryTurns - 1);
-                if (enemy != null)
-                {
-                    enemy.maxBreakGauge += 1;
-                    enemy.currentBreakGauge = enemy.maxBreakGauge;
-                }
-                modifierMsg = "WARN: Stage Modifier: Radiant Trial — The ultimate trial. Enemies are relentless.";
-                break;
-
-            default:
-                return;
-        }
-
-        // Store message for display on first UI update
-        stageModifierActivationMessage = modifierMsg;
-        // Note: modifier message is displayed via startMsg in StartBattle(), not as a separate log entry
-    }
-
-    private string stageModifierActivationMessage = "";
-
-    private StageData GetCurrentStageData()
-    {
-        EnsureStageEncounters();
-        return stageEncounters[currentStageIndex];
-    }
-
-    private bool HasNextStage()
-    {
-        EnsureStageEncounters();
-        return currentStageIndex < stageEncounters.Count - 1;
-    }
-
-    private void EnsureEnemyPattern()
-    {
-        if (enemyPattern == null) enemyPattern = new EnemyPatternData();
+        if (battleUI == null) return; StageData stage = stageEncounters != null && currentStageIndex < stageEncounters.Count ? stageEncounters[currentStageIndex] : null;
+        battleUI.UpdatePartyUI(currentState, playerParty, enemyParty, SelectedPlayerIndex, SelectedEnemyIndex, actedPlayerIndices, message, stage, enemyTurnCount, guarding, earthShield);
     }
 }

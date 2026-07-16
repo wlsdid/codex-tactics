@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,8 +33,6 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Image enemySpriteImage;
     [SerializeField] private Image enemyStandeeImage;
     [SerializeField] private Image heroStandeeImage;
-    [SerializeField] private Image[] allyFormationImages;
-    [SerializeField] private Image[] enemyFormationImages;
     [SerializeField] private Image heroFormationFocusRing;
     [SerializeField] private Image enemyFormationTargetRing;
     [SerializeField] private Image[] enemyRosterMiniSprites;
@@ -44,9 +44,35 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Sprite referenceLichSprite;
     [SerializeField] private Sprite referenceGolemSprite;
     [SerializeField] private Sprite referenceDarkKnightSprite;
+    [Header("Extracted 3v3 Battle Unit Sprites")]
+    [SerializeField] private Sprite paladinBattleSprite;
+    [SerializeField] private Sprite clericBattleSprite;
+    [SerializeField] private Sprite rangerBattleSprite;
+    [SerializeField] private Sprite goblinBattleSprite;
+    [SerializeField] private Sprite skeletonBattleSprite;
+    [SerializeField] private Sprite orcBattleSprite;
     [SerializeField] private Image burnOverlay;
     [SerializeField] private Image stunOverlay;
     [SerializeField] private Image brokenOverlay;
+
+    [Header("3v3 Battlefield Slots")]
+    [SerializeField] private Image[] allySlotBodies;
+    [SerializeField] private Slider[] allySlotHpSliders;
+    [SerializeField] private TMP_Text[] allySlotHpTexts;
+    [SerializeField] private TMP_Text[] allySlotStatusTexts;
+    [SerializeField] private Image[] allySlotStatusOverlays;
+    [SerializeField] private Image[] allySlotIndicators;
+    [SerializeField] private Button[] allySlotButtons;
+    [SerializeField] private Image[] enemySlotBodies;
+    [SerializeField] private Slider[] enemySlotHpSliders;
+    [SerializeField] private TMP_Text[] enemySlotHpTexts;
+    [SerializeField] private TMP_Text[] enemySlotStatusTexts;
+    [SerializeField] private Image[] enemySlotStatusOverlays;
+    [SerializeField] private Image[] enemySlotIndicators;
+    [SerializeField] private Button[] enemySlotButtons;
+    private BattleManager boundBattleManager;
+    private UnityAction[] allySlotActions;
+    private UnityAction[] enemySlotActions;
 
     [Header("Stage UI")]
     [SerializeField] private TMP_Text runStatusText;
@@ -175,6 +201,21 @@ public class BattleUI : MonoBehaviour
     public string DebugEnemyStandeeSpriteName => enemyStandeeImage != null && enemyStandeeImage.sprite != null ? enemyStandeeImage.sprite.name : "";
     public string DebugEnemyRosterFirstSpriteName => enemyRosterMiniSprites != null && enemyRosterMiniSprites.Length > 0 && enemyRosterMiniSprites[0] != null && enemyRosterMiniSprites[0].sprite != null ? enemyRosterMiniSprites[0].sprite.name : "";
     public string DebugEnemyRosterFirstLabel => enemyRosterLabels != null && enemyRosterLabels.Length > 0 && enemyRosterLabels[0] != null ? enemyRosterLabels[0].text : "";
+    public int DebugAllySlotCount => allySlotBodies != null ? allySlotBodies.Length : 0;
+    public int DebugEnemySlotCount => enemySlotBodies != null ? enemySlotBodies.Length : 0;
+    public string DebugAllySlotState(int index) => BuildSlotDebugState(allySlotHpTexts, allySlotStatusTexts, allySlotBodies, index);
+    public string DebugEnemySlotState(int index) => BuildSlotDebugState(enemySlotHpTexts, enemySlotStatusTexts, enemySlotBodies, index);
+    public bool DebugAllySlotSelected(int index) => IsIndicatorActive(allySlotIndicators, index);
+    public bool DebugEnemySlotTargeted(int index) => IsIndicatorActive(enemySlotIndicators, index);
+    public int DebugActiveAllyIndicatorCount => CountActiveIndicators(allySlotIndicators);
+    public int DebugActiveEnemyIndicatorCount => CountActiveIndicators(enemySlotIndicators);
+    public bool DebugAllySlotInteractable(int index) => IsButtonInteractable(allySlotButtons, index);
+    public bool DebugEnemySlotInteractable(int index) => IsButtonInteractable(enemySlotButtons, index);
+    public string DebugAllySlotSpriteName(int index) => GetSlotSpriteName(allySlotBodies, index);
+    public string DebugEnemySlotSpriteName(int index) => GetSlotSpriteName(enemySlotBodies, index);
+    // Full party/target state is intentionally exposed for headless battle logic verification.
+    public string DebugPartyState { get; private set; } = "";
+    public string DebugTargetState { get; private set; } = "";
 
     // --- Lifecycle ---
 
@@ -227,6 +268,54 @@ public class BattleUI : MonoBehaviour
         if (btn == null || action == null) return;
         btn.onClick.RemoveListener(action);
         btn.onClick.AddListener(action);
+    }
+
+    /// <summary>Binds each serialized battlefield button to its exact party index.</summary>
+    public void BindBattleManager(BattleManager manager)
+    {
+        if (boundBattleManager == manager) return;
+        UnwireBattlefieldSlots();
+        boundBattleManager = manager;
+        if (manager == null) return;
+        allySlotActions = WireVisualSlots(allySlotButtons, true, manager);
+        enemySlotActions = WireVisualSlots(enemySlotButtons, false, manager);
+    }
+
+    private static UnityAction[] WireVisualSlots(Button[] buttons, bool isAlly, BattleManager manager)
+    {
+        if (buttons == null) return Array.Empty<UnityAction>();
+        UnityAction[] actions = new UnityAction[buttons.Length];
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            if (buttons[i] == null) continue;
+            int slotIndex = i;
+            actions[i] = () =>
+            {
+                int partyIndex = FindUnitIndex(isAlly ? manager.playerParty : manager.enemyParty, GetSlotVisualId(isAlly, slotIndex));
+                if (partyIndex >= 0)
+                {
+                    if (isAlly) manager.SelectPlayerUnit(partyIndex);
+                    else manager.SelectEnemyTarget(partyIndex);
+                }
+            };
+            buttons[i].onClick.AddListener(actions[i]);
+        }
+        return actions;
+    }
+
+    private void UnwireBattlefieldSlots()
+    {
+        UnwireIndexedSlots(allySlotButtons, allySlotActions);
+        UnwireIndexedSlots(enemySlotButtons, enemySlotActions);
+        allySlotActions = null;
+        enemySlotActions = null;
+    }
+
+    private static void UnwireIndexedSlots(Button[] buttons, UnityAction[] actions)
+    {
+        if (buttons == null || actions == null) return;
+        for (int i = 0; i < buttons.Length && i < actions.Length; i++)
+            if (buttons[i] != null && actions[i] != null) buttons[i].onClick.RemoveListener(actions[i]);
     }
 
     public void SetAutoBattleIndicator(bool enabled)
@@ -383,8 +472,8 @@ public class BattleUI : MonoBehaviour
 
     public void SetEnemyVisuals(StageData stageData, ElementType fallbackElement = ElementType.Fire)
     {
-        EnemyVisualVariant visualVariant = stageData != null && stageData.enemy != null
-            ? stageData.enemy.visualVariant
+        EnemyVisualVariant visualVariant = stageData != null && stageData.enemies != null && stageData.enemies.Count > 0
+            ? stageData.enemies[0].visualVariant
             : EnemyVisualVariant.Goblin;
         Sprite visualSprite = SelectReferenceEnemySprite(visualVariant);
         if (visualSprite == null)
@@ -443,6 +532,167 @@ public class BattleUI : MonoBehaviour
 
     // --- Main Update ---
 
+    /// <summary>Renders the complete 3v3 model; identity, HP, actor ring, and target ring live on battlefield slots.</summary>
+    public void UpdatePartyUI(BattleState state, List<CharacterData> party, List<CharacterData> enemies, int selectedPlayerIndex, int selectedEnemyIndex, IReadOnlyCollection<int> actedMembers, string message, StageData stage, int enemyTurnCount, IDictionary<CharacterData, bool> guarding, IDictionary<CharacterData, int> shields)
+    {
+        CharacterData selectedPlayer = GetUnit(party, selectedPlayerIndex) ?? GetFirstLiving(party);
+        CharacterData selectedEnemy = GetUnit(enemies, selectedEnemyIndex) ?? GetFirstLiving(enemies);
+        if (selectedPlayer == null || selectedEnemy == null) return;
+        string playerName = selectedPlayer.characterName;
+        string enemyName = selectedEnemy.characterName;
+        bool isGuarding = guarding != null && guarding.TryGetValue(selectedPlayer, out bool guarded) && guarded;
+        SetPlayerHp(selectedPlayer.currentHp, selectedPlayer.maxHp, playerName);
+        SetPlayerAp(selectedPlayer.currentAp, selectedPlayer.maxAp);
+        SetPlayerStatusText(state, isGuarding);
+        SetPlayerShieldText(shields != null && shields.TryGetValue(selectedPlayer, out int shield) ? shield : 0);
+        SetEnemyHp(selectedEnemy.currentHp, selectedEnemy.maxHp, enemyName);
+        SetEnemyStatusText(selectedEnemy);
+        SetEnemyBreakText(selectedEnemy);
+        SetEnemyElementLabel(selectedEnemy.weaknessElement);
+        SetEnemyIntentText(state, stage != null && stage.enemies.Count > 0 ? stage.enemies[Mathf.Clamp(selectedEnemyIndex, 0, stage.enemies.Count - 1)].pattern : new EnemyPatternData(), enemyTurnCount);
+        SetRunStatusText(state, 0, new List<StageData> { stage });
+        if (stage != null) { if (stageText != null) stageText.text = stage.BuildDisplayName(); if (stageObjectiveText != null) stageObjectiveText.text = stage.BuildObjectiveText(); if (stageProgressText != null) stageProgressText.text = "3v3"; SetEnemyVisuals(stage, selectedEnemy.weaknessElement); }
+        SetMessageText($"Target: {enemyName}");
+        DebugPartyState = BuildPartyDebug("P", party, selectedPlayerIndex, actedMembers) + "|" + BuildPartyDebug("E", enemies, selectedEnemyIndex, null);
+        DebugTargetState = $"actor={selectedPlayerIndex};target={selectedEnemyIndex};acted={string.Join(",", actedMembers ?? Array.Empty<int>())}";
+        UpdateBattlefieldSlots(party, enemies, selectedPlayerIndex, selectedEnemyIndex, actedMembers, guarding, shields);
+    }
+
+    private void UpdateBattlefieldSlots(List<CharacterData> party, List<CharacterData> enemies, int selectedPlayerIndex, int selectedEnemyIndex, IReadOnlyCollection<int> actedMembers, IDictionary<CharacterData, bool> guarding, IDictionary<CharacterData, int> shields)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            BattleVisualId allyVisualId = GetSlotVisualId(true, i);
+            int allyPartyIndex = FindUnitIndex(party, allyVisualId);
+            CharacterData ally = allyPartyIndex >= 0 ? party[allyPartyIndex] : null;
+            bool acted = actedMembers != null && actedMembers.Contains(allyPartyIndex);
+            bool guarded = ally != null && guarding != null && guarding.TryGetValue(ally, out bool isGuarded) && isGuarded;
+            int shield = ally != null && shields != null && shields.TryGetValue(ally, out int value) ? value : 0;
+            UpdateBattlefieldSlot(allySlotBodies, allySlotHpSliders, allySlotHpTexts, allySlotStatusTexts, allySlotStatusOverlays, allySlotIndicators, allySlotButtons, i, ally, allyPartyIndex == selectedPlayerIndex, acted, guarded, shield, true);
+            ApplyBattleSprite(allySlotBodies, i, allyVisualId);
+
+            BattleVisualId enemyVisualId = GetSlotVisualId(false, i);
+            int enemyPartyIndex = FindUnitIndex(enemies, enemyVisualId);
+            CharacterData enemy = enemyPartyIndex >= 0 ? enemies[enemyPartyIndex] : null;
+            UpdateBattlefieldSlot(enemySlotBodies, enemySlotHpSliders, enemySlotHpTexts, enemySlotStatusTexts, enemySlotStatusOverlays, enemySlotIndicators, enemySlotButtons, i, enemy, enemyPartyIndex == selectedEnemyIndex, false, false, 0, false);
+            ApplyBattleSprite(enemySlotBodies, i, enemyVisualId);
+        }
+
+        ApplySelectedLegacyPortrait(playerSpriteImage, GetUnit(party, selectedPlayerIndex) ?? GetFirstLiving(party));
+        ApplySelectedLegacyPortrait(enemySpriteImage, GetUnit(enemies, selectedEnemyIndex) ?? GetFirstLiving(enemies));
+        ApplySelectedLegacyPortrait(enemyStandeeImage, GetUnit(enemies, selectedEnemyIndex) ?? GetFirstLiving(enemies));
+        UpdateEnemyRosterSprites(enemies);
+    }
+
+    // Physical battlefield order is deliberate; runtime party order is not.
+    private static BattleVisualId GetSlotVisualId(bool isAlly, int slotIndex)
+    {
+        BattleVisualId[] visuals = isAlly
+            ? new[] { BattleVisualId.HeroPaladin, BattleVisualId.GuardianCleric, BattleVisualId.ScoutRanger }
+            : new[] { BattleVisualId.Orc, BattleVisualId.Skeleton, BattleVisualId.Goblin };
+        return visuals[Mathf.Clamp(slotIndex, 0, visuals.Length - 1)];
+    }
+
+    private static int FindUnitIndex(List<CharacterData> units, BattleVisualId visualId) => units == null ? -1 : units.FindIndex(unit => unit != null && unit.visualId == visualId);
+
+    private void ApplyBattleSprite(Image[] bodies, int index, BattleVisualId visualId)
+    {
+        if (!HasSlotAt(bodies, index)) return;
+        Sprite sprite = GetBattleSprite(visualId);
+        if (sprite != null) bodies[index].sprite = sprite;
+        bodies[index].preserveAspect = true;
+    }
+
+    private void ApplySelectedLegacyPortrait(Image image, CharacterData unit)
+    {
+        if (image == null || unit == null) return;
+        Sprite sprite = GetBattleSprite(unit.visualId);
+        if (sprite != null) image.sprite = sprite;
+        image.preserveAspect = true;
+    }
+
+    private void UpdateEnemyRosterSprites(List<CharacterData> enemies)
+    {
+        if (enemyRosterMiniSprites == null) return;
+        for (int i = 0; i < enemyRosterMiniSprites.Length; i++)
+        {
+            BattleVisualId visualId = GetSlotVisualId(false, i);
+            Image portrait = enemyRosterMiniSprites[i];
+            if (portrait != null) { portrait.sprite = GetBattleSprite(visualId); portrait.preserveAspect = true; }
+            int partyIndex = FindUnitIndex(enemies, visualId);
+            if (enemyRosterLabels != null && i < enemyRosterLabels.Length && enemyRosterLabels[i] != null && partyIndex >= 0)
+                enemyRosterLabels[i].text = enemies[partyIndex].characterName;
+        }
+    }
+
+    private Sprite GetBattleSprite(BattleVisualId visualId) => visualId switch
+    {
+        BattleVisualId.HeroPaladin => paladinBattleSprite,
+        BattleVisualId.GuardianCleric => clericBattleSprite,
+        BattleVisualId.ScoutRanger => rangerBattleSprite,
+        BattleVisualId.Goblin => goblinBattleSprite,
+        BattleVisualId.Skeleton => skeletonBattleSprite,
+        BattleVisualId.Orc => orcBattleSprite,
+        _ => null
+    };
+
+    private static void UpdateBattlefieldSlot(Image[] bodies, Slider[] hpSliders, TMP_Text[] hpTexts, TMP_Text[] statusTexts, Image[] overlays, Image[] indicators, Button[] buttons, int index, CharacterData unit, bool selected, bool acted, bool guarded, int shield, bool isAlly)
+    {
+        if (!HasSlotAt(bodies, index)) return;
+        bool dead = unit == null || unit.IsDead();
+        if (hpSliders != null && index < hpSliders.Length && hpSliders[index] != null)
+        {
+            hpSliders[index].minValue = 0f;
+            hpSliders[index].maxValue = unit != null ? Mathf.Max(1, unit.maxHp) : 1f;
+            hpSliders[index].value = unit != null ? unit.currentHp : 0f;
+        }
+        if (hpTexts != null && index < hpTexts.Length && hpTexts[index] != null)
+        {
+            hpTexts[index].text = unit == null ? "EMPTY" : $"{unit.characterName} {unit.currentHp}/{unit.maxHp}{(dead ? " DEAD" : string.Empty)}";
+            hpTexts[index].fontSize = selected ? 8f : 7f;
+        }
+        string status = dead ? "DEAD" : unit.currentStatusEffect != StatusEffectType.None ? $"{unit.currentStatusEffect} ({unit.statusTurnsRemaining})" : guarded ? "GUARD" : shield > 0 ? "SHIELD" : acted ? "DONE" : "READY";
+        if (statusTexts != null && index < statusTexts.Length && statusTexts[index] != null) statusTexts[index].text = status;
+        if (bodies[index] != null) bodies[index].color = dead ? new Color(0.25f, 0.25f, 0.25f, 0.65f) : Color.white;
+        if (overlays != null && index < overlays.Length && overlays[index] != null)
+        {
+            bool showOverlay = !dead && (unit.currentStatusEffect != StatusEffectType.None || guarded || shield > 0 || acted);
+            overlays[index].gameObject.SetActive(showOverlay);
+            overlays[index].color = unit != null && unit.currentStatusEffect == StatusEffectType.Burn ? new Color(1f, 0.25f, 0.08f, 0.50f) : unit != null && unit.currentStatusEffect == StatusEffectType.Stun ? new Color(0.25f, 0.55f, 1f, 0.50f) : guarded || shield > 0 ? new Color(0.20f, 0.72f, 1f, 0.42f) : new Color(0.65f, 0.65f, 0.65f, 0.30f);
+        }
+        if (indicators != null && index < indicators.Length && indicators[index] != null) indicators[index].gameObject.SetActive(selected && !dead);
+        if (buttons != null && index < buttons.Length && buttons[index] != null) buttons[index].interactable = !dead && (!isAlly || !acted);
+    }
+
+    private static bool HasSlotAt(Image[] bodies, int index) => bodies != null && index >= 0 && index < bodies.Length && bodies[index] != null;
+    private static string GetSlotSpriteName(Image[] bodies, int index) => HasSlotAt(bodies, index) && bodies[index].sprite != null ? bodies[index].sprite.name : "";
+    private static string BuildSlotDebugState(TMP_Text[] hpTexts, TMP_Text[] statusTexts, Image[] bodies, int index)
+    {
+        if (!HasSlotAt(bodies, index)) return "";
+        string hp = hpTexts != null && index < hpTexts.Length && hpTexts[index] != null ? hpTexts[index].text : "";
+        string status = statusTexts != null && index < statusTexts.Length && statusTexts[index] != null ? statusTexts[index].text : "";
+        return hp + "|" + status + "|visible=" + bodies[index].gameObject.activeInHierarchy;
+    }
+    private static bool IsIndicatorActive(Image[] indicators, int index) => indicators != null && index >= 0 && index < indicators.Length && indicators[index] != null && indicators[index].gameObject.activeSelf;
+    private static int CountActiveIndicators(Image[] indicators)
+    {
+        if (indicators == null) return 0;
+        int count = 0;
+        foreach (Image indicator in indicators) if (indicator != null && indicator.gameObject.activeSelf) count++;
+        return count;
+    }
+    private static bool IsButtonInteractable(Button[] buttons, int index) => buttons != null && index >= 0 && index < buttons.Length && buttons[index] != null && buttons[index].interactable;
+
+    private static CharacterData GetUnit(List<CharacterData> units, int index) => units != null && index >= 0 && index < units.Count ? units[index] : null;
+    private static CharacterData GetFirstLiving(List<CharacterData> units) => units == null ? null : units.Find(unit => !unit.IsDead());
+    private static string BuildPartyDebug(string prefix, List<CharacterData> units, int selectedIndex, IReadOnlyCollection<int> acted)
+    {
+        if (units == null) return prefix + "[]";
+        var entries = new List<string>();
+        for (int i = 0; i < units.Count; i++) entries.Add($"{i}:{units[i].characterName}:{units[i].currentHp}:{(units[i].IsDead() ? "dead" : "alive")}{(i == selectedIndex ? ":selected" : "")}{(acted != null && acted.Contains(i) ? ":acted" : "")}");
+        return prefix + "[" + string.Join(",", entries) + "]";
+    }
+
     public void UpdateAllUI(
         BattleState currentState,
         CharacterData player,
@@ -494,7 +744,7 @@ public class BattleUI : MonoBehaviour
             SetGameObjectActiveIfChanged(playerSelectionHighlight.gameObject, true);
         if (selectedUnitText != null)
             SetGameObjectActiveIfChanged(selectedUnitText.gameObject, true);
-        SetTextIfChanged(selectedUnitText, string.IsNullOrWhiteSpace(unitName) ? "Selected: Hero" : $"Selected: {unitName}");
+        SetTextIfChanged(selectedUnitText, string.IsNullOrWhiteSpace(unitName) ? "Selected: Paladin" : $"Selected: {unitName}");
         SetFormationFocus(true);
     }
 
@@ -806,8 +1056,9 @@ public class BattleUI : MonoBehaviour
         else
             enemyElementLabel = $"[{element}] ";
 
-        // Update element badge (create if needed)
-        UpdateEnemyElementBadge(element);
+        // Enemy identity/status stays on its battlefield slot; do not recreate the removed right-side badge.
+        if (enemyElementBadge != null)
+            SetGameObjectActiveIfChanged(enemyElementBadge.gameObject, false);
     }
 
     private void UpdateEnemyElementBadge(ElementType element)
@@ -992,7 +1243,7 @@ public class BattleUI : MonoBehaviour
         if (commandPreviewText != null)
             SetGameObjectActiveIfChanged(commandPreviewText.gameObject, false);
         if (skillHelpText != null)
-            SetGameObjectActiveIfChanged(skillHelpText.gameObject, true);
+            SetGameObjectActiveIfChanged(skillHelpText.gameObject, false);
     }
 
     public void SetPlayerShieldText(int shieldAmount)

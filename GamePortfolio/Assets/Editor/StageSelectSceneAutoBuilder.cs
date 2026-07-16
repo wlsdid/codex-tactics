@@ -55,7 +55,7 @@ public static class StageSelectSceneAutoBuilder
             cardButtons[i] = btn;
             btn.interactable = i == 0; // Only first unlocked by default
 
-            string[] cardLabelsData = { "Stage 1\nSlime", "Stage 2\nWolf", "Stage 3\nGolem", "Stage 4\nStorm", "Stage 5\nShadow", "Stage 6\nLight" };
+            string[] cardLabelsData = { "Stage 1\nRuins", "Stage 2\nWolf", "Stage 3\nGolem", "Stage 4\nStorm", "Stage 5\nShadow", "Stage 6\nLight" };
             TMP_Text label = CreateText(canvas.transform, $"Stage Label {i + 1}", cardLabelsData[i], new Vector2(x, y + 25), new Vector2(260, 60), TextAlignmentOptions.Center);
             label.fontSize = 22;
             label.color = new Color(0.92f, 0.86f, 0.55f);
