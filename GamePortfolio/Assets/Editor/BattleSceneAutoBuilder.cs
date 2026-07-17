@@ -120,27 +120,43 @@ public static class BattleSceneAutoBuilder
         Image enemyIntentCardPanel = null;
         TMP_Text enemyIntentCardText = null;
 
-        Image actionCommandPanel = CreatePanel(canvas.transform, "Action Command Panel", new Vector2(15, -270), new Vector2(330, 72), new Color(0.030f, 0.038f, 0.060f, 0.94f));
-        TMP_Text selectedUnitText = CreateText(canvas.transform, "Selected Unit Text", "Selected: Paladin / AP 3", new Vector2(15, -244), new Vector2(300, 18), TextAlignmentOptions.Left);
-        selectedUnitText.fontSize = 10;
-        selectedUnitText.color = new Color(0.96f, 0.92f, 0.68f);
-        selectedUnitText.gameObject.SetActive(false);
+        Image actionCommandPanel = CreatePanel(canvas.transform, "Context Command Dock", new Vector2(0, -310), new Vector2(1120, 84), new Color(0.018f, 0.028f, 0.055f, 0.88f));
+        Outline dockOutline = actionCommandPanel.gameObject.AddComponent<Outline>();
+        dockOutline.effectColor = new Color(0.35f, 0.46f, 0.58f, 0.90f);
+        dockOutline.effectDistance = new Vector2(1f, -1f);
+        TMP_Text selectedUnitText = CreateText(actionCommandPanel.transform, "Actor Command Summary", "Paladin  HP 100/100  AP 3/3", new Vector2(-405, 0), new Vector2(280, 48), TextAlignmentOptions.Left);
+        selectedUnitText.fontSize = 16;
+        selectedUnitText.color = new Color(0.90f, 0.93f, 0.98f);
 
-        Button attackButton = CreateCenteredButton(canvas.transform, "Attack Button", "ATK", new Vector2(-92, -280), new Vector2(88, 28));
-        Button fireSkillButton = CreateCenteredButton(canvas.transform, "Fire Skill Button", "FIRE", new Vector2(8, -280), new Vector2(88, 28));
-        Button iceSkillButton = CreateCenteredButton(canvas.transform, "Ice Lance Button", "ICE", new Vector2(194, -430), new Vector2(54, 26));
-        Button lightningSkillButton = CreateCenteredButton(canvas.transform, "Lightning Strike Button", "LIT", new Vector2(194, -430), new Vector2(54, 26));
-        Button earthSkillButton = CreateCenteredButton(canvas.transform, "Earth Wall Button", "EARTH", new Vector2(194, -430), new Vector2(62, 26));
-        Button guardButton = CreateCenteredButton(canvas.transform, "Guard Button", "GUARD", new Vector2(108, -280), new Vector2(88, 28));
-        Button endTurnButton = CreateCenteredButton(canvas.transform, "End Turn Button", "END", new Vector2(194, -430), new Vector2(62, 22));
+        Button attackButton = CreateCenteredButton(actionCommandPanel.transform, "Attack Button", "ATTACK", new Vector2(-190, 0), new Vector2(130, 48));
+        Button skillMenuButton = CreateCenteredButton(actionCommandPanel.transform, "Skill Menu Button", "SKILL", new Vector2(-45, 0), new Vector2(130, 48));
+        Button guardButton = CreateCenteredButton(actionCommandPanel.transform, "Guard Button", "GUARD", new Vector2(100, 0), new Vector2(130, 48));
+        Button endTurnButton = CreateCenteredButton(actionCommandPanel.transform, "End Turn Button", "END TURN", new Vector2(265, 0), new Vector2(160, 48));
+        StyleContextButton(attackButton, new Color(0.30f, 0.075f, 0.085f, 0.96f));
+        StyleContextButton(skillMenuButton, new Color(0.085f, 0.105f, 0.16f, 0.96f));
+        StyleContextButton(guardButton, new Color(0.045f, 0.24f, 0.25f, 0.96f));
+        StyleContextButton(endTurnButton, new Color(0.11f, 0.13f, 0.18f, 0.96f));
+
+        Image skillSubmenuPanel = CreatePanel(actionCommandPanel.transform, "Skill Submenu", new Vector2(115, 0), new Vector2(820, 64), Color.clear);
+        skillSubmenuPanel.raycastTarget = false;
+        Button fireSkillButton = CreateCenteredButton(skillSubmenuPanel.transform, "Fire Skill Button", "Fire Bolt\nAP 2", new Vector2(-330, 0), new Vector2(130, 48));
+        Button iceSkillButton = CreateCenteredButton(skillSubmenuPanel.transform, "Ice Lance Button", "Ice Lance\nAP 1", new Vector2(-187, 0), new Vector2(130, 48));
+        Button earthSkillButton = CreateCenteredButton(skillSubmenuPanel.transform, "Earth Wall Button", "Earth Wall\nAP 2", new Vector2(-44, 0), new Vector2(130, 48));
+        Button lightningSkillButton = CreateCenteredButton(skillSubmenuPanel.transform, "Lightning Strike Button", "Lightning Strike\nAP 3", new Vector2(116, 0), new Vector2(166, 48));
+        Button skillBackButton = CreateCenteredButton(skillSubmenuPanel.transform, "Skill Back Button", "BACK", new Vector2(270, 0), new Vector2(100, 48));
+        StyleContextButton(fireSkillButton, new Color(0.34f, 0.065f, 0.075f, 0.96f));
+        StyleContextButton(iceSkillButton, new Color(0.27f, 0.075f, 0.10f, 0.96f));
+        StyleContextButton(lightningSkillButton, new Color(0.31f, 0.085f, 0.12f, 0.96f));
+        StyleContextButton(earthSkillButton, new Color(0.035f, 0.28f, 0.27f, 0.96f));
+        StyleContextButton(skillBackButton, new Color(0.10f, 0.12f, 0.17f, 0.96f));
+        TMP_Text skillDescriptionText = CreateText(canvas.transform, "Skill Hover Description", "", new Vector2(120, -252), new Vector2(760, 24), TextAlignmentOptions.Center);
+        skillDescriptionText.fontSize = 16;
+        skillDescriptionText.color = new Color(0.96f, 0.90f, 0.70f);
+        skillDescriptionText.gameObject.SetActive(false);
+
         actionCommandPanel.gameObject.SetActive(false);
-        attackButton.gameObject.SetActive(false);
-        fireSkillButton.gameObject.SetActive(false);
-        iceSkillButton.gameObject.SetActive(false);
-        lightningSkillButton.gameObject.SetActive(false);
-        earthSkillButton.gameObject.SetActive(false);
-        guardButton.gameObject.SetActive(false);
-        endTurnButton.gameObject.SetActive(false);
+        skillSubmenuPanel.gameObject.SetActive(false);
+        selectedUnitText.gameObject.SetActive(false);
         Button retryButton = CreateButton(canvas.transform, "Retry Button", "Retry", new Vector2(170, 145), new Vector2(140, 48));
         retryButton.gameObject.SetActive(false);
         Button continueButton = CreateButton(canvas.transform, "Continue Button", "Continue", new Vector2(320, 145), new Vector2(150, 48));
@@ -275,6 +291,9 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "turnBannerPanel", turnBannerObj);
         SetObjectReference(serializedBattleUI, "turnBannerText", turnBannerText);
         SetObjectReference(serializedBattleUI, "actionCommandPanel", actionCommandPanel.gameObject);
+        SetObjectReference(serializedBattleUI, "skillSubmenuPanel", skillSubmenuPanel.gameObject);
+        SetObjectReference(serializedBattleUI, "skillMenuButton", skillMenuButton);
+        SetObjectReference(serializedBattleUI, "skillDescriptionText", skillDescriptionText);
         SetObjectReference(serializedBattleUI, "playerSelectButton", playerSelectButton);
         SetObjectReference(serializedBattleUI, "playerSelectionHighlight", playerSelectionHighlight);
         SetObjectReference(serializedBattleUI, "selectedUnitText", selectedUnitText);
@@ -283,6 +302,7 @@ public static class BattleSceneAutoBuilder
         SetObjectReference(serializedBattleUI, "iceSkillButton", iceSkillButton);
         SetObjectReference(serializedBattleUI, "lightningSkillButton", lightningSkillButton);
         SetObjectReference(serializedBattleUI, "earthSkillButton", earthSkillButton);
+        SetObjectReference(serializedBattleUI, "skillBackButton", skillBackButton);
         SetObjectReference(serializedBattleUI, "guardButton", guardButton);
         SetObjectReference(serializedBattleUI, "endTurnButton", endTurnButton);
         SetObjectReference(serializedBattleUI, "retryButton", retryButton);
@@ -348,6 +368,24 @@ public static class BattleSceneAutoBuilder
         AppendCheck(ref passed, ref report, "battlefield slots show only compact name and HP labels", FindTextIncludingInactive("Ally Slot 1 HP Text") != null && FindTextIncludingInactive("Enemy Slot 1 HP Text") != null && FindTextIncludingInactive("Ally Slot 1 Status Text") == null && FindTextIncludingInactive("Enemy Slot 1 Status Text") == null);
         AppendCheck(ref passed, ref report, "spotlight beam floor and color-grade overlays are physically absent", FindImageIncludingInactive("Battle Stage Color Grade Panel") == null && FindImageIncludingInactive("Battle Stage Floor Panel") == null && FindImageIncludingInactive("Moonlight Beam Panel") == null && FindImageIncludingInactive("Hero Cinematic Spotlight") == null && FindImageIncludingInactive("Enemy Cinematic Spotlight") == null && FindImageIncludingInactive("Floor Specular Highlight Panel") == null);
 
+        Image commandDock = FindImageIncludingInactive("Context Command Dock");
+        GameObject skillSubmenu = FindImageIncludingInactive("Skill Submenu")?.gameObject;
+        TMP_Text actorSummary = FindTextIncludingInactive("Actor Command Summary");
+        TMP_Text skillDescription = FindTextIncludingInactive("Skill Hover Description");
+        Button skillMenuButton = FindButtonIncludingInactive("Skill Menu Button");
+        Button skillBackButton = FindButtonIncludingInactive("Skill Back Button");
+        Button contextualAttack = FindButtonIncludingInactive("Attack Button");
+        Button contextualGuard = FindButtonIncludingInactive("Guard Button");
+        Button contextualEndTurn = FindButtonIncludingInactive("End Turn Button");
+        Button contextualFire = FindButtonIncludingInactive("Fire Skill Button");
+        Button contextualIce = FindButtonIncludingInactive("Ice Lance Button");
+        Button contextualEarth = FindButtonIncludingInactive("Earth Wall Button");
+        Button contextualLightning = FindButtonIncludingInactive("Lightning Strike Button");
+        AppendCheck(ref passed, ref report, "compact contextual dock and skill submenu objects exist", commandDock != null && skillSubmenu != null && actorSummary != null && skillDescription != null && skillMenuButton != null && skillBackButton != null && contextualAttack != null && contextualGuard != null && contextualEndTurn != null && contextualFire != null && contextualIce != null && contextualEarth != null && contextualLightning != null);
+        AppendCheck(ref passed, ref report, "all four skill buttons remain active under the hidden submenu", contextualFire != null && contextualFire.gameObject.activeSelf && contextualIce != null && contextualIce.gameObject.activeSelf && contextualEarth != null && contextualEarth.gameObject.activeSelf && contextualLightning != null && contextualLightning.gameObject.activeSelf);
+        AppendCheck(ref passed, ref report, "command dock stays bottom-center and no taller than 90px", commandDock != null && commandDock.rectTransform.sizeDelta.y <= 90f && commandDock.rectTransform.anchoredPosition.y <= -280f && Mathf.Abs(commandDock.rectTransform.anchoredPosition.x) < 1f && commandDock.color.a >= 0.85f && commandDock.color.a <= 0.90f);
+        AppendCheck(ref passed, ref report, "context command buttons use 44-52px height and readable labels", HasCompactReadableButton(contextualAttack) && HasCompactReadableButton(skillMenuButton) && HasCompactReadableButton(contextualGuard) && HasCompactReadableButton(contextualEndTurn) && HasCompactReadableButton(FindButtonIncludingInactive("Fire Skill Button")) && HasCompactReadableButton(FindButtonIncludingInactive("Ice Lance Button")) && HasCompactReadableButton(FindButtonIncludingInactive("Earth Wall Button")) && HasCompactReadableButton(FindButtonIncludingInactive("Lightning Strike Button")) && HasCompactReadableButton(skillBackButton));
+
         Image paladinBody = FindImage("Ally Slot 1 Body");
         Image clericBody = FindImage("Ally Slot 2 Body");
         Image rangerBody = FindImage("Ally Slot 3 Body");
@@ -379,6 +417,14 @@ public static class BattleSceneAutoBuilder
         Debug.Log(report);
         EditorUtility.DisplayDialog(passed ? "BattleScene Test Passed" : "BattleScene Test Failed", report, "OK");
         if (!passed) throw new System.InvalidOperationException(report);
+    }
+
+    private static bool HasCompactReadableButton(Button button)
+    {
+        if (button == null) return false;
+        float height = button.GetComponent<RectTransform>().sizeDelta.y;
+        TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+        return height >= 44f && height <= 52f && label != null && label.fontSize >= 16f;
     }
 
     private static bool HasHpWidthRatio(string slotName, Image body)
@@ -2111,6 +2157,27 @@ public static class BattleSceneAutoBuilder
         rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
         rectTransform.anchoredPosition = anchoredPosition;
         return button;
+    }
+
+    private static void StyleContextButton(Button button, Color baseColor)
+    {
+        if (button == null) return;
+        Transform topHighlight = button.transform.Find(button.name + " Top Highlight");
+        Transform goldEdge = button.transform.Find(button.name + " Gold Edge");
+        if (topHighlight != null) Object.DestroyImmediate(topHighlight.gameObject);
+        if (goldEdge != null) Object.DestroyImmediate(goldEdge.gameObject);
+        Image image = button.GetComponent<Image>();
+        image.color = baseColor;
+        ColorBlock colors = button.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(1f, 0.92f, 0.70f, 1f);
+        colors.selectedColor = new Color(1f, 0.84f, 0.46f, 1f);
+        colors.pressedColor = new Color(0.72f, 0.72f, 0.72f, 1f);
+        colors.disabledColor = new Color(0.42f, 0.45f, 0.50f, 0.46f);
+        colors.colorMultiplier = 1f;
+        button.colors = colors;
+        TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+        if (label != null) { label.fontSize = 16f; label.color = new Color(0.94f, 0.96f, 1f); }
     }
 
     private static Button CreateButton(Transform parent, string name, string labelText, Vector2 anchoredPosition, Vector2 size)

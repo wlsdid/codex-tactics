@@ -143,55 +143,58 @@ public class ScreenshotCaptureJob : MonoBehaviour
         }
 
         PreparePortfolioCaptureProgress();
-        Debug.Log("[Capture] BattleManager found. Starting capture with showcase skill unlocks.");
+        Debug.Log("[Capture] BattleManager found. Starting contextual command UI captures.");
+        var battleUi = FindAnyObjectByType<BattleUI>();
 
-        // Select real battlefield slots so the start capture proves both selection/target rings survived the HUD cleanup.
+        // 01: no actor selected, so the contextual dock must be closed.
+        yield return new WaitForSeconds(0.5f);
+        yield return Capture("01_battle_start.png");
+
+        // 02: selecting an actionable actor opens the basic four-command dock.
+        manager.SelectPlayerUnit(0);
+        yield return new WaitForSeconds(0.5f);
+        yield return Capture("02_actor_command.png");
+
+        // 03: Ranger selected with the real skill submenu open.
+        manager.SelectPlayerUnit(2);
+        if (battleUi != null) battleUi.OpenSkillSubmenu();
+        yield return new WaitForSeconds(0.5f);
+        yield return Capture("03_skill_menu.png");
+
+        // 04: target ring plus basic ATTACK command immediately before execution.
         manager.SelectPlayerUnit(0);
         manager.SelectEnemyTarget(0);
         yield return new WaitForSeconds(0.5f);
-        yield return Capture("01_battle_start.png");
-        yield return new WaitForSeconds(1.0f);
+        yield return Capture("04_target_attack.png");
+        manager.OnClickAttackButton();
+        yield return new WaitForSeconds(0.6f);
 
-        manager.OnClickFireSkillButton();
-        yield return new WaitForSeconds(4.0f);
-        yield return Capture("02_fire_skill_burn.png");
-        yield return new WaitForSeconds(0.5f);
-
-        manager.OnClickIceSkillButton();
-        yield return new WaitForSeconds(4.0f);
-        yield return Capture("03_ice_lance_stun.png");
-        yield return new WaitForSeconds(0.5f);
-
-        manager.OnClickGuardButton();
-        yield return new WaitForSeconds(4.5f);
-        yield return Capture("03_guard_status.png");
-        yield return new WaitForSeconds(0.5f);
-
-        for (int i = 0; i < 6; i++)
+        // Drive the real battle to its result with actual selections and ATTACK commands.
+        for (int turn = 0; turn < 24; turn++)
         {
-            if (manager == null) break;
-
-            var stateField = typeof(BattleManager).GetField("currentState",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            if (stateField != null)
+            if (manager == null || manager.DebugState == BattleState.Victory || manager.DebugState == BattleState.Defeat) break;
+            bool actorSelected = false;
+            for (int actor = 0; actor < manager.playerParty.Count; actor++)
             {
-                var state = (BattleState)stateField.GetValue(manager);
-                if (state == BattleState.Victory || state == BattleState.Defeat)
-                    break;
+                if (manager.SelectPlayerUnit(actor)) { actorSelected = true; break; }
             }
-
+            if (!actorSelected) { manager.OnClickEndTurnButton(); yield return new WaitForSeconds(0.25f); continue; }
+            for (int target = 0; target < manager.enemyParty.Count; target++)
+            {
+                if (manager.SelectEnemyTarget(target)) break;
+            }
             manager.OnClickAttackButton();
-            yield return new WaitForSeconds(3.0f);
+            yield return new WaitForSeconds(0.35f);
         }
 
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(1.0f);
         yield return Capture("04_result_summary_rank.png");
         yield return new WaitForSeconds(0.5f);
 
         if (manager != null)
         {
             manager.OnClickRetryButton();
-            yield return new WaitForSeconds(2.0f);
+            yield return new WaitForSeconds(1.0f);
             yield return Capture("05_retry_reset.png");
         }
 

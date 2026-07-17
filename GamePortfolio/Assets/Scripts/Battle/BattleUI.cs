@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Handles all UI rendering for the battle system.
@@ -71,6 +72,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Image[] enemySlotIndicators;
     [SerializeField] private Button[] enemySlotButtons;
     private BattleManager boundBattleManager;
+    private bool skillDescriptionPinned;
     private UnityAction[] allySlotActions;
     private UnityAction[] enemySlotActions;
 
@@ -103,17 +105,21 @@ public class BattleUI : MonoBehaviour
 
     [Header("Character Selection Commands")]
     [SerializeField] private GameObject actionCommandPanel;
+    [SerializeField] private GameObject skillSubmenuPanel;
     [SerializeField] private Button playerSelectButton;
     [SerializeField] private Image playerSelectionHighlight;
     [SerializeField] private TMP_Text selectedUnitText;
+    [SerializeField] private TMP_Text skillDescriptionText;
     private bool playerUnitSelected;
 
     [Header("Buttons")]
     [SerializeField] private Button attackButton;
+    [SerializeField] private Button skillMenuButton;
     [SerializeField] private Button fireSkillButton;
     [SerializeField] private Button iceSkillButton;
     [SerializeField] private Button lightningSkillButton;
     [SerializeField] private Button earthSkillButton;
+    [SerializeField] private Button skillBackButton;
     [SerializeField] private Button endTurnButton;
     [SerializeField] private Button guardButton;
     [SerializeField] private Button retryButton;
@@ -193,6 +199,27 @@ public class BattleUI : MonoBehaviour
     public string DebugTurnBannerText => turnBannerText != null ? turnBannerText.text : "";
     public bool DebugTurnBannerPanelExists => turnBannerPanel != null;
     public bool DebugActionCommandPanelVisible => actionCommandPanel != null && actionCommandPanel.activeSelf;
+    public bool DebugCommandDockVisible => actionCommandPanel != null && actionCommandPanel.activeSelf;
+    public bool DebugBasicCommandsVisible => attackButton != null && skillMenuButton != null && guardButton != null && endTurnButton != null && attackButton.gameObject.activeSelf && skillMenuButton.gameObject.activeSelf && guardButton.gameObject.activeSelf && endTurnButton.gameObject.activeSelf;
+    public bool DebugSkillSubmenuVisible => skillSubmenuPanel != null && skillSubmenuPanel.activeSelf;
+    public string DebugActorSummaryText => selectedUnitText != null ? selectedUnitText.text : "";
+    public string DebugBasicCommandLabels => $"{ButtonLabel(attackButton)}|{ButtonLabel(skillMenuButton)}|{ButtonLabel(guardButton)}|{ButtonLabel(endTurnButton)}";
+    public string DebugSkillCommandLabels => $"{ButtonLabel(fireSkillButton).Replace("\n", "/")}|{ButtonLabel(iceSkillButton).Replace("\n", "/")}|{ButtonLabel(earthSkillButton).Replace("\n", "/")}|{ButtonLabel(lightningSkillButton).Replace("\n", "/")}|{ButtonLabel(skillBackButton)}";
+    public int DebugSkillHoverTriggerCount => HasSkillHover(fireSkillButton) + HasSkillHover(iceSkillButton) + HasSkillHover(earthSkillButton) + HasSkillHover(lightningSkillButton);
+    public bool DebugSkillDescriptionVisible => skillDescriptionText != null && skillDescriptionText.gameObject.activeSelf;
+    public string DebugSkillDescriptionText => skillDescriptionText != null ? skillDescriptionText.text : "";
+    public bool DebugFireSkillInteractable => fireSkillButton != null && fireSkillButton.interactable;
+    public bool DebugIceSkillInteractable => iceSkillButton != null && iceSkillButton.interactable;
+    public bool DebugEarthSkillInteractable => earthSkillButton != null && earthSkillButton.interactable;
+    public bool DebugLightningSkillInteractable => lightningSkillButton != null && lightningSkillButton.interactable;
+    public bool DebugAnyCommandInteractable => IsInteractable(attackButton) || IsInteractable(skillMenuButton) || IsInteractable(guardButton) || IsInteractable(endTurnButton) || IsInteractable(fireSkillButton) || IsInteractable(iceSkillButton) || IsInteractable(earthSkillButton) || IsInteractable(lightningSkillButton);
+    public void DebugClickAttackButton() => InvokeIfInteractable(attackButton);
+    public void DebugClickGuardButton() => InvokeIfInteractable(guardButton);
+    public void DebugClickSkillMenuButton() => InvokeIfInteractable(skillMenuButton);
+    public void DebugClickSkillBackButton() => InvokeIfInteractable(skillBackButton);
+    public void DebugClickEndTurnButton() => InvokeIfInteractable(endTurnButton);
+    public bool DebugClickIceSkillButton() => InvokeIfInteractable(iceSkillButton);
+    public bool DebugClickEarthSkillButton() => InvokeIfInteractable(earthSkillButton);
     public bool DebugPlayerUnitSelected => playerUnitSelected;
     public string DebugSelectedUnitText => selectedUnitText != null ? selectedUnitText.text : "";
     public string DebugPlayerSpriteMotionProfile => GetSpriteMotionProfile(playerSpriteImage, true);
@@ -270,6 +297,64 @@ public class BattleUI : MonoBehaviour
         btn.onClick.AddListener(action);
     }
 
+    private static string ButtonLabel(Button button)
+    {
+        TMP_Text label = button != null ? button.GetComponentInChildren<TMP_Text>(true) : null;
+        return label != null ? label.text : "";
+    }
+
+    private static int HasSkillHover(Button button)
+    {
+        EventTrigger trigger = button != null ? button.GetComponent<EventTrigger>() : null;
+        return trigger != null && trigger.triggers != null && trigger.triggers.Count >= 2 ? 1 : 0;
+    }
+
+    private static bool IsInteractable(Button button) => button != null && button.gameObject.activeInHierarchy && button.interactable;
+
+    private static bool InvokeIfInteractable(Button button)
+    {
+        if (!IsInteractable(button)) return false;
+        button.onClick.Invoke();
+        return true;
+    }
+
+    private void ConfigureSkillHover(Button button, string description)
+    {
+        if (button == null) return;
+        EventTrigger trigger = button.GetComponent<EventTrigger>();
+        if (trigger == null) trigger = button.gameObject.AddComponent<EventTrigger>();
+        trigger.triggers = new List<EventTrigger.Entry>();
+        EventTrigger.Entry enter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+        enter.callback.AddListener(_ => ShowSkillDescription(description, false));
+        EventTrigger.Entry exit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
+        exit.callback.AddListener(_ => { if (!skillDescriptionPinned) HideSkillDescription(); });
+        trigger.triggers.Add(enter);
+        trigger.triggers.Add(exit);
+    }
+
+    private void ShowSkillDescription(string description, bool pin)
+    {
+        if (skillDescriptionText == null) return;
+        string concise = description ?? "";
+        if (concise.Length > 60) concise = concise.Substring(0, 60);
+        skillDescriptionPinned = pin;
+        skillDescriptionText.text = concise;
+        skillDescriptionText.gameObject.SetActive(!string.IsNullOrEmpty(concise));
+    }
+
+    public void SetPendingSkillDescription(string description) => ShowSkillDescription(description, true);
+
+    private void HideSkillDescription()
+    {
+        if (skillDescriptionText != null) skillDescriptionText.gameObject.SetActive(false);
+    }
+
+    private void ClearSkillDescription()
+    {
+        skillDescriptionPinned = false;
+        HideSkillDescription();
+    }
+
     /// <summary>Binds each serialized battlefield button to its exact party index.</summary>
     public void BindBattleManager(BattleManager manager)
     {
@@ -279,6 +364,19 @@ public class BattleUI : MonoBehaviour
         if (manager == null) return;
         allySlotActions = WireVisualSlots(allySlotButtons, true, manager);
         enemySlotActions = WireVisualSlots(enemySlotButtons, false, manager);
+        WireButton(attackButton, manager.OnClickAttackButton);
+        WireButton(skillMenuButton, OpenSkillSubmenu);
+        WireButton(guardButton, manager.OnClickGuardButton);
+        WireButton(endTurnButton, manager.OnClickEndTurnButton);
+        WireButton(fireSkillButton, manager.OnClickFireSkillButton);
+        WireButton(iceSkillButton, manager.OnClickIceSkillButton);
+        WireButton(lightningSkillButton, manager.OnClickLightningSkillButton);
+        WireButton(earthSkillButton, manager.OnClickEarthSkillButton);
+        WireButton(skillBackButton, CloseSkillSubmenu);
+        ConfigureSkillHover(fireSkillButton, "Fire damage; applies Burn to the selected target.");
+        ConfigureSkillHover(iceSkillButton, "Ice damage; applies Stun to the selected target.");
+        ConfigureSkillHover(earthSkillButton, "Grants a damage shield to the selected actor.");
+        ConfigureSkillHover(lightningSkillButton, "Heavy lightning damage to the selected target.");
     }
 
     private static UnityAction[] WireVisualSlots(Button[] buttons, bool isAlly, BattleManager manager)
@@ -366,13 +464,15 @@ public class BattleUI : MonoBehaviour
     /// <summary>Applies element-appropriate colors to skill buttons for visual hierarchy.</summary>
     public void StyleSkillButtons()
     {
-        StyleButtonWithElement(attackButton, ElementType.Physical, "PHY");
-        StyleButtonWithElement(fireSkillButton, ElementType.Fire, "FIRE");
-        StyleButtonWithElement(iceSkillButton, ElementType.Ice, "ICE");
-        StyleButtonWithElement(lightningSkillButton, ElementType.Lightning, "LIT");
-        StyleButtonWithElement(earthSkillButton, ElementType.Earth, "EARTH");
-        StyleButtonWithTint(guardButton, ElementGuardColor, "GUARD");
-        StyleButtonWithTint(endTurnButton, ElementEndTurnColor, "GO");
+        StyleContextCommandButton(attackButton, new Color(0.30f, 0.075f, 0.085f, 0.96f), "ATTACK");
+        StyleContextCommandButton(skillMenuButton, new Color(0.085f, 0.105f, 0.16f, 0.96f), "SKILL");
+        StyleContextCommandButton(guardButton, new Color(0.045f, 0.24f, 0.25f, 0.96f), "GUARD");
+        StyleContextCommandButton(endTurnButton, new Color(0.11f, 0.13f, 0.18f, 0.96f), "END TURN");
+        StyleContextCommandButton(fireSkillButton, new Color(0.34f, 0.065f, 0.075f, 0.96f), ButtonLabel(fireSkillButton));
+        StyleContextCommandButton(iceSkillButton, new Color(0.27f, 0.075f, 0.10f, 0.96f), ButtonLabel(iceSkillButton));
+        StyleContextCommandButton(lightningSkillButton, new Color(0.31f, 0.085f, 0.12f, 0.96f), ButtonLabel(lightningSkillButton));
+        StyleContextCommandButton(earthSkillButton, new Color(0.035f, 0.28f, 0.27f, 0.96f), ButtonLabel(earthSkillButton));
+        StyleContextCommandButton(skillBackButton, new Color(0.10f, 0.12f, 0.17f, 0.96f), "BACK");
         if (itemButton != null)
         {
             Image img = itemButton.GetComponent<Image>();
@@ -382,60 +482,25 @@ public class BattleUI : MonoBehaviour
         }
     }
 
-    private void StyleButtonWithElement(Button btn, ElementType element, string symbol)
+    private static void StyleContextCommandButton(Button button, Color color, string exactLabel)
     {
-        if (btn == null) return;
-        Image img = btn.GetComponent<Image>();
-        if (img != null)
-        {
-            Color baseColor = GetElementButtonColor(element);
-            img.color = new Color(baseColor.r * 0.35f, baseColor.g * 0.35f, baseColor.b * 0.35f, 0.85f);
-        }
-        TMP_Text label = btn.GetComponentInChildren<TMP_Text>();
-        if (label != null)
-        {
-            Color elemColor = GetElementButtonColor(element);
-            label.color = new Color(elemColor.r * 0.9f + 0.3f, elemColor.g * 0.9f + 0.3f, elemColor.b * 0.9f + 0.3f);
-            label.fontSize = 17;
-            label.enableWordWrapping = false;
-            label.overflowMode = TextOverflowModes.Ellipsis;
-            label.text = $"{symbol} {StripButtonPrefix(label.text)}";
-        }
-    }
-
-    private void StyleButtonWithTint(Button btn, Color tint, string symbol)
-    {
-        if (btn == null) return;
-        Image img = btn.GetComponent<Image>();
-        if (img != null)
-            img.color = new Color(tint.r * 0.30f, tint.g * 0.30f, tint.b * 0.30f, 0.85f);
-        TMP_Text label = btn.GetComponentInChildren<TMP_Text>();
-        if (label != null)
-        {
-            label.color = new Color(tint.r * 0.9f + 0.3f, tint.g * 0.9f + 0.3f, tint.b * 0.9f + 0.3f);
-            label.fontSize = 17;
-            label.enableWordWrapping = false;
-            label.overflowMode = TextOverflowModes.Ellipsis;
-            label.text = $"{symbol} {StripButtonPrefix(label.text)}";
-        }
-    }
-
-    private static string StripButtonPrefix(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
-
-        string[] prefixes = { "PHY", "FIRE", "ICE", "LIT", "EARTH", "GUARD", "GO" };
-        string cleaned = text.Trim();
-        foreach (string prefix in prefixes)
-        {
-            if (cleaned.StartsWith(prefix + " "))
-            {
-                cleaned = cleaned.Substring(prefix.Length).Trim();
-                break;
-            }
-        }
-
-        return cleaned;
+        if (button == null) return;
+        Image image = button.GetComponent<Image>();
+        if (image != null) image.color = color;
+        TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+        if (label == null) return;
+        label.text = exactLabel;
+        label.fontSize = 16f;
+        RectTransform labelRect = label.rectTransform;
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.pivot = new Vector2(0.5f, 0.5f);
+        labelRect.anchoredPosition = Vector2.zero;
+        labelRect.offsetMin = Vector2.zero;
+        labelRect.offsetMax = Vector2.zero;
+        label.enableWordWrapping = true;
+        label.overflowMode = TextOverflowModes.Overflow;
+        label.color = new Color(0.94f, 0.96f, 1f);
     }
 
     public void SetContinueButtonLabel(string label)
@@ -552,7 +617,7 @@ public class BattleUI : MonoBehaviour
         SetEnemyIntentText(state, stage != null && stage.enemies.Count > 0 ? stage.enemies[Mathf.Clamp(selectedEnemyIndex, 0, stage.enemies.Count - 1)].pattern : new EnemyPatternData(), enemyTurnCount);
         SetRunStatusText(state, 0, new List<StageData> { stage });
         if (stage != null) { if (stageText != null) stageText.text = stage.BuildDisplayName(); if (stageObjectiveText != null) stageObjectiveText.text = stage.BuildObjectiveText(); if (stageProgressText != null) stageProgressText.text = "3v3"; SetEnemyVisuals(stage, selectedEnemy.weaknessElement); }
-        SetMessageText($"Target: {enemyName}");
+        SetMessageText(selectedEnemyIndex >= 0 ? $"Target: {enemyName}" : message);
         DebugPartyState = BuildPartyDebug("P", party, selectedPlayerIndex, actedMembers) + "|" + BuildPartyDebug("E", enemies, selectedEnemyIndex, null);
         DebugTargetState = $"actor={selectedPlayerIndex};target={selectedEnemyIndex};acted={string.Join(",", actedMembers ?? Array.Empty<int>())}";
         UpdateBattlefieldSlots(party, enemies, selectedPlayerIndex, selectedEnemyIndex, actedMembers, guarding, shields);
@@ -735,6 +800,49 @@ public class BattleUI : MonoBehaviour
         AddBattleLogEntry(message, maxBattleLogEntries);
     }
 
+    public void UpdateCommandDock(BattleState state, CharacterData actor, bool actorHasActed, SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill)
+    {
+        bool available = state == BattleState.PlayerTurn && actor != null && !actor.IsDead() && !actorHasActed;
+        playerUnitSelected = available;
+        SetGameObjectActiveIfChanged(actionCommandPanel, available);
+        SetGameObjectActiveIfChanged(selectedUnitText != null ? selectedUnitText.gameObject : null, available);
+        if (!available)
+        {
+            CloseSkillSubmenu();
+            SetActionButtonsInteractable(false);
+            return;
+        }
+
+        SetTextIfChanged(selectedUnitText, $"{actor.characterName}  HP {actor.currentHp}/{actor.maxHp}  AP {actor.currentAp}/{actor.maxAp}");
+        SetSkillButtonLabel(fireSkillButton, fireSkill);
+        SetSkillButtonLabel(iceSkillButton, iceSkill);
+        SetSkillButtonLabel(earthSkillButton, earthSkill);
+        SetSkillButtonLabel(lightningSkillButton, lightningSkill);
+        if (skillSubmenuPanel == null || !skillSubmenuPanel.activeSelf) SetActionCommandButtonsVisible(true);
+        UpdateActionButtons(actor, basicSkill, fireSkill, iceSkill, lightningSkill, earthSkill, state);
+    }
+
+    public void OpenSkillSubmenu()
+    {
+        if (!playerUnitSelected || actionCommandPanel == null || !actionCommandPanel.activeSelf) return;
+        SetActionCommandButtonsVisible(false);
+        SetGameObjectActiveIfChanged(fireSkillButton != null ? fireSkillButton.gameObject : null, true);
+        SetGameObjectActiveIfChanged(iceSkillButton != null ? iceSkillButton.gameObject : null, true);
+        SetGameObjectActiveIfChanged(earthSkillButton != null ? earthSkillButton.gameObject : null, true);
+        SetGameObjectActiveIfChanged(lightningSkillButton != null ? lightningSkillButton.gameObject : null, true);
+        SetGameObjectActiveIfChanged(skillBackButton != null ? skillBackButton.gameObject : null, true);
+        SetGameObjectActiveIfChanged(skillSubmenuPanel, true);
+        ClearSkillDescription();
+    }
+
+    public void CloseSkillSubmenu()
+    {
+        ClearSkillDescription();
+        SetGameObjectActiveIfChanged(skillSubmenuPanel, false);
+        if (actionCommandPanel != null && actionCommandPanel.activeSelf) SetActionCommandButtonsVisible(true);
+        else SetActionCommandButtonsVisible(false);
+    }
+
     public void ShowCharacterCommandMenu(string unitName)
     {
         playerUnitSelected = true;
@@ -799,21 +907,18 @@ public class BattleUI : MonoBehaviour
 
     private void SetActionCommandButtonsVisible(bool isVisible)
     {
-        // The bounded strip intentionally exposes the three immediate tactical decisions.
-        // Other retained controls remain callable by game logic/test paths but do not inflate the capture HUD.
         SetGameObjectActiveIfChanged(attackButton != null ? attackButton.gameObject : null, isVisible);
-        SetGameObjectActiveIfChanged(fireSkillButton != null ? fireSkillButton.gameObject : null, isVisible);
+        SetGameObjectActiveIfChanged(skillMenuButton != null ? skillMenuButton.gameObject : null, isVisible);
         SetGameObjectActiveIfChanged(guardButton != null ? guardButton.gameObject : null, isVisible);
-        SetGameObjectActiveIfChanged(iceSkillButton != null ? iceSkillButton.gameObject : null, false);
-        SetGameObjectActiveIfChanged(lightningSkillButton != null ? lightningSkillButton.gameObject : null, false);
-        SetGameObjectActiveIfChanged(earthSkillButton != null ? earthSkillButton.gameObject : null, false);
-        SetGameObjectActiveIfChanged(endTurnButton != null ? endTurnButton.gameObject : null, false);
+        SetGameObjectActiveIfChanged(endTurnButton != null ? endTurnButton.gameObject : null, isVisible);
+        if (isVisible) SetGameObjectActiveIfChanged(skillSubmenuPanel, false);
         SetGameObjectActiveIfChanged(itemButton != null ? itemButton.gameObject : null, false);
     }
 
     public void SetActionButtonsInteractable(bool isInteractable)
     {
         SetButtonInteractable(attackButton, isInteractable);
+        SetButtonInteractable(skillMenuButton, isInteractable);
         SetButtonInteractable(fireSkillButton, isInteractable);
         SetButtonInteractable(iceSkillButton, isInteractable);
         SetButtonInteractable(lightningSkillButton, isInteractable);
@@ -833,9 +938,11 @@ public class BattleUI : MonoBehaviour
             SetActionCommandButtonsVisible(false);
             return;
         }
-        SetActionCommandButtonsVisible(true);
+        bool submenuOpen = skillSubmenuPanel != null && skillSubmenuPanel.activeSelf;
+        SetActionCommandButtonsVisible(!submenuOpen);
 
-        SetButtonInteractable(attackButton, player.HasEnoughAp(basicSkill.apCost) && ProgressState.IsSkillUnlocked(basicSkill.skillName));
+        SetButtonInteractable(attackButton, true);
+        SetButtonInteractable(skillMenuButton, true);
         SetButtonInteractable(fireSkillButton, player.HasEnoughAp(fireSkill.apCost) && ProgressState.IsSkillUnlocked(fireSkill.skillName));
         SetButtonInteractable(iceSkillButton, player.HasEnoughAp(iceSkill.apCost) && ProgressState.IsSkillUnlocked(iceSkill.skillName));
         SetButtonInteractable(lightningSkillButton, player.HasEnoughAp(lightningSkill.apCost) && ProgressState.IsSkillUnlocked(lightningSkill.skillName));
@@ -1851,6 +1958,13 @@ public class BattleUI : MonoBehaviour
     {
         int pct = maxValue > 0 ? Mathf.RoundToInt((float)currentValue / maxValue * 100f) : 0;
         return $"{label}: {currentValue}/{maxValue} ({pct}%)";
+    }
+
+    private static void SetSkillButtonLabel(Button button, SkillData skill)
+    {
+        if (button == null || skill == null) return;
+        TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+        SetTextIfChanged(label, $"{skill.skillName}\nAP {skill.apCost}");
     }
 
     private static void SetTextIfChanged(TMP_Text target, string value)
