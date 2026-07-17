@@ -227,6 +227,61 @@ public static class BattleAutoTestRunner
         if (!passed) throw new System.Exception(report);
     }
 
+    [MenuItem("Tools/Tactical Requiem/Run Enemy Turn QA")]
+    public static void RunEnemyTurnQA()
+    {
+        bool passed = true;
+        string report = "Enemy Turn Intent + Sequential Presentation QA\n\n";
+        ProgressState.Reset();
+        GameObject root = new GameObject("Enemy Turn QA");
+        BattleManager battle = root.AddComponent<BattleManager>();
+        BattleUI ui = root.AddComponent<BattleUI>();
+        SetPrivateField(battle, "battleUI", ui); ConfigureBattlefieldSlots(ui); battle.DebugStartBattleForTest();
+
+        Check(ref passed, ref report, "three living enemies expose real first-turn ATTACK intents", battle.DebugEnemyIntent(0) == "ATTACK → Paladin" && battle.DebugEnemyIntent(1) == "ATTACK → Paladin" && battle.DebugEnemyIntent(2) == "ATTACK → Paladin");
+        Check(ref passed, ref report, "intent labels map to all visual slots at >=14px", ui.DebugEnemySlotIntent(0).Contains("Paladin") && ui.DebugEnemySlotIntent(1).Contains("Paladin") && ui.DebugEnemySlotIntent(2).Contains("Paladin") && ui.DebugEnemyIntentFontSize(0) >= 14f && ui.DebugEnemyIntentFontSize(1) >= 14f && ui.DebugEnemyIntentFontSize(2) >= 14f);
+        battle.DebugSetCurrentHpForTest(true, 0, 0);
+        Check(ref passed, ref report, "intent target updates when the planned target dies", battle.DebugEnemyIntent(0) == "ATTACK → Cleric" && battle.DebugEnemyIntent(1) == "ATTACK → Cleric" && battle.DebugEnemyIntent(2) == "ATTACK → Cleric");
+
+        battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.DebugSetPlayerApForTest(0, 0);
+        int hpBefore = battle.playerParty[0].currentHp; battle.DebugBeginEnemyTurnForTest();
+        Check(ref passed, ref report, "enemy phase locks commands before impact", battle.DebugState == BattleState.EnemyTurn && battle.DebugEnemyActorIndex == 0 && battle.playerParty[0].currentHp == hpBefore && !ui.DebugAnyCommandInteractable && !ui.DebugCommandDockVisible);
+        battle.DebugAdvanceEnemyTurnToImpactForTest(); int hpAfter = battle.playerParty[0].currentHp;
+        Check(ref passed, ref report, "intent target equals actual target and HP changes exactly at impact", hpAfter < hpBefore && battle.DebugEnemyActualTarget(0) == 0 && battle.DebugEnemyActionCount(0) == 1 && battle.DebugEnemyImpactCount == 1 && battle.DebugEnemyIntent(0) == "DONE");
+        battle.DebugAdvanceEnemyTurnToImpactForTest();
+        Check(ref passed, ref report, "duplicate impact hook is idempotent", battle.playerParty[0].currentHp == hpAfter && battle.DebugEnemyImpactCount == 1 && battle.DebugEnemyActionCount(0) == 1);
+        battle.DebugCompleteCurrentEnemyActionForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest(); battle.DebugCompleteCurrentEnemyActionForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest(); battle.DebugCompleteCurrentEnemyActionForTest();
+        Check(ref passed, ref report, "three enemies act once in order then return to PlayerTurn", battle.DebugEnemyActionCount(0) == 1 && battle.DebugEnemyActionCount(1) == 1 && battle.DebugEnemyActionCount(2) == 1 && battle.DebugState == BattleState.PlayerTurn);
+        Check(ref passed, ref report, "AP recovery and PlayerTurn transition occur exactly once", battle.playerParty[0].currentAp == 2 && battle.DebugPlayerTurnRecoveryCount == 1 && ui.DebugTurnBannerText == "PLAYER TURN");
+
+        battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.DebugSetCurrentHpForTest(false, 0, 0); battle.DebugApplyStatusForTest(false, 1, StatusEffectType.Stun, 1); battle.DebugBeginEnemyTurnForTest();
+        Check(ref passed, ref report, "dead first enemy is skipped before selecting actor", battle.DebugEnemyActorIndex == 1 && string.IsNullOrEmpty(battle.DebugEnemyIntent(0)) && string.IsNullOrEmpty(battle.DebugEnemyIntent(1)));
+        battle.DebugAdvanceEnemyTurnToImpactForTest(); battle.DebugCompleteCurrentEnemyActionForTest();
+        Check(ref passed, ref report, "stunned enemy shows STUNNED and does not attack", battle.DebugEnemyActionCount(1) == 0 && ui.DebugFeedbackPopup == "STUNNED");
+        battle.DebugAdvanceEnemyTurnToImpactForTest(); battle.DebugCompleteCurrentEnemyActionForTest();
+        Check(ref passed, ref report, "later living enemy still attacks after dead/stun skips", battle.DebugEnemyActionCount(2) == 1 && battle.DebugState == BattleState.PlayerTurn);
+
+        battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.DebugApplyStatusForTest(false, 0, StatusEffectType.Burn, 2); int burnHp = battle.enemyParty[0].currentHp; battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest();
+        Check(ref passed, ref report, "Burn ticks at resolution then surviving enemy attacks", battle.enemyParty[0].currentHp == burnHp - 5 && battle.DebugEnemyActionCount(0) == 1 && battle.DebugEnemyImpactCount == 1);
+
+        battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.DebugSetCurrentHpForTest(false, 0, 5); battle.DebugApplyStatusForTest(false, 0, StatusEffectType.Burn, 1); battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest();
+        Check(ref passed, ref report, "Burn lethal tick suppresses that enemy attack", battle.enemyParty[0].IsDead() && battle.DebugEnemyActionCount(0) == 0 && string.IsNullOrEmpty(battle.DebugEnemyIntent(0)) && ui.DebugFeedbackPopup == "BURN -5");
+
+        battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.SelectPlayerUnit(0); battle.OnClickGuardButton(); int guardedHp = battle.playerParty[0].currentHp; battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest();
+        Check(ref passed, ref report, "Guard halves final damage and is consumed by one attack", guardedHp - battle.playerParty[0].currentHp == 7 && !battle.DebugIsGuarding(0) && ui.DebugFeedbackPopup == "GUARD");
+
+        UnlockAllSkills(); battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.SelectPlayerUnit(0); battle.OnClickEarthSkillButton(); int shieldHp = battle.playerParty[0].currentHp; battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest();
+        Check(ref passed, ref report, "Earth Wall reports absorbed amount and retains remaining shield", battle.playerParty[0].currentHp == shieldHp && battle.DebugShield(0) == 5 && ui.DebugFeedbackPopup == "BLOCK 15");
+
+        battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); for (int i = 0; i < 3; i++) battle.DebugSetCurrentHpForTest(true, i, 1); battle.DebugBeginEnemyTurnForTest(); battle.DebugCompleteEnemyTurnForTest();
+        Check(ref passed, ref report, "enemy attacks stop on party wipe and enter Defeat", battle.DebugState == BattleState.Defeat && battle.playerParty.TrueForAll(unit => unit.IsDead()));
+
+        battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest(); battle.DebugStartBattleForTest();
+        Check(ref passed, ref report, "restart cleans enemy coroutine/VFX lock and restores fresh intents", battle.DebugState == BattleState.PlayerTurn && !battle.DebugIsEnemyTurnResolving && !ui.DebugActionPresentationLocked && battle.DebugEnemyIntent(0) == "ATTACK → Paladin");
+
+        Object.DestroyImmediate(root); report += passed ? "\nRESULT: PASS" : "\nRESULT: FAIL"; Debug.Log(report); if (!passed) throw new System.Exception(report);
+    }
+
     private static void ConfigureBattlefieldSlots(BattleUI ui)
     {
         Image[] allyBodies = new Image[3]; Slider[] allyHp = new Slider[3]; TMP_Text[] allyHpText = new TMP_Text[3]; TMP_Text[] allyStatus = new TMP_Text[3]; Image[] allyOverlays = new Image[3]; Image[] allyIndicators = new Image[3]; Button[] allyButtons = new Button[3];
@@ -241,6 +296,9 @@ public static class BattleAutoTestRunner
         TMP_Text messageText = new GameObject("Battle Test Message", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TMP_Text>();
         messageText.transform.SetParent(ui.transform, false);
         SetPrivateField(ui, "messageText", messageText);
+        GameObject turnBanner = new GameObject("Turn Banner Test", typeof(RectTransform), typeof(Image)); turnBanner.transform.SetParent(ui.transform, false);
+        TMP_Text turnBannerText = new GameObject("Turn Banner Text Test", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TMP_Text>(); turnBannerText.transform.SetParent(turnBanner.transform, false);
+        turnBanner.SetActive(false); SetPrivateField(ui, "turnBannerPanel", turnBanner); SetPrivateField(ui, "turnBannerText", turnBannerText);
         GameObject commandDock = new GameObject("Command Dock Test", typeof(RectTransform), typeof(Image)); commandDock.transform.SetParent(ui.transform, false); commandDock.SetActive(false);
         GameObject skillSubmenu = new GameObject("Skill Submenu Test", typeof(RectTransform)); skillSubmenu.transform.SetParent(commandDock.transform, false); skillSubmenu.SetActive(false);
         TMP_Text actorSummary = new GameObject("Actor Summary Test", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TMP_Text>(); actorSummary.transform.SetParent(commandDock.transform, false);

@@ -164,6 +164,7 @@ public class BattleUI : MonoBehaviour
     private Vector2 feedbackActorBasePosition;
     private Vector2 feedbackTargetBasePosition;
     private Color feedbackTargetBaseColor = Color.white;
+    private TMP_Text[] enemyIntentLabels;
     private TMP_Text speedToggleLabel;
     private Image playerHpFillImage;
     private Image playerApFillImage;
@@ -232,6 +233,8 @@ public class BattleUI : MonoBehaviour
     public float DebugFeedbackActorOffset => feedbackActorRect != null ? Vector2.Distance(feedbackActorRect.anchoredPosition, feedbackActorBasePosition) : 0f;
     public bool DebugHasTransientFeedbackNamed(string objectName) => transientFeedbackObjects.Any(item => item != null && item.name == objectName);
     public bool DebugEnemyOverlayActive(int slot) => enemySlotStatusOverlays != null && slot >= 0 && slot < enemySlotStatusOverlays.Length && enemySlotStatusOverlays[slot] != null && enemySlotStatusOverlays[slot].gameObject.activeSelf;
+    public string DebugEnemySlotIntent(int slot) => enemyIntentLabels != null && slot >= 0 && slot < enemyIntentLabels.Length && enemyIntentLabels[slot] != null ? enemyIntentLabels[slot].text : "";
+    public float DebugEnemyIntentFontSize(int slot) => enemyIntentLabels != null && slot >= 0 && slot < enemyIntentLabels.Length && enemyIntentLabels[slot] != null ? enemyIntentLabels[slot].fontSize : 0f;
     public void DebugClickAttackButton() => InvokeIfInteractable(attackButton);
     public void DebugClickGuardButton() => InvokeIfInteractable(guardButton);
     public void DebugClickSkillMenuButton() => InvokeIfInteractable(skillMenuButton);
@@ -617,7 +620,7 @@ public class BattleUI : MonoBehaviour
     // --- Main Update ---
 
     /// <summary>Renders the complete 3v3 model; identity, HP, actor ring, and target ring live on battlefield slots.</summary>
-    public void UpdatePartyUI(BattleState state, List<CharacterData> party, List<CharacterData> enemies, int selectedPlayerIndex, int selectedEnemyIndex, IReadOnlyCollection<int> actedMembers, string message, StageData stage, int enemyTurnCount, IDictionary<CharacterData, bool> guarding, IDictionary<CharacterData, int> shields)
+    public void UpdatePartyUI(BattleState state, List<CharacterData> party, List<CharacterData> enemies, int selectedPlayerIndex, int selectedEnemyIndex, IReadOnlyCollection<int> actedMembers, string message, StageData stage, int enemyTurnCount, IDictionary<CharacterData, bool> guarding, IDictionary<CharacterData, int> shields, IReadOnlyList<string> enemyIntents = null, int activeEnemyIndex = -1, int warnedPlayerIndex = -1)
     {
         CharacterData selectedPlayer = GetUnit(party, selectedPlayerIndex) ?? GetFirstLiving(party);
         CharacterData selectedEnemy = GetUnit(enemies, selectedEnemyIndex) ?? GetFirstLiving(enemies);
@@ -640,6 +643,43 @@ public class BattleUI : MonoBehaviour
         DebugPartyState = BuildPartyDebug("P", party, selectedPlayerIndex, actedMembers) + "|" + BuildPartyDebug("E", enemies, selectedEnemyIndex, null);
         DebugTargetState = $"actor={selectedPlayerIndex};target={selectedEnemyIndex};acted={string.Join(",", actedMembers ?? Array.Empty<int>())}";
         UpdateBattlefieldSlots(party, enemies, selectedPlayerIndex, selectedEnemyIndex, actedMembers, guarding, shields);
+        UpdateEnemyIntentLabels(state, enemies, enemyIntents, activeEnemyIndex);
+    }
+
+    private void UpdateEnemyIntentLabels(BattleState state, List<CharacterData> enemies, IReadOnlyList<string> intents, int activeEnemyIndex)
+    {
+        EnsureEnemyIntentLabels();
+        if (enemyIntentLabels == null) return;
+        for (int slot = 0; slot < enemyIntentLabels.Length; slot++)
+        {
+            TMP_Text label = enemyIntentLabels[slot]; if (label == null) continue;
+            int partyIndex = FindUnitIndex(enemies, GetSlotVisualId(false, slot));
+            CharacterData enemy = partyIndex >= 0 ? enemies[partyIndex] : null;
+            string intent = partyIndex >= 0 && intents != null && partyIndex < intents.Count ? intents[partyIndex] : "";
+            bool visible = enemy != null && !enemy.IsDead() && !enemy.HasStatusEffect(StatusEffectType.Stun) && !string.IsNullOrEmpty(intent) && state != BattleState.Victory && state != BattleState.Defeat;
+            label.text = visible ? intent : ""; label.gameObject.SetActive(visible);
+            label.color = partyIndex == activeEnemyIndex ? new Color(1f, 0.58f, 0.24f) : new Color(1f, 0.82f, 0.48f);
+        }
+    }
+
+    private void EnsureEnemyIntentLabels()
+    {
+        if (enemyIntentLabels != null && enemyIntentLabels.Length == 3 && enemyIntentLabels.All(item => item != null)) return;
+        enemyIntentLabels = new TMP_Text[3];
+        for (int slot = 0; slot < 3; slot++)
+        {
+            if (!HasSlotAt(enemySlotBodies, slot)) continue;
+            Transform existing = enemySlotBodies[slot].transform.Find("Enemy Intent Label");
+            TMP_Text label = existing != null ? existing.GetComponent<TMP_Text>() : null;
+            if (label == null)
+            {
+                GameObject obj = new GameObject("Enemy Intent Label", typeof(RectTransform), typeof(TextMeshProUGUI)); obj.transform.SetParent(enemySlotBodies[slot].transform, false); label = obj.GetComponent<TextMeshProUGUI>();
+            }
+            RectTransform rect = label.rectTransform; rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f); rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(210f, 24f); rect.anchoredPosition = new Vector2(0f, -enemySlotBodies[slot].rectTransform.sizeDelta.y * 0.5f - 38f);
+            label.fontSize = 14f; label.fontStyle = FontStyles.Bold; label.alignment = TextAlignmentOptions.Center; label.enableWordWrapping = false; label.overflowMode = TextOverflowModes.Overflow; label.raycastTarget = false;
+            enemyIntentLabels[slot] = label;
+        }
     }
 
     private void UpdateBattlefieldSlots(List<CharacterData> party, List<CharacterData> enemies, int selectedPlayerIndex, int selectedEnemyIndex, IReadOnlyCollection<int> actedMembers, IDictionary<CharacterData, bool> guarding, IDictionary<CharacterData, int> shields)
@@ -1870,6 +1910,63 @@ public class BattleUI : MonoBehaviour
         if (burst != null) TrackFeedbackCoroutine(PulseFeedbackRoutine(burst, 0.32f));
     }
 
+    public void BeginEnemyActionFeedback(BattleVisualId actorVisual, BattleVisualId targetVisual)
+    {
+        EndEnemyActionFeedback(); feedbackKind = "EnemyAttack"; feedbackPopup = "";
+        feedbackActorRect = GetSlotBodyRect(enemySlotBodies, false, actorVisual);
+        feedbackTargetRect = GetSlotBodyRect(allySlotBodies, true, targetVisual);
+        if (feedbackActorRect != null) feedbackActorBasePosition = feedbackActorRect.anchoredPosition;
+        if (feedbackTargetRect != null) { feedbackTargetBasePosition = feedbackTargetRect.anchoredPosition; Image image = feedbackTargetRect.GetComponent<Image>(); feedbackTargetBaseColor = image != null ? image.color : Color.white; }
+        SetActionPresentationLocked(true);
+        if (!Application.isPlaying) return;
+        if (feedbackActorRect != null)
+        {
+            TMP_Text ring = CreateFeedbackGlyphAt(feedbackActorRect, "Enemy Actor Ring", "O", 92f, new Color(1f, 0.34f, 0.12f, 0.72f), Vector2.zero);
+            if (ring != null) TrackFeedbackCoroutine(PulseFeedbackRoutine(ring, 0.70f));
+            feedbackLungeRoutine = TrackFeedbackCoroutine(ActionLungeRoutine(feedbackActorRect, -42f, 0.62f));
+        }
+        if (feedbackTargetRect != null)
+        {
+            TMP_Text warning = CreateFeedbackGlyphAt(feedbackTargetRect, "Enemy Target Warning", "!", 54f, new Color(1f, 0.20f, 0.16f), new Vector2(0f, 72f));
+            if (warning != null) TrackFeedbackCoroutine(PulseFeedbackRoutine(warning, 0.48f));
+        }
+    }
+
+    public void ShowEnemyAttackImpact(int finalDamage, int absorbed, bool guarded)
+    {
+        feedbackPopup = absorbed > 0 ? $"BLOCK {absorbed}" : guarded ? "GUARD" : finalDamage > 0 ? $"-{finalDamage}" : "";
+        if (!Application.isPlaying || feedbackTargetRect == null) return;
+        feedbackTargetHitRoutine = TrackFeedbackCoroutine(TargetHitRoutine(feedbackTargetRect, 0.18f));
+        if (finalDamage > 0)
+        {
+            TMP_Text damage = CreateFeedbackGlyphAt(feedbackTargetRect, "Enemy Damage Popup", $"-{finalDamage}", 30f, new Color(1f, 0.82f, 0.76f), new Vector2(0f, 58f));
+            if (damage != null) TrackFeedbackCoroutine(PopupFeedbackRoutine(damage, 0.85f));
+        }
+        string defense = absorbed > 0 ? $"BLOCK {absorbed}" : guarded ? "GUARD" : "";
+        if (!string.IsNullOrEmpty(defense))
+        {
+            TMP_Text block = CreateFeedbackGlyphAt(feedbackTargetRect, "Enemy Defense Popup", defense, 25f, new Color(0.30f, 0.88f, 1f), new Vector2(0f, 91f));
+            if (block != null) TrackFeedbackCoroutine(PopupFeedbackRoutine(block, 0.85f));
+        }
+        TMP_Text burst = CreateFeedbackGlyphAt(feedbackTargetRect, "Enemy Impact Burst", "*", 62f, new Color(1f, 0.34f, 0.20f, 0.72f), Vector2.zero);
+        if (burst != null) TrackFeedbackCoroutine(PulseFeedbackRoutine(burst, 0.34f));
+    }
+
+    public void ShowEnemyStatusPopup(BattleVisualId enemyVisual, string popup, Color color)
+    {
+        RectTransform body = GetSlotBodyRect(enemySlotBodies, false, enemyVisual); feedbackPopup = popup;
+        if (!Application.isPlaying || body == null) return;
+        TMP_Text text = CreateFeedbackGlyphAt(body, "Enemy Status Tick Popup", popup, 27f, color, new Vector2(0f, 72f));
+        if (text != null) TrackFeedbackCoroutine(PopupFeedbackRoutine(text, 0.72f));
+    }
+
+    public void EndEnemyActionFeedback()
+    {
+        if (feedbackLungeRoutine != null) StopCoroutine(feedbackLungeRoutine);
+        if (feedbackTargetHitRoutine != null) StopCoroutine(feedbackTargetHitRoutine);
+        feedbackLungeRoutine = feedbackTargetHitRoutine = null; RestoreFeedbackActor(); RestoreFeedbackTargetTransform();
+    }
+
     public void EndActionFeedback()
     {
         SetActionPresentationLocked(false);
@@ -2078,7 +2175,11 @@ public class BattleUI : MonoBehaviour
         RectTransform rt = turnBannerPanel.GetComponent<RectTransform>();
         if (rt != null)
         {
-            rt.localScale = Vector3.one * 1.3f;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(320f, 44f);
+            rt.anchoredPosition = new Vector2(0f, 246f);
+            if (turnBannerText != null) { turnBannerText.fontSize = 22f; turnBannerText.enableWordWrapping = false; }
+            rt.localScale = Vector3.one * 1.12f;
             StartCoroutine(TurnBannerRoutine(rt, turnBannerPanel, holdDuration));
         }
     }

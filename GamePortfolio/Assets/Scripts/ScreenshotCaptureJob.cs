@@ -206,11 +206,40 @@ public class ScreenshotCaptureJob : MonoBehaviour
         yield return Capture("07_guard_feedback.png");
         manager.DebugCompletePresentationForTest();
 
+        // 08: player-turn overview with all three live enemies exposing their real next action and target.
+        manager.DebugSetPresentationManualForTest(false); manager.DebugSetEnemyTurnManualForTest(true); manager.DebugStartBattleForTest();
+        yield return new WaitForSeconds(0.15f);
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugEnemySlotIntent(0).Contains("Paladin") && battleUi.DebugEnemySlotIntent(1).Contains("Paladin") && battleUi.DebugEnemySlotIntent(2).Contains("Paladin"), "all live enemies render real target intents during PlayerTurn");
+        yield return Capture("08_enemy_intents.png");
+
+        // 09: deterministic enemy lunge and authoritative impact frame.
+        int enemyImpactHp = manager.playerParty[0].currentHp;
+        manager.DebugBeginEnemyTurnForTest(); yield return new WaitForSeconds(0.75f); manager.DebugAdvanceEnemyTurnToImpactForTest();
+        yield return new WaitForSeconds(0.24f);
+        RequireRuntimeFeedback(manager.playerParty[0].currentHp < enemyImpactHp && manager.DebugEnemyImpactCount == 1 && battleUi != null && battleUi.DebugFeedbackActorOffset >= 30f && battleUi.DebugFeedbackActorOffset <= 50f && battleUi.DebugFeedbackPopup.StartsWith("-"), "enemy lunge reaches 30-50px and HP changes once at impact");
+        yield return Capture("09_enemy_attack_impact.png");
+
+        // 10: Guard is consumed by exactly one enemy impact and shows only reduced final damage.
+        manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true); manager.SelectPlayerUnit(0); manager.OnClickGuardButton(); manager.DebugAdvancePresentationToImpactForTest(); manager.DebugCompletePresentationForTest();
+        yield return new WaitForSeconds(0.85f);
+        int guardedImpactHp = manager.playerParty[0].currentHp; manager.DebugSetEnemyTurnManualForTest(true); manager.DebugBeginEnemyTurnForTest(); yield return new WaitForSeconds(0.75f); manager.DebugAdvanceEnemyTurnToImpactForTest();
+        yield return new WaitForSeconds(0.24f);
+        RequireRuntimeFeedback(guardedImpactHp - manager.playerParty[0].currentHp == 7 && !manager.DebugIsGuarding(0) && battleUi != null && battleUi.DebugFeedbackPopup == "GUARD", "Guard halves final damage, displays GUARD, and is consumed once");
+        yield return Capture("10_guard_block.png");
+
+        // 11: complete the remaining enemies, recover AP once, then expose the compact PLAYER TURN banner and recovered actor AP.
+        manager.DebugCompleteCurrentEnemyActionForTest(); manager.DebugAdvanceEnemyTurnToImpactForTest(); manager.DebugCompleteCurrentEnemyActionForTest(); manager.DebugAdvanceEnemyTurnToImpactForTest(); manager.DebugCompleteCurrentEnemyActionForTest();
+        bool selectedRecoveredActor = manager.SelectPlayerUnit(0); yield return new WaitForSeconds(0.05f);
+        RequireRuntimeFeedback(manager.DebugState == BattleState.PlayerTurn && manager.DebugPlayerTurnRecoveryCount == 1 && selectedRecoveredActor && manager.playerParty[0].currentAp == manager.playerParty[0].maxAp && battleUi != null && battleUi.DebugTurnBannerText == "PLAYER TURN", "PlayerTurn returns once after AP recovery and displays the compact banner");
+        yield return Capture("11_player_turn_return.png");
+        manager.DebugSetPresentationManualForTest(false); manager.DebugSetEnemyTurnManualForTest(false);
+
         // Runtime-only regression: lethal impact must still use the cached body after its selector disappears.
         manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true);
         manager.DebugSetCurrentHpForTest(false, 0, 1); manager.SelectPlayerUnit(0); manager.SelectEnemyTarget(0); manager.OnClickAttackButton();
         RequireRuntimeFeedback(battleUi != null && battleUi.DebugHasCachedFeedbackTarget, "lethal ATTACK caches its target body before impact");
-        manager.DebugAdvancePresentationToImpactForTest(); yield return null;
+        manager.DebugAdvancePresentationToImpactForTest(); yield return new WaitForSeconds(0.03f);
+        Debug.Log($"[Capture QA] lethal state: transients={battleUi?.DebugTransientFeedbackCount}; popup={battleUi?.DebugFeedbackPopup}; cached={battleUi?.DebugHasCachedFeedbackTarget}");
         RequireRuntimeFeedback(battleUi != null && battleUi.DebugTransientFeedbackCount >= 2 && battleUi.DebugFeedbackPopup == "-20", "lethal ATTACK keeps impact VFX after target death");
         manager.DebugCompletePresentationForTest();
 

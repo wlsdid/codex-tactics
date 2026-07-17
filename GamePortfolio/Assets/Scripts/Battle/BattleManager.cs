@@ -37,6 +37,13 @@ public class BattleManager : MonoBehaviour
     private SkillData presentationSkill;
     private string presentationCompletionText = "";
     private Coroutine presentationRoutine;
+    private Coroutine enemyTurnRoutine;
+    private readonly List<string> enemyIntents = new List<string>();
+    private readonly List<int> enemyActionCounts = new List<int>();
+    private readonly List<int> enemyActualTargets = new List<int>();
+    private bool enemyTurnManual, enemyImpactApplied, enemyStatusResolved, playerTurnRecovered;
+    private int enemyActorIndex = -1, enemyTargetIndex = -1, enemyPendingDamage;
+    private int enemyAbsorbedDamage, enemyFinalDamage, enemyImpactCount, playerTurnRecoveryCount;
 
     public BattleState DebugState => currentState;
     public int DebugPlayerPartyCount => playerParty.Count;
@@ -57,11 +64,25 @@ public class BattleManager : MonoBehaviour
     public int DebugEnemyTurnCount => enemyTurnCount;
     public bool DebugIsPresentationLocked => isActionResolving;
     public int DebugImpactApplicationCount => impactApplicationCount;
+    public bool DebugIsEnemyTurnResolving => enemyTurnRoutine != null || (currentState == BattleState.EnemyTurn && enemyActorIndex >= 0);
+    public int DebugEnemyActorIndex => enemyActorIndex;
+    public int DebugEnemyTargetIndex => enemyTargetIndex;
+    public int DebugEnemyImpactCount => enemyImpactCount;
+    public int DebugPlayerTurnRecoveryCount => playerTurnRecoveryCount;
+    public string DebugEnemyIntent(int index) => index >= 0 && index < enemyIntents.Count ? enemyIntents[index] : "";
+    public int DebugEnemyActionCount(int index) => index >= 0 && index < enemyActionCounts.Count ? enemyActionCounts[index] : 0;
+    public int DebugEnemyActualTarget(int index) => index >= 0 && index < enemyActualTargets.Count ? enemyActualTargets[index] : -1;
     public void DebugSetPresentationManualForTest(bool manual) { presentationManual = manual; }
     public void DebugAdvancePresentationToImpactForTest() { ApplyPresentationImpact(); }
     public void DebugCompletePresentationForTest() { if (isActionResolving) { ApplyPresentationImpact(); CompleteActionPresentation(); } }
     public void DebugClearEnemyTargetForTest() { SelectedEnemyIndex = -1; pendingTargetSkill = null; message = "Select a target"; RefreshUI(); }
     public void DebugEnterEnemyTurnForTest() { currentState = BattleState.EnemyTurn; RefreshUI(); }
+    public void DebugSetEnemyTurnManualForTest(bool manual) { enemyTurnManual = manual; }
+    public void DebugBeginEnemyTurnForTest() { if (currentState == BattleState.PlayerTurn) EndPlayerPhase(); }
+    public void DebugAdvanceEnemyTurnToImpactForTest() { AdvanceEnemyTurnToImpact(); }
+    public void DebugCompleteCurrentEnemyActionForTest() { CompleteCurrentEnemyAction(); }
+    public void DebugCompleteEnemyTurnForTest() { while (currentState == BattleState.EnemyTurn) { AdvanceEnemyTurnToImpact(); CompleteCurrentEnemyAction(); } }
+    public void DebugApplyStatusForTest(bool isPlayer, int index, StatusEffectType status, int turns) { List<CharacterData> list = isPlayer ? playerParty : enemyParty; if (index >= 0 && index < list.Count) { list[index].ApplyStatusEffect(status, turns); RefreshUI(); } }
 
     private int CfgPlayerHp => balanceConfig != null ? balanceConfig.playerMaxHp : 100;
     private int CfgPlayerAttack => balanceConfig != null ? balanceConfig.playerAttack : 20;
@@ -84,7 +105,7 @@ public class BattleManager : MonoBehaviour
     }
     public void DebugStartBattleForTest() { StartBattle(); }
     public void DebugLoadEncountersForStage(int stageIndex) { stageEncounters = StageData.GetEncountersForStage(stageIndex); currentStageIndex = 0; }
-    public void DebugSetCurrentHpForTest(bool isPlayer, int index, int hp) { List<CharacterData> list = isPlayer ? playerParty : enemyParty; if (index >= 0 && index < list.Count) { list[index].currentHp = Mathf.Max(0, hp); RefreshUI(); } }
+    public void DebugSetCurrentHpForTest(bool isPlayer, int index, int hp) { List<CharacterData> list = isPlayer ? playerParty : enemyParty; if (index >= 0 && index < list.Count) { list[index].currentHp = Mathf.Max(0, hp); RefreshEnemyIntents(); RefreshUI(); } }
     public void DebugSetPlayerApForTest(int index, int ap) { if (index >= 0 && index < playerParty.Count) playerParty[index].currentAp = Mathf.Clamp(ap, 0, playerParty[index].maxAp); RefreshUI(); }
     public bool DebugIsGuarding(int index) => index >= 0 && index < playerParty.Count && guarding.TryGetValue(playerParty[index], out bool value) && value;
     public int DebugShield(int index) => index >= 0 && index < playerParty.Count && earthShield.TryGetValue(playerParty[index], out int value) ? value : 0;
@@ -92,6 +113,7 @@ public class BattleManager : MonoBehaviour
     private void StartBattle()
     {
         CancelActionPresentation();
+        CancelEnemyTurn();
         if (stageEncounters == null || stageEncounters.Count == 0) stageEncounters = StageData.GetEncountersForStage(0);
         currentStageIndex = Mathf.Clamp(currentStageIndex, 0, stageEncounters.Count - 1);
         StageData stage = stageEncounters[currentStageIndex];
@@ -101,12 +123,15 @@ public class BattleManager : MonoBehaviour
         foreach (EnemyData definition in stage.enemies.Take(3)) { enemyParty.Add(new CharacterData(definition.enemyName, definition.maxHp, definition.pattern.normalAttackDamage, definition.weakness, 0, definition.visualId)); enemyPatterns.Add(definition.pattern); }
         guarding.Clear(); earthShield.Clear(); actedPlayerIndices.Clear(); pendingTargetSkill = null; SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty);
         enemyTurnCount = totalDamageDealt = totalDamageTaken = guardUseCount = skillsUsedCount = 0; rewardClaimed = false; resultSummary = "";
+        enemyImpactCount = playerTurnRecoveryCount = 0; playerTurnRecovered = false;
+        enemyIntents.Clear(); enemyActionCounts.Clear(); enemyActualTargets.Clear();
+        for (int i = 0; i < enemyParty.Count; i++) { enemyIntents.Add(""); enemyActionCounts.Add(0); enemyActualTargets.Add(-1); }
         slash = new SkillData("Slash", balanceConfig != null ? balanceConfig.basicSkillPower : 20, balanceConfig != null ? balanceConfig.basicSkillApCost : 0, ElementType.Physical, StatusEffectType.None);
         fire = new SkillData("Fire Bolt", balanceConfig != null ? balanceConfig.fireSkillPower : 30, balanceConfig != null ? balanceConfig.fireSkillApCost : 2, ElementType.Fire, StatusEffectType.Burn);
         ice = new SkillData("Ice Lance", balanceConfig != null ? balanceConfig.iceSkillPower : 25, balanceConfig != null ? balanceConfig.iceSkillApCost : 1, ElementType.Ice, StatusEffectType.Stun);
         lightning = new SkillData("Lightning Strike", balanceConfig != null ? balanceConfig.lightningSkillPower : 40, balanceConfig != null ? balanceConfig.lightningSkillApCost : 3, ElementType.Lightning, StatusEffectType.None);
         earth = new SkillData("Earth Wall", balanceConfig != null ? balanceConfig.earthSkillPower : 22, balanceConfig != null ? balanceConfig.earthSkillApCost : 2, ElementType.Earth, StatusEffectType.None);
-        currentState = BattleState.PlayerTurn; message = "Player phase: select a living party unit and target.";
+        currentState = BattleState.PlayerTurn; message = "Player phase: select a living party unit and target."; RefreshEnemyIntents();
         if (battleUI != null) { battleUI.BindBattleManager(this); battleUI.StartNewBattle(); } RefreshUI();
     }
     private CharacterData MakePlayer(string name, int hp, int attack, BattleVisualId visualId) { return new CharacterData(name, hp, attack, ElementType.None, CfgPlayerAp, visualId); }
@@ -298,26 +323,168 @@ public class BattleManager : MonoBehaviour
         pendingTargetSkill = null; actedPlayerIndices.Add(SelectedPlayerIndex); message = text; if (AllDead(enemyParty)) { EndBattle(BattleState.Victory); return; }
         SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty); if (FirstAvailablePlayer() < 0) EndPlayerPhase(); else RefreshUI();
     }
-    private void EndPlayerPhase() { if (currentState != BattleState.PlayerTurn) return; currentState = BattleState.EnemyTurn; ResolveEnemyTurn(); }
-    private void ResolveEnemyTurn()
+    private void EndPlayerPhase()
     {
+        if (currentState != BattleState.PlayerTurn || enemyTurnRoutine != null) return;
         if (AllDead(playerParty)) { EndBattle(BattleState.Defeat); return; }
-        enemyTurnCount++;
-        foreach (CharacterData enemy in enemyParty)
-        {
-            if (enemy.IsDead()) continue;
-            if (enemy.HasStatusEffect(StatusEffectType.Burn)) { enemy.TakeDamage(CfgBurn); enemy.ReduceStatusTurn(); if (enemy.IsDead()) continue; }
-            if (enemy.HasStatusEffect(StatusEffectType.Stun)) { enemy.ReduceStatusTurn(); continue; }
-            int targetIndex = FirstLiving(playerParty); if (targetIndex < 0) break; CharacterData target = playerParty[targetIndex]; int damage = enemy.attackPower;
-            if (earthShield.TryGetValue(target, out int shield) && shield > 0) { int absorbed = Mathf.Min(shield, damage); damage -= absorbed; earthShield[target] = shield - absorbed; }
-            if (guarding.TryGetValue(target, out bool isGuarding) && isGuarding) { damage = Mathf.FloorToInt(damage * (100 - CfgGuard) / 100f); guarding[target] = false; }
-            target.TakeDamage(damage); totalDamageTaken += damage; message = $"{enemy.characterName} attacks {target.characterName} for {damage}.";
-            if (AllDead(playerParty)) { EndBattle(BattleState.Defeat); return; }
-        }
-        if (AllDead(enemyParty)) { EndBattle(BattleState.Victory); return; }
-        currentState = BattleState.PlayerTurn; actedPlayerIndices.Clear(); foreach (CharacterData unit in playerParty) if (!unit.IsDead()) unit.RecoverAp(CfgRecover); SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty); message = "Player phase: select a living party unit and target."; RefreshUI();
+        currentState = BattleState.EnemyTurn; enemyTurnCount++; playerTurnRecovered = false; enemyActorIndex = -1;
+        SelectedPlayerIndex = SelectedEnemyIndex = -1; RefreshEnemyIntents(); RefreshUI();
+        if (battleUI != null) { battleUI.SetActionPresentationLocked(true); battleUI.ShowTurnBanner("ENEMY TURN", new Color(1f, 0.48f, 0.28f), 0.35f); }
+        BeginNextEnemyAction();
+        if (!enemyTurnManual && Application.isPlaying) enemyTurnRoutine = StartCoroutine(EnemyTurnRoutine());
+        else if (!enemyTurnManual) ResolveEnemyTurnImmediately();
     }
-    public void DebugResolveEnemyAttackForTest() { currentState = BattleState.EnemyTurn; ResolveEnemyTurn(); }
+
+    private IEnumerator EnemyTurnRoutine()
+    {
+        yield return new WaitForSeconds(0.75f);
+        while (currentState == BattleState.EnemyTurn && enemyActorIndex >= 0)
+        {
+            CharacterData enemy = enemyParty[enemyActorIndex];
+            if (enemy.HasStatusEffect(StatusEffectType.Burn))
+            {
+                ApplyBurnTick(enemyActorIndex); yield return new WaitForSeconds(0.18f);
+                if (enemy.IsDead()) { CompleteCurrentEnemyAction(); yield return new WaitForSeconds(0.18f); continue; }
+            }
+            if (enemy.HasStatusEffect(StatusEffectType.Stun))
+            {
+                enemy.ReduceStatusTurn(); enemyIntents[enemyActorIndex] = ""; message = $"{enemy.characterName} is stunned.";
+                if (battleUI != null) battleUI.ShowEnemyStatusPopup(enemy.visualId, "STUNNED", new Color(0.35f, 0.78f, 1f));
+                RefreshUI(); yield return new WaitForSeconds(0.58f); CompleteCurrentEnemyAction(); yield return new WaitForSeconds(0.18f); continue;
+            }
+            PrepareEnemyAttack();
+            if (battleUI != null) battleUI.BeginEnemyActionFeedback(enemy.visualId, playerParty[enemyTargetIndex].visualId);
+            yield return new WaitForSeconds(0.32f);
+            ApplyEnemyAttackImpact();
+            yield return new WaitForSeconds(0.30f);
+            CompleteCurrentEnemyAction();
+            yield return new WaitForSeconds(0.20f);
+        }
+        if (currentState == BattleState.EnemyTurn) ReturnToPlayerTurn();
+    }
+
+    private bool BeginNextEnemyAction()
+    {
+        if (currentState != BattleState.EnemyTurn) return false;
+        int next = enemyActorIndex + 1;
+        while (next < enemyParty.Count && enemyParty[next].IsDead()) { enemyIntents[next] = ""; next++; }
+        if (next >= enemyParty.Count) return false;
+        enemyActorIndex = next; enemyTargetIndex = -1; enemyImpactApplied = enemyStatusResolved = false; enemyPendingDamage = enemyFinalDamage = enemyAbsorbedDamage = 0;
+        RefreshUI(); return true;
+    }
+
+    private void PrepareEnemyAttack()
+    {
+        if (enemyActorIndex < 0 || enemyActorIndex >= enemyParty.Count) return;
+        enemyTargetIndex = FirstLiving(playerParty);
+        if (enemyTargetIndex < 0) { EndBattle(BattleState.Defeat); return; }
+        EnemyPatternData pattern = enemyPatterns[enemyActorIndex];
+        enemyPendingDamage = pattern.GetDamageForTurn(enemyTurnCount);
+        enemyActualTargets[enemyActorIndex] = enemyTargetIndex;
+        enemyIntents[enemyActorIndex] = BuildEnemyIntent(enemyActorIndex, enemyTargetIndex);
+        RefreshUI();
+    }
+
+    private void AdvanceEnemyTurnToImpact()
+    {
+        if (currentState != BattleState.EnemyTurn) return;
+        if (enemyActorIndex < 0 && !BeginNextEnemyAction()) { ReturnToPlayerTurn(); return; }
+        CharacterData enemy = enemyParty[enemyActorIndex];
+        if (enemy.IsDead()) return;
+        if (!enemyStatusResolved && enemy.HasStatusEffect(StatusEffectType.Burn))
+        {
+            ApplyBurnTick(enemyActorIndex);
+            if (enemy.IsDead()) return;
+        }
+        if (!enemyStatusResolved && enemy.HasStatusEffect(StatusEffectType.Stun))
+        {
+            enemy.ReduceStatusTurn(); enemyIntents[enemyActorIndex] = ""; message = $"{enemy.characterName} is stunned.";
+            if (battleUI != null) battleUI.ShowEnemyStatusPopup(enemy.visualId, "STUNNED", new Color(0.35f, 0.78f, 1f));
+            enemyStatusResolved = true; RefreshUI(); return;
+        }
+        enemyStatusResolved = true;
+        if (enemyTargetIndex < 0) PrepareEnemyAttack();
+        if (currentState != BattleState.EnemyTurn) return;
+        if (battleUI != null && !enemyImpactApplied) battleUI.BeginEnemyActionFeedback(enemy.visualId, playerParty[enemyTargetIndex].visualId);
+        ApplyEnemyAttackImpact();
+    }
+
+    private void ApplyBurnTick(int index)
+    {
+        CharacterData enemy = enemyParty[index];
+        enemy.TakeDamage(CfgBurn); enemy.ReduceStatusTurn(); enemyStatusResolved = true; message = $"{enemy.characterName} takes Burn damage.";
+        if (battleUI != null) battleUI.ShowEnemyStatusPopup(enemy.visualId, $"BURN -{CfgBurn}", new Color(1f, 0.35f, 0.12f));
+        if (enemy.IsDead()) enemyIntents[index] = "";
+        RefreshUI();
+    }
+
+    private void ApplyEnemyAttackImpact()
+    {
+        if (enemyImpactApplied || enemyActorIndex < 0 || enemyTargetIndex < 0 || currentState != BattleState.EnemyTurn) return;
+        enemyImpactApplied = true; enemyImpactCount++; CharacterData target = playerParty[enemyTargetIndex];
+        int damage = enemyPendingDamage; int absorbed = 0; bool guarded = false;
+        if (earthShield.TryGetValue(target, out int shield) && shield > 0) { absorbed = Mathf.Min(shield, damage); damage -= absorbed; earthShield[target] = shield - absorbed; }
+        if (guarding.TryGetValue(target, out bool isGuarding) && isGuarding) { damage = Mathf.FloorToInt(damage * (100 - CfgGuard) / 100f); guarding[target] = false; guarded = true; }
+        enemyAbsorbedDamage = absorbed; enemyFinalDamage = damage; target.TakeDamage(damage); totalDamageTaken += damage;
+        enemyActionCounts[enemyActorIndex]++; enemyActualTargets[enemyActorIndex] = enemyTargetIndex; enemyIntents[enemyActorIndex] = "DONE";
+        message = $"{enemyParty[enemyActorIndex].characterName} attacks {target.characterName} for {damage}.";
+        RefreshUI();
+        if (battleUI != null) battleUI.ShowEnemyAttackImpact(damage, absorbed, guarded);
+        if (AllDead(playerParty)) EndBattle(BattleState.Defeat);
+    }
+
+    private void CompleteCurrentEnemyAction()
+    {
+        if (currentState != BattleState.EnemyTurn) return;
+        if (battleUI != null) battleUI.EndEnemyActionFeedback();
+        int completed = enemyActorIndex; enemyActorIndex = -1; enemyTargetIndex = -1; enemyImpactApplied = enemyStatusResolved = false;
+        int next = completed + 1; while (next < enemyParty.Count && enemyParty[next].IsDead()) next++;
+        if (next >= enemyParty.Count) { ReturnToPlayerTurn(); return; }
+        enemyActorIndex = next - 1; BeginNextEnemyAction();
+    }
+
+    private void ResolveEnemyTurnImmediately()
+    {
+        while (currentState == BattleState.EnemyTurn && enemyActorIndex >= 0) { AdvanceEnemyTurnToImpact(); CompleteCurrentEnemyAction(); }
+        if (currentState == BattleState.EnemyTurn) ReturnToPlayerTurn();
+    }
+
+    private void ReturnToPlayerTurn()
+    {
+        if (currentState != BattleState.EnemyTurn || playerTurnRecovered) return;
+        playerTurnRecovered = true; playerTurnRecoveryCount++; enemyTurnRoutine = null; currentState = BattleState.PlayerTurn; actedPlayerIndices.Clear();
+        foreach (CharacterData unit in playerParty) if (!unit.IsDead()) unit.RecoverAp(CfgRecover);
+        SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty); message = "Player phase: select a living party unit and target."; RefreshEnemyIntents(); RefreshUI();
+        if (battleUI != null) { battleUI.CleanupActionFeedback(); battleUI.ShowTurnBanner("PLAYER TURN", new Color(0.42f, 0.86f, 1f), 0.35f); }
+    }
+
+    private void RefreshEnemyIntents()
+    {
+        while (enemyIntents.Count < enemyParty.Count) enemyIntents.Add("");
+        int target = FirstLiving(playerParty);
+        for (int i = 0; i < enemyParty.Count; i++)
+        {
+            CharacterData enemy = enemyParty[i];
+            if (enemy.IsDead() || enemy.HasStatusEffect(StatusEffectType.Stun) || target < 0) enemyIntents[i] = "";
+            else if (currentState == BattleState.PlayerTurn) enemyIntents[i] = BuildEnemyIntent(i, target);
+        }
+    }
+
+    private string BuildEnemyIntent(int enemyIndex, int targetIndex)
+    {
+        EnemyPatternData pattern = enemyPatterns[enemyIndex]; int turn = enemyTurnCount + (currentState == BattleState.PlayerTurn ? 1 : 0);
+        string action = pattern.IsStrongAttackTurn(turn) ? "HEAVY" : "ATTACK";
+        return $"{action} → {playerParty[targetIndex].characterName}";
+    }
+
+    public void DebugResolveEnemyAttackForTest() { bool old = enemyTurnManual; enemyTurnManual = false; if (currentState != BattleState.PlayerTurn) currentState = BattleState.PlayerTurn; EndPlayerPhase(); enemyTurnManual = old; }
+
+    private void CancelEnemyTurn()
+    {
+        if (enemyTurnRoutine != null) StopCoroutine(enemyTurnRoutine);
+        enemyTurnRoutine = null; enemyActorIndex = enemyTargetIndex = -1; enemyImpactApplied = false; playerTurnRecovered = false;
+        if (battleUI != null) { battleUI.EndEnemyActionFeedback(); battleUI.SetActionPresentationLocked(false); battleUI.HideTurnBanner(); }
+    }
     private static bool AllDead(List<CharacterData> party) => party.Count > 0 && party.All(c => c.IsDead());
     private static int FirstLiving(List<CharacterData> party) => party.FindIndex(c => !c.IsDead());
     private int FirstAvailablePlayer()
@@ -329,6 +496,8 @@ public class BattleManager : MonoBehaviour
 
     private void EndBattle(BattleState result)
     {
+        if (enemyTurnRoutine != null) { StopCoroutine(enemyTurnRoutine); enemyTurnRoutine = null; }
+        enemyActorIndex = enemyTargetIndex = -1;
         if (presentationRoutine != null) { StopCoroutine(presentationRoutine); presentationRoutine = null; }
         isActionResolving = false;
         if (battleUI != null) battleUI.CleanupActionFeedback();
@@ -346,7 +515,7 @@ public class BattleManager : MonoBehaviour
     private void RefreshUI()
     {
         if (battleUI == null) return; StageData stage = stageEncounters != null && currentStageIndex < stageEncounters.Count ? stageEncounters[currentStageIndex] : null;
-        battleUI.UpdatePartyUI(currentState, playerParty, enemyParty, SelectedPlayerIndex, SelectedEnemyIndex, actedPlayerIndices, message, stage, enemyTurnCount, guarding, earthShield);
+        battleUI.UpdatePartyUI(currentState, playerParty, enemyParty, SelectedPlayerIndex, SelectedEnemyIndex, actedPlayerIndices, message, stage, enemyTurnCount, guarding, earthShield, enemyIntents, enemyActorIndex, enemyTargetIndex);
         CharacterData selectedActor = SelectedPlayerIndex >= 0 && SelectedPlayerIndex < playerParty.Count ? playerParty[SelectedPlayerIndex] : null;
         battleUI.UpdateCommandDock(currentState, selectedActor, SelectedPlayerIndex >= 0 && actedPlayerIndices.Contains(SelectedPlayerIndex), slash, fire, ice, lightning, earth);
     }
