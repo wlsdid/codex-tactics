@@ -24,8 +24,15 @@ public class BattleManager : MonoBehaviour
     private readonly Dictionary<CharacterData, bool> guarding = new Dictionary<CharacterData, bool>();
     private readonly Dictionary<CharacterData, int> earthShield = new Dictionary<CharacterData, int>();
     private readonly List<EnemyPatternData> enemyPatterns = new List<EnemyPatternData>();
-    private int currentStageIndex, enemyTurnCount, totalGoldEarned, totalDamageDealt, totalDamageTaken, guardUseCount, skillsUsedCount;
+    private int currentStageIndex, selectedStageIndex, enemyTurnCount, totalGoldEarned, totalDamageDealt, totalDamageTaken, guardUseCount, skillsUsedCount;
     private bool rewardClaimed;
+    private bool resultPending, stageSelectRequested, resultNavigationLocked;
+    private int resultEntryCount, rewardGrantCount;
+    private readonly HashSet<int> rewardedEncounterKeys = new HashSet<int>();
+    private BattleState pendingResultState;
+    private BattleResultData lastResultData;
+    private Coroutine resultRoutine;
+    private string requestedSceneName = "";
     private string message = "";
     private string resultSummary = "";
     private SkillData slash, fire, ice, lightning, earth;
@@ -56,6 +63,13 @@ public class BattleManager : MonoBehaviour
     public int DebugTotalDamageTaken => totalDamageTaken;
     public int DebugGuardUseCount => guardUseCount;
     public int DebugSkillsUsedCount => skillsUsedCount;
+    public bool DebugResultPending => resultPending;
+    public int DebugResultEntryCount => resultEntryCount;
+    public int DebugRewardGrantCount => rewardGrantCount;
+    public int DebugEncounterIndex => currentStageIndex;
+    public BattleResultData DebugResultData => lastResultData;
+    public bool DebugStageSelectRequested => stageSelectRequested;
+    public string DebugRequestedSceneName => requestedSceneName;
     public string DebugMessageText => battleUI != null ? battleUI.DebugMessageText : message;
     public string DebugResultSummaryText => battleUI != null && !string.IsNullOrEmpty(battleUI.DebugResultSummaryText) ? battleUI.DebugResultSummaryText : resultSummary;
     public string DebugPartyState => battleUI != null ? battleUI.DebugPartyState : "";
@@ -81,7 +95,7 @@ public class BattleManager : MonoBehaviour
     public void DebugBeginEnemyTurnForTest() { if (currentState == BattleState.PlayerTurn) EndPlayerPhase(); }
     public void DebugAdvanceEnemyTurnToImpactForTest() { AdvanceEnemyTurnToImpact(); }
     public void DebugCompleteCurrentEnemyActionForTest() { CompleteCurrentEnemyAction(); }
-    public void DebugCompleteEnemyTurnForTest() { while (currentState == BattleState.EnemyTurn) { AdvanceEnemyTurnToImpact(); CompleteCurrentEnemyAction(); } }
+    public void DebugCompleteEnemyTurnForTest() { while (currentState == BattleState.EnemyTurn && !resultPending) { AdvanceEnemyTurnToImpact(); CompleteCurrentEnemyAction(); } }
     public void DebugApplyStatusForTest(bool isPlayer, int index, StatusEffectType status, int turns) { List<CharacterData> list = isPlayer ? playerParty : enemyParty; if (index >= 0 && index < list.Count) { list[index].ApplyStatusEffect(status, turns); RefreshUI(); } }
 
     private int CfgPlayerHp => balanceConfig != null ? balanceConfig.playerMaxHp : 100;
@@ -99,12 +113,16 @@ public class BattleManager : MonoBehaviour
         if (stageEncounters == null || stageEncounters.Count == 0)
         {
             int selectedStage = StageSelectController.SelectedStageIndex;
-            stageEncounters = StageData.GetEncountersForStage(selectedStage >= 0 ? selectedStage : 0);
+            selectedStageIndex = selectedStage >= 0 ? selectedStage : 0;
+            stageEncounters = StageData.GetEncountersForStage(selectedStageIndex);
         }
         StartBattle();
     }
     public void DebugStartBattleForTest() { StartBattle(); }
-    public void DebugLoadEncountersForStage(int stageIndex) { stageEncounters = StageData.GetEncountersForStage(stageIndex); currentStageIndex = 0; }
+    public void DebugLoadEncountersForStage(int stageIndex) { selectedStageIndex = stageIndex; stageEncounters = StageData.GetEncountersForStage(stageIndex); currentStageIndex = 0; rewardedEncounterKeys.Clear(); rewardGrantCount = 0; }
+    public void DebugConfigureStageForTest(int stageIndex, int encounterIndex) { selectedStageIndex = stageIndex; stageEncounters = StageData.GetEncountersForStage(stageIndex); currentStageIndex = Mathf.Clamp(encounterIndex, 0, stageEncounters.Count - 1); rewardedEncounterKeys.Clear(); rewardGrantCount = 0; StartBattle(); }
+    public void DebugTryEnterResultForTest() { CheckForBattleEnd(); }
+    public void DebugShowPendingResultForTest() { CompleteBattleEnd(); }
     public void DebugSetCurrentHpForTest(bool isPlayer, int index, int hp) { List<CharacterData> list = isPlayer ? playerParty : enemyParty; if (index >= 0 && index < list.Count) { list[index].currentHp = Mathf.Max(0, hp); RefreshEnemyIntents(); RefreshUI(); } }
     public void DebugSetPlayerApForTest(int index, int ap) { if (index >= 0 && index < playerParty.Count) playerParty[index].currentAp = Mathf.Clamp(ap, 0, playerParty[index].maxAp); RefreshUI(); }
     public bool DebugIsGuarding(int index) => index >= 0 && index < playerParty.Count && guarding.TryGetValue(playerParty[index], out bool value) && value;
@@ -112,6 +130,9 @@ public class BattleManager : MonoBehaviour
 
     private void StartBattle()
     {
+        if (resultRoutine != null) StopCoroutine(resultRoutine);
+        resultRoutine = null; resultPending = false; resultEntryCount = 0; pendingResultState = BattleState.PlayerTurn; resultNavigationLocked = false;
+        stageSelectRequested = false; requestedSceneName = "";
         CancelActionPresentation();
         CancelEnemyTurn();
         if (stageEncounters == null || stageEncounters.Count == 0) stageEncounters = StageData.GetEncountersForStage(0);
@@ -122,7 +143,7 @@ public class BattleManager : MonoBehaviour
         enemyParty = new List<CharacterData>(); enemyPatterns.Clear();
         foreach (EnemyData definition in stage.enemies.Take(3)) { enemyParty.Add(new CharacterData(definition.enemyName, definition.maxHp, definition.pattern.normalAttackDamage, definition.weakness, 0, definition.visualId)); enemyPatterns.Add(definition.pattern); }
         guarding.Clear(); earthShield.Clear(); actedPlayerIndices.Clear(); pendingTargetSkill = null; SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty);
-        enemyTurnCount = totalDamageDealt = totalDamageTaken = guardUseCount = skillsUsedCount = 0; rewardClaimed = false; resultSummary = "";
+        enemyTurnCount = totalDamageDealt = totalDamageTaken = guardUseCount = skillsUsedCount = 0; rewardClaimed = rewardedEncounterKeys.Contains(EncounterRewardKey()); resultSummary = ""; lastResultData = default;
         enemyImpactCount = playerTurnRecoveryCount = 0; playerTurnRecovered = false;
         enemyIntents.Clear(); enemyActionCounts.Clear(); enemyActualTargets.Clear();
         for (int i = 0; i < enemyParty.Count; i++) { enemyIntents.Add(""); enemyActionCounts.Add(0); enemyActualTargets.Add(-1); }
@@ -178,14 +199,20 @@ public class BattleManager : MonoBehaviour
         BeginActionPresentation(PresentationKind.Guard, null, SelectedPlayerIndex, -1, 0, $"{actor.characterName} guards.");
     }
     public void OnClickEndTurnButton() { if (!isActionResolving && currentState == BattleState.PlayerTurn) { pendingTargetSkill = null; EndPlayerPhase(); } }
-    public void OnClickRetryButton() { StartBattle(); }
-    public void OnClickContinueButton() { if (currentState == BattleState.Victory && currentStageIndex + 1 < stageEncounters.Count) { currentStageIndex++; StartBattle(); } }
+    public void OnClickRetryButton() { if (!resultNavigationLocked && (currentState == BattleState.Victory || currentState == BattleState.Defeat)) { resultNavigationLocked = true; StartBattle(); } }
+    public void OnClickContinueButton() { if (!resultNavigationLocked && currentState == BattleState.Victory && currentStageIndex + 1 < stageEncounters.Count) { resultNavigationLocked = true; currentStageIndex++; StartBattle(); } }
     public void OnClickAutoBattleToggle() { if (SelectPlayerUnit(FirstAvailablePlayer())) { SelectEnemyTarget(FirstLiving(enemyParty)); OnClickAttackButton(); } }
     public void OnClickSpeedToggle() { }
     public void OnClickItemButton() { }
     public void OnClickPauseButton() { }
     public void OnResumeGame() { }
-    public void OnClickStageSelectButton() { }
+    public void OnClickStageSelectButton()
+    {
+        if (resultNavigationLocked || (currentState != BattleState.Victory && currentState != BattleState.Defeat)) return;
+        resultNavigationLocked = true;
+        stageSelectRequested = true; requestedSceneName = GameSceneFlow.StageSelectSceneName;
+        if (Application.isPlaying) UnityEngine.SceneManagement.SceneManager.LoadScene(GameSceneFlow.StageSelectSceneName);
+    }
 
     private bool CanActorAct() => !isActionResolving && currentState == BattleState.PlayerTurn && SelectedPlayerIndex >= 0 && SelectedPlayerIndex < playerParty.Count && !playerParty[SelectedPlayerIndex].IsDead() && !actedPlayerIndices.Contains(SelectedPlayerIndex);
     private bool HasLivingTarget() => SelectedEnemyIndex >= 0 && SelectedEnemyIndex < enemyParty.Count && !enemyParty[SelectedEnemyIndex].IsDead();
@@ -320,13 +347,13 @@ public class BattleManager : MonoBehaviour
     }
     private void FinishPlayerAction(string text)
     {
-        pendingTargetSkill = null; actedPlayerIndices.Add(SelectedPlayerIndex); message = text; if (AllDead(enemyParty)) { EndBattle(BattleState.Victory); return; }
+        pendingTargetSkill = null; actedPlayerIndices.Add(SelectedPlayerIndex); message = text; if (AllDead(enemyParty)) { BeginBattleEnd(BattleState.Victory); return; }
         SelectedPlayerIndex = -1; SelectedEnemyIndex = FirstLiving(enemyParty); if (FirstAvailablePlayer() < 0) EndPlayerPhase(); else RefreshUI();
     }
     private void EndPlayerPhase()
     {
         if (currentState != BattleState.PlayerTurn || enemyTurnRoutine != null) return;
-        if (AllDead(playerParty)) { EndBattle(BattleState.Defeat); return; }
+        if (AllDead(playerParty)) { BeginBattleEnd(BattleState.Defeat); return; }
         currentState = BattleState.EnemyTurn; enemyTurnCount++; playerTurnRecovered = false; enemyActorIndex = -1;
         SelectedPlayerIndex = SelectedEnemyIndex = -1; RefreshEnemyIntents(); RefreshUI();
         if (battleUI != null) { battleUI.SetActionPresentationLocked(true); battleUI.ShowTurnBanner("ENEMY TURN", new Color(1f, 0.48f, 0.28f), 0.35f); }
@@ -344,6 +371,7 @@ public class BattleManager : MonoBehaviour
             if (enemy.HasStatusEffect(StatusEffectType.Burn))
             {
                 ApplyBurnTick(enemyActorIndex); yield return new WaitForSeconds(0.18f);
+                if (resultPending) yield break;
                 if (enemy.IsDead()) { CompleteCurrentEnemyAction(); yield return new WaitForSeconds(0.18f); continue; }
             }
             if (enemy.HasStatusEffect(StatusEffectType.Stun))
@@ -377,7 +405,7 @@ public class BattleManager : MonoBehaviour
     {
         if (enemyActorIndex < 0 || enemyActorIndex >= enemyParty.Count) return;
         enemyTargetIndex = FirstLiving(playerParty);
-        if (enemyTargetIndex < 0) { EndBattle(BattleState.Defeat); return; }
+        if (enemyTargetIndex < 0) { BeginBattleEnd(BattleState.Defeat); return; }
         EnemyPatternData pattern = enemyPatterns[enemyActorIndex];
         enemyPendingDamage = pattern.GetDamageForTurn(enemyTurnCount);
         enemyActualTargets[enemyActorIndex] = enemyTargetIndex;
@@ -394,7 +422,7 @@ public class BattleManager : MonoBehaviour
         if (!enemyStatusResolved && enemy.HasStatusEffect(StatusEffectType.Burn))
         {
             ApplyBurnTick(enemyActorIndex);
-            if (enemy.IsDead()) return;
+            if (resultPending || enemy.IsDead()) return;
         }
         if (!enemyStatusResolved && enemy.HasStatusEffect(StatusEffectType.Stun))
         {
@@ -412,10 +440,15 @@ public class BattleManager : MonoBehaviour
     private void ApplyBurnTick(int index)
     {
         CharacterData enemy = enemyParty[index];
-        enemy.TakeDamage(CfgBurn); enemy.ReduceStatusTurn(); enemyStatusResolved = true; message = $"{enemy.characterName} takes Burn damage.";
-        if (battleUI != null) battleUI.ShowEnemyStatusPopup(enemy.visualId, $"BURN -{CfgBurn}", new Color(1f, 0.35f, 0.12f));
+        int hpBefore = enemy.currentHp;
+        enemy.TakeDamage(CfgBurn);
+        int burnDamage = Mathf.Max(0, hpBefore - enemy.currentHp);
+        totalDamageDealt += burnDamage;
+        enemy.ReduceStatusTurn(); enemyStatusResolved = true; message = $"{enemy.characterName} takes Burn damage.";
+        if (battleUI != null) battleUI.ShowEnemyStatusPopup(enemy.visualId, $"BURN -{burnDamage}", new Color(1f, 0.35f, 0.12f));
         if (enemy.IsDead()) enemyIntents[index] = "";
         RefreshUI();
+        if (AllDead(enemyParty)) BeginBattleEnd(BattleState.Victory);
     }
 
     private void ApplyEnemyAttackImpact()
@@ -430,7 +463,7 @@ public class BattleManager : MonoBehaviour
         message = $"{enemyParty[enemyActorIndex].characterName} attacks {target.characterName} for {damage}.";
         RefreshUI();
         if (battleUI != null) battleUI.ShowEnemyAttackImpact(damage, absorbed, guarded);
-        if (AllDead(playerParty)) EndBattle(BattleState.Defeat);
+        if (AllDead(playerParty)) BeginBattleEnd(BattleState.Defeat);
     }
 
     private void CompleteCurrentEnemyAction()
@@ -494,24 +527,59 @@ public class BattleManager : MonoBehaviour
         return -1;
     }
 
-    private void EndBattle(BattleState result)
+    private void CheckForBattleEnd()
     {
+        if (AllDead(enemyParty)) BeginBattleEnd(BattleState.Victory);
+        else if (AllDead(playerParty)) BeginBattleEnd(BattleState.Defeat);
+    }
+
+    private void BeginBattleEnd(BattleState result)
+    {
+        if (resultPending || currentState == BattleState.Victory || currentState == BattleState.Defeat) return;
+        resultPending = true; pendingResultState = result; resultEntryCount++; isActionResolving = true;
         if (enemyTurnRoutine != null) { StopCoroutine(enemyTurnRoutine); enemyTurnRoutine = null; }
         enemyActorIndex = enemyTargetIndex = -1;
         if (presentationRoutine != null) { StopCoroutine(presentationRoutine); presentationRoutine = null; }
-        isActionResolving = false;
-        if (battleUI != null) battleUI.CleanupActionFeedback();
+        if (battleUI != null) { battleUI.EndActionFeedback(); battleUI.SetActionPresentationLocked(true); battleUI.SetResultSummaryVisible(false, ""); battleUI.SetRetryButtonVisible(false); battleUI.SetContinueButtonVisible(false); battleUI.SetStageSelectButtonVisible(false); }
+        SelectedPlayerIndex = SelectedEnemyIndex = -1; pendingTargetSkill = null;
+        if (Application.isPlaying) resultRoutine = StartCoroutine(DelayedBattleEnd());
+        RefreshUI();
+    }
+
+    private IEnumerator DelayedBattleEnd()
+    {
+        yield return new WaitForSeconds(0.45f);
+        CompleteBattleEnd();
+    }
+
+    private void CompleteBattleEnd()
+    {
+        if (!resultPending) return;
+        BattleState result = pendingResultState; resultPending = false; resultRoutine = null; isActionResolving = false;
         currentState = result; message = result == BattleState.Victory ? "Victory: all enemies defeated." : "Defeat: all party members defeated.";
-        if (result == BattleState.Victory && !rewardClaimed) { totalGoldEarned += 150; rewardClaimed = true; }
+        string rank = BattleResultEvaluator.BuildRank(result, enemyTurnCount, totalDamageTaken, balanceConfig);
+        int rewardGold = result == BattleState.Victory ? BattleResultEvaluator.BuildRewardGold(rank, balanceConfig != null ? balanceConfig.sRankRewardGold : 150, balanceConfig != null ? balanceConfig.aRankRewardGold : 120, balanceConfig != null ? balanceConfig.bRankRewardGold : 100, 0) : 0;
+        int rewardXp = result == BattleState.Victory ? 50 + (selectedStageIndex + 1) * 30 : 0;
+        int rewardKey = EncounterRewardKey();
+        bool rewardGrantedNow = false;
+        if (result == BattleState.Victory && !rewardClaimed && !rewardedEncounterKeys.Contains(rewardKey))
+        {
+            totalGoldEarned += rewardGold; ProgressState.TotalGold += rewardGold; ProgressState.PlayerXp += rewardXp; rewardClaimed = true; rewardGrantCount++; rewardGrantedNow = true;
+            rewardedEncounterKeys.Add(rewardKey);
+            if (currentStageIndex + 1 >= stageEncounters.Count) ProgressState.MarkStageCompleted(selectedStageIndex);
+            SaveManager.Save();
+        }
+        lastResultData = new BattleResultData { resultLabel = result == BattleState.Victory ? "Victory" : "Defeat", enemyTurns = enemyTurnCount + 1, damageDealt = totalDamageDealt, damageTaken = totalDamageTaken, guardUses = guardUseCount, skillsUsed = skillsUsedCount, paceLabel = BattleResultEvaluator.BuildPaceLabel(result, enemyTurnCount, balanceConfig), survivalLabel = $"{playerParty.Count(c => !c.IsDead())}/{playerParty.Count}", rank = rank, rewardGold = rewardGrantedNow ? rewardGold : 0, rewardXp = rewardGrantedNow ? rewardXp : 0, totalGold = ProgressState.TotalGold, resultTip = result == BattleState.Victory ? "All enemies defeated." : "Try a different target order.", partySize = playerParty.Count, survivors = playerParty.Count(c => !c.IsDead()), partyRemainingHp = playerParty.Sum(c => Mathf.Max(0, c.currentHp)), enemyWiped = AllDead(enemyParty) };
+        resultSummary = lastResultData.BuildSummaryText();
         if (battleUI != null)
         {
-            CharacterData hero = playerParty.Count > 0 ? playerParty[0] : new CharacterData("Paladin", 1, 0);
-            CharacterData firstEnemy = enemyParty.Count > 0 ? enemyParty[0] : new CharacterData("Enemy", 1, 0);
-            resultSummary = new BattleResultData { resultLabel = result == BattleState.Victory ? "Victory" : "Defeat", enemyTurns = enemyTurnCount, playerName = hero.characterName, playerCurrentHp = hero.currentHp, playerMaxHp = hero.maxHp, playerCurrentAp = hero.currentAp, playerMaxAp = hero.maxAp, enemyName = firstEnemy.characterName, enemyCurrentHp = firstEnemy.currentHp, enemyMaxHp = firstEnemy.maxHp, damageDealt = totalDamageDealt, damageTaken = totalDamageTaken, guardUses = guardUseCount, skillsUsed = skillsUsedCount, paceLabel = "Party", survivalLabel = $"{playerParty.Count(c => !c.IsDead())}/{playerParty.Count}", rank = result == BattleState.Victory ? "S" : "C", rewardGold = result == BattleState.Victory ? 150 : 0, totalGold = totalGoldEarned, resultTip = result == BattleState.Victory ? "All enemies defeated." : "Keep the party alive.", lastEnemyPattern = "Party turn" }.BuildSummaryText();
-            battleUI.SetResultSummaryVisible(true, resultSummary); battleUI.SetRetryButtonVisible(true); battleUI.SetContinueButtonVisible(result == BattleState.Victory && currentStageIndex + 1 < stageEncounters.Count); battleUI.SetStageSelectButtonVisible(true);
+            battleUI.CleanupActionFeedback();
+            battleUI.SetResultSummaryVisible(true, resultSummary); battleUI.SetRetryButtonVisible(true); battleUI.SetContinueButtonVisible(result == BattleState.Victory && currentStageIndex + 1 < stageEncounters.Count); battleUI.SetStageSelectButtonVisible(result == BattleState.Defeat || (result == BattleState.Victory && currentStageIndex + 1 >= stageEncounters.Count));
+            battleUI.SetActionPresentationLocked(true);
         }
         RefreshUI();
     }
+    private int EncounterRewardKey() => selectedStageIndex * 100 + currentStageIndex;
     private void RefreshUI()
     {
         if (battleUI == null) return; StageData stage = stageEncounters != null && currentStageIndex < stageEncounters.Count ? stageEncounters[currentStageIndex] : null;

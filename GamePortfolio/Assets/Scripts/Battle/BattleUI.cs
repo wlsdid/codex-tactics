@@ -159,6 +159,8 @@ public class BattleUI : MonoBehaviour
     private readonly List<Coroutine> actionFeedbackCoroutines = new List<Coroutine>();
     private Coroutine feedbackLungeRoutine;
     private Coroutine feedbackTargetHitRoutine;
+    private Coroutine resultRevealRoutine;
+    private List<CharacterData> renderedPlayerParty;
     private RectTransform feedbackActorRect;
     private RectTransform feedbackTargetRect;
     private Vector2 feedbackActorBasePosition;
@@ -205,7 +207,12 @@ public class BattleUI : MonoBehaviour
     public bool DebugContinueButtonInteractable => continueButton != null && continueButton.interactable;
     public bool DebugStageSelectButtonVisible => stageSelectButton != null && stageSelectButton.gameObject.activeSelf;
     public bool DebugStageSelectButtonInteractable => stageSelectButton != null && stageSelectButton.interactable;
+    public bool DebugClickRetryButton() => InvokeIfInteractable(retryButton);
+    public bool DebugClickContinueButton() => InvokeIfInteractable(continueButton);
+    public bool DebugClickStageSelectButton() => InvokeIfInteractable(stageSelectButton);
     public bool DebugResultSummaryPanelVisible => resultSummaryPanel != null && resultSummaryPanel.activeSelf;
+    public float DebugResultPanelHeight => resultSummaryPanel != null && resultSummaryPanel.GetComponent<RectTransform>() != null ? resultSummaryPanel.GetComponent<RectTransform>().rect.height : 0f;
+    public string DebugResultButtonLabels => $"{ButtonLabel(retryButton)}|{ButtonLabel(continueButton)}|{ButtonLabel(stageSelectButton)}";
     public string DebugCommandPreviewText => commandPreviewText != null ? commandPreviewText.text : "";
     public bool DebugCommandPreviewPanelExists => commandPreviewPanel != null;
     public string DebugTurnBannerText => turnBannerText != null ? turnBannerText.text : "";
@@ -395,6 +402,9 @@ public class BattleUI : MonoBehaviour
         WireButton(lightningSkillButton, manager.OnClickLightningSkillButton);
         WireButton(earthSkillButton, manager.OnClickEarthSkillButton);
         WireButton(skillBackButton, CloseSkillSubmenu);
+        WireButton(retryButton, manager.OnClickRetryButton);
+        WireButton(continueButton, manager.OnClickContinueButton);
+        WireButton(stageSelectButton, manager.OnClickStageSelectButton);
         ConfigureSkillHover(fireSkillButton, "Fire damage; applies Burn to the selected target.");
         ConfigureSkillHover(iceSkillButton, "Ice damage; applies Stun to the selected target.");
         ConfigureSkillHover(earthSkillButton, "Grants a damage shield to the selected actor.");
@@ -622,8 +632,9 @@ public class BattleUI : MonoBehaviour
     /// <summary>Renders the complete 3v3 model; identity, HP, actor ring, and target ring live on battlefield slots.</summary>
     public void UpdatePartyUI(BattleState state, List<CharacterData> party, List<CharacterData> enemies, int selectedPlayerIndex, int selectedEnemyIndex, IReadOnlyCollection<int> actedMembers, string message, StageData stage, int enemyTurnCount, IDictionary<CharacterData, bool> guarding, IDictionary<CharacterData, int> shields, IReadOnlyList<string> enemyIntents = null, int activeEnemyIndex = -1, int warnedPlayerIndex = -1)
     {
-        CharacterData selectedPlayer = GetUnit(party, selectedPlayerIndex) ?? GetFirstLiving(party);
-        CharacterData selectedEnemy = GetUnit(enemies, selectedEnemyIndex) ?? GetFirstLiving(enemies);
+        renderedPlayerParty = party;
+        CharacterData selectedPlayer = GetUnit(party, selectedPlayerIndex) ?? GetFirstLiving(party) ?? GetUnit(party, 0);
+        CharacterData selectedEnemy = GetUnit(enemies, selectedEnemyIndex) ?? GetFirstLiving(enemies) ?? GetUnit(enemies, 0);
         if (selectedPlayer == null || selectedEnemy == null) return;
         string playerName = selectedPlayer.characterName;
         string enemyName = selectedEnemy.characterName;
@@ -1047,13 +1058,16 @@ public class BattleUI : MonoBehaviour
         }
         if (resultSummaryPanel != null)
         {
+            if (resultRevealRoutine != null) { StopCoroutine(resultRevealRoutine); resultRevealRoutine = null; }
             resultSummaryPanel.SetActive(isVisible);
-            if (isVisible)
+            RectTransform rt = resultSummaryPanel.GetComponent<RectTransform>();
+            if (rt != null)
             {
-                // Animate slide-in from bottom
-                RectTransform rt = resultSummaryPanel.GetComponent<RectTransform>();
-                if (rt != null) StartCoroutine(SlideInResultPanel(rt));
+                rt.sizeDelta = new Vector2(620f, 230f);
+                rt.anchoredPosition = new Vector2(0f, -42f);
             }
+            if (isVisible && Application.isPlaying)
+                resultRevealRoutine = StartCoroutine(ResultRevealRoutine(IsVictorySummary(summary)));
         }
         // Style the result panel background
         if (resultPanelBackground != null)
@@ -1087,23 +1101,41 @@ public class BattleUI : MonoBehaviour
 
     public void SetRetryButtonVisible(bool isVisible)
     {
-        if (retryButton == null) return;
-        retryButton.interactable = isVisible;
-        SetGameObjectActiveIfChanged(retryButton.gameObject, isVisible);
+        ConfigureResultButton(retryButton, "RETRY", new Vector2(-155f, -190f), new Vector2(140f, 44f), isVisible);
     }
 
     public void SetContinueButtonVisible(bool isVisible)
     {
-        if (continueButton == null) return;
-        continueButton.interactable = isVisible;
-        SetGameObjectActiveIfChanged(continueButton.gameObject, isVisible);
+        ConfigureResultButton(continueButton, "CONTINUE", new Vector2(0f, -190f), new Vector2(150f, 44f), isVisible);
     }
 
     public void SetStageSelectButtonVisible(bool isVisible)
     {
-        if (stageSelectButton == null) return;
-        stageSelectButton.interactable = isVisible;
-        SetGameObjectActiveIfChanged(stageSelectButton.gameObject, isVisible);
+        ConfigureResultButton(stageSelectButton, "STAGE SELECT", new Vector2(165f, -190f), new Vector2(190f, 44f), isVisible);
+    }
+
+    private static void ConfigureResultButton(Button button, string label, Vector2 position, Vector2 size, bool visible)
+    {
+        if (button == null) return;
+        RectTransform rt = button.GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = position;
+            rt.sizeDelta = size;
+        }
+        TMP_Text text = button.GetComponentInChildren<TMP_Text>(true);
+        if (text != null)
+        {
+            text.text = label; text.fontSize = 16f; text.enableWordWrapping = false;
+            RectTransform textRt = text.rectTransform;
+            textRt.anchorMin = Vector2.zero; textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = Vector2.zero; textRt.offsetMax = Vector2.zero;
+        }
+        button.transform.SetAsLastSibling();
+        button.interactable = visible;
+        SetGameObjectActiveIfChanged(button.gameObject, visible);
     }
 
     private static readonly Color ElementPhysicalColor = new Color(0.65f, 0.68f, 0.75f);
@@ -2257,22 +2289,52 @@ public class BattleUI : MonoBehaviour
         flashImg.color = Color.clear;
     }
 
-    /// <summary>Animates the result panel sliding in from below.</summary>
-    private IEnumerator SlideInResultPanel(RectTransform panelRt)
+    /// <summary>Compact result reveal: fade the panel and briefly pulse only living allies.</summary>
+    private IEnumerator ResultRevealRoutine(bool victory)
     {
-        if (panelRt == null) yield break;
-        Vector2 startPos = panelRt.anchoredPosition;
-        Vector2 offScreen = new Vector2(startPos.x, startPos.y - 60f);
-        panelRt.anchoredPosition = offScreen;
-        float duration = 0.25f;
+        if (resultSummaryPanel == null) yield break;
+        CanvasGroup group = resultSummaryPanel.GetComponent<CanvasGroup>();
+        if (group == null) group = resultSummaryPanel.AddComponent<CanvasGroup>();
+        group.alpha = 0f;
+        Color resultTextColor = resultSummaryText != null ? resultSummaryText.color : Color.white;
+        if (resultSummaryText != null) resultSummaryText.color = new Color(resultTextColor.r, resultTextColor.g, resultTextColor.b, 0f);
+        var pulseBodies = new List<Image>();
+        var baseColors = new List<Color>();
+        if (victory && allySlotBodies != null && renderedPlayerParty != null)
+        {
+            for (int i = 0; i < allySlotBodies.Length; i++)
+            {
+                Image body = allySlotBodies[i];
+                int partyIndex = FindUnitIndex(renderedPlayerParty, GetSlotVisualId(true, i));
+                if (body != null && partyIndex >= 0 && partyIndex < renderedPlayerParty.Count && !renderedPlayerParty[partyIndex].IsDead())
+                {
+                    pulseBodies.Add(body); baseColors.Add(body.color);
+                }
+            }
+        }
+        float duration = victory ? 0.55f : 0.30f;
         float elapsed = 0f;
         while (elapsed < duration)
         {
-            panelRt.anchoredPosition = Vector2.Lerp(offScreen, startPos, elapsed / duration);
+            float revealAlpha = Mathf.Clamp01(elapsed / 0.25f);
+            group.alpha = revealAlpha;
+            if (resultSummaryText != null) resultSummaryText.color = new Color(resultTextColor.r, resultTextColor.g, resultTextColor.b, resultTextColor.a * revealAlpha);
+            if (victory)
+            {
+                float pulse = Mathf.Sin(Mathf.Clamp01(elapsed / duration) * Mathf.PI);
+                for (int i = 0; i < pulseBodies.Count; i++)
+                {
+                    Color accent = i % 2 == 0 ? new Color(0.38f, 1f, 0.88f, baseColors[i].a) : new Color(1f, 0.82f, 0.32f, baseColors[i].a);
+                    if (pulseBodies[i] != null) pulseBodies[i].color = Color.Lerp(baseColors[i], accent, pulse * 0.42f);
+                }
+            }
             elapsed += Time.deltaTime;
             yield return null;
         }
-        panelRt.anchoredPosition = startPos;
+        group.alpha = 1f;
+        if (resultSummaryText != null) resultSummaryText.color = resultTextColor;
+        for (int i = 0; i < pulseBodies.Count; i++) if (pulseBodies[i] != null) pulseBodies[i].color = baseColors[i];
+        resultRevealRoutine = null;
     }
 
     private Transform GetDamagePopupParent()

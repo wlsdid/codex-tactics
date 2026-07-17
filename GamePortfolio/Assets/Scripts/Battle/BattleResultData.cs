@@ -21,6 +21,11 @@ public struct BattleResultData
     public int totalGold;
     public string resultTip;
     public string lastEnemyPattern;
+    public int partySize;
+    public int survivors;
+    public int partyRemainingHp;
+    public bool enemyWiped;
+    public int rewardXp;
 
     public string BuildSummaryText()
     {

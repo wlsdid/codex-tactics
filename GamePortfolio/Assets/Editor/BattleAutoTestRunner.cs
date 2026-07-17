@@ -195,7 +195,9 @@ public static class BattleAutoTestRunner
         Check(ref passed, ref report, "lethal impact keeps cached target feedback after death", battle.enemyParty[0].IsDead() && ui.DebugHasCachedFeedbackTarget && ui.DebugFeedbackPopup == "-20");
         Check(ref passed, ref report, "last target death waits for presentation completion before Victory", battle.enemyParty[0].IsDead() && battle.DebugState == BattleState.PlayerTurn && battle.DebugIsPresentationLocked);
         battle.DebugCompletePresentationForTest();
-        Check(ref passed, ref report, "last target death enters Victory after presentation", battle.DebugState == BattleState.Victory && battle.DebugResultSummaryText.Contains("Victory"));
+        Check(ref passed, ref report, "last target death queues delayed Victory after presentation", battle.DebugResultPending && battle.DebugState == BattleState.PlayerTurn);
+        battle.DebugShowPendingResultForTest();
+        Check(ref passed, ref report, "delayed result boundary enters Victory", battle.DebugState == BattleState.Victory && battle.DebugResultSummaryText.Contains("VICTORY"));
 
         battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
         battle.SelectPlayerUnit(0); battle.SelectEnemyTarget(0); battle.OnClickAttackButton(); battle.DebugCompletePresentationForTest();
@@ -210,14 +212,16 @@ public static class BattleAutoTestRunner
         battle.DebugSetCurrentHpForTest(false, 1, 1); battle.DebugSetCurrentHpForTest(false, 2, 1);
         battle.SelectPlayerUnit(1); battle.SelectEnemyTarget(1); battle.OnClickAttackButton();
         battle.SelectPlayerUnit(2); battle.SelectEnemyTarget(2); battle.OnClickAttackButton();
+        battle.DebugShowPendingResultForTest();
         RecordState(ref report, "VICTORY_DIAG", $"state={battle.DebugState}; locked={battle.DebugIsPresentationLocked}; acted={battle.DebugHasActed(0)},{battle.DebugHasActed(1)},{battle.DebugHasActed(2)}; hp={battle.enemyParty[0].currentHp},{battle.enemyParty[1].currentHp},{battle.enemyParty[2].currentHp}; reward={battle.DebugTotalGoldEarned}");
-        Check(ref passed, ref report, "victory only after all enemies die", battle.DebugState == BattleState.Victory && battle.enemyParty.TrueForAll(unit => unit.IsDead()) && battle.DebugResultSummaryText.Contains("Victory") && battle.DebugTotalGoldEarned == goldBeforeVictorySequence + 150);
+        Check(ref passed, ref report, "victory only after all enemies die and replay does not duplicate encounter reward", battle.DebugState == BattleState.Victory && battle.enemyParty.TrueForAll(unit => unit.IsDead()) && battle.DebugResultSummaryText.Contains("VICTORY") && battle.DebugTotalGoldEarned == goldBeforeVictorySequence);
         int reward = battle.DebugTotalGoldEarned; battle.OnClickRetryButton();
         Check(ref passed, ref report, "retry preserves reward flow without duplicate reward", battle.DebugTotalGoldEarned == reward && battle.DebugState == BattleState.PlayerTurn);
 
         battle.DebugStartBattleForTest();
         battle.DebugSetCurrentHpForTest(true, 0, 0); battle.DebugSetCurrentHpForTest(true, 1, 0); battle.DebugSetCurrentHpForTest(true, 2, 0);
         battle.DebugResolveEnemyAttackForTest();
+        battle.DebugShowPendingResultForTest();
         Check(ref passed, ref report, "defeat only after all party members die", battle.DebugState == BattleState.Defeat && battle.playerParty.TrueForAll(unit => unit.IsDead()));
         Check(ref passed, ref report, "UI exposes selection debug strings", ui.DebugTargetState.Contains("actor=") && ui.DebugTargetState.Contains("target="));
 
@@ -267,6 +271,13 @@ public static class BattleAutoTestRunner
         battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.DebugSetCurrentHpForTest(false, 0, 5); battle.DebugApplyStatusForTest(false, 0, StatusEffectType.Burn, 1); battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest();
         Check(ref passed, ref report, "Burn lethal tick suppresses that enemy attack", battle.enemyParty[0].IsDead() && battle.DebugEnemyActionCount(0) == 0 && string.IsNullOrEmpty(battle.DebugEnemyIntent(0)) && ui.DebugFeedbackPopup == "BURN -5");
 
+        battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true);
+        battle.DebugSetCurrentHpForTest(false, 0, 0); battle.DebugSetCurrentHpForTest(false, 1, 0); battle.DebugSetCurrentHpForTest(false, 2, 5);
+        battle.DebugApplyStatusForTest(false, 2, StatusEffectType.Burn, 1); battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest();
+        Check(ref passed, ref report, "Burn killing the final enemy queues Victory exactly once and counts actual damage", battle.DebugResultPending && battle.enemyParty.TrueForAll(x => x.IsDead()) && battle.DebugResultEntryCount == 1 && battle.DebugTotalDamageDealt == 5 && battle.DebugEnemyActionCount(2) == 0);
+        battle.DebugShowPendingResultForTest();
+        Check(ref passed, ref report, "Burn terminal Victory publishes Burn-inclusive party damage", battle.DebugState == BattleState.Victory && battle.DebugResultData.damageDealt == 5 && battle.DebugResultEntryCount == 1);
+
         battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.SelectPlayerUnit(0); battle.OnClickGuardButton(); int guardedHp = battle.playerParty[0].currentHp; battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest();
         Check(ref passed, ref report, "Guard halves final damage and is consumed by one attack", guardedHp - battle.playerParty[0].currentHp == 7 && !battle.DebugIsGuarding(0) && ui.DebugFeedbackPopup == "GUARD");
 
@@ -274,12 +285,85 @@ public static class BattleAutoTestRunner
         Check(ref passed, ref report, "Earth Wall reports absorbed amount and retains remaining shield", battle.playerParty[0].currentHp == shieldHp && battle.DebugShield(0) == 5 && ui.DebugFeedbackPopup == "BLOCK 15");
 
         battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); for (int i = 0; i < 3; i++) battle.DebugSetCurrentHpForTest(true, i, 1); battle.DebugBeginEnemyTurnForTest(); battle.DebugCompleteEnemyTurnForTest();
-        Check(ref passed, ref report, "enemy attacks stop on party wipe and enter Defeat", battle.DebugState == BattleState.Defeat && battle.playerParty.TrueForAll(unit => unit.IsDead()));
+        Check(ref passed, ref report, "enemy attacks stop on party wipe and queue Defeat after impact", battle.DebugResultPending && battle.playerParty.TrueForAll(unit => unit.IsDead()));
+        battle.DebugShowPendingResultForTest();
+        Check(ref passed, ref report, "queued party wipe enters Defeat at delayed result boundary", battle.DebugState == BattleState.Defeat);
 
         battle.DebugStartBattleForTest(); battle.DebugSetEnemyTurnManualForTest(true); battle.DebugBeginEnemyTurnForTest(); battle.DebugAdvanceEnemyTurnToImpactForTest(); battle.DebugStartBattleForTest();
         Check(ref passed, ref report, "restart cleans enemy coroutine/VFX lock and restores fresh intents", battle.DebugState == BattleState.PlayerTurn && !battle.DebugIsEnemyTurnResolving && !ui.DebugActionPresentationLocked && battle.DebugEnemyIntent(0) == "ATTACK → Paladin");
 
         Object.DestroyImmediate(root); report += passed ? "\nRESULT: PASS" : "\nRESULT: FAIL"; Debug.Log(report); if (!passed) throw new System.Exception(report);
+    }
+
+    [MenuItem("Tools/Tactical Requiem/Run Result Flow QA")]
+    public static void RunResultFlowQA()
+    {
+        bool passed = true;
+        string report = "Deterministic Result Flow QA (3v3)\n\n";
+        string isolatedSavePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "codex-tactics-result-flow-qa-save.json");
+        if (System.IO.File.Exists(isolatedSavePath)) System.IO.File.Delete(isolatedSavePath);
+        SaveManager.DebugUseSavePathForTest(isolatedSavePath);
+        ProgressState.Reset();
+        GameObject root = new GameObject("Result Flow QA");
+        BattleManager battle = root.AddComponent<BattleManager>();
+        BattleUI ui = root.AddComponent<BattleUI>();
+        SetPrivateField(battle, "battleUI", ui); ConfigureBattlefieldSlots(ui);
+        battle.DebugConfigureStageForTest(0, 0);
+
+        battle.DebugSetCurrentHpForTest(false, 0, 0); battle.DebugTryEnterResultForTest();
+        Check(ref passed, ref report, "one enemy death does not queue Victory", !battle.DebugResultPending && battle.DebugResultEntryCount == 0);
+        battle.DebugSetCurrentHpForTest(false, 1, 0); battle.DebugTryEnterResultForTest();
+        Check(ref passed, ref report, "two enemy deaths do not queue Victory", !battle.DebugResultPending && battle.DebugResultEntryCount == 0);
+        battle.DebugSetCurrentHpForTest(false, 2, 0); battle.DebugTryEnterResultForTest();
+        Check(ref passed, ref report, "three enemy deaths queue Victory once and lock commands before panel", battle.DebugResultPending && battle.DebugResultEntryCount == 1 && battle.DebugState == BattleState.PlayerTurn && !ui.DebugResultSummaryPanelVisible && !ui.DebugAnyCommandInteractable);
+        battle.DebugTryEnterResultForTest();
+        Check(ref passed, ref report, "duplicate terminal checks are idempotent", battle.DebugResultEntryCount == 1);
+        int goldBefore = ProgressState.TotalGold;
+        battle.DebugShowPendingResultForTest();
+        BattleResultData victory = battle.DebugResultData;
+        Check(ref passed, ref report, "Victory panel appears after explicit delayed boundary", battle.DebugState == BattleState.Victory && ui.DebugResultSummaryPanelVisible && ui.DebugResultSummaryText.StartsWith("VICTORY\n"));
+        Check(ref passed, ref report, "result panel stays compact with exact action labels", ui.DebugResultPanelHeight <= 324f && ui.DebugResultButtonLabels == "RETRY|CONTINUE|STAGE SELECT");
+        Check(ref passed, ref report, "Victory aggregates whole party and battle statistics", victory.partySize == 3 && victory.survivors == 3 && victory.partyRemainingHp == 305 && victory.enemyWiped && victory.damageDealt == battle.DebugTotalDamageDealt && victory.damageTaken == battle.DebugTotalDamageTaken);
+        Check(ref passed, ref report, "Victory grants Gold and XP exactly once", ProgressState.TotalGold == goldBefore + victory.rewardGold && ProgressState.PlayerXp == victory.rewardXp && battle.DebugRewardGrantCount == 1);
+        battle.DebugShowPendingResultForTest();
+        Check(ref passed, ref report, "panel redisplay cannot duplicate reward", battle.DebugRewardGrantCount == 1 && ProgressState.TotalGold == goldBefore + victory.rewardGold);
+        Check(ref passed, ref report, "normal encounter exposes Continue and Retry only with no premature stage completion", ui.DebugContinueButtonVisible && ui.DebugRetryButtonVisible && !ui.DebugStageSelectButtonVisible && !ProgressState.IsStageCompleted(0));
+
+        int firstVictoryGold = ProgressState.TotalGold;
+        Check(ref passed, ref report, "Retry result button invokes the bound flow", ui.DebugClickRetryButton());
+        for (int i = 0; i < 3; i++) battle.DebugSetCurrentHpForTest(false, i, 0);
+        battle.DebugTryEnterResultForTest(); battle.DebugShowPendingResultForTest();
+        Check(ref passed, ref report, "Retry and replay cannot grant the same encounter reward twice", ProgressState.TotalGold == firstVictoryGold && battle.DebugRewardGrantCount == 1);
+
+        Check(ref passed, ref report, "Continue result button invokes the bound flow", ui.DebugClickContinueButton());
+        Check(ref passed, ref report, "Continue loads next encounter and clears terminal state", battle.DebugEncounterIndex == 1 && battle.DebugState == BattleState.PlayerTurn && !battle.DebugResultPending && battle.DebugResultEntryCount == 0 && battle.enemyParty.TrueForAll(x => !x.IsDead()) && !ui.DebugResultSummaryPanelVisible);
+        for (int i = 0; i < 3; i++) battle.DebugSetCurrentHpForTest(false, i, 0);
+        battle.DebugTryEnterResultForTest(); battle.DebugShowPendingResultForTest();
+        Check(ref passed, ref report, "final encounter Victory completes stage and unlocks next stage", ProgressState.IsStageCompleted(0) && ProgressState.IsStageUnlocked(1) && !ui.DebugContinueButtonVisible && ui.DebugStageSelectButtonVisible);
+
+        int savedGold = ProgressState.TotalGold; SaveManager.Save(); ProgressState.Reset(); SaveManager.Load();
+        Check(ref passed, ref report, "save/load preserves Gold and stage unlock", ProgressState.TotalGold == savedGold && ProgressState.IsStageCompleted(0) && ProgressState.IsStageUnlocked(1));
+
+        ProgressState.Reset(); battle.DebugConfigureStageForTest(0, 0);
+        battle.DebugSetCurrentHpForTest(true, 0, 0); battle.DebugTryEnterResultForTest();
+        Check(ref passed, ref report, "one ally death does not queue Defeat", !battle.DebugResultPending);
+        battle.DebugSetCurrentHpForTest(true, 1, 0); battle.DebugTryEnterResultForTest();
+        Check(ref passed, ref report, "two ally deaths do not queue Defeat", !battle.DebugResultPending);
+        battle.DebugSetCurrentHpForTest(true, 2, 0); battle.DebugTryEnterResultForTest();
+        int defeatGold = ProgressState.TotalGold; battle.DebugShowPendingResultForTest();
+        Check(ref passed, ref report, "three ally deaths enter Defeat once with no reward or unlock", battle.DebugState == BattleState.Defeat && battle.DebugResultEntryCount == 1 && battle.DebugRewardGrantCount == 0 && ProgressState.TotalGold == defeatGold && !ProgressState.IsStageCompleted(0));
+        Check(ref passed, ref report, "Defeat panel exposes Retry and Stage Select only", ui.DebugRetryButtonVisible && ui.DebugStageSelectButtonVisible && !ui.DebugContinueButtonVisible && ui.DebugResultSummaryText.StartsWith("DEFEAT\n"));
+        Check(ref passed, ref report, "Retry result button resets Defeat", ui.DebugClickRetryButton());
+        Check(ref passed, ref report, "Retry fully resets combat and result state", battle.DebugState == BattleState.PlayerTurn && battle.DebugEncounterIndex == 0 && battle.DebugTotalDamageDealt == 0 && battle.DebugTotalDamageTaken == 0 && battle.DebugSkillsUsedCount == 0 && battle.DebugGuardUseCount == 0 && !battle.DebugResultPending && battle.DebugResultEntryCount == 0 && battle.playerParty.TrueForAll(x => !x.IsDead()) && battle.enemyParty.TrueForAll(x => !x.IsDead()) && battle.DebugSelectedPlayerIndex == -1 && !ui.DebugResultSummaryPanelVisible);
+        for (int i = 0; i < 3; i++) battle.DebugSetCurrentHpForTest(true, i, 0);
+        battle.DebugTryEnterResultForTest(); battle.DebugShowPendingResultForTest();
+        Check(ref passed, ref report, "Stage Select result button invokes the bound flow", ui.DebugClickStageSelectButton());
+        Check(ref passed, ref report, "Stage Select requests the real configured scene", battle.DebugStageSelectRequested && battle.DebugRequestedSceneName == GameSceneFlow.StageSelectSceneName);
+
+        Object.DestroyImmediate(root);
+        SaveManager.DebugResetSavePathForTest();
+        if (System.IO.File.Exists(isolatedSavePath)) System.IO.File.Delete(isolatedSavePath);
+        report += passed ? "\nRESULT: PASS" : "\nRESULT: FAIL"; Debug.Log(report); if (!passed) throw new System.Exception(report);
     }
 
     private static void ConfigureBattlefieldSlots(BattleUI ui)
@@ -307,6 +391,9 @@ public static class BattleAutoTestRunner
         SetPrivateField(ui, "skillSubmenuPanel", skillSubmenu);
         SetPrivateField(ui, "selectedUnitText", actorSummary);
         SetPrivateField(ui, "skillDescriptionText", skillDescription);
+        GameObject resultPanel = new GameObject("Result Panel Test", typeof(RectTransform), typeof(Image)); resultPanel.transform.SetParent(ui.transform, false); resultPanel.SetActive(false);
+        TMP_Text resultText = new GameObject("Result Text Test", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TMP_Text>(); resultText.transform.SetParent(resultPanel.transform, false); resultText.gameObject.SetActive(false);
+        SetPrivateField(ui, "resultSummaryPanel", resultPanel); SetPrivateField(ui, "resultSummaryText", resultText); SetPrivateField(ui, "resultPanelBackground", resultPanel.GetComponent<Image>());
         SetPrivateField(ui, "attackButton", CreateTestButton("Attack Test", commandDock.transform));
         SetPrivateField(ui, "skillMenuButton", CreateTestButton("Skill Menu Test", commandDock.transform));
         SetPrivateField(ui, "guardButton", CreateTestButton("Guard Test", commandDock.transform));
@@ -316,6 +403,9 @@ public static class BattleAutoTestRunner
         SetPrivateField(ui, "lightningSkillButton", CreateTestButton("Lightning Test", skillSubmenu.transform));
         SetPrivateField(ui, "earthSkillButton", CreateTestButton("Earth Test", skillSubmenu.transform));
         SetPrivateField(ui, "skillBackButton", CreateTestButton("Back Test", skillSubmenu.transform));
+        SetPrivateField(ui, "retryButton", CreateTestButton("Retry Test", ui.transform));
+        SetPrivateField(ui, "continueButton", CreateTestButton("Continue Test", ui.transform));
+        SetPrivateField(ui, "stageSelectButton", CreateTestButton("Stage Select Test", ui.transform));
         SetPrivateField(ui, "paladinBattleSprite", AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/BattleUnits/ally_paladin.png"));
         SetPrivateField(ui, "clericBattleSprite", AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/BattleUnits/ally_cleric.png"));
         SetPrivateField(ui, "rangerBattleSprite", AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/BattleUnits/ally_ranger.png"));

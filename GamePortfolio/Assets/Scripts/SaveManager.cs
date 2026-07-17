@@ -8,7 +8,11 @@ using UnityEngine;
 /// </summary>
 public static class SaveManager
 {
-    private static string SavePath => Path.Combine(Application.persistentDataPath, "save.json");
+    private static string debugSavePath;
+    private static string SavePath => !string.IsNullOrEmpty(debugSavePath) ? debugSavePath : Path.Combine(Application.persistentDataPath, "save.json");
+
+    public static void DebugUseSavePathForTest(string path) { debugSavePath = path; }
+    public static void DebugResetSavePathForTest() { debugSavePath = null; }
 
     [System.Serializable]
     private struct SaveData

@@ -130,6 +130,9 @@ public class ScreenshotCaptureJob : MonoBehaviour
     private IEnumerator CaptureSequence()
     {
         yield return new WaitForSeconds(1.5f);
+        string isolatedCaptureSave = Path.Combine(Path.GetTempPath(), "codex-tactics-capture-save.json");
+        if (File.Exists(isolatedCaptureSave)) File.Delete(isolatedCaptureSave);
+        SaveManager.DebugUseSavePathForTest(isolatedCaptureSave);
 
         yield return Capture("00_title_scene.png");
         yield return new WaitForSeconds(0.5f);
@@ -179,7 +182,8 @@ public class ScreenshotCaptureJob : MonoBehaviour
         // 05: deterministic basic-attack impact with lunge, target flash and damage popup.
         manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true);
         manager.SelectPlayerUnit(0); manager.SelectEnemyTarget(0); manager.OnClickAttackButton();
-        yield return new WaitForSeconds(0.20f);
+        float attackLungeWait = 0f;
+        while (battleUi != null && battleUi.DebugFeedbackActorOffset < 35f && attackLungeWait < 0.35f) { attackLungeWait += Time.deltaTime; yield return null; }
         RequireRuntimeFeedback(battleUi != null && battleUi.DebugFeedbackActorOffset >= 35f && battleUi.DebugFeedbackActorOffset <= 60f, "ATTACK lunge reaches 35-60px before impact");
         manager.DebugAdvancePresentationToImpactForTest();
         yield return new WaitForSeconds(0.03f);
@@ -234,6 +238,48 @@ public class ScreenshotCaptureJob : MonoBehaviour
         yield return Capture("11_player_turn_return.png");
         manager.DebugSetPresentationManualForTest(false); manager.DebugSetEnemyTurnManualForTest(false);
 
+        // 12: real delayed Victory result with whole-party statistics and one-time reward.
+        manager.DebugConfigureStageForTest(0, 0); manager.DebugSetPresentationManualForTest(true);
+        for (int i = 0; i < 3; i++)
+        {
+            manager.DebugSetCurrentHpForTest(false, i, 1);
+            RequireRuntimeFeedback(manager.SelectPlayerUnit(i) && manager.SelectEnemyTarget(i), "Victory capture selects each real actor and target");
+            manager.OnClickAttackButton(); manager.DebugAdvancePresentationToImpactForTest();
+            if (i == 2) manager.DebugSetCurrentHpForTest(true, 1, 0);
+            manager.DebugCompletePresentationForTest();
+        }
+        RequireRuntimeFeedback(manager.DebugResultPending && battleUi != null && !battleUi.DebugResultSummaryPanelVisible && battleUi.DebugTransientFeedbackCount > 0, "terminal impact locks input while the final popup remains visible");
+        yield return new WaitForSeconds(0.20f);
+        RequireRuntimeFeedback(!battleUi.DebugResultSummaryPanelVisible, "result panel stays hidden before the 0.35s boundary");
+        yield return new WaitForSeconds(0.40f);
+        RequireRuntimeFeedback(manager.DebugState == BattleState.Victory && battleUi.DebugResultSummaryPanelVisible && battleUi.DebugResultSummaryText.StartsWith("VICTORY\n") && manager.DebugResultData.survivors == 2 && manager.DebugRewardGrantCount == 1 && battleUi.DebugRetryButtonVisible && battleUi.DebugContinueButtonVisible, "Victory panel appears after impact with whole-party stats, visible buttons, and one reward");
+        yield return new WaitForSeconds(0.30f);
+        yield return Capture("12_victory_result.png");
+
+        // 14: the wired CONTINUE button loads the next existing encounter and removes result residue.
+        RequireRuntimeFeedback(battleUi.DebugClickContinueButton(), "CONTINUE button invokes its bound encounter flow");
+        yield return new WaitForSeconds(0.20f);
+        RequireRuntimeFeedback(manager.DebugEncounterIndex == 1 && manager.DebugState == BattleState.PlayerTurn && !battleUi.DebugResultSummaryPanelVisible && battleUi.DebugTransientFeedbackCount == 0 && manager.DebugEnemyIntent(0).Contains("Paladin"), "CONTINUE starts the next encounter with clean state and fresh intents");
+        yield return Capture("14_continue_encounter.png");
+
+        // 13: real delayed Defeat result exposes no reward and no CONTINUE.
+        int goldBeforeDefeat = ProgressState.TotalGold;
+        manager.DebugConfigureStageForTest(0, 0);
+        for (int i = 0; i < 3; i++) manager.DebugSetCurrentHpForTest(true, i, 0);
+        manager.DebugTryEnterResultForTest();
+        RequireRuntimeFeedback(manager.DebugResultPending && !battleUi.DebugResultSummaryPanelVisible, "party wipe queues Defeat without showing the panel early");
+        yield return new WaitForSeconds(0.60f);
+        RequireRuntimeFeedback(manager.DebugState == BattleState.Defeat && battleUi.DebugResultSummaryPanelVisible && battleUi.DebugResultSummaryText.StartsWith("DEFEAT\n") && ProgressState.TotalGold == goldBeforeDefeat && !battleUi.DebugContinueButtonVisible && battleUi.DebugRetryButtonVisible && battleUi.DebugStageSelectButtonVisible, "Defeat shows no reward and only visible retry/stage-select flow");
+        RequireRuntimeFeedback(battleUi.DebugAllySlotState(0).Contains("0/") && battleUi.DebugAllySlotState(1).Contains("0/") && battleUi.DebugAllySlotState(2).Contains("0/"), "Defeat renders every ally slot at zero HP");
+        yield return new WaitForSeconds(0.30f);
+        yield return Capture("13_defeat_result.png");
+
+        // 15: the wired RETRY button fully restores the same encounter.
+        RequireRuntimeFeedback(battleUi.DebugClickRetryButton(), "RETRY button invokes its bound reset flow");
+        yield return new WaitForSeconds(0.20f);
+        RequireRuntimeFeedback(manager.DebugEncounterIndex == 0 && manager.DebugState == BattleState.PlayerTurn && manager.playerParty.TrueForAll(unit => !unit.IsDead()) && manager.enemyParty.TrueForAll(unit => !unit.IsDead()) && manager.DebugSelectedPlayerIndex == -1 && !battleUi.DebugResultSummaryPanelVisible && battleUi.DebugTransientFeedbackCount == 0, "RETRY restores HP/AP/status/selection/statistics and clears all result VFX");
+        yield return Capture("15_retry_reset.png");
+
         // Runtime-only regression: lethal impact must still use the cached body after its selector disappears.
         manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true);
         manager.DebugSetCurrentHpForTest(false, 0, 1); manager.SelectPlayerUnit(0); manager.SelectEnemyTarget(0); manager.OnClickAttackButton();
@@ -281,6 +327,16 @@ public class ScreenshotCaptureJob : MonoBehaviour
             yield return Capture("05_retry_reset.png");
         }
 
+        // Final runtime navigation regression: the visible result button must load the real scene.
+        manager.DebugConfigureStageForTest(0, 0);
+        for (int i = 0; i < 3; i++) manager.DebugSetCurrentHpForTest(true, i, 0);
+        manager.DebugTryEnterResultForTest(); manager.DebugShowPendingResultForTest();
+        RequireRuntimeFeedback(battleUi.DebugClickStageSelectButton(), "STAGE SELECT button invokes its bound scene flow");
+        yield return new WaitForSeconds(0.40f);
+        RequireRuntimeFeedback(SceneManager.GetActiveScene().name == GameSceneFlow.StageSelectSceneName, "STAGE SELECT loads the real StageSelectScene");
+
+        SaveManager.DebugResetSavePathForTest();
+        if (File.Exists(isolatedCaptureSave)) File.Delete(isolatedCaptureSave);
         Debug.Log("[Capture] All screenshots captured! Exiting.");
 
 #if UNITY_EDITOR
