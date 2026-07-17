@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.IO;
 using System.Reflection;
@@ -105,6 +106,12 @@ public class ScreenshotCaptureJob : MonoBehaviour
         Debug.Log($"[Capture] Saved ({bytes.Length} bytes): {path}");
     }
 
+    private static void RequireRuntimeFeedback(bool condition, string message)
+    {
+        if (!condition) throw new InvalidOperationException("[Capture QA] " + message);
+        Debug.Log("[Capture QA] PASS: " + message);
+    }
+
     private static void PreparePortfolioCaptureProgress()
     {
         // Keep standalone capture evidence deterministic and showcase-ready even when the
@@ -168,6 +175,53 @@ public class ScreenshotCaptureJob : MonoBehaviour
         yield return Capture("04_target_attack.png");
         manager.OnClickAttackButton();
         yield return new WaitForSeconds(0.6f);
+
+        // 05: deterministic basic-attack impact with lunge, target flash and damage popup.
+        manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true);
+        manager.SelectPlayerUnit(0); manager.SelectEnemyTarget(0); manager.OnClickAttackButton();
+        yield return new WaitForSeconds(0.20f);
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugFeedbackActorOffset >= 35f && battleUi.DebugFeedbackActorOffset <= 60f, "ATTACK lunge reaches 35-60px before impact");
+        manager.DebugAdvancePresentationToImpactForTest();
+        yield return new WaitForSeconds(0.03f);
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugTransientFeedbackCount >= 2, "ATTACK impact creates target feedback and damage popup");
+        yield return Capture("05_attack_impact.png");
+        manager.DebugCompletePresentationForTest();
+
+        // 06: deterministic Fire Bolt impact with burst, damage and BURN popup.
+        manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true);
+        manager.SelectPlayerUnit(0); manager.OnClickFireSkillButton(); manager.SelectEnemyTarget(0);
+        yield return new WaitForSeconds(0.10f);
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugHasTransientFeedbackNamed("Fire Projectile"), "Fire projectile exists during flight");
+        yield return new WaitForSeconds(0.10f); manager.DebugAdvancePresentationToImpactForTest();
+        yield return new WaitForSeconds(0.03f);
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugFeedbackPopup == "BURN" && battleUi.DebugHasTransientFeedbackNamed("Fire Projectile"), "Fire projectile arrives with BURN impact feedback");
+        yield return Capture("06_fire_burn.png");
+        manager.DebugCompletePresentationForTest();
+
+        // 07: deterministic self-only GUARD pulse and popup on Cleric.
+        manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true);
+        manager.SelectPlayerUnit(1); manager.OnClickGuardButton(); manager.DebugAdvancePresentationToImpactForTest();
+        yield return new WaitForSeconds(0.05f);
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugFeedbackPopup == "GUARD" && battleUi.DebugTransientFeedbackCount >= 2, "GUARD pulse and popup are actor-local runtime feedback");
+        yield return Capture("07_guard_feedback.png");
+        manager.DebugCompletePresentationForTest();
+
+        // Runtime-only regression: lethal impact must still use the cached body after its selector disappears.
+        manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true);
+        manager.DebugSetCurrentHpForTest(false, 0, 1); manager.SelectPlayerUnit(0); manager.SelectEnemyTarget(0); manager.OnClickAttackButton();
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugHasCachedFeedbackTarget, "lethal ATTACK caches its target body before impact");
+        manager.DebugAdvancePresentationToImpactForTest(); yield return null;
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugTransientFeedbackCount >= 2 && battleUi.DebugFeedbackPopup == "-20", "lethal ATTACK keeps impact VFX after target death");
+        manager.DebugCompletePresentationForTest();
+
+        // Runtime-only regression: restart must stop stale motion/projectile/popup coroutines and restore transforms.
+        manager.DebugStartBattleForTest(); manager.DebugSetPresentationManualForTest(true);
+        manager.SelectPlayerUnit(0); manager.OnClickFireSkillButton(); manager.SelectEnemyTarget(0); yield return new WaitForSeconds(0.05f);
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugHasTransientFeedbackNamed("Fire Projectile"), "cleanup test starts with an active projectile");
+        manager.DebugStartBattleForTest(); yield return null;
+        RequireRuntimeFeedback(battleUi != null && battleUi.DebugTransientFeedbackCount == 0 && battleUi.DebugFeedbackActorOffset < 0.01f, "battle restart stops feedback coroutines and restores actor position");
+        manager.DebugSetPresentationManualForTest(false);
+        manager.DebugStartBattleForTest();
 
         // Drive the real battle to its result with actual selections and ATTACK commands.
         for (int turn = 0; turn < 24; turn++)

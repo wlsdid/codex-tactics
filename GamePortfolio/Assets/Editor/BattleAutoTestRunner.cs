@@ -125,13 +125,93 @@ public static class BattleAutoTestRunner
         Check(ref passed, ref report, "guard is per-unit and enemy targets living lowest index", battle.playerParty[0].currentHp < heroHp && battle.playerParty[1].currentHp == guardianHp && !battle.DebugIsGuarding(0));
 
         battle.DebugStartBattleForTest();
+        battle.DebugSetPresentationManualForTest(true);
+        battle.SelectPlayerUnit(0); battle.SelectEnemyTarget(0);
+        int impactHpBefore = battle.enemyParty[0].currentHp;
+        int impactEnemyTurnsBefore = battle.DebugEnemyTurnCount;
+        battle.OnClickAttackButton();
+        Check(ref passed, ref report, "ATTACK presentation locks input before impact", battle.DebugIsPresentationLocked && battle.enemyParty[0].currentHp == impactHpBefore && !battle.DebugHasActed(0) && !ui.DebugAnyCommandInteractable);
+        battle.OnClickAttackButton(); battle.OnClickEndTurnButton(); battle.SelectPlayerUnit(1); battle.SelectEnemyTarget(1);
+        Check(ref passed, ref report, "presentation lock blocks duplicate command, END TURN and reselection", battle.enemyParty[0].currentHp == impactHpBefore && battle.DebugEnemyTurnCount == impactEnemyTurnsBefore && battle.DebugSelectedPlayerIndex == 0 && battle.DebugSelectedEnemyIndex == 0);
+        battle.DebugAdvancePresentationToImpactForTest();
+        int impactHpAfter = battle.enemyParty[0].currentHp;
+        Check(ref passed, ref report, "ATTACK applies damage exactly once at impact", impactHpAfter < impactHpBefore && battle.DebugImpactApplicationCount == 1 && !battle.DebugHasActed(0));
+        battle.DebugAdvancePresentationToImpactForTest();
+        Check(ref passed, ref report, "duplicate impact completion cannot apply damage twice", battle.enemyParty[0].currentHp == impactHpAfter && battle.DebugImpactApplicationCount == 1);
+        battle.DebugCompletePresentationForTest();
+        Check(ref passed, ref report, "ATTACK presentation completion marks actor DONE and unlocks battle", !battle.DebugIsPresentationLocked && battle.DebugHasActed(0) && !ui.DebugCommandDockVisible);
+        RecordState(ref report, "ATTACK_PRESENTATION", $"hp={impactHpBefore}->{impactHpAfter}; impacts={battle.DebugImpactApplicationCount}; acted={battle.DebugHasActed(0)}; locked={battle.DebugIsPresentationLocked}");
+        battle.DebugSetPresentationManualForTest(false);
+
+        UnlockAllSkills();
+        battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
+        battle.SelectPlayerUnit(0); int fireApBefore = battle.playerParty[0].currentAp; int fireHpBefore = battle.enemyParty[0].currentHp;
+        battle.OnClickFireSkillButton(); battle.SelectEnemyTarget(0);
+        Check(ref passed, ref report, "Fire Bolt locks during flight and spends AP without early damage", battle.DebugIsPresentationLocked && battle.playerParty[0].currentAp == fireApBefore - 2 && battle.enemyParty[0].currentHp == fireHpBefore);
+        battle.DebugAdvancePresentationToImpactForTest();
+        Check(ref passed, ref report, "Fire Bolt impact damages once and applies Burn popup", battle.enemyParty[0].currentHp < fireHpBefore && battle.enemyParty[0].HasStatusEffect(StatusEffectType.Burn) && battle.DebugImpactApplicationCount == 1 && ui.DebugFeedbackKind == "Fire" && ui.DebugFeedbackPopup == "BURN");
+        battle.DebugCompletePresentationForTest();
+        Check(ref passed, ref report, "Fire Bolt completes actor action", battle.DebugHasActed(0) && !battle.DebugIsPresentationLocked);
+        Check(ref passed, ref report, "Burn persistent overlay returns after transient feedback", ui.DebugEnemyOverlayActive(2));
+
+        battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
+        battle.enemyParty[0].weaknessElement = ElementType.Fire; battle.enemyParty[0].currentBreakGauge = 1; battle.enemyParty[0].isBroken = false;
+        battle.SelectPlayerUnit(0); battle.OnClickFireSkillButton(); battle.SelectEnemyTarget(0);
+        Check(ref passed, ref report, "weakness Break gauge does not change before impact", battle.enemyParty[0].currentBreakGauge == 1 && !battle.enemyParty[0].isBroken);
+        battle.DebugAdvancePresentationToImpactForTest();
+        Check(ref passed, ref report, "weakness Break reduction and reset occur atomically at impact", battle.enemyParty[0].currentBreakGauge == battle.enemyParty[0].maxBreakGauge && !battle.enemyParty[0].isBroken);
+        battle.DebugCompletePresentationForTest();
+
+        battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
+        battle.SelectPlayerUnit(2); int iceApBefore = battle.playerParty[2].currentAp; int iceHpBefore = battle.enemyParty[1].currentHp;
+        battle.OnClickIceSkillButton(); battle.SelectEnemyTarget(1); battle.DebugAdvancePresentationToImpactForTest();
+        Check(ref passed, ref report, "Ice Lance impact spends AP, damages once and applies Stun popup", battle.playerParty[2].currentAp == iceApBefore - 1 && battle.enemyParty[1].currentHp < iceHpBefore && battle.enemyParty[1].HasStatusEffect(StatusEffectType.Stun) && battle.DebugImpactApplicationCount == 1 && ui.DebugFeedbackPopup == "STUN");
+        battle.DebugCompletePresentationForTest();
+
+        battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
+        battle.SelectPlayerUnit(0); int lightningApBefore = battle.playerParty[0].currentAp; int lightningHpBefore = battle.enemyParty[2].currentHp;
+        battle.OnClickLightningSkillButton(); battle.SelectEnemyTarget(2); battle.DebugAdvancePresentationToImpactForTest();
+        Check(ref passed, ref report, "Lightning Strike impact spends AP and damages exactly once", battle.playerParty[0].currentAp == lightningApBefore - 3 && battle.enemyParty[2].currentHp < lightningHpBefore && battle.DebugImpactApplicationCount == 1 && ui.DebugFeedbackKind == "Lightning");
+        battle.DebugCompletePresentationForTest();
+
+        battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
+        battle.SelectPlayerUnit(1); battle.OnClickGuardButton();
+        Check(ref passed, ref report, "GUARD waits for feedback impact", battle.DebugIsPresentationLocked && !battle.DebugIsGuarding(1));
+        battle.DebugAdvancePresentationToImpactForTest();
+        Check(ref passed, ref report, "GUARD impact applies only to selected actor", battle.DebugIsGuarding(1) && !battle.DebugIsGuarding(0) && !battle.DebugIsGuarding(2) && ui.DebugFeedbackPopup == "GUARD");
+        battle.DebugCompletePresentationForTest();
+
+        battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
+        battle.SelectPlayerUnit(1); int wallApBefore = battle.playerParty[1].currentAp; battle.OnClickEarthSkillButton();
+        battle.DebugAdvancePresentationToImpactForTest();
+        Check(ref passed, ref report, "Earth Wall impact needs no enemy and shields only selected actor", battle.DebugSelectedEnemyIndex == -1 && battle.playerParty[1].currentAp == wallApBefore - 2 && battle.DebugShield(1) == 20 && battle.DebugShield(0) == 0 && battle.DebugShield(2) == 0 && ui.DebugFeedbackPopup == "SHIELD +20");
+        battle.DebugCompletePresentationForTest();
+
+        battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
+        battle.DebugSetCurrentHpForTest(false, 1, 0); battle.DebugSetCurrentHpForTest(false, 2, 0); battle.DebugSetCurrentHpForTest(false, 0, 1);
+        battle.SelectPlayerUnit(0); battle.SelectEnemyTarget(0); battle.OnClickAttackButton();
+        Check(ref passed, ref report, "lethal presentation caches target before indicator is disabled", ui.DebugHasCachedFeedbackTarget);
+        battle.DebugAdvancePresentationToImpactForTest();
+        Check(ref passed, ref report, "lethal impact keeps cached target feedback after death", battle.enemyParty[0].IsDead() && ui.DebugHasCachedFeedbackTarget && ui.DebugFeedbackPopup == "-20");
+        Check(ref passed, ref report, "last target death waits for presentation completion before Victory", battle.enemyParty[0].IsDead() && battle.DebugState == BattleState.PlayerTurn && battle.DebugIsPresentationLocked);
+        battle.DebugCompletePresentationForTest();
+        Check(ref passed, ref report, "last target death enters Victory after presentation", battle.DebugState == BattleState.Victory && battle.DebugResultSummaryText.Contains("Victory"));
+
+        battle.DebugStartBattleForTest(); battle.DebugSetPresentationManualForTest(true);
+        battle.SelectPlayerUnit(0); battle.SelectEnemyTarget(0); battle.OnClickAttackButton(); battle.DebugCompletePresentationForTest();
+        Check(ref passed, ref report, "next living actor is selectable after presentation completes", battle.SelectPlayerUnit(1) && battle.DebugSelectedPlayerIndex == 1);
+        battle.DebugSetPresentationManualForTest(false);
+
+        int goldBeforeVictorySequence = battle.DebugTotalGoldEarned;
+        battle.DebugStartBattleForTest();
         battle.DebugSetCurrentHpForTest(false, 0, 1);
         battle.SelectPlayerUnit(0); battle.SelectEnemyTarget(0); battle.OnClickAttackButton();
         Check(ref passed, ref report, "dead enemy does not end fight while enemies live", battle.enemyParty[0].IsDead() && battle.DebugState != BattleState.Victory && battle.DebugEnemyPartyCount == 3);
         battle.DebugSetCurrentHpForTest(false, 1, 1); battle.DebugSetCurrentHpForTest(false, 2, 1);
         battle.SelectPlayerUnit(1); battle.SelectEnemyTarget(1); battle.OnClickAttackButton();
         battle.SelectPlayerUnit(2); battle.SelectEnemyTarget(2); battle.OnClickAttackButton();
-        Check(ref passed, ref report, "victory only after all enemies die", battle.DebugState == BattleState.Victory && battle.enemyParty.TrueForAll(unit => unit.IsDead()) && battle.DebugResultSummaryText.Contains("Victory") && battle.DebugTotalGoldEarned == 150);
+        RecordState(ref report, "VICTORY_DIAG", $"state={battle.DebugState}; locked={battle.DebugIsPresentationLocked}; acted={battle.DebugHasActed(0)},{battle.DebugHasActed(1)},{battle.DebugHasActed(2)}; hp={battle.enemyParty[0].currentHp},{battle.enemyParty[1].currentHp},{battle.enemyParty[2].currentHp}; reward={battle.DebugTotalGoldEarned}");
+        Check(ref passed, ref report, "victory only after all enemies die", battle.DebugState == BattleState.Victory && battle.enemyParty.TrueForAll(unit => unit.IsDead()) && battle.DebugResultSummaryText.Contains("Victory") && battle.DebugTotalGoldEarned == goldBeforeVictorySequence + 150);
         int reward = battle.DebugTotalGoldEarned; battle.OnClickRetryButton();
         Check(ref passed, ref report, "retry preserves reward flow without duplicate reward", battle.DebugTotalGoldEarned == reward && battle.DebugState == BattleState.PlayerTurn);
 

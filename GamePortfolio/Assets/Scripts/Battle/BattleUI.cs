@@ -153,6 +153,17 @@ public class BattleUI : MonoBehaviour
     private Coroutine guardPulseRoutine;
     private Coroutine burnPulseRoutine;
     private Coroutine stunPulseRoutine;
+    private bool actionPresentationLocked;
+    private string feedbackKind = "", feedbackPopup = "";
+    private readonly List<GameObject> transientFeedbackObjects = new List<GameObject>();
+    private readonly List<Coroutine> actionFeedbackCoroutines = new List<Coroutine>();
+    private Coroutine feedbackLungeRoutine;
+    private Coroutine feedbackTargetHitRoutine;
+    private RectTransform feedbackActorRect;
+    private RectTransform feedbackTargetRect;
+    private Vector2 feedbackActorBasePosition;
+    private Vector2 feedbackTargetBasePosition;
+    private Color feedbackTargetBaseColor = Color.white;
     private TMP_Text speedToggleLabel;
     private Image playerHpFillImage;
     private Image playerApFillImage;
@@ -213,6 +224,14 @@ public class BattleUI : MonoBehaviour
     public bool DebugEarthSkillInteractable => earthSkillButton != null && earthSkillButton.interactable;
     public bool DebugLightningSkillInteractable => lightningSkillButton != null && lightningSkillButton.interactable;
     public bool DebugAnyCommandInteractable => IsInteractable(attackButton) || IsInteractable(skillMenuButton) || IsInteractable(guardButton) || IsInteractable(endTurnButton) || IsInteractable(fireSkillButton) || IsInteractable(iceSkillButton) || IsInteractable(earthSkillButton) || IsInteractable(lightningSkillButton);
+    public bool DebugActionPresentationLocked => actionPresentationLocked;
+    public string DebugFeedbackKind => feedbackKind;
+    public string DebugFeedbackPopup => feedbackPopup;
+    public bool DebugHasCachedFeedbackTarget => feedbackTargetRect != null;
+    public int DebugTransientFeedbackCount => transientFeedbackObjects.Count(item => item != null);
+    public float DebugFeedbackActorOffset => feedbackActorRect != null ? Vector2.Distance(feedbackActorRect.anchoredPosition, feedbackActorBasePosition) : 0f;
+    public bool DebugHasTransientFeedbackNamed(string objectName) => transientFeedbackObjects.Any(item => item != null && item.name == objectName);
+    public bool DebugEnemyOverlayActive(int slot) => enemySlotStatusOverlays != null && slot >= 0 && slot < enemySlotStatusOverlays.Length && enemySlotStatusOverlays[slot] != null && enemySlotStatusOverlays[slot].gameObject.activeSelf;
     public void DebugClickAttackButton() => InvokeIfInteractable(attackButton);
     public void DebugClickGuardButton() => InvokeIfInteractable(guardButton);
     public void DebugClickSkillMenuButton() => InvokeIfInteractable(skillMenuButton);
@@ -723,7 +742,7 @@ public class BattleUI : MonoBehaviour
         {
             bool showOverlay = !dead && (unit.currentStatusEffect != StatusEffectType.None || guarded || shield > 0 || acted);
             overlays[index].gameObject.SetActive(showOverlay);
-            overlays[index].color = unit != null && unit.currentStatusEffect == StatusEffectType.Burn ? new Color(1f, 0.25f, 0.08f, 0.50f) : unit != null && unit.currentStatusEffect == StatusEffectType.Stun ? new Color(0.25f, 0.55f, 1f, 0.50f) : guarded || shield > 0 ? new Color(0.20f, 0.72f, 1f, 0.42f) : new Color(0.65f, 0.65f, 0.65f, 0.30f);
+            overlays[index].color = unit != null && unit.currentStatusEffect == StatusEffectType.Burn ? new Color(1f, 0.25f, 0.08f, 0.06f) : unit != null && unit.currentStatusEffect == StatusEffectType.Stun ? new Color(0.25f, 0.55f, 1f, 0.06f) : guarded || shield > 0 ? new Color(0.20f, 0.72f, 1f, 0.05f) : new Color(0.65f, 0.65f, 0.65f, 0.04f);
         }
         if (indicators != null && index < indicators.Length && indicators[index] != null) indicators[index].gameObject.SetActive(selected && !dead);
         if (buttons != null && index < buttons.Length && buttons[index] != null) buttons[index].interactable = !dead && (!isAlly || !acted);
@@ -926,6 +945,31 @@ public class BattleUI : MonoBehaviour
         SetButtonInteractable(endTurnButton, isInteractable);
         SetButtonInteractable(guardButton, isInteractable);
         SetButtonInteractable(itemButton, isInteractable);
+    }
+
+    public void SetActionPresentationLocked(bool locked)
+    {
+        actionPresentationLocked = locked;
+        if (locked)
+        {
+            SetActionButtonsInteractable(false);
+            SetStatusOverlaysVisible(allySlotStatusOverlays, false);
+            SetStatusOverlaysVisible(enemySlotStatusOverlays, false);
+        }
+        SetSlotButtonsInteractable(allySlotButtons, !locked);
+        SetSlotButtonsInteractable(enemySlotButtons, !locked);
+    }
+
+    private static void SetStatusOverlaysVisible(Image[] overlays, bool visible)
+    {
+        if (overlays == null) return;
+        foreach (Image overlay in overlays) if (overlay != null) overlay.gameObject.SetActive(visible);
+    }
+
+    private static void SetSlotButtonsInteractable(Button[] buttons, bool interactable)
+    {
+        if (buttons == null) return;
+        foreach (Button button in buttons) if (button != null) button.interactable = interactable;
     }
 
     public void UpdateActionButtons(CharacterData player, SkillData basicSkill, SkillData fireSkill, SkillData iceSkill, SkillData lightningSkill, SkillData earthSkill, BattleState currentState)
@@ -1763,6 +1807,207 @@ public class BattleUI : MonoBehaviour
     }
 
     // --- VFX / Feedback ---
+
+    public void BeginActionFeedback(string kind, BattleVisualId actorVisual, BattleVisualId targetVisual)
+    {
+        feedbackKind = kind ?? "";
+        feedbackPopup = "";
+        feedbackActorRect = GetSlotBodyRect(allySlotBodies, true, actorVisual);
+        feedbackTargetRect = GetSlotBodyRect(enemySlotBodies, false, targetVisual);
+        if (feedbackActorRect != null) feedbackActorBasePosition = feedbackActorRect.anchoredPosition;
+        if (feedbackTargetRect != null)
+        {
+            feedbackTargetBasePosition = feedbackTargetRect.anchoredPosition;
+            Image targetImage = feedbackTargetRect.GetComponent<Image>();
+            feedbackTargetBaseColor = targetImage != null ? targetImage.color : Color.white;
+        }
+        if (!Application.isPlaying) return;
+        if (feedbackActorRect != null)
+        {
+            if (kind == "Attack") feedbackLungeRoutine = TrackFeedbackCoroutine(ActionLungeRoutine(feedbackActorRect, 48f, 0.45f));
+        }
+        if ((kind == "Fire" || kind == "Ice") && feedbackActorRect != null && feedbackTargetRect != null)
+        {
+            Color projectileColor = kind == "Fire" ? new Color(1f, 0.28f, 0.08f, 0.95f) : new Color(0.25f, 0.75f, 1f, 0.95f);
+            Image projectile = CreateFeedbackImage($"{kind} Projectile", new Vector2(18f, 18f), projectileColor, feedbackActorRect.position);
+            if (projectile != null) TrackFeedbackCoroutine(ProjectileRoutine(projectile, feedbackActorRect.position, feedbackTargetRect.position, 0.22f));
+        }
+        else if (kind == "Lightning" && feedbackTargetRect != null)
+        {
+            Image bolt = CreateFeedbackImage("Lightning Flash", new Vector2(12f, 105f), new Color(0.9f, 0.9f, 1f, 0.82f), feedbackTargetRect.position + Vector3.up * 38f);
+            if (bolt != null) TrackFeedbackCoroutine(FadeFeedbackRoutine(bolt, 0.28f));
+        }
+    }
+
+    public void ShowActionImpact(string kind, int damage, string statusPopup)
+    {
+        feedbackKind = kind ?? "";
+        feedbackPopup = !string.IsNullOrEmpty(statusPopup) ? statusPopup : damage > 0 ? $"-{damage}" : "";
+        RectTransform targetRect = kind == "Guard" || kind == "Earth" ? feedbackActorRect : feedbackTargetRect;
+        if (!Application.isPlaying || targetRect == null) return;
+        if (kind == "Guard" || kind == "Earth")
+        {
+            Color pulseColor = kind == "Guard" ? new Color(0.18f, 0.85f, 0.78f, 0.62f) : new Color(0.48f, 0.62f, 0.32f, 0.68f);
+            TMP_Text pulse = CreateFeedbackGlyphAt(targetRect, kind == "Guard" ? "Guard Pulse" : "Earth Wall Pulse", "O", 88f, pulseColor, Vector2.zero);
+            if (pulse != null) TrackFeedbackCoroutine(PulseFeedbackRoutine(pulse, 0.48f));
+            TMP_Text selfPopup = CreateFeedbackGlyphAt(targetRect, $"{kind} Popup", statusPopup, 28f, pulseColor, new Vector2(0f, 72f));
+            if (selfPopup != null) TrackFeedbackCoroutine(PopupFeedbackRoutine(selfPopup, 0.8f));
+            return;
+        }
+        feedbackTargetHitRoutine = TrackFeedbackCoroutine(TargetHitRoutine(targetRect, 0.16f));
+        if (damage > 0)
+        {
+            TMP_Text damagePopup = CreateFeedbackGlyphAt(targetRect, "Damage Popup", $"-{damage}", 28f, new Color(1f, 0.88f, 0.82f), new Vector2(0f, 60f));
+            if (damagePopup != null) TrackFeedbackCoroutine(PopupFeedbackRoutine(damagePopup, 0.8f));
+        }
+        if (!string.IsNullOrEmpty(statusPopup))
+        {
+            TMP_Text statusText = CreateFeedbackGlyphAt(targetRect, "Status Popup", statusPopup, 28f, kind == "Fire" ? new Color(1f, 0.34f, 0.12f) : new Color(0.35f, 0.8f, 1f), new Vector2(0f, 92f));
+            if (statusText != null) TrackFeedbackCoroutine(PopupFeedbackRoutine(statusText, 0.8f));
+        }
+        Color burstColor = kind == "Fire" ? new Color(1f, 0.26f, 0.05f, 0.72f) : kind == "Ice" ? new Color(0.32f, 0.78f, 1f, 0.72f) : new Color(1f, 0.85f, 0.65f, 0.55f);
+        TMP_Text burst = CreateFeedbackGlyphAt(targetRect, $"{kind} Impact Burst", "*", 58f, burstColor, Vector2.zero);
+        if (burst != null) TrackFeedbackCoroutine(PulseFeedbackRoutine(burst, 0.32f));
+    }
+
+    public void EndActionFeedback()
+    {
+        SetActionPresentationLocked(false);
+        if (feedbackLungeRoutine != null) StopCoroutine(feedbackLungeRoutine);
+        if (feedbackTargetHitRoutine != null) StopCoroutine(feedbackTargetHitRoutine);
+        feedbackLungeRoutine = feedbackTargetHitRoutine = null;
+        RestoreFeedbackActor();
+        RestoreFeedbackTargetTransform();
+    }
+
+    public void CleanupActionFeedback()
+    {
+        SetActionPresentationLocked(false);
+        foreach (Coroutine routine in actionFeedbackCoroutines) if (routine != null) StopCoroutine(routine);
+        actionFeedbackCoroutines.Clear();
+        feedbackLungeRoutine = feedbackTargetHitRoutine = null;
+        RestoreFeedbackActor();
+        RestoreFeedbackTargetTransform();
+        feedbackTargetRect = null;
+        foreach (GameObject item in transientFeedbackObjects) if (item != null) Destroy(item);
+        transientFeedbackObjects.Clear();
+        feedbackKind = feedbackPopup = "";
+    }
+
+    private RectTransform GetSlotBodyRect(Image[] bodies, bool ally, BattleVisualId visual)
+    {
+        if (bodies == null) return null;
+        for (int i = 0; i < bodies.Length; i++) if (GetSlotVisualId(ally, i) == visual && bodies[i] != null) return bodies[i].rectTransform;
+        return null;
+    }
+
+    private Coroutine TrackFeedbackCoroutine(IEnumerator routine)
+    {
+        if (routine == null || !Application.isPlaying) return null;
+        Coroutine coroutine = StartCoroutine(routine);
+        actionFeedbackCoroutines.Add(coroutine);
+        return coroutine;
+    }
+
+    private Image CreateFeedbackImage(string objectName, Vector2 size, Color color, Vector3 position)
+    {
+        Transform parent = GetDamagePopupParent();
+        if (parent == null) return null;
+        GameObject obj = new GameObject(objectName, typeof(RectTransform), typeof(Image));
+        obj.transform.SetParent(parent, false);
+        RectTransform rect = obj.GetComponent<RectTransform>(); rect.sizeDelta = size; SetFeedbackPosition(rect, position);
+        Image image = obj.GetComponent<Image>(); image.color = color; image.raycastTarget = false;
+        transientFeedbackObjects.Add(obj); return image;
+    }
+
+    private void SetFeedbackPosition(RectTransform rect, Vector3 worldPosition)
+    {
+        EnsureCanvasCached();
+        RectTransform canvasRect = cachedCanvasTransform as RectTransform;
+        if (rect == null || canvasRect == null) return;
+        Camera camera = cachedCanvas != null && cachedCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? cachedCanvas.worldCamera : null;
+        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(null, worldPosition);
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPoint, camera, out Vector2 localPoint)) rect.anchoredPosition = localPoint;
+    }
+
+    private TMP_Text CreateFeedbackGlyphAt(RectTransform anchor, string objectName, string glyph, float fontSize, Color color, Vector2 localOffset)
+    {
+        if (anchor == null) return null;
+        GameObject obj = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
+        obj.transform.SetParent(anchor, false);
+        RectTransform rect = obj.GetComponent<RectTransform>(); rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f); rect.sizeDelta = new Vector2(180f, 120f); rect.anchoredPosition = localOffset;
+        TMP_Text text = obj.GetComponent<TextMeshProUGUI>(); text.text = glyph; text.fontSize = fontSize; text.color = color; text.alignment = TextAlignmentOptions.Center; text.raycastTarget = false;
+        transientFeedbackObjects.Add(obj); return text;
+    }
+
+    private IEnumerator ActionLungeRoutine(RectTransform actor, float pixels, float duration)
+    {
+        float elapsed = 0f;
+        while (actor != null && elapsed < duration)
+        {
+            float t = elapsed / duration; actor.anchoredPosition = feedbackActorBasePosition + Vector2.right * (Mathf.Sin(t * Mathf.PI) * pixels);
+            elapsed += Time.deltaTime; yield return null;
+        }
+        if (actor != null) actor.anchoredPosition = feedbackActorBasePosition;
+    }
+
+    private IEnumerator ProjectileRoutine(Image image, Vector3 start, Vector3 end, float duration)
+    {
+        float elapsed = 0f;
+        while (image != null && elapsed < duration) { SetFeedbackPosition(image.rectTransform, Vector3.Lerp(start, end, elapsed / duration)); elapsed += Time.deltaTime; yield return null; }
+        if (image != null)
+        {
+            SetFeedbackPosition(image.rectTransform, end);
+            yield return new WaitForSeconds(0.25f);
+            transientFeedbackObjects.Remove(image.gameObject); Destroy(image.gameObject);
+        }
+    }
+
+    private IEnumerator TargetHitRoutine(RectTransform target, float duration)
+    {
+        Vector2 origin = target.anchoredPosition; Image image = target.GetComponent<Image>(); Color original = image != null ? image.color : Color.white;
+        float elapsed = 0f;
+        while (target != null && elapsed < duration) { float shake = Mathf.Sin(elapsed * 120f) * 4f; target.anchoredPosition = origin + Vector2.right * shake; if (image != null) image.color = Color.Lerp(original, new Color(1f, 0.72f, 0.72f), 0.65f); elapsed += Time.deltaTime; yield return null; }
+        if (target != null) target.anchoredPosition = origin; if (image != null) image.color = original;
+    }
+
+    private IEnumerator PulseFeedbackRoutine(Graphic graphic, float duration)
+    {
+        float elapsed = 0f; Color color = graphic.color;
+        while (graphic != null && elapsed < duration) { float t = elapsed / duration; graphic.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.55f, 1.25f, t); graphic.color = new Color(color.r, color.g, color.b, Mathf.Lerp(color.a, 0f, t)); elapsed += Time.deltaTime; yield return null; }
+        if (graphic != null) { transientFeedbackObjects.Remove(graphic.gameObject); Destroy(graphic.gameObject); }
+    }
+
+    private IEnumerator PopupFeedbackRoutine(TMP_Text text, float duration)
+    {
+        float elapsed = 0f; Color color = text.color; Vector2 origin = text.rectTransform.anchoredPosition;
+        while (text != null && elapsed < duration)
+        {
+            float t = elapsed / duration; text.rectTransform.anchoredPosition = origin + Vector2.up * (24f * t); text.color = new Color(color.r, color.g, color.b, t < 0.55f ? color.a : Mathf.Lerp(color.a, 0f, (t - 0.55f) / 0.45f)); elapsed += Time.deltaTime; yield return null;
+        }
+        if (text != null) { transientFeedbackObjects.Remove(text.gameObject); Destroy(text.gameObject); }
+    }
+
+    private IEnumerator FadeFeedbackRoutine(Image image, float duration)
+    {
+        float elapsed = 0f; Color color = image.color;
+        while (image != null && elapsed < duration) { float t = elapsed / duration; image.color = new Color(color.r, color.g, color.b, Mathf.Lerp(color.a, 0f, t)); elapsed += Time.deltaTime; yield return null; }
+        if (image != null) { transientFeedbackObjects.Remove(image.gameObject); Destroy(image.gameObject); }
+    }
+
+    private void RestoreFeedbackTargetTransform()
+    {
+        if (feedbackTargetRect == null) return;
+        feedbackTargetRect.anchoredPosition = feedbackTargetBasePosition;
+        Image targetImage = feedbackTargetRect.GetComponent<Image>();
+        if (targetImage != null) targetImage.color = feedbackTargetBaseColor;
+    }
+
+    private void RestoreFeedbackActor()
+    {
+        if (feedbackActorRect != null) feedbackActorRect.anchoredPosition = feedbackActorBasePosition;
+        feedbackActorRect = null;
+    }
 
     /// <summary>Shows a floating damage number near the enemy.</summary>
     public void ShowDamageNumber(int damage, bool isWeaknessHit = false)
